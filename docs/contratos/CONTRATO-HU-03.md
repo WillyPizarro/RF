@@ -1,8 +1,8 @@
 # CONTRATO — HU-03 Consultar si una placa tiene requisitoria (ingreso manual)
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano vía PM)
+**Versión:** v2
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-03-consultar-placa.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 4 de 5
 **Rama de trabajo:** `hu-03` (HU-03 + HU-07), desde `main` después del merge de `hu-01` (o desde `hu-01`, rebasada después)
 **Pasa por UX:** Sí. Pantallas PLA-01 a PLA-07 (`docs/ux/wireframes/HU-03-consultar-placa.md`) y una pantalla nueva para la placa no registrada (DECISIÓN PROPUESTA 3). Se revisa con capturas de Jest y del emulador contra los wireframes, como en HU-01.
@@ -111,7 +111,7 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 | PLA-06 | `sin_requisitoria` | Bloque gris neutro con la placa y "Sin requisitoria registrada en la fuente consultada". **Sin verde ni ✓** | Gherkin esc. 5, PLA-06 |
 | PLA-08 | `placa_no_registrada` | Bloque gris neutro con la placa y "Placa no registrada en la fuente consultada. Verifique la placa." Sin verde ni ✓, con un texto distinto de PLA-06 | DECISIÓN PROPUESTA 3 |
 | PLA-07 | `503`, `502`, error de red o cualquier respuesta inesperada | "No se pudo completar la consulta; intente nuevamente", con un ícono y un color distintos de los resultados. "Reintentar" conserva la placa y el motivo; "Volver". **Nunca** muestra "sin requisitoria" | Gherkin esc. 3, PLA-07, regla 7 |
-| `403` | — | ERR-01 (CONTRATO-HU-02) | CONTRATO-HU-02 |
+| `403` | `POST /v1/consultas/placa` responde `403 SIN_PERMISO` (en Jest, con la respuesta simulada) | ERR-01 de CONTRATO-HU-02: "No tiene permiso para usar esta función.", "El intento quedó registrado." y "Volver al inicio", que vuelve al inicio del rol | CONTRATO-HU-02 v3 · **v2** |
 | Nada en el dispositivo | — | El resultado vive solo en memoria; no queda en SecureStore ni en disco | ADR-0013 |
 
 ### 7. Configuración
@@ -182,3 +182,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
+| v2 | 2026-11-19 | La prueba de la pantalla ERR-01 llega desde HU-02 (§6, fila `403`) | En HU-01/02 ninguna solicitud de la app podía recibir un `403` | Humano, 2026-11-19 |

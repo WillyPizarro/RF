@@ -44,3 +44,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **DEV:** cumple la §4 bis.
 - **TESTER:** monta `App.tsx` y verifica AUTH-03 como dice la v2.
+
+### M-2 (2026-11-19) — CONTRATO-HU-02 v3
+
+**Reemplaza** a M-1 en la versión de HU-02: el documento de trabajo ahora es CONTRATO-HU-02 **v3**. HU-01 sigue en v2. La pantalla ERR-01 **se construye**, pero **no se verifica** en este ciclo: su prueba pasa a HU-03.
+
+- **DEV:** construye ERR-01 igual.
+- **TESTER:** ERR-01 no entra en tu informe como caso de este ciclo; anótalo como "diferido a HU-03 (v3)".

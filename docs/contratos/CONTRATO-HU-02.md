@@ -1,8 +1,8 @@
 # CONTRATO — HU-02 Acceder solo a las funciones de mi rol
 
 **Tipo:** Feature
-**Versión:** v2
-**Estado:** Aprobado (v1 y v2: 2026-11-19, humano)
+**Versión:** v3
+**Estado:** Aprobado (v1 a v3: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-02-acceso-por-rol.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 3 de 5
 **Rama de trabajo:** la misma de HU-01 (`hu-01`), porque HU-02 depende del login (DECISIÓN PROPUESTA 1)
 **Pasa por UX:** Sí. Pantallas HOME-01 y ERR-01 (`docs/ux/wireframes/HU-02-acceso-por-rol.md`).
@@ -71,7 +71,7 @@ En esta HU todavía no existe ninguna ruta reservada a un rol. El mecanismo de `
 | Inicio del supervisor | `supervisor` | Encabezado con "Rol: Supervisor" y "Salir". Opción "Bitácora". Nada de consulta ni de revisión | ADR-0003, flujo UX (BIT-01) |
 | El menú sale de `/v1/me` | Cualquiera | Las opciones dependen del `rol` que devuelve la API, no de un valor guardado en la app | TDD |
 | Opción cuya pantalla aún no existe | Cualquiera | La opción aparece **deshabilitada** hasta que su HU construya la pantalla (HU-03, HU-05, HU-06, HU-07) | DECISIÓN PROPUESTA 4 |
-| ERR-01 | Cualquiera, ante un `403 SIN_PERMISO` | "No tiene permiso para usar esta función." · "El intento quedó registrado." · botón "Volver al inicio" (vuelve al inicio de su rol) | Gherkin esc. 2, ERR-01 |
+| ERR-01 | Cualquiera, ante un `403 SIN_PERMISO` | "No tiene permiso para usar esta función." · "El intento quedó registrado." · botón "Volver al inicio" (vuelve al inicio de su rol). **Se prueba en HU-03** (CONTRATO-HU-03 v2): en este ciclo ninguna solicitud de la app puede recibir un `403`. Aquí se construye y no se verifica | Gherkin esc. 2, ERR-01 · **v3** |
 | "Salir" | Cualquiera | Llama a `POST /v1/auth/logout`, vacía el almacenamiento (como en AUTH-03) y vuelve a AUTH-01 sin mensaje | UX (elemento aprobado), CONTRATO-HU-01 |
 
 ## Nombres que no se negocian
@@ -117,3 +117,4 @@ Respondidas por el humano el 2026-11-19:
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
 | v2 | 2026-11-19 | La app se prueba con la interfaz de CONTRATO-HU-01 §4 bis (v2) | Hueco que reportó el TESTER | Humano, 2026-11-19 |
+| v3 | 2026-11-19 | La prueba de ERR-01 pasa a HU-03 | Hueco que reportó el TESTER: en este ciclo no hay ninguna solicitud de la app que pueda recibir un `403` | Humano, 2026-11-19 |
