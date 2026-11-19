@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "a56d6f74-385c-4565-bb78-2251ca8e70ad",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contenedores.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contenedores.html",
+  "specification": {
+    "sha256": "f03fe8b19dcfdbef9b20c0fd990bc33757e8c81b075e68bcd7cbef9d11440707",
+    "bytes": 3035
+  },
+  "artifact": {
+    "sha256": "81cf15d65b38633b156f4c28a60f867da0985dc3778bede391f659b5f5ced8a0",
+    "bytes": 847076
+  }
+}

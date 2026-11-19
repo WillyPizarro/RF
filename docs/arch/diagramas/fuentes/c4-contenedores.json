@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "C4 Contenedores — Movil Buscador (MVP)",
+    "output": "docs/arch/diagramas/c4-contenedores.html",
+    "locale": "es",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "agente", "type": "external", "label": "Usuario", "sublabel": "agente · revisor · supervisor", "icon": "person", "pos": [40, 200], "size": [150, 64] },
+    { "id": "app", "type": "frontend", "label": "App móvil", "sublabel": "Expo dev build · Android", "tag": "ML Kit: OCR + calidad", "pos": [330, 200], "size": [180, 64] },
+    { "id": "proxy", "type": "security", "label": "Caddy", "sublabel": "TLS :443 · único expuesto", "pos": [620, 200], "size": [160, 64] },
+    { "id": "api", "type": "backend", "label": "API FastAPI", "sublabel": "/v1 · roles · bitácora", "tag": "MotorBiometrico YuNet+SFace", "pos": [880, 190], "size": [210, 84] },
+    { "id": "auth", "type": "security", "label": "Supabase Auth", "sublabel": "nube · emite JWT", "pos": [895, 40], "size": [180, 64] },
+    { "id": "pg", "type": "database", "label": "Postgres (Supabase)", "sublabel": "bitácora solo INSERT", "tag": "captura_pendiente ≤24 h", "pos": [895, 500], "size": [180, 64] },
+    { "id": "sim", "type": "backend", "label": "Simuladores", "sublabel": "FastAPI · OpenAPI 3.1", "pos": [1220, 200], "size": [180, 64] },
+    { "id": "simdata", "type": "database", "label": "Datos sintéticos", "sublabel": "galería cifrada (volumen)", "pos": [1220, 360], "size": [180, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "VPS · docker compose", "wraps": ["proxy", "api", "sim", "simdata"] },
+    { "kind": "security-group", "label": "Red interna · sin puerto publicado", "wraps": ["sim", "simdata"] }
+  ],
+  "connections": [
+    { "id": "usa-app", "from": "agente", "to": "app", "label": "captura + motivo", "variant": "emphasis" },
+    { "id": "app-proxy", "from": "app", "to": "proxy", "label": "HTTPS + JWT", "variant": "emphasis" },
+    { "id": "proxy-api", "from": "proxy", "to": "api", "label": "REST /v1" },
+    { "id": "api-auth", "from": "api", "to": "auth", "label": "login · verifica JWT", "variant": "security" },
+    { "id": "api-pg", "from": "api", "to": "pg", "label": "SQL (rol api_app)" },
+    { "id": "api-sim", "from": "api", "to": "sim", "label": "HTTP + contrato" },
+    { "id": "sim-data", "from": "sim", "to": "simdata", "label": "lee" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Único punto de entrada", "items": ["La app solo habla con la API, incluido el login (ADR-0001, ADR-0003)", "Rol validado en cada request; 403 queda en bitácora"] },
+    { "dot": "rose", "title": "Datos sensibles", "items": ["Captura de no candidato: solo en memoria", "Captura de candidato: AES-GCM hasta decisión o 24 h (ADR-0008)", "Celular: nada en disco salvo el token"] },
+    { "dot": "amber", "title": "Entrega", "items": ["El mismo compose se entrega al MININTER (ADR-0009)", "Supabase reemplazable por Postgres + OIDC"] }
+  ]
+}

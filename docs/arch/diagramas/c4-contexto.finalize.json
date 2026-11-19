@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-11-19T04:15:13.461Z",
+  "specification": {
+    "path": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contexto.json",
+    "sha256": "eca6e1910a9fca2558e486a92fd923f6ee6d3508232ff6b974f5002ea04226df",
+    "bytes": 2651
+  },
+  "artifact": {
+    "path": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+    "sha256": "bf600706c3ba6325721fe750f62046fc6df6ec51a5967044bad310640638f9a2",
+    "bytes": 841945
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Willy\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "architecture",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contexto.json",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "eca6e1910a9fca2558e486a92fd923f6ee6d3508232ff6b974f5002ea04226df",
+          "bytes": 2651
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 462,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Willy\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "architecture",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contexto.json",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "1c50f69e-d908-4ddd-8cda-555abc072f95",
+        "ok": true,
+        "command": "deliver",
+        "type": "architecture",
+        "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contexto.json",
+        "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "specification": {
+          "sha256": "eca6e1910a9fca2558e486a92fd923f6ee6d3508232ff6b974f5002ea04226df",
+          "bytes": 2651
+        },
+        "artifact": {
+          "sha256": "bf600706c3ba6325721fe750f62046fc6df6ec51a5967044bad310640638f9a2",
+          "bytes": 841945
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 174,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Willy\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "check",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "artifact": {
+          "sha256": "bf600706c3ba6325721fe750f62046fc6df6ec51a5967044bad310640638f9a2",
+          "bytes": 841945
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 92,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 7.5,
+            "maxBends": 2,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 28,
+            "minInteriorSegmentPx": 28,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": true,
+            "emptyTopPx": 40,
+            "emptyTopRatio": 0.088,
+            "occupiedTop": 40,
+            "viewBoxTop": 0,
+            "canvasHeight": 452,
+            "typicalNodeHeight": 64,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "recognized-declared-wide",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 1050,
+            "actualBudgetPx": 1050,
+            "actualReaderWidth": 1080,
+            "desiredReaderWidth": 1080,
+            "viewportCap": 1376,
+            "limit": "source-size",
+            "requestedTargetPx": 7.5,
+            "requestedTargetMet": true,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "edge",
+              "id": "agente-sistema",
+              "from": "agente",
+              "to": "sistema"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 7.5,
+            "semanticTextCount": 20
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "1c50f69e-d908-4ddd-8cda-555abc072f95"
+      }
+    },
+    "browser-check": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": 309,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Willy\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "browser-check",
+        "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "fail",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "1c50f69e-d908-4ddd-8cda-555abc072f95",
+        "artifact": {
+          "path": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+          "sha256": "bf600706c3ba6325721fe750f62046fc6df6ec51a5967044bad310640638f9a2",
+          "bytes": 841945
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "available",
+          "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/browser-check-runtime",
+            "severity": "error",
+            "message": "browser-check could not complete its Chrome inspection.",
+            "subject": {
+              "artifact": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html"
+            },
+            "evidence": {
+              "reason": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v24.22.0, libuv 1.52.1, win32; pid=28596, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+            },
+            "supportedFixes": [
+              "resolve the reported Chrome inspection error, then rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "fail",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "fail",
+          "viewports": []
+        },
+        "readability": {
+          "status": "fail",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "fail",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "c4-contexto.browser-check.json",
+          "files": []
+        },
+        "error": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v24.22.0, libuv 1.52.1, win32; pid=28596, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/browser-check-runtime",
+      "severity": "error",
+      "message": "browser-check could not complete its Chrome inspection.",
+      "subject": {
+        "artifact": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html"
+      },
+      "evidence": {
+        "reason": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v24.22.0, libuv 1.52.1, win32; pid=28596, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      },
+      "supportedFixes": [
+        "resolve the reported Chrome inspection error, then rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.finalize.json",
+    "summaryReceipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-11-19T04:15:14.728Z",
+  "durationMs": 1267,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-19T04:15:13.634Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

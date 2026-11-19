@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2f2b16c4-b2eb-49be-b369-68479f5afdcc",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\seq-consulta-placa.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\seq-consulta-placa.html",
+  "specification": {
+    "sha256": "d8cdf563f38f5eb3cd0f3e92cc57fb9c00262ddac8b9e4e7329768ce8e282d47",
+    "bytes": 3841
+  },
+  "artifact": {
+    "sha256": "7971eb78d2302520528e8714d75b86a3c198a6bcbee6284d36e74515c5995808",
+    "bytes": 839339
+  }
+}

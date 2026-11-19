@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "C4 Contexto — Movil Buscador (MVP)",
+    "output": "docs/arch/diagramas/c4-contexto.html",
+    "locale": "es",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "agente", "type": "external", "label": "Agente en campo", "sublabel": "rol agente", "icon": "person", "pos": [40, 40], "size": [160, 64] },
+    { "id": "revisor", "type": "external", "label": "Revisor humano", "sublabel": "rol revisor", "icon": "person", "pos": [40, 180], "size": [160, 64] },
+    { "id": "supervisor", "type": "external", "label": "Supervisor", "sublabel": "rol supervisor", "icon": "person", "pos": [40, 320], "size": [160, 64] },
+    { "id": "sistema", "type": "backend", "label": "Movil Buscador", "sublabel": "App móvil + API FastAPI", "tag": "datos sintéticos", "pos": [440, 40], "size": [220, 344] },
+    { "id": "supabase", "type": "cloud", "label": "Supabase", "sublabel": "Auth (JWT) + Postgres", "pos": [880, 40], "size": [190, 64] },
+    { "id": "simuladores", "type": "backend", "label": "Fuentes simuladas", "sublabel": "placas · requisitorias · galería", "pos": [880, 180], "size": [200, 64] },
+    { "id": "reales", "type": "external", "label": "Fuentes reales MININTER", "sublabel": "fuera del MVP (PA #6, #17)", "pos": [880, 320], "size": [200, 64] }
+  ],
+  "connections": [
+    { "id": "agente-sistema", "from": "agente", "to": "sistema", "label": "placa / rostro + motivo", "variant": "emphasis" },
+    { "id": "revisor-sistema", "from": "revisor", "to": "sistema", "label": "decide coincidencias" },
+    { "id": "supervisor-sistema", "from": "supervisor", "to": "sistema", "label": "consulta bitácora" },
+    { "id": "sistema-supabase", "from": "sistema", "to": "supabase", "label": "login + SQL", "variant": "security" },
+    { "id": "sistema-simuladores", "from": "sistema", "to": "simuladores", "label": "HTTP · contrato OpenAPI" },
+    { "id": "sistema-reales", "from": "sistema", "to": "reales", "label": "adaptador futuro", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Alcance del MVP", "items": ["Consulta de placas (manual u OCR) y verificación facial contra lista acotada", "Revisión humana obligatoria; nunca \"identificado\"", "Bitácora de solo inserción con motivo"] },
+    { "dot": "rose", "title": "Fuera de alcance", "items": ["Identificación masiva y vigilancia indiscriminada", "Integración con fuentes reales (se conectan después vía adaptador, ADR-0006)"] },
+    { "dot": "slate", "title": "Referencias", "items": ["TECH-DESIGN.md", "ADR-0001, ADR-0003, ADR-0004, ADR-0006"] }
+  ]
+}

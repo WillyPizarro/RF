@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "57e52466-289f-4d98-af21-d3c0df0e0b6d",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\seq-vencimiento-24h.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\seq-vencimiento-24h.html",
+  "specification": {
+    "sha256": "1d80b5e30c19141b620eea1beb85d77b6ee43fa423ac2b0451a50e2997d97eb4",
+    "bytes": 3481
+  },
+  "artifact": {
+    "sha256": "ce4e28cead8e382649bb83548945dcfb46e332ed84e540501308ddc0f6b5ea6b",
+    "bytes": 837927
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "version": 2,
+  "skills": {
+    "computer-vision-opencv": {
+      "source": "Mindrally/skills",
+      "commit": "7682ca77710e0971eab4e0ae5dddfa281aea0ba5",
+      "sourceType": "github",
+      "skillPath": "computer-vision-opencv/SKILL.md",
+      "computedHash": "91752d0ea85cca91c07e09bdc2f0c2a814779e01e0f6cd817c6ae3a072ed725f"
+    },
+    "crear-guardrail": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/crear-guardrail/SKILL.md",
+      "computedHash": "c7e5a5f149610096c09b9fb1467d25228ababcae9c1c6253c1995675eb327443"
+    },
+    "escribir-contrato": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/escribir-contrato/SKILL.md",
+      "computedHash": "1a16b3810290fee1483ce4bffa0055329dfc1c876f470f9480f6805bff8f0611"
+    },
+    "escribir-hus": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/escribir-hus/SKILL.md",
+      "computedHash": "ea7676ec6b5d9824e2bd5949d02215dab75ac69d3b01d1a1eff392db07c0e48d"
+    },
+    "expo-dev-client": {
+      "source": "expo/skills",
+      "commit": "dfdebcc6c4c1bf7a9471cefd6b6f39c7ba6c884d",
+      "sourceType": "github",
+      "skillPath": "plugins/expo/skills/expo-dev-client/SKILL.md",
+      "computedHash": "104418366028d28c2e713303131e25c84cd480a50451bb2a8ab4c6a864a928df"
+    },
+    "expo-overview": {
+      "source": "expo/skills",
+      "commit": "dfdebcc6c4c1bf7a9471cefd6b6f39c7ba6c884d",
+      "sourceType": "github",
+      "skillPath": "plugins/expo/skills/expo-overview/SKILL.md",
+      "computedHash": "06a4c16a5e14819b54fd419f2009119ffcb6f8694b067ad589255cf03f5c6671"
+    },
+    "fastapi": {
+      "source": "fastapi/fastapi",
+      "commit": "05e6df7e906c3decba377c37548019973f40bf15",
+      "sourceType": "github",
+      "skillPath": "fastapi/.agents/skills/fastapi/SKILL.md",
+      "computedHash": "141f0146e357365d518029ccc74e5b0a256f9a352573c65856780995d1bea52c"
+    },
+    "generar-tech-design": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/generar-tech-design/SKILL.md",
+      "computedHash": "d942ef6b945005aabc41b16a9d73191610ff707b5f7edff0dea2454759163e1f"
+    },
+    "init-agent": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/init-agent/SKILL.md",
+      "computedHash": ""
+    },
+    "invoke-agent": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/invoke-agent/SKILL.md",
+      "computedHash": "00544ddd94fc9f69af6bcb6c0d8c065f7ad285948340cdfc8467d758ce5bd8b7"
+    },
+    "preparar-sprint0": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/preparar-sprint0/SKILL.md",
+      "computedHash": "2cd6ceb5da5ebe598d4cc7f6bdd25590e3638116943788ef9c54b8b8070c74cf"
+    },
+    "revision-adversarial": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/revision-adversarial/SKILL.md",
+      "computedHash": "f05d26829c946718d8ab00e9e8d741a55927c6a5397af8a05e3341c5665e1eb4"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "2fbff32fd63b7d31585cacf0ed43e5bf8d05dd20d6c0c751d256cb967a00eec1"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505"
+    },
+    "veredicto": {
+      "source": "adminoryslabs/Armory",
+      "sourceType": "github",
+      "skillPath": "skills/veredicto/SKILL.md",
+      "computedHash": "f599e784e233b174db99c91ff22f383f230b64c244bef1a3e76974b92b80cb13"
+    }
+  }
+}

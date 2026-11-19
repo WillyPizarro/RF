@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Secuencia — Verificación facial con revisión humana",
+    "output": "docs/arch/diagramas/seq-verificacion-facial.html",
+    "locale": "es",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "agente",
+      "type": "external",
+      "label": "Agente",
+      "sublabel": "en campo",
+      "icon": "person"
+    },
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "App móvil",
+      "sublabel": "Expo · ML Kit"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API FastAPI",
+      "sublabel": "+ MotorBiometrico"
+    },
+    {
+      "id": "sim",
+      "type": "backend",
+      "label": "Simulador",
+      "sublabel": "requisitorias personas"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "Postgres",
+      "sublabel": "bitácora · captura_pendiente"
+    },
+    {
+      "id": "revisor",
+      "type": "external",
+      "label": "Revisor",
+      "sublabel": "rol revisor",
+      "icon": "person"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 475,
+      "label": "Captura y comparación"
+    },
+    {
+      "from": 485,
+      "to": 770,
+      "label": "Revisión humana"
+    },
+    {
+      "from": 780,
+      "to": 870,
+      "label": "El agente ve la decisión"
+    }
+  ],
+  "messages": [
+    {
+      "id": "captura",
+      "from": "agente",
+      "to": "app",
+      "y": 165,
+      "label": "captura rostro + motivo",
+      "note": "ML Kit: 1 rostro, de frente, ojos abiertos, tamaño"
+    },
+    {
+      "id": "post-rostro",
+      "from": "app",
+      "to": "api",
+      "y": 220,
+      "label": "POST /v1/consultas/rostro",
+      "variant": "emphasis",
+      "note": "multipart por HTTPS; nada se guarda en el celular"
+    },
+    {
+      "id": "insert-cand",
+      "from": "api",
+      "to": "pg",
+      "y": 290,
+      "label": "INSERT consulta, candidatos, bitácora",
+      "variant": "security",
+      "note": "YuNet + SFace contra galería en caché; banda candidato: máx. 3; captura AES-GCM"
+    },
+    {
+      "id": "commit-1",
+      "from": "pg",
+      "to": "api",
+      "y": 375,
+      "label": "commit ok",
+      "variant": "return"
+    },
+    {
+      "id": "pendiente",
+      "from": "api",
+      "to": "app",
+      "y": 405,
+      "label": "candidato · Pendiente de revisión",
+      "variant": "return",
+      "note": "sin score; nunca \"identificado\""
+    },
+    {
+      "id": "muestra",
+      "from": "app",
+      "to": "agente",
+      "y": 460,
+      "label": "Posible coincidencia — requiere revisión",
+      "variant": "return"
+    },
+    {
+      "id": "cola",
+      "from": "revisor",
+      "to": "api",
+      "y": 500,
+      "label": "GET /v1/revisiones/{id}",
+      "note": "solo rol revisor; no puede ser su propia consulta"
+    },
+    {
+      "id": "ref",
+      "from": "api",
+      "to": "sim",
+      "y": 560,
+      "label": "foto de referencia"
+    },
+    {
+      "id": "ref-resp",
+      "from": "sim",
+      "to": "api",
+      "y": 588,
+      "label": "imagen (no se guarda)",
+      "variant": "return"
+    },
+    {
+      "id": "lado",
+      "from": "api",
+      "to": "revisor",
+      "y": 616,
+      "label": "captura + referencia lado a lado",
+      "variant": "return"
+    },
+    {
+      "id": "decide",
+      "from": "revisor",
+      "to": "api",
+      "y": 644,
+      "label": "decisión + motivo",
+      "variant": "emphasis",
+      "note": "Confirmar / Descartar / No concluyente"
+    },
+    {
+      "id": "insert-dec",
+      "from": "api",
+      "to": "pg",
+      "y": 700,
+      "label": "INSERT DECISION_REVISION; DELETE captura",
+      "variant": "security",
+      "note": "bitácora: CAPTURA_ELIMINADA"
+    },
+    {
+      "id": "commit-2",
+      "from": "pg",
+      "to": "api",
+      "y": 755,
+      "label": "commit ok",
+      "variant": "return"
+    },
+    {
+      "id": "poll",
+      "from": "app",
+      "to": "api",
+      "y": 795,
+      "label": "GET /v1/consultas/{id} (cada 10 s)"
+    },
+    {
+      "id": "estado",
+      "from": "api",
+      "to": "app",
+      "y": 823,
+      "label": "revisada + decisión",
+      "variant": "return"
+    },
+    {
+      "id": "ve",
+      "from": "app",
+      "to": "agente",
+      "y": 851,
+      "label": "resultado de la revisión",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 220,
+      "to": 410,
+      "type": "backend"
+    },
+    {
+      "participant": "api",
+      "from": 500,
+      "to": 760,
+      "type": "backend"
+    },
+    {
+      "participant": "pg",
+      "from": 285,
+      "to": 380,
+      "type": "database"
+    },
+    {
+      "participant": "pg",
+      "from": 695,
+      "to": 760,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Bandas (ADR-0004)",
+      "items": [
+        "candidato ≥ umbral alto (FMR ≤ 0,1 %)",
+        "no_concluyente y sin_coincidencia: la captura nunca toca disco",
+        "captura_rechazada: no se compara"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Control humano",
+      "items": [
+        "Nada automático antes de la decisión (HU-06 E3)",
+        "Motivo obligatorio en la decisión",
+        "La captura se borra al decidir (ADR-0008)"
+      ]
+    }
+  ]
+}

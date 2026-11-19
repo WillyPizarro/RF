@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "16066140-8824-409a-ab51-a551a0148872",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contexto.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contexto.html",
+  "specification": {
+    "sha256": "eca6e1910a9fca2558e486a92fd923f6ee6d3508232ff6b974f5002ea04226df",
+    "bytes": 2651
+  },
+  "artifact": {
+    "sha256": "bf600706c3ba6325721fe750f62046fc6df6ec51a5967044bad310640638f9a2",
+    "bytes": 841945
+  }
+}

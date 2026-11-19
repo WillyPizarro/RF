@@ -1,0 +1,29 @@
+Se desea empezar un nuevo proyecto de un prototipo funcional con data sintentica, sobre: Servicio de diagnóstico y desarrollo de un prototipo de solución móvil para la búsqueda y localización de vehículos y personas con requisitoria mediante consulta de placas y reconocimiento biométrico facial
+
+Para el ministerio del Interior del Peru
+
+Se trabajara en dos etapas que tendran esto: 
+Componente 1: Diagnóstico, análisis y diseño del prototipo
+•  Levantamiento y análisis de requerimientos funcionales, no funcionales y de seguridad con las áreas usuarias y técnicas.
+•  Diagnóstico de los procesos actuales de consulta y verificación de requisitorias de vehículos y personas; identificación de fuentes, restricciones de acceso y brechas tecnológicas.
+•  Matriz de fuentes de datos e interoperabilidad, con responsables, campos, mecanismos de autorización y dependencias.
+•  Diseño de flujos de consulta por placa y de verificación biométrica facial, con revisión humana de coincidencias, manejo de resultados no concluyentes y prevención de falsos positivos.
+•  Arquitectura móvil y de servicios, modelo de datos, perfiles de acceso, bitácoras, cifrado, conservación y eliminación de datos, y controles de protección de datos personales.
+•  Prototipo navegable validado con el área usuaria y documentación OSIGP-FR-01 a FR-04.
+
+Componente2:
+El prototipo móvil comprenderá los siguientes módulos:
+Módulo	Funcionalidad
+Seguridad y acceso	Autenticación de usuarios autorizados, control de acceso por roles y gestión de sesiones.
+Consulta de placas	Ingreso manual o captura de la placa con la cámara del dispositivo (OCR), consulta a la fuente habilitada o simulador y visualización controlada del resultado.
+Verificación biométrica facial	Captura del rostro con control de calidad, verificación contra fuentes habilitadas o datos sintéticos de prueba y presentación de coincidencias para revisión humana. Sin identificación masiva ni vigilancia indiscriminada.
+Trazabilidad	Bitácora de consultas con usuario, fecha, hora, motivo de consulta y resultado; gestión de errores.
+Servicios e interoperabilidad	Servicios de consulta e integración con las fuentes autorizadas; simuladores documentados cuando no existan autorizaciones o ambientes disponibles.
+
+Incluye además las pruebas (unitarias, funcionales, de integración, seguridad y desempeño), la evaluación documentada de la calidad biométrica, el despliegue en ambiente autorizado.
+
+
+No creo que haya mucha informacion que levantar porque no tienen nada hecho, y como son Prototipos funcionales habia pensado en bolt.new  
+
+Cual es la factibilidad para sacar este proyecto adelante, riesgos y/o requerimientos para hacer los protoipos funcionales y claro la documentacion necesaria.
+

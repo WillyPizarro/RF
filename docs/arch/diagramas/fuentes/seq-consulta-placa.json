@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Secuencia — Consulta de placa",
+    "output": "docs/arch/diagramas/seq-consulta-placa.html",
+    "locale": "es",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "agente",
+      "type": "external",
+      "label": "Agente",
+      "sublabel": "en campo",
+      "icon": "person"
+    },
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "App móvil",
+      "sublabel": "Expo · ML Kit"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API FastAPI",
+      "sublabel": "/v1"
+    },
+    {
+      "id": "sim",
+      "type": "backend",
+      "label": "Simulador placas",
+      "sublabel": "contrato OpenAPI"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "Postgres",
+      "sublabel": "consulta + bitácora"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 250,
+      "label": "Captura y envío"
+    },
+    {
+      "from": 260,
+      "to": 480,
+      "label": "Consulta con registro (fail-closed)"
+    },
+    {
+      "from": 490,
+      "to": 590,
+      "label": "Si la fuente falla"
+    }
+  ],
+  "messages": [
+    {
+      "id": "ingresa",
+      "from": "agente",
+      "to": "app",
+      "y": 165,
+      "label": "placa (OCR o manual) + motivo",
+      "note": "OCR en el dispositivo; el agente confirma el texto"
+    },
+    {
+      "id": "post-placa",
+      "from": "app",
+      "to": "api",
+      "y": 220,
+      "label": "POST /v1/consultas/placa",
+      "variant": "emphasis",
+      "note": "valida JWT, rol agente, motivo y formato"
+    },
+    {
+      "id": "get-fuente",
+      "from": "api",
+      "to": "sim",
+      "y": 275,
+      "label": "GET placa (timeout 3 s)"
+    },
+    {
+      "id": "resp-fuente",
+      "from": "sim",
+      "to": "api",
+      "y": 305,
+      "label": "vehículo + requisitoria",
+      "variant": "return",
+      "note": "validado contra el contrato"
+    },
+    {
+      "id": "insert",
+      "from": "api",
+      "to": "pg",
+      "y": 360,
+      "label": "INSERT consulta + bitácora",
+      "variant": "security",
+      "note": "sin registro confirmado no hay resultado"
+    },
+    {
+      "id": "commit",
+      "from": "pg",
+      "to": "api",
+      "y": 420,
+      "label": "commit ok",
+      "variant": "return"
+    },
+    {
+      "id": "resp-app",
+      "from": "api",
+      "to": "app",
+      "y": 445,
+      "label": "200 con / sin requisitoria",
+      "variant": "return"
+    },
+    {
+      "id": "muestra",
+      "from": "app",
+      "to": "agente",
+      "y": 470,
+      "label": "resultado controlado",
+      "variant": "return"
+    },
+    {
+      "id": "log-error",
+      "from": "api",
+      "to": "pg",
+      "y": 505,
+      "label": "INSERT ERROR_FUENTE",
+      "variant": "security",
+      "note": "tras timeout, 5xx o fuera de contrato y 1 reintento"
+    },
+    {
+      "id": "error-app",
+      "from": "api",
+      "to": "app",
+      "y": 560,
+      "label": "FUENTE_NO_DISPONIBLE",
+      "variant": "return",
+      "note": "nunca \"sin requisitoria\""
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 220,
+      "to": 450,
+      "type": "backend"
+    },
+    {
+      "participant": "sim",
+      "from": 270,
+      "to": 310,
+      "type": "backend"
+    },
+    {
+      "participant": "pg",
+      "from": 355,
+      "to": 425,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Camino feliz",
+      "items": [
+        "HU-03 E1 y HU-04 E1",
+        "Meta provisional: p95 ≤ 2 s con 20 usuarios (ADR-0011)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Errores",
+      "items": [
+        "Timeout 3 s y 1 reintento solo en lecturas (ADR-0014)",
+        "El error nunca se convierte en resultado negativo"
+      ]
+    }
+  ]
+}

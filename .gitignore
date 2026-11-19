@@ -1,0 +1,27 @@
+# Secretos: nunca versionar
+settings.json
+.claude/settings.local.json
+.env
+*.env
+infra/.env
+!infra/.env.example
+
+# Fotos y datos biométricos: nunca en el repositorio (ADR-0008)
+datos-biometricos/
+fotos/
+*.jpg
+*.jpeg
+*.heic
+
+# Dependencias y artefactos
+node_modules/
+.expo/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+coverage/
+*.apk
+*.aab

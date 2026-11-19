@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Secuencia — Vencimiento de la revisión a 24 h",
+    "output": "docs/arch/diagramas/seq-vencimiento-24h.html",
+    "locale": "es",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "agente",
+      "type": "external",
+      "label": "Agente",
+      "sublabel": "en campo",
+      "icon": "person"
+    },
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "App móvil",
+      "sublabel": "Expo"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API FastAPI",
+      "sublabel": "/v1"
+    },
+    {
+      "id": "tarea",
+      "type": "backend",
+      "label": "Tarea de borrado",
+      "sublabel": "proceso periódico de la API",
+      "icon": "clock"
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "Postgres",
+      "sublabel": "captura_pendiente · bitácora"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 360,
+      "label": "Barrido periódico"
+    },
+    {
+      "from": 370,
+      "to": 530,
+      "label": "El agente consulta el estado"
+    }
+  ],
+  "messages": [
+    {
+      "id": "buscar",
+      "from": "tarea",
+      "to": "pg",
+      "y": 165,
+      "label": "capturas con expira_en < ahora"
+    },
+    {
+      "id": "vencidas",
+      "from": "pg",
+      "to": "tarea",
+      "y": 193,
+      "label": "revisiones pendientes vencidas",
+      "variant": "return"
+    },
+    {
+      "id": "borrar",
+      "from": "tarea",
+      "to": "pg",
+      "y": 221,
+      "label": "DELETE captura; revisión → vencida",
+      "variant": "emphasis",
+      "note": "en una transacción"
+    },
+    {
+      "id": "registrar",
+      "from": "tarea",
+      "to": "pg",
+      "y": 276,
+      "label": "INSERT REVISION_VENCIDA + CAPTURA_ELIMINADA",
+      "variant": "security",
+      "note": "bitácora de solo inserción"
+    },
+    {
+      "id": "commit",
+      "from": "pg",
+      "to": "tarea",
+      "y": 331,
+      "label": "commit ok",
+      "variant": "return"
+    },
+    {
+      "id": "poll",
+      "from": "app",
+      "to": "api",
+      "y": 385,
+      "label": "GET /v1/consultas/{id}"
+    },
+    {
+      "id": "leer",
+      "from": "api",
+      "to": "pg",
+      "y": 413,
+      "label": "leer estado de la revisión"
+    },
+    {
+      "id": "estado",
+      "from": "pg",
+      "to": "api",
+      "y": 441,
+      "label": "vencida",
+      "variant": "return"
+    },
+    {
+      "id": "resp",
+      "from": "api",
+      "to": "app",
+      "y": 469,
+      "label": "no_concluyente (vencida)",
+      "variant": "return",
+      "note": "provisional, PA #23"
+    },
+    {
+      "id": "muestra",
+      "from": "app",
+      "to": "agente",
+      "y": 515,
+      "label": "No concluyente — verifique por otros medios",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "tarea",
+      "from": 160,
+      "to": 336,
+      "type": "backend"
+    },
+    {
+      "participant": "api",
+      "from": 385,
+      "to": 474,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Reglas (ADR-0008)",
+      "items": [
+        "La captura de un candidato vive como máximo 24 h",
+        "Al vencer: se borra, la revisión pasa a vencida y queda en bitácora"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Pendiente",
+      "items": [
+        "PA #23: el MININTER confirma el plazo y el comportamiento"
+      ]
+    }
+  ]
+}
