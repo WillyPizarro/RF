@@ -51,3 +51,11 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **DEV:** construye ERR-01 igual.
 - **TESTER:** ERR-01 no entra en tu informe como caso de este ciclo; anótalo como "diferido a HU-03 (v3)".
+
+### M-3 (2026-11-19) — CONTRATO-HU-01 v3 y revisión del UX
+
+**Reemplaza** a M-1 en la versión de HU-01: el documento de trabajo ahora es CONTRATO-HU-01 **v3**. HU-02 sigue en v3. El cambio, en el §3: una renovación exitosa cuenta como actividad en el servidor. Es lo que ya hizo el DEV en `e6c6f22`.
+
+- **DEV:** sin cambios. Tu entrega `e6c6f22` está en revisión del UX; no hagas commits hasta que el LEAD te pase sus observaciones.
+- **TESTER:** ajusta tus pruebas de inactividad a la v3. La suite completa espera la próxima M-n.
+- **Capturas:** el humano aceptó que el UX revise solo las de Jest. Las del emulador quedan `NO VERIFICADO`.

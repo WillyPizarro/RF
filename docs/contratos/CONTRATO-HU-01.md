@@ -1,8 +1,8 @@
 # CONTRATO — HU-01 Iniciar sesión y mantener una sesión segura
 
 **Tipo:** Feature
-**Versión:** v2
-**Estado:** Aprobado (v1 y v2: 2026-11-19, humano)
+**Versión:** v3
+**Estado:** Aprobado (v1 a v3: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -73,7 +73,7 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 | Renovar | `token_renovacion` válido dentro del tiempo de inactividad | `200` con la misma forma que el login | ADR-0011 ("renovable mientras haya actividad") |
 | Token de acceso vencido o firma inválida | Cualquier ruta autenticada | `401` `{"codigo":"NO_AUTENTICADO","mensaje":"Inicie sesión nuevamente",…}` | TDD |
 | Sin token | Cualquier ruta autenticada | `401` `NO_AUTENTICADO` | ADR-0003 §4 |
-| Inactividad en el servidor | Una solicitud autenticada o una renovación más de `SESION_INACTIVIDAD_S` después de la última solicitud autenticada de esa sesión | `401` `{"codigo":"SESION_VENCIDA","mensaje":"Su sesión se cerró por inactividad",…}` · bitácora `SESION_VENCIDA` · la sesión queda invalidada (renovar después también da `401`) | Gherkin esc. 3, TDD (evento `SESION_VENCIDA`) · DECISIÓN PROPUESTA 6 |
+| Inactividad en el servidor | Una solicitud autenticada o una renovación más de `SESION_INACTIVIDAD_S` después de la última solicitud autenticada **o renovación** de esa sesión (**una renovación exitosa cuenta como actividad**, v3) | `401` `{"codigo":"SESION_VENCIDA","mensaje":"Su sesión se cerró por inactividad",…}` · bitácora `SESION_VENCIDA` · la sesión queda invalidada (renovar después también da `401`) | Gherkin esc. 3, TDD (evento `SESION_VENCIDA`) · DECISIÓN PROPUESTA 6 |
 | Cerrar sesión | `POST /v1/auth/logout` con un token válido | `204` · bitácora `LOGOUT` · el `token_renovacion` de esa sesión deja de servir (`401`) | ADR-0003 §3, "Salir" aprobado en UX |
 
 ### 4. App
@@ -169,7 +169,7 @@ Respondidas por el humano el 2026-11-19:
 
 1. **Decisiones 1 a 8:** aprobadas.
 2. **Rama:** `hu-01` sale de `main` después del merge de `hu-08`.
-3. **UX:** confirmada por el humano (vía PM, 2026-11-19). El UX revisa con capturas de Jest y del emulador, contra los wireframes, antes del veredicto.
+3. **UX:** confirmada por el humano (vía PM, 2026-11-19). El UX revisa con capturas de Jest y del emulador, contra los wireframes, antes del veredicto. **Ajuste del humano (2026-11-19):** bastan las capturas de Jest; las del emulador quedan `NO VERIFICADO`, como el dev build.
 
 ## Changelog
 
@@ -177,3 +177,4 @@ Respondidas por el humano el 2026-11-19:
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
 | v2 | 2026-11-19 | §4 bis (montaje en `App.tsx` sin expo-router, `fetch` global, `testID="app-raiz"`, `BackHandler`); AUTH-03 observable desde afuera (SecureStore simulado sin claves, sin datos del usuario anterior, sin el token viejo) en lugar de "caché y store vacíos"; qué cuenta como interacción | Hueco que reportó el TESTER: el contrato no fijaba la interfaz de la app para Jest | Humano, 2026-11-19 |
+| v3 | 2026-11-19 | §3: una renovación exitosa cuenta como actividad en el servidor | Aviso del DEV: el contrato no lo decía, y sin eso la sesión vencería en pantallas que no llaman a la API aunque el usuario las esté tocando | Humano, 2026-11-19 |
