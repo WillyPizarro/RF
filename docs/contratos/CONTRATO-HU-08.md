@@ -1,8 +1,8 @@
 # CONTRATO — HU-08 Simuladores de fuentes (base de placa y rostro)
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano vía PM)
+**Versión:** v2
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-08-simuladores-fuentes.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 1 de 5
 **Rama de trabajo:** `hu-08`, creada desde `main` (2ef0829)
 **Pasa por UX:** No. Esta HU no cambia nada visible en la app (regla de coordinación 8 del LEAD).
@@ -102,7 +102,18 @@ GET /galeria
 | Personas | Entre 20 y 30 personas `SIM-P-0001` en adelante, todas con requisitoria; `SIM-P-0001` siempre existe | ADR-0004 (~20) |
 | Documento sintético | `SIM-` + 8 dígitos (no puede confundirse con un DNI real) | DECISIÓN PROPUESTA 5 |
 | Datos versionados | La semilla vive en `services/simuladores/` como archivo versionado y es determinista (los mismos datos en cada arranque) | ADR-0006 §5 |
-| Sin fotos en el repositorio | Ningún archivo de imagen en el repositorio. Las fotos se cargan desde un directorio externo (DECISIÓN PROPUESTA 6) | AGENTS.md regla 8, ADR-0008 |
+| Sin fotos en el repositorio | Ninguna foto en el repositorio: ningún archivo de imagen versionado (`git ls-files`) fuera de `apps/movil/assets/` (íconos y splash de la app, que no son fotos). Las fotos se cargan desde un directorio externo (DECISIÓN PROPUESTA 6) | AGENTS.md regla 8, ADR-0008 · **v2 C3** |
+
+### 4 bis. Carga de las fotos (v2, C1)
+
+| Caso | Salida esperada | Origen |
+|---|---|---|
+| Origen | `SIM_FOTOS_DIR` es la carpeta de origen **dentro** del contenedor `simuladores` (`/fotos-origen`). La carpeta del equipo anfitrión, fuera del repositorio, se indica en `SIM_FOTOS_ORIGEN` y se monta con `infra/docker-compose.fotos.yml` | v2 C1 |
+| Nombre de archivo | `<persona_id>__<n>.jpg` o `.png` (por ejemplo `SIM-P-0001__1.png`). Se ignoran los nombres que no cumplen el patrón y las personas que no existen en la semilla | DECISIÓN 6 · v2 C1 |
+| `foto_id` | `<persona_id>__<n>` (por ejemplo `SIM-P-0001__1`) | v2 C1 |
+| Cuándo se carga | En cada solicitud, sin reiniciar: un archivo nuevo o modificado en el origen aparece en la siguiente respuesta de `/personas/{id}`, `/fotos/{foto_id}` y `/galeria`; uno que se quita desaparece de las tres | v2 C1 |
+| Versión | `GET /galeria` → `version` cambia cuando se agrega, cambia o quita una foto, y es la misma entre reinicios si las fotos y `SIM_FOTOS_LLAVE` no cambian | ADR-0006 · v2 C1 |
+| Cifrado | Las fotos quedan cifradas en el volumen del simulador con `SIM_FOTOS_LLAVE` (variable del entorno, nunca versionada) | ADR-0008 · v2 C1 |
 
 ### 5. Modos de falla
 
@@ -124,6 +135,8 @@ GET /control/modos               → {"placas": {...}, "requisitorias-personas":
 | Fuente inválida | `PUT /control/modos/otra` → `404` `{"codigo":"FUENTE_DESCONOCIDA",…}` | DECISIÓN PROPUESTA 7 |
 | Modo inválido | `{"modo":"x"}` → `422` `{"codigo":"SOLICITUD_INVALIDA",…}` | SPRINT0 M-1 B |
 | Aislamiento | El modo de una fuente no altera las otras; `GET /salud` responde `200` en cualquier modo | DECISIÓN PROPUESTA 7 |
+| Cambio válido | `PUT /control/modos/{fuente}` → `200` `{"modo":"<modo>","latencia_ms":<int o null>}`. `latencia_ms` es `null` salvo en `latencia` (por defecto 5000) | v2 C4 |
+| Lectura | `GET /control/modos` → `200`, una clave por fuente, y cada valor tiene la forma `{"modo":…,"latencia_ms":…}` | v2 C4 |
 
 ### 6. Contratos documentados
 
@@ -150,7 +163,7 @@ La prueba de punta a punta del escenario 2 (la API apuntando al mock, con las pr
 | Caso | Salida esperada | Origen |
 |---|---|---|
 | Sin puerto publicado | `docker compose -f infra/docker-compose.yml config` no publica ningún puerto de `simuladores` | ADR-0006 §6, ADR-0009, SPRINT0 criterio 5 |
-| Ni el proxy ni la app | El `Caddyfile` no enruta nada hacia `simuladores`, y `apps/movil/src/` no contiene `simuladores`, `8001` ni `/placas/` | TDD › HU-08 criterio 1 |
+| Ni el proxy ni la app | El `Caddyfile` no enruta nada hacia `simuladores`, y `apps/movil/src/` no contiene `simuladores:`, `//simuladores`, `8001` ni `/placas/`. El nombre de campo `simuladores` de `GET /v1/salud` (SPRINT0 §5) está permitido | TDD › HU-08 criterio 1 · **v2 C2** |
 | Desde la API sí | Desde el contenedor `api`, `GET http://simuladores:8001/placas/ZZA-101` → `200` | ADR-0006 §6 |
 | Salud intacta | `GET /v1/salud` sigue cumpliendo SPRINT0 §5 sin cambios | SPRINT0 |
 
@@ -170,6 +183,10 @@ La prueba de punta a punta del escenario 2 (la API apuntando al mock, con las pr
 | Códigos de error de la API (los usan HU-03 y HU-05) | `FUENTE_NO_DISPONIBLE` · `FUENTE_RESPUESTA_INVALIDA` (ADR-0006, ADR-0014) |
 | Variables de entorno | `FUENTE_PLACAS_URL` · `FUENTE_REQUISITORIAS_URL` · `FUENTE_GALERIA_URL` · `FUENTE_TIMEOUT_S` · `SIM_FOTOS_DIR` · `SIMULADORES_URL` (ya existe) |
 | Datos fijos | `ZZA-101` (con requisitoria) · `ZZB-201` (sin) · `ZZZ-999` (no existe) · `SIM-P-0001` (existe) |
+
+## Herramientas de prueba (v2, C5)
+
+El contenedor `simuladores` incluye, como dependencias de prueba (grupo `dev`), un lector de YAML y un validador de JSON Schema (por ejemplo `pyyaml` y `jsonschema`, con versiones fijadas). Así, la validación contra los yaml de la sección 6 corre con `docker compose -f infra/docker-compose.yml run --rm simuladores pytest`. Las agrega el DEV, porque `pyproject.toml` está en sus rutas.
 
 ## Rutas de cada rol
 
@@ -218,3 +235,4 @@ Todas respondidas por el humano (vía PM) el 2026-11-19:
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial; decisiones 1 a 8 aprobadas, preguntas respondidas | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
+| v2 | 2026-11-19 | C1 carga de fotos (§4 bis) · C2 §8 prohíbe la dirección del simulador, no el campo `simuladores` de `/v1/salud` · C3 la prohibición de imágenes excluye `apps/movil/assets/` · C4 respuestas de `/control/modos` · C5 dependencias de prueba | Huecos que reportaron el TESTER (fotos, dependencias, H1, H2, `/control`) y el DEV (H2) | Humano, 2026-11-19 |

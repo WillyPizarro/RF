@@ -28,4 +28,9 @@ Al terminar: `herdr agent prompt lead "ENTREGA <ROL>: <resumen corto> — inform
 
 Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dice qué reemplaza. Si recibes "lee M-n del encargo", es esta sección.
 
-_(Sin instrucciones por ahora.)_
+### M-1 (2026-11-19) — Contrato v2
+
+**Reemplaza** la referencia a la v1 del encabezado: el documento de trabajo ahora es `docs/contratos/CONTRATO-HU-08.md` **v2**, aprobado por el humano. Los cambios C1 a C5 están en el changelog del contrato. Cada rol revisa su parte contra la v2:
+
+- **DEV:** C5 (dependencias de prueba en el grupo `dev` del simulador) es trabajo nuevo. Confirma que lo ya construido cumple C1 a C4. Al terminar: `ENTREGA DEV` con el informe actualizado.
+- **TESTER:** ajusta las pruebas a C1 a C5 (incluidos H1 y H2) y haz la corrida definitiva cuando Docker esté disponible. Al terminar: `ENTREGA TESTER` con el informe final.
