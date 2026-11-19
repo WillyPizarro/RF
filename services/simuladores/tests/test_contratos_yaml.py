@@ -172,18 +172,6 @@ def test_respuesta_normal_valida_contra_yaml(dir_fuentes, modos_limpios, fuente,
     assert errores_contra_yaml(doc, ruta, "GET", r) == []
 
 
-def test_foto_cargada_valida_contra_yaml(dir_fuentes, modos_limpios):
-    """§6 + §2 'Foto cargada': el tipo de contenido de la foto está documentado."""
-    doc = cargar_yaml(dir_fuentes, "requisitorias-personas")
-    for n in range(1, 100):
-        r = modos_limpios.get(f"/personas/SIM-P-{n:04d}")
-        if r.estado == 200 and r.json().get("foto_ids"):
-            ruta = f"/personas/SIM-P-{n:04d}/fotos/{r.json()['foto_ids'][0]}"
-            assert errores_contra_yaml(doc, ruta, "GET", modos_limpios.get(ruta)) == []
-            return
-    pytest.skip("Ninguna persona tiene fotos cargadas (carga de fotos: pendiente de contrato v2)")
-
-
 @pytest.mark.parametrize("fuente", FUENTES)
 def test_malformada_no_valida_contra_yaml(dir_fuentes, modos_limpios, fuente):
     """§5 `malformada`: 200 con un cuerpo que NO valida contra el contrato de su fuente."""

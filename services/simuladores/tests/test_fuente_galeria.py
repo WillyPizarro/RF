@@ -50,12 +50,6 @@ def test_version_estable(cliente):
     assert _galeria(cliente)["version"] == _galeria(cliente)["version"]
 
 
-@pytest.mark.skip(reason="NO VERIFICADO: cómo se cargan fotos de prueba lo define el contrato v2 "
-                         "(pregunta TESTER → LEAD, 2026-11-19)")
-def test_version_cambia_si_cambian_las_fotos(cliente):
-    """§3 'Si cambia el conjunto de fotos, version cambia'."""
-
-
 def test_sin_palabra_prohibida(cliente):
     """AGENTS.md regla 1."""
     assert PALABRA_PROHIBIDA not in cliente.get("/galeria").texto.lower()

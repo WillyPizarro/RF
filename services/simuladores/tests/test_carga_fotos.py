@@ -22,7 +22,10 @@ from pathlib import Path
 import pytest
 
 from conftest import RAIZ_REPO, compose, leer_env_infra
-from ayudas_contrato import PERSONA_EXISTE, PERSONA_NO_EXISTE, problemas_error
+from ayudas_contrato import (
+    PERSONA_EXISTE, PERSONA_NO_EXISTE, buscar_dir_contratos, cargar_yaml, errores_contra_yaml,
+    problemas_error,
+)
 
 FUENTE_FOTOS_DENTRO = "/fotos-origen"  # v2 C1
 
@@ -54,6 +57,14 @@ def origen(solo_anfitrion) -> Path:
     assert RAIZ_REPO is not None
     assert RAIZ_REPO.resolve() not in [p.resolve(), *p.resolve().parents], (
         "SIM_FOTOS_ORIGEN está dentro del repositorio (decisión 6 / AGENTS.md regla 8)"
+    )
+    # El simulador en marcha tiene que tener el origen montado (si se recreó sin
+    # docker-compose.fotos.yml, las fotos nunca llegan y todo daría 404 sin explicar por qué).
+    r = compose("exec", "-T", "simuladores", "python", "-c",
+                f"import os,sys; sys.exit(0 if os.path.isdir({FUENTE_FOTOS_DENTRO!r}) else 3)")
+    assert r.returncode == 0, (
+        f"El contenedor simuladores no tiene {FUENTE_FOTOS_DENTRO} montado: arrancarlo con "
+        "-f infra/docker-compose.yml -f infra/docker-compose.fotos.yml (entorno, no código)"
     )
     return p
 
@@ -207,3 +218,28 @@ def test_foto_guardada_cifrada(origen, fotos, modos_limpios):
     assert b.returncode == 0, b.stderr[-2000:]
     hallados = [ln for ln in b.stdout.splitlines() if ln.strip()]
     assert not hallados, f"la foto está en claro en: {hallados}"
+
+
+def test_foto_cargada_valida_contra_yaml(origen, fotos, modos_limpios):
+    """§6 'Coinciden con lo desplegado' + §2 'Foto cargada' (veredicto A1, M-5): la respuesta 200
+    de /personas/{id}/fotos/{foto_id}, con una foto que carga la propia prueba, valida contra
+    requisitorias-personas.yaml (estado y tipo de contenido documentados)."""
+    pytest.importorskip("yaml", reason="falta pyyaml (requirements-pruebas.txt)")
+    pytest.importorskip("jsonschema", reason="falta jsonschema (requirements-pruebas.txt)")
+    dir_fuentes = buscar_dir_contratos(RAIZ_REPO)
+    assert dir_fuentes is not None, "no se encuentran los yaml de contratos/fuentes/"
+    doc = cargar_yaml(dir_fuentes, "requisitorias-personas")
+
+    foto_id = f"{PERSONA_EXISTE}__{_n_libre(origen)}"
+    datos = png_sintetico(5, "prueba-" + uuid.uuid4().hex)
+    fotos(f"{foto_id}.png", datos)
+    ruta = f"/personas/{PERSONA_EXISTE}/fotos/{foto_id}"
+    r = modos_limpios.get(ruta)
+    assert r.estado == 200, r.texto[:200]
+    assert r.cuerpo == datos
+    assert errores_contra_yaml(doc, ruta, "GET", r) == []
+
+    # La ficha de la persona, ya con la foto en foto_ids, también valida contra el yaml.
+    rp = modos_limpios.get(f"/personas/{PERSONA_EXISTE}")
+    assert foto_id in rp.json()["foto_ids"]
+    assert errores_contra_yaml(doc, f"/personas/{PERSONA_EXISTE}", "GET", rp) == []

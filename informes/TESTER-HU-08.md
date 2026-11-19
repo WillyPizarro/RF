@@ -1,6 +1,7 @@
 # Informe TESTER — HU-08 Simuladores de fuentes
 
 **Contrato:** `docs/contratos/CONTRATO-HU-08.md` **v4** · **Encargo:** `docs/contratos/ENCARGO-HU-08.md` (M-1 a M-4) · **Rama:** `hu-08`
+**Vuelta 1 (M-5):** ver la sección del mismo nombre.
 **Corrida definitiva (M-4):** 2026-11-19, sobre la punta de `hu-08` (`bfacf34`, que incluye el commit definitivo del DEV `d08b907` y mis pruebas `8f3b8a5`). Imágenes reconstruidas con `up -d --build`, arrancadas con `infra/docker-compose.fotos.yml`. `SIM_FOTOS_ORIGEN` apunta a una carpeta fuera del repositorio y `SIM_FOTOS_LLAVE` está definida, las dos en `infra/.env` local (no versionado).
 
 ## Resultado
@@ -12,9 +13,16 @@
 
 **Ningún caso del contrato quedó en rojo.** Las imágenes de prueba se generaron en tiempo de ejecución y se borraron: la carpeta de origen quedó vacía al terminar. No se versionó ninguna.
 
-Las 3 omitidas del anfitrión que no son de C5/C6:
-- `test_fuente_personas.py::test_fotos_cargadas_se_sirven_como_imagen` y `test_contratos_yaml.py::test_foto_cargada_valida_contra_yaml`: recorren las fotos **ya** cargadas y el origen estaba vacío. El caso "Foto cargada" lo cubre en verde `test_carga_fotos.py::test_agregar_cambiar_y_quitar_una_foto`.
-- `test_fuente_galeria.py::test_version_cambia_si_cambian_las_fotos`: es un esqueleto con `skip` de la v1 que quedó obsoleto. El caso lo cubre en verde `test_carga_fotos.py::test_agregar_cambiar_y_quitar_una_foto`. Su motivo dice "pendiente de contrato v2" y es texto viejo; no lo cambié para no tocar las pruebas después de la corrida definitiva.
+Las 3 omitidas del anfitrión que no eran de C5/C6 (estado de la corrida de M-4; la vuelta 1 de abajo las resuelve):
+- `test_fuente_personas.py::test_fotos_cargadas_se_sirven_como_imagen`: recorre las fotos que ya estén en el origen. Sigue omitiéndose por diseño cuando el origen está vacío; el caso lo cubre `test_carga_fotos.py`.
+- `test_contratos_yaml.py::test_foto_cargada_valida_contra_yaml` y `test_fuente_galeria.py::test_version_cambia_si_cambian_las_fotos`: corregidas en la vuelta 1 (A1).
+
+## Vuelta 1 del veredicto (M-5, arbitraje A1: se apartó la prueba)
+
+- **A1:** la validación de una foto cargada contra `requisitorias-personas.yaml` pasó a `test_carga_fotos.py::test_foto_cargada_valida_contra_yaml`. La prueba carga su propia foto (PNG generado en tiempo de ejecución), valida la respuesta `200` de `/personas/{id}/fotos/{foto_id}` contra el yaml (estado y `Content-Type` documentados, bytes = los escritos) y valida también la ficha `/personas/{id}` con esa foto en `foto_ids`. Se quitó la versión de `test_contratos_yaml.py`, que dependía de fotos precargadas.
+- **Skips obsoletos:** se borró el esqueleto `test_fuente_galeria.py::test_version_cambia_si_cambian_las_fotos` (lo cubre `test_carga_fotos.py::test_agregar_cambiar_y_quitar_una_foto`), y se actualizó el motivo de `test_fuente_personas.py:48`.
+- **Arnés:** el fixture `origen` ahora comprueba que el contenedor `simuladores` en marcha tenga `/fotos-origen` montado y, si no, falla con un mensaje claro. Pasó en esta vuelta: el contenedor se había recreado sin `docker-compose.fotos.yml` y las pruebas de fotos daban 404 sin explicar por qué. Se volvió a arrancar con `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d simuladores`.
+- **Corrida de lo tocado:** anfitrión `pytest services/simuladores/tests/{test_carga_fotos,test_fuente_galeria,test_fuente_personas,test_contratos_yaml}.py --integracion` → **58 en verde, 0 rojos, 1 omitida** (la de fotos precargadas, por diseño). Contenedor (`run --rm simuladores pytest` de esos cuatro archivos) → **45 en verde, 0 rojos, 14 omitidas** (las de anfitrión). El origen quedó vacío.
 
 ## Caso del contrato → prueba → estado
 
@@ -64,6 +72,7 @@ Archivos en `services/simuladores/tests/`. Las formas que exige el contrato est�
 | 6 | Existen y son OpenAPI 3.1 válidos | `test_contratos_yaml.py::test_existe`, `::test_openapi_31_valido` (validador completo en el anfitrión) | VERDE |
 | 6 | Rutas, campos, códigos de error, un ejemplo por respuesta JSON, tiempo de respuesta | `::test_rutas_del_contrato`, `::test_documenta_los_campos`, `::test_documenta_los_codigos_de_error`, `::test_un_ejemplo_por_respuesta`, `::test_documenta_tiempo_de_respuesta` | VERDE |
 | 6 | Respuestas 200 y 404 en `normal` validan contra el yaml | `::test_respuesta_normal_valida_contra_yaml` (8 respuestas, en el contenedor y en el anfitrión) | VERDE |
+| 6 | Foto cargada (200 de `/fotos/{foto_id}`) valida contra el yaml | `test_carga_fotos.py::test_foto_cargada_valida_contra_yaml` (vuelta 1, A1) | VERDE |
 | 6 | Sin palabra prohibida | `::test_sin_palabra_prohibida` (yaml) y en las respuestas de cada fuente | VERDE |
 | 6 | `/control/*` fuera de los yaml | `::test_sin_ruta_de_control` | VERDE |
 | 7 | Mock generado solo desde el yaml valida contra el mismo contrato | `test_reemplazo_y_config.py::test_mock_desde_el_yaml_cumple_el_mismo_contrato` (`@stoplight/prism-cli@5`) | VERDE |

@@ -36,8 +36,8 @@ def test_foto_no_cargada(cliente):
 def test_fotos_cargadas_se_sirven_como_imagen(cliente):
     """§2 'Foto cargada' → 200 image/jpeg o image/png con los bytes descifrados.
 
-    Recorre las personas que ya tienen fotos. Si ninguna tiene, se omite: cómo cargar una foto de
-    prueba depende de la v2 del contrato (pregunta del TESTER al LEAD, 2026-11-19).
+    Recorre las fotos que ya estén cargadas en el origen. Si no hay, se omite: el caso con una
+    foto cargada por la propia prueba está en test_carga_fotos.py (v2 C1).
     """
     con_fotos = []
     for r in cliente.lote_get([f"/personas/SIM-P-{n:04d}" for n in range(1, 100)]):
@@ -45,7 +45,8 @@ def test_fotos_cargadas_se_sirven_como_imagen(cliente):
             d = r.json()
             con_fotos += [(d["persona_id"], f) for f in d.get("foto_ids") or []]
     if not con_fotos:
-        pytest.skip("Ninguna persona tiene fotos cargadas (carga de fotos: pendiente de contrato v2)")
+        pytest.skip("No hay fotos ya cargadas en el origen; la foto cargada por la prueba se verifica "
+                    "en test_carga_fotos.py (--integracion)")
     for persona_id, foto_id in con_fotos:
         r = cliente.get(f"/personas/{persona_id}/fotos/{foto_id}")
         assert r.estado == 200, f"{persona_id}/{foto_id}: {r.texto[:200]}"
