@@ -79,4 +79,4 @@ Lo que verifiqué en esta máquina:
 5. **openapi-typescript 7.13.0 declara `typescript ^5` como dependencia par**, y el SDK 58 trae TS 6. Lo resolví con `overrides` en `package.json` (sin `--force`), y la generación funciona.
 6. **`android.package` = `pe.prototipo.movilbuscador`** es provisional: es necesario para el dev build y ningún documento lo fija.
 7. **Criterio 15** (APK en el Android de referencia): no lo hice. Depende de la cuenta EAS.
-8. **Criterio 12:** gitleaks corrido sobre el historial de git después del commit (resultado abajo). `infra/.env` está en `.gitignore`.
+8. **Criterio 12:** `gitleaks git` v8.28.0 (imagen Docker) sobre el historial después del commit `2d9c0c7`: 9 commits escaneados, **no leaks found**. `infra/.env` está en `.gitignore`.
