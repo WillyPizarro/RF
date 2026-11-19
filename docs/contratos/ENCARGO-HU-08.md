@@ -55,3 +55,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **TESTER:** corre la suite completa una sola vez sobre la punta de `hu-08`, reconstruyendo las imágenes (`--build`) y arrancando con `infra/docker-compose.fotos.yml`. En tu `infra/.env` local (no se versiona) defines `SIM_FOTOS_ORIGEN`, apuntando a una carpeta **fuera del repositorio**, y `SIM_FOTOS_LLAVE`. Las imágenes de prueba se generan en tiempo de ejecución y no se commitean. Al terminar: `ENTREGA TESTER` con el informe final.
 - **DEV:** sin cambios; no hagas más commits en `hu-08` salvo que el LEAD te los pida.
+
+### M-5 (2026-11-19) — Vuelta 1 del veredicto (solo TESTER)
+
+**No reemplaza nada.** Veredicto en `informes/VEREDICTO-HU-08.md`, §5, arbitraje A1: **se apartó la prueba**.
+
+- **TESTER:** `test_contratos_yaml.py::test_foto_cargada_valida_contra_yaml` siempre se omite, porque nunca hay fotos precargadas. Con C1 (v2) ya puedes cargar tu propia foto (como en `test_carga_fotos.py`) y validar la respuesta `200` de `/personas/{id}/fotos/{foto_id}` contra `requisitorias-personas.yaml`. Además, actualiza o borra los `skip` que todavía dicen "pendiente de contrato v2" (`test_fuente_galeria.py`, `test_fuente_personas.py:48`). Corre solo lo tocado y avisa con `ENTREGA TESTER`.
+- **DEV:** sin cambios.
