@@ -58,10 +58,12 @@ Monorepo propuesto (el stack lo fijan los ADRs; la estructura de carpetas es pro
 
 Nombres exactos que TESTER y DEV deben respetar:
 
-- Endpoint de salud de la API: **`GET /v1/salud`** → `200` con JSON `{"estado": "ok", "bd": "ok", "simuladores": "ok", "version": "<semver>"}`. Si la base o los simuladores no responden, `503` con el campo correspondiente en `"error"`.
+- Endpoint de salud de la API: **`GET /v1/salud`** → `200` con JSON `{"estado": "ok", "bd": "ok", "simuladores": "ok", "version": "<semver>"}`. Si la base o los simuladores no responden, `503` con la **misma forma** y el valor `"error"` en lo que falla, por ejemplo `{"estado": "error", "bd": "error", "simuladores": "ok", "version": "0.1.0"}` (M-1 A). El 503 de salud no usa el formato de error estándar, pero sí lleva `X-Id-Traza`.
 - Endpoint de salud de los simuladores: **`GET /salud`** (solo en la red interna) → `200` con `{"estado": "ok"}`.
+- Puertos internos (red de Docker, sin publicar): `api` en **8000**, `simuladores` en **8001** (M-1 E).
 - Cabecera de traza: toda respuesta de la API lleva **`X-Id-Traza`**.
-- Error estándar (ADR-0007): cualquier ruta inexistente bajo `/v1` → `404` con `{"codigo": "NO_ENCONTRADO", "mensaje": "...", "id_traza": "<igual a X-Id-Traza>"}`.
+- Error estándar (ADR-0007): `{"codigo": "...", "mensaje": "...", "id_traza": "<igual a X-Id-Traza>"}` con 404 `NO_ENCONTRADO`, 405 `METODO_NO_PERMITIDO`, 422 `SOLICITUD_INVALIDA` y 500 `ERROR_INTERNO` (mensaje genérico, sin detalles internos) (M-1 B).
+- Pantalla de estado de la app: `apps/movil/src/pantallas/PantallaEstado.tsx` (export por defecto), usa el `fetch` global con `EXPO_PUBLIC_API_URL + '/v1/salud'`; `App.tsx` solo la muestra (sin expo-router en el Sprint 0) (M-1 D).
 - Comando de arranque: **`docker compose -f infra/docker-compose.yml --env-file infra/.env up -d --build`**.
 
 | # | Criterio | Cómo se verifica |
@@ -72,10 +74,10 @@ Nombres exactos que TESTER y DEV deben respetar:
 | 4 | La API alcanza a los simuladores por la red interna | prueba: con `simuladores` detenido, `/v1/salud` → 503 con `simuladores`; arriba → 200 |
 | 5 | Los simuladores no son accesibles desde fuera | prueba: `docker compose -f infra/docker-compose.yml config` no publica puertos para `simuladores`, `api` ni `db`; solo `proxy` publica 80 y 443 |
 | 6 | Las migraciones corren | comando: `docker compose -f infra/docker-compose.yml run --rm api alembic upgrade head` termina con código 0 sobre una base vacía (migración inicial sin tablas de negocio) |
-| 7 | Formato de error e id de traza (ADR-0007, ADR-0014) | prueba: `GET /v1/no-existe` → 404 con el JSON de error; `id_traza` igual a la cabecera `X-Id-Traza` |
+| 7 | Formato de error e id de traza (ADR-0007, ADR-0014) | prueba: `GET /v1/no-existe` → 404 `NO_ENCONTRADO`, y una solicitud inválida → 422 `SOLICITUD_INVALIDA`, ambos con el JSON de error; `id_traza` igual a la cabecera `X-Id-Traza` |
 | 8 | Logs estructurados sin secretos | prueba: una solicitud genera una línea de log JSON con `id_traza`; ninguna línea contiene el valor de `DATABASE_URL` ni de otras variables secretas |
-| 9 | El contrato OpenAPI está publicado y al día | prueba: `contratos/api/openapi.json` es idéntico al `/openapi.json` que sirve la API; comando `npm run generar:api` en `apps/movil` genera los tipos sin errores |
-| 10 | La app compila y llama a la API solo a través de la URL configurada | comando: `npx tsc --noEmit` en `apps/movil` sin errores; prueba Jest: la pantalla de estado muestra "Conectado" cuando `/v1/salud` responde 200 y "Sin conexión con el servidor" ante error (fetch simulado) |
+| 9 | El contrato OpenAPI está publicado y al día | prueba: `contratos/api/openapi.json` es idéntico al OpenAPI de la API, obtenido dentro de la red (`http://api:8000/openapi.json`) o con `app.openapi()` en pytest. El proxy **no** expone `/openapi.json`, solo enruta `/v1/*` (M-1 G); comando `npm run generar:api` en `apps/movil` genera los tipos sin errores |
+| 10 | La app compila y llama a la API solo a través de la URL configurada | comando: `npx tsc --noEmit` en `apps/movil` sin errores; prueba Jest sobre `PantallaEstado`: muestra "Conectado" cuando `/v1/salud` responde 200, y "Sin conexión con el servidor" ante cualquier respuesta distinta de 200 o error de red (fetch global simulado) (M-1 F) |
 | 11 | Los runners de pruebas se ejecutan | comandos: `docker compose -f infra/docker-compose.yml run --rm api pytest`, `docker compose -f infra/docker-compose.yml run --rm simuladores pytest` y `npm test` en `apps/movil` terminan con código 0 |
 | 12 | No hay secretos en el repositorio | comando: escaneo de secretos (`gitleaks detect` o equivalente) sin hallazgos; existe `infra/.env.example` sin valores reales y `infra/.env` está en `.gitignore` |
 | 13 | Respeta los ADRs transversales | revisión LEAD: archivo:línea para ADR-0001, 0007, 0009, 0010, 0012 y 0013 |
@@ -108,6 +110,19 @@ Nombres exactos que TESTER y DEV deben respetar:
 - Ninguna pantalla de las HUs ni de los wireframes de UX.
 - Despliegue en el VPS (llega con la primera HU que se demuestre).
 
+## M-1. Aclaraciones aprobadas por el humano (2026-11-18)
+
+Responde las preguntas del DEV y del TESTER. **Reemplaza** lo que la sección 5 decía de forma ambigua; los cambios ya están aplicados en las secciones 5 y 6.
+
+- **A.** 503 de salud: misma forma que el 200, valor `"error"` en lo que falla; sin cuerpo de error estándar; con `X-Id-Traza`.
+- **B.** Formato de error estándar en 404 `NO_ENCONTRADO`, 405 `METODO_NO_PERMITIDO`, 422 `SOLICITUD_INVALIDA`, 500 `ERROR_INTERNO`. El criterio 7 prueba 404 y 422.
+- **C.** Servicio `db`: imagen `postgres:17`. Al crear el proyecto Supabase se confirma la misma versión mayor.
+- **D.** Pantalla de estado: `apps/movil/src/pantallas/PantallaEstado.tsx`, `fetch` global con `EXPO_PUBLIC_API_URL + '/v1/salud'`; `App.tsx` solo la muestra; sin expo-router. La prueba Jest renderiza `PantallaEstado` directamente.
+- **E.** Puertos internos: `api` 8000, `simuladores` 8001.
+- **F.** La app muestra "Sin conexión con el servidor" ante cualquier respuesta distinta de 200 o error de red.
+- **G.** El proxy solo enruta `/v1/*`; no expone `/openapi.json`. El criterio 9 compara dentro de la red o con `app.openapi()`.
+- **H.** Informes: `informes/TESTER-*.md` (TESTER) e `informes/DEV-*.md` (DEV).
+
 ## 7. Preguntas abiertas para el humano
 
 1. **Repositorio git y remoto.** El proyecto no es un repositorio git todavía, y el proceso del LEAD trabaja con ramas y PR (`gh pr create`). ¿Inicializo git aquí y creas un repositorio privado en GitHub? (Nota: la conexión MCP de GitHub falló por token vencido; `gh` en la terminal debe estar autenticado.)
@@ -121,4 +136,5 @@ Nombres exactos que TESTER y DEV deben respetar:
 | Fecha | Cambio | Aprobado por |
 |---|---|---|
 | 2026-11-18 | Preguntas 1 a 5 respondidas: git inicializado (rama `sprint-0`; remoto en GitHub pendiente), servicio `db` local aprobado, contratos de HU en `docs/contratos/`, cuenta EAS a cargo del proveedor, estructura de monorepo aprobada | Usuario |
+| 2026-11-18 | M-1: aclaraciones A a H (salud 503, códigos de error, postgres:17, pantalla de estado, puertos, mensaje de la app, OpenAPI no expuesto, informes) | Usuario |
 | 2026-11-18 | `.gitignore` creado por el LEAD al inicializar git (excluye `settings.json`, `.env`, fotos y artefactos). El DEV puede agregar entradas, pero nunca quitar las de secretos ni fotos | LEAD |
