@@ -4,6 +4,8 @@ from fastapi import FastAPI
 
 from app.config import obtener_config
 from app.errores import registrar_manejadores
+from app.auth import router as router_auth
+from app.perfil import router as router_perfil
 from app.salud import router as router_salud
 from app.traza import registrar_middleware_traza
 
@@ -18,6 +20,8 @@ def crear_app() -> FastAPI:
     registrar_manejadores(app)
     registrar_middleware_traza(app)
     app.include_router(router_salud)
+    app.include_router(router_auth)
+    app.include_router(router_perfil)
     return app
 
 

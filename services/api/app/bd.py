@@ -1,21 +1,30 @@
 """Acceso a Postgres con SQLAlchemy 2 async + asyncpg (ADR-0012)."""
 
-from functools import lru_cache
+import asyncio
+import weakref
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.config import obtener_config
 
+# Un motor por bucle de eventos: las conexiones de asyncpg no se comparten entre bucles
+# (uvicorn usa uno solo; un cliente de pruebas en proceso puede usar varios).
+_motores: "weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, AsyncEngine]" = weakref.WeakKeyDictionary()
 
-@lru_cache
+
 def obtener_motor() -> AsyncEngine:
-    config = obtener_config()
-    return create_async_engine(
-        config.database_url,
-        pool_pre_ping=True,
-        connect_args={"timeout": config.timeout_salud_s},
-    )
+    bucle = asyncio.get_running_loop()
+    motor = _motores.get(bucle)
+    if motor is None:
+        config = obtener_config()
+        motor = create_async_engine(
+            config.database_url,
+            pool_pre_ping=True,
+            connect_args={"timeout": config.timeout_salud_s},
+        )
+        _motores[bucle] = motor
+    return motor
 
 
 async def bd_responde() -> None:

@@ -35,10 +35,349 @@
           }
         }
       }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "sesion"
+        ],
+        "summary": "Login",
+        "operationId": "login_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolicitudLogin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaSesion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Cuenta bloqueada temporalmente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBloqueo"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "sesion"
+        ],
+        "summary": "Renovar",
+        "operationId": "renovar_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolicitudRenovacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaSesion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "sesion"
+        ],
+        "summary": "Cerrar Sesion",
+        "operationId": "cerrar_sesion_v1_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "tags": [
+          "sesion"
+        ],
+        "summary": "Mi Perfil",
+        "operationId": "mi_perfil_v1_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "ErrorBloqueo": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "mensaje": {
+            "type": "string",
+            "title": "Mensaje"
+          },
+          "id_traza": {
+            "type": "string",
+            "title": "Id Traza"
+          },
+          "bloqueado_hasta": {
+            "type": "string",
+            "title": "Bloqueado Hasta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "mensaje",
+          "id_traza",
+          "bloqueado_hasta"
+        ],
+        "title": "ErrorBloqueo"
+      },
+      "ErrorRespuesta": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "mensaje": {
+            "type": "string",
+            "title": "Mensaje"
+          },
+          "id_traza": {
+            "type": "string",
+            "title": "Id Traza"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "mensaje",
+          "id_traza"
+        ],
+        "title": "ErrorRespuesta"
+      },
+      "Perfil": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "rol": {
+            "type": "string",
+            "enum": [
+              "agente",
+              "revisor",
+              "supervisor"
+            ],
+            "title": "Rol"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "usuario",
+          "nombre",
+          "rol"
+        ],
+        "title": "Perfil",
+        "example": {
+          "id": "…",
+          "nombre": "A. Prueba",
+          "rol": "agente",
+          "usuario": "agente1"
+        }
+      },
+      "RespuestaSesion": {
+        "properties": {
+          "token_acceso": {
+            "type": "string",
+            "title": "Token Acceso"
+          },
+          "token_renovacion": {
+            "type": "string",
+            "title": "Token Renovacion"
+          },
+          "expira_en": {
+            "type": "integer",
+            "title": "Expira En"
+          },
+          "inactividad_s": {
+            "type": "integer",
+            "title": "Inactividad S"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Perfil"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token_acceso",
+          "token_renovacion",
+          "expira_en",
+          "inactividad_s",
+          "usuario"
+        ],
+        "title": "RespuestaSesion"
+      },
       "SaludRespuesta": {
         "properties": {
           "estado": {
@@ -78,6 +417,49 @@
           "version"
         ],
         "title": "SaludRespuesta"
+      },
+      "SolicitudLogin": {
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Usuario"
+          },
+          "clave": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Clave"
+          }
+        },
+        "type": "object",
+        "required": [
+          "usuario",
+          "clave"
+        ],
+        "title": "SolicitudLogin"
+      },
+      "SolicitudRenovacion": {
+        "properties": {
+          "token_renovacion": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Token Renovacion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token_renovacion"
+        ],
+        "title": "SolicitudRenovacion"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }

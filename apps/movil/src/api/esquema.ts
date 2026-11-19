@@ -21,10 +21,132 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renovar */
+        post: operations["renovar_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cerrar Sesion */
+        post: operations["cerrar_sesion_v1_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mi Perfil */
+        get: operations["mi_perfil_v1_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ErrorBloqueo */
+        ErrorBloqueo: {
+            /** Codigo */
+            codigo: string;
+            /** Mensaje */
+            mensaje: string;
+            /** Id Traza */
+            id_traza: string;
+            /** Bloqueado Hasta */
+            bloqueado_hasta: string;
+        };
+        /** ErrorRespuesta */
+        ErrorRespuesta: {
+            /** Codigo */
+            codigo: string;
+            /** Mensaje */
+            mensaje: string;
+            /** Id Traza */
+            id_traza: string;
+        };
+        /**
+         * Perfil
+         * @example {
+         *       "id": "…",
+         *       "nombre": "A. Prueba",
+         *       "rol": "agente",
+         *       "usuario": "agente1"
+         *     }
+         */
+        Perfil: {
+            /** Id */
+            id: string;
+            /** Usuario */
+            usuario: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol: "agente" | "revisor" | "supervisor";
+        };
+        /** RespuestaSesion */
+        RespuestaSesion: {
+            /** Token Acceso */
+            token_acceso: string;
+            /** Token Renovacion */
+            token_renovacion: string;
+            /** Expira En */
+            expira_en: number;
+            /** Inactividad S */
+            inactividad_s: number;
+            usuario: components["schemas"]["Perfil"];
+        };
         /** SaludRespuesta */
         SaludRespuesta: {
             /**
@@ -44,6 +166,18 @@ export interface components {
             simuladores: "ok" | "error";
             /** Version */
             version: string;
+        };
+        /** SolicitudLogin */
+        SolicitudLogin: {
+            /** Usuario */
+            usuario: string;
+            /** Clave */
+            clave: string;
+        };
+        /** SolicitudRenovacion */
+        SolicitudRenovacion: {
+            /** Token Renovacion */
+            token_renovacion: string;
         };
     };
     responses: never;
@@ -79,6 +213,191 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SaludRespuesta"];
+                };
+            };
+        };
+    };
+    login_v1_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudLogin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaSesion"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Solicitud invalida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Cuenta bloqueada temporalmente */
+            423: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBloqueo"];
+                };
+            };
+            /** @description No se pudo completar la operacion */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    renovar_v1_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudRenovacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaSesion"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Solicitud invalida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    cerrar_sesion_v1_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    mi_perfil_v1_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Perfil"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
         };

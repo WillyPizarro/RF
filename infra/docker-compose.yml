@@ -21,6 +21,69 @@ services:
     networks: [interna]
     restart: unless-stopped
 
+  auth-preparar:
+    # Prepara el esquema auth y el usuario de GoTrue en el db local (idempotente, termina y sale).
+    image: postgres:17
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
+    command:
+      - psql
+      - -v
+      - ON_ERROR_STOP=1
+      - -h
+      - db
+      - -U
+      - ${POSTGRES_USER:?falta POSTGRES_USER}
+      - -d
+      - ${POSTGRES_DB:?falta POSTGRES_DB}
+      - -v
+      - clave_auth=${AUTH_DB_CLAVE:?falta AUTH_DB_CLAVE}
+      - -v
+      - base=${POSTGRES_DB:?falta POSTGRES_DB}
+      - -f
+      - /preparar.sql
+    volumes:
+      - ./auth/preparar.sql:/preparar.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [interna]
+    restart: "no"
+
+  auth:
+    # Supabase Auth (GoTrue) SOLO para desarrollo y pruebas (CONTRATO-HU-01, decision 1).
+    # En el VPS se usa el proyecto Supabase. Sin puerto publicado: solo la API lo alcanza.
+    image: supabase/gotrue:v2.198.0
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      PORT: "9999"
+      API_EXTERNAL_URL: http://auth:9999
+      GOTRUE_SITE_URL: http://localhost
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${AUTH_DB_CLAVE:?falta AUTH_DB_CLAVE}@db:5432/${POSTGRES_DB:?falta POSTGRES_DB}?search_path=auth&sslmode=disable
+      GOTRUE_JWT_SECRET: ${AUTH_JWT_SECRETO:?falta AUTH_JWT_SECRETO}
+      GOTRUE_JWT_EXP: "3600"
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      # Sin registro abierto: los usuarios los crea app.cargar_usuarios (ADR-0003 §2).
+      GOTRUE_DISABLE_SIGNUP: "true"
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      # El bloqueo por intentos lo aplica la API (ADR-0003, ADR-0011), no GoTrue.
+      GOTRUE_RATE_LIMIT_TOKEN_REFRESH: "100000"
+      GOTRUE_RATE_LIMIT_VERIFY: "100000"
+      GOTRUE_LOG_LEVEL: info
+    depends_on:
+      auth-preparar:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9999/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [interna]
+    restart: unless-stopped
+
   simuladores:
     build: ../services/simuladores
     environment:
@@ -50,10 +113,22 @@ services:
       FUENTE_REQUISITORIAS_URL: ${FUENTE_REQUISITORIAS_URL:-}
       FUENTE_GALERIA_URL: ${FUENTE_GALERIA_URL:-}
       FUENTE_TIMEOUT_S: ${FUENTE_TIMEOUT_S:-3}
+      # Sesion y acceso (HU-01, HU-02, ADR-0003, ADR-0011). Valores provisionales (PA #18, #19).
+      AUTH_URL: ${AUTH_URL:-http://auth:9999}
+      AUTH_APIKEY: ${AUTH_APIKEY:-}
+      AUTH_JWT_SECRETO: ${AUTH_JWT_SECRETO:?falta AUTH_JWT_SECRETO}
+      JWT_SECRETO: ${JWT_SECRETO:?falta JWT_SECRETO}
+      SESION_INACTIVIDAD_S: ${SESION_INACTIVIDAD_S:-600}
+      TOKEN_ACCESO_VIGENCIA_S: ${TOKEN_ACCESO_VIGENCIA_S:-900}
+      BLOQUEO_INTENTOS: ${BLOQUEO_INTENTOS:-5}
+      BLOQUEO_DURACION_S: ${BLOQUEO_DURACION_S:-900}
+      CLAVE_USUARIOS_PRUEBA: ${CLAVE_USUARIOS_PRUEBA:-}
     volumes:
       - ../services/api/tests:/app/tests:ro
     depends_on:
       db:
+        condition: service_healthy
+      auth:
         condition: service_healthy
       simuladores:
         condition: service_healthy
