@@ -1,6 +1,7 @@
 # SPRINT 0 — Movil Buscador (MININTER)
 
-**Estado:** Pendiente de aprobación
+**Estado:** Aprobado (2026-11-18, usuario)
+**Rama de trabajo:** `sprint-0`
 **Fuentes:** `docs/arch/TECH-DESIGN.md`, `docs/arch/adrs/` (ADR-0001 a ADR-0014, aprobados el 2026-11-18)
 **Preparado por:** LEAD, 2026-11-18 (skill `preparar-sprint0`)
 
@@ -69,7 +70,7 @@ Nombres exactos que TESTER y DEV deben respetar:
 | 2 | La API responde salud a través del proxy, con TLS | prueba: `GET https://localhost/v1/salud` → 200 y cuerpo exacto de arriba (TLS local de Caddy) |
 | 3 | La API se conecta a Postgres | prueba: con la base detenida, `/v1/salud` → 503 con `bd`; con la base arriba → 200 |
 | 4 | La API alcanza a los simuladores por la red interna | prueba: con `simuladores` detenido, `/v1/salud` → 503 con `simuladores`; arriba → 200 |
-| 5 | Los simuladores no son accesibles desde fuera | prueba: `docker compose -f infra/docker-compose.yml config` no publica puertos para `simuladores` ni `api`; solo `proxy` publica 80 y 443 |
+| 5 | Los simuladores no son accesibles desde fuera | prueba: `docker compose -f infra/docker-compose.yml config` no publica puertos para `simuladores`, `api` ni `db`; solo `proxy` publica 80 y 443 |
 | 6 | Las migraciones corren | comando: `docker compose -f infra/docker-compose.yml run --rm api alembic upgrade head` termina con código 0 sobre una base vacía (migración inicial sin tablas de negocio) |
 | 7 | Formato de error e id de traza (ADR-0007, ADR-0014) | prueba: `GET /v1/no-existe` → 404 con el JSON de error; `id_traza` igual a la cabecera `X-Id-Traza` |
 | 8 | Logs estructurados sin secretos | prueba: una solicitud genera una línea de log JSON con `id_traza`; ninguna línea contiene el valor de `DATABASE_URL` ni de otras variables secretas |
@@ -87,7 +88,7 @@ Nombres exactos que TESTER y DEV deben respetar:
 - Monorepo con la estructura de la sección 4, `.gitignore` y un `README.md` con el comando de arranque.
 - `services/api/`: FastAPI con Python 3.12, `pyproject.toml` con versiones exactas fijadas (referencia de estables a la fecha: FastAPI 0.165, SQLAlchemy 2.1, Alembic 1.20, asyncpg 0.32), configuración por variables de entorno, middleware de `id_traza`, manejador de errores con el formato estándar, logs JSON, `GET /v1/salud`, Alembic configurado con una migración inicial vacía, script `scripts/exportar_openapi.py` y Dockerfile.
 - `services/simuladores/`: FastAPI con `GET /salud` y Dockerfile. Sin datos ni endpoints de fuentes.
-- `infra/`: `docker-compose.yml` (`api`, `simuladores`, `proxy` y, si se aprueba la pregunta 2, `db`), `Caddyfile` (TLS local y proxy a `api`), `.env.example`.
+- `infra/`: `docker-compose.yml` (`api`, `simuladores`, `proxy` y `db` — Postgres oficial solo para desarrollo y pruebas, sin puerto publicado), `Caddyfile` (TLS local y proxy a `api`), `.env.example`.
 - `contratos/api/openapi.json` generado; `contratos/fuentes/` vacío con un `README.md` que explique su propósito.
 - `apps/movil/`: proyecto Expo (SDK estable vigente, referencia 58) con TypeScript, configurado para dev build, TanStack Query, Zustand y `expo-secure-store` instalados, generación de tipos desde el OpenAPI (`npm run generar:api`) y **una sola pantalla técnica de estado** que consulta `/v1/salud`. URL de la API por configuración.
 
@@ -98,7 +99,7 @@ Nombres exactos que TESTER y DEV deben respetar:
 
 ### Tareas fuera de TESTER/DEV (no bloquean el veredicto del esqueleto)
 - **ARCH:** verificar el LICENSE vigente de YuNet y SFace en opencv_zoo y anotar los hashes SHA-256 de los `.onnx` en el TDD (riesgo abierto del TDD). Confirmar que la versión de OpenCV elegida para HU-05 trae `FaceDetectorYN` y `FaceRecognizerSF` (la estable a la fecha es la 5.x; el TDD se escribió pensando en la API de la 4.x).
-- **PM / humano:** consentimientos ampliados firmados antes del día 6; cuenta EAS; proyecto Supabase (si se aprueba la pregunta 2, solo para el VPS).
+- **PM / humano:** consentimientos ampliados firmados antes del día 6; cuenta EAS; proyecto Supabase (solo para el VPS).
 
 ### NO se crea
 - Nada de los ADRs de la sección 2: login, roles, bloqueo, bitácora y su trigger, motor biométrico, modelos ONNX, captura, retención, umbrales, catálogo de motivos.
@@ -119,3 +120,5 @@ Nombres exactos que TESTER y DEV deben respetar:
 
 | Fecha | Cambio | Aprobado por |
 |---|---|---|
+| 2026-11-18 | Preguntas 1 a 5 respondidas: git inicializado (rama `sprint-0`; remoto en GitHub pendiente), servicio `db` local aprobado, contratos de HU en `docs/contratos/`, cuenta EAS a cargo del proveedor, estructura de monorepo aprobada | Usuario |
+| 2026-11-18 | `.gitignore` creado por el LEAD al inicializar git (excluye `settings.json`, `.env`, fotos y artefactos). El DEV puede agregar entradas, pero nunca quitar las de secretos ni fotos | LEAD |
