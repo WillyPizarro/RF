@@ -37,7 +37,7 @@ Los dos informes citan M-1 y M-2, y ambos commits son posteriores a `f929699`. *
 | 11 | Los runners se ejecutan | `run --rm api pytest` y `run --rm simuladores pytest` → `IndexError` al cargar `conftest.py`; `npm test` 0/10 | 🔴 → TESTER |
 | 12 | Sin secretos en el repositorio | gitleaks (imagen oficial): 10 commits, "no leaks found"; `infra/.env.example` sin valores reales; `infra/.env` ignorado | 🟢 |
 | 13 | Respeta los ADRs transversales | Ver sección 6 | 🟢 |
-| 14 | Cero lógica de negocio | Revisión LEAD: sin tablas, endpoints, pantallas ni simuladores de negocio (búsqueda de placa, rostro, requisitoria, bitácora, login y revisión en `services/*/app`, `apps/movil/src` y las migraciones: sin coincidencias) | 🟢 LEAD · **revisión humana pendiente** |
+| 14 | Cero lógica de negocio | Revisión LEAD: sin tablas, endpoints, pantallas ni simuladores de negocio (búsqueda de placa, rostro, requisitoria, bitácora, login y revisión en `services/*/app`, `apps/movil/src` y las migraciones: sin coincidencias) | 🟢 LEAD · confirmado por el humano (2026-11-19) |
 | 15 | La app en el Android de referencia | Sin cuenta EAS ni APK todavía | `NO VERIFICADO` |
 
 Pruebas del TESTER ejecutadas: API 43/43 🟢 (51 s) · simuladores desde el anfitrión 3/3 🟢 · Jest 0/10 🔴 · runners en contenedor 🔴.
@@ -94,3 +94,9 @@ Pendiente de la cuenta EAS (pregunta 4 del Sprint 0). El humano puede aceptarlo 
 1. TESTER corrige los criterios 10 y 11 (vuelta 1), sin tocar el código del DEV.
 2. Humano: decide el criterio 1 (liberar el puerto 80 o aceptar `NO VERIFICADO` aquí), acepta o no el 15 como `NO VERIFICADO`, y hace la revisión humana del 14.
 3. LEAD: con la corrección del TESTER, una sola suite completa sobre el commit definitivo y, si todo está en verde, el PR (sin push a `main` ni merge).
+
+## 9. Decisiones del humano (2026-11-19)
+
+- Criterio 1: aceptado como `NO VERIFICADO` en esta máquina; se verifica con el comando literal en el VPS.
+- Criterio 15: aceptado como `NO VERIFICADO` hasta tener la cuenta EAS.
+- Criterio 14: confirmado (cero lógica de negocio).

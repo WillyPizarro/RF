@@ -146,4 +146,5 @@ Responde las preguntas del DEV y del TESTER. **Reemplaza** lo que la sección 5 
 | 2026-11-18 | Preguntas 1 a 5 respondidas: git inicializado (rama `sprint-0`; remoto en GitHub pendiente), servicio `db` local aprobado, contratos de HU en `docs/contratos/`, cuenta EAS a cargo del proveedor, estructura de monorepo aprobada | Usuario |
 | 2026-11-18 | M-1: aclaraciones A a H (salud 503, códigos de error, postgres:17, pantalla de estado, puertos, mensaje de la app, OpenAPI no expuesto, informes) | Usuario |
 | 2026-11-18 | M-2: la prueba del 422 se posterga a HU-01; el criterio 7 prueba solo el 404 | Usuario |
+| 2026-11-19 | Veredicto vuelta 1: el humano acepta los criterios 1 (puerto 80 reservado por Windows en esta máquina; se verifica en el VPS) y 15 (sin cuenta EAS) como `NO VERIFICADO`, y confirma el criterio 14 (cero lógica de negocio) | Usuario |
 | 2026-11-18 | `.gitignore` creado por el LEAD al inicializar git (excluye `settings.json`, `.env`, fotos y artefactos). El DEV puede agregar entradas, pero nunca quitar las de secretos ni fotos | LEAD |
