@@ -3,7 +3,7 @@
 **Contrato:** `docs/contratos/CONTRATO-HU-08.md` **v4** (aprobado por el humano el 2026-11-19)
 **Rama:** `hu-08` (base `main` 2ef0829) · **Código del DEV:** `d08b907` · **Pruebas del TESTER:** `8f3b8a5`, informe `0eac363`
 **Fecha:** 2026-11-19 · **LEAD**, skill `veredicto`
-**Resultado:** **CASI VERDE. Vuelta 1 al TESTER por un solo caso** (§6, foto cargada contra el yaml). Ningún rojo del código.
+**Resultado:** **VERDE tras la vuelta 1** (A1 cerrado en `7e6be45`). Ningún rojo del código. Quedan dos `NO VERIFICADO` de entorno o herramienta (§7) para aceptación del humano.
 
 ---
 
@@ -47,7 +47,7 @@ Omitidas en el anfitrión: 4 de `test_herramientas.py` (corren y pasan en el con
 | Esc. 1 | §4 bis carga de fotos (C1): origen, nombres, sin reinicio, versión, cifrado | `test_carga_fotos.py`, `test_reinicio.py` | 🟢 (PNG). JPEG: `NO VERIFICADO` |
 | Esc. 1 | §6 contratos existen, son OpenAPI 3.1 y documentan lo pedido | `test_contratos_yaml.py` | 🟢 |
 | Esc. 1 | §6 las respuestas validan contra el yaml: JSON 200/404 | `::test_respuesta_normal_valida_contra_yaml` | 🟢 |
-| Esc. 1 | §6 las respuestas validan contra el yaml: **foto cargada** | `::test_foto_cargada_valida_contra_yaml` | ⚠️ `NO VERIFICADO`: siempre omitida (vuelta 1 al TESTER) |
+| Esc. 1 | §6 las respuestas validan contra el yaml: **foto cargada** | `::test_foto_cargada_valida_contra_yaml` | 🟢 tras la vuelta 1 (`test_carga_fotos.py::test_foto_cargada_valida_contra_yaml`) |
 | Esc. 1: la app no se conecta directo al simulador | §8 sin puerto, Caddyfile, textos de C7 en la app, desde la API sí | `test_aislamiento.py` | 🟢 |
 | Esc. 1 | §8 `/v1/salud` intacta | LEAD, desde la red interna | 🟢 sin el proxy. A través del proxy: `NO VERIFICADO` (entorno: puerto 80 ocupado por `http.sys`, igual que en el Sprint 0) |
 | Esc. 2: otra implementación del contrato | §7 mock solo desde el yaml (Prism) | `test_reemplazo_y_config.py::test_mock_desde_el_yaml_cumple_el_mismo_contrato` | 🟢 |
@@ -80,6 +80,15 @@ Ajustes menores para la misma vuelta (sin cambio de resultado): `test_fuente_gal
 2. `/v1/salud` a través del proxy (el puerto 80 lo ocupa `http.sys` de Windows). Verificado desde la red interna.
 3. Uso de `FUENTE_*_URL` por la API, y error controlado más bitácora: diferidos a HU-03 y HU-07 por la decisión 1 del contrato.
 
+## 7 bis. Vuelta 1 (2026-11-19)
+
+- `7e6be45 [TESTER]`: solo toca `services/simuladores/tests/` e `informes/TESTER-HU-08.md` (sus rutas).
+- Corrida del LEAD, siempre con `-f infra/docker-compose.yml -f infra/docker-compose.fotos.yml`:
+  - anfitrión, archivos tocados (`--integracion`): **58 en verde, 1 omitida por diseño** (`test_fuente_personas.py:48`, cubierta por `test_carga_fotos.py`);
+  - contenedor, la suite completa: **115 en verde, 27 omitidas** (las de anfitrión).
+- **A1 cerrado: 🟢.**
+- Nota de entorno: en la vuelta 0, el LEAD corrió `run api pytest` sin `docker-compose.fotos.yml` y eso recreó `simuladores` sin el montaje. Para cualquier corrida con fotos, arrancar siempre con los dos archivos.
+
 ## 8. Siguiente paso
 
-Vuelta 1 al TESTER (A1). Con A1 en verde y los `NO VERIFICADO` 1 y 2 aceptados por el humano, el LEAD abre el PR `hu-08 → main` con esta matriz.
+Con la aceptación del humano de los `NO VERIFICADO` 1 y 2 del §7, el LEAD abre el PR `hu-08 → main` con esta matriz.
