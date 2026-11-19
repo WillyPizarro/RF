@@ -13,11 +13,12 @@ import pytest
 
 from conftest import RAIZ_REPO, RUTA_SALUD, URL_API_INTERNA
 
-ARCHIVO_CONTRATO = RAIZ_REPO / "contratos" / "api" / "openapi.json"
+ARCHIVO_CONTRATO = RAIZ_REPO / "contratos" / "api" / "openapi.json" if RAIZ_REPO else None
 
 
 @pytest.fixture(scope="module")
 def contrato_publicado() -> dict:
+    assert ARCHIVO_CONTRATO is not None, "No se encontró la raíz del repositorio"
     assert ARCHIVO_CONTRATO.exists(), "No existe contratos/api/openapi.json"
     return json.loads(ARCHIVO_CONTRATO.read_text(encoding="utf-8"))
 

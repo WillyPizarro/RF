@@ -5,6 +5,13 @@
 
 Pruebas de **caja negra** contra la interfaz observable: HTTP por el proxy (`https://localhost`), HTTP dentro de la red de Docker (`http://api:8000`, `http://simuladores:8001`), la CLI de `docker compose` y el render de `PantallaEstado`. No se leyó ni se abrió ninguna ruta del DEV.
 
+## Vuelta 1 (2026-11-19) — correcciones por `informes/VEREDICTO-SPRINT0.md` §4
+
+| Criterio | Qué se apartó en la prueba | Corrección | Evidencia |
+|---|---|---|---|
+| 11 | Los dos `conftest.py` calculaban `parents[3]` al importarse; en `/app/tests` eso da `IndexError` | La raíz del repo se busca subiendo carpetas hasta encontrar `infra/docker-compose.yml`. Si no aparece (contenedor), vale `None`: sin `--integracion` todo se omite con su motivo, y con `--integracion` falla con un mensaje claro | Simulado con solo `tests/` copiado bajo un `app/` aislado: API 43 omitidas, `codigo=0`; simuladores 3 omitidas (`simuladores` no resuelve fuera de la red), `codigo=0`. El comando literal dentro de Docker lo corre el LEAD |
+| 10 | `jest.isolateModules` cargaba otra copia de React; `render` usado de forma síncrona (RNTL 14 lo hace asíncrono) | Sin aislar el registro de módulos: URL fijada antes de un `require` de la pantalla; `await render(...)` y `screen.toJSON()` | En `apps/movil`: `npx tsc --noEmit` → código 0; `npx jest __tests__/PantallaEstado.test.tsx` → 10/10 en verde |
+
 ## Estado de ejecución
 
 **Ninguna prueba se ejecutó contra el sistema todavía: todas están `NO EJECUTADA`.** Motivos:
@@ -55,7 +62,7 @@ Requisitos en el anfitrión: Python ≥ 3.10 con `pytest`, sin otras dependencia
 
 1. **TLS sin verificar.** El cliente de pruebas no verifica el certificado, porque Caddy usa una CA local. Se verifica que el esquema sea `https`.
 2. **QueryClientProvider en la prueba Jest.** `PantallaEstado` se envuelve en un `QueryClientProvider` sin opciones, por si usa TanStack Query (ADR-0013). Si la pantalla no lo usa, no tiene efecto. Cuando ve un error, la prueba espera hasta 20 s, por los reintentos por defecto de TanStack Query.
-3. **`EXPO_PUBLIC_API_URL`.** La prueba la fija en `process.env` antes de cargar la pantalla. Si la configuración de Jest del DEV inyecta las `EXPO_PUBLIC_*` en tiempo de compilación, la prueba de la URL fallará. En ese caso, el veredicto debe aclarar si se apartó el código o la prueba.
+3. **`EXPO_PUBLIC_API_URL`.** La prueba la fija en `process.env` al principio del archivo y luego carga la pantalla con `require`, sin aislar el registro de módulos (vuelta 1). Comprobado: Expo no la incrusta al compilar en Jest; la pantalla llama a la URL fijada por la prueba.
 4. **`run --rm simuladores pytest`.** El GET va directo a `http://simuladores:8001`. Si el nombre `simuladores` no resuelve, la prueba se omite con su motivo. La versión que corre desde el anfitrión (`--integracion`) no depende de cómo resuelva el contenedor de `run`.
 
 ## Riesgos y notas

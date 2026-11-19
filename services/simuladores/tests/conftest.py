@@ -30,9 +30,15 @@ from urllib.parse import urlparse
 
 import pytest
 
-RAIZ_REPO = Path(__file__).resolve().parents[3]
-COMPOSE_FILE = RAIZ_REPO / "infra" / "docker-compose.yml"
-ENV_FILE = RAIZ_REPO / "infra" / ".env"
+def _buscar_raiz_repo() -> Path | None:
+    """Raíz del repositorio (carpeta con infra/docker-compose.yml), o None dentro del contenedor."""
+    for carpeta in Path(__file__).resolve().parents:
+        if (carpeta / "infra" / "docker-compose.yml").is_file():
+            return carpeta
+    return None
+
+
+RAIZ_REPO = _buscar_raiz_repo()
 URL_SIMULADORES = "http://simuladores:8001"  # M-1 E
 RUTA_SALUD = "/salud"
 
@@ -68,9 +74,15 @@ def _get_directo(url: str) -> Respuesta:
 
 
 def _get_via_compose(url: str) -> Respuesta:
-    cmd = ["docker", "compose", "-f", str(COMPOSE_FILE)]
-    if ENV_FILE.exists():
-        cmd += ["--env-file", str(ENV_FILE)]
+    if RAIZ_REPO is None:
+        pytest.fail(
+            "--integracion necesita el repositorio (infra/docker-compose.yml): "
+            "correr desde el anfitrión"
+        )
+    env_file = RAIZ_REPO / "infra" / ".env"
+    cmd = ["docker", "compose", "-f", str(RAIZ_REPO / "infra" / "docker-compose.yml")]
+    if env_file.exists():
+        cmd += ["--env-file", str(env_file)]
     script = (
         "import json,sys,urllib.request,urllib.error\n"
         "try:\n"

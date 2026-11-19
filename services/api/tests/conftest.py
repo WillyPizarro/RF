@@ -29,9 +29,21 @@ from pathlib import Path
 
 import pytest
 
-RAIZ_REPO = Path(__file__).resolve().parents[3]
-COMPOSE_FILE = RAIZ_REPO / "infra" / "docker-compose.yml"
-ENV_FILE = RAIZ_REPO / "infra" / ".env"
+def _buscar_raiz_repo() -> Path | None:
+    """Raíz del repositorio (carpeta con infra/docker-compose.yml), o None si no está.
+
+    Dentro del contenedor (`/app/tests`) la estructura del repositorio no existe: el arnés
+    debe cargar igual y omitir lo que la necesita.
+    """
+    for carpeta in Path(__file__).resolve().parents:
+        if (carpeta / "infra" / "docker-compose.yml").is_file():
+            return carpeta
+    return None
+
+
+RAIZ_REPO = _buscar_raiz_repo()
+COMPOSE_FILE = RAIZ_REPO / "infra" / "docker-compose.yml" if RAIZ_REPO else None
+ENV_FILE = RAIZ_REPO / "infra" / ".env" if RAIZ_REPO else None
 
 # Nombres exactos de SPRINT0.md §5 y M-1 (no se negocian).
 RUTA_SALUD = "/v1/salud"
@@ -140,7 +152,7 @@ class Compose:
 
     def _base(self) -> list[str]:
         cmd = ["docker", "compose", "-f", str(COMPOSE_FILE)]
-        if ENV_FILE.exists():
+        if ENV_FILE is not None and ENV_FILE.exists():
             cmd += ["--env-file", str(ENV_FILE)]
         return cmd
 
@@ -191,8 +203,11 @@ class Compose:
 
 @pytest.fixture(scope="session")
 def compose(pytestconfig: pytest.Config) -> Compose:
-    if not COMPOSE_FILE.exists():
-        pytest.fail(f"No existe {COMPOSE_FILE.relative_to(RAIZ_REPO)}")
+    if COMPOSE_FILE is None:
+        pytest.fail(
+            "No se encontró infra/docker-compose.yml subiendo desde services/api/tests: "
+            "correr desde el repositorio en el anfitrión"
+        )
     return Compose(pytestconfig.getoption("--espera-max"))
 
 
@@ -241,7 +256,7 @@ PALABRAS_SECRETAS = ("PASSWORD", "SECRET", "KEY", "TOKEN", "DATABASE_URL", "PASS
 
 def valores_secretos() -> dict[str, str]:
     """Valores de infra/.env cuyos nombres indican un secreto (más DATABASE_URL)."""
-    if not ENV_FILE.exists():
+    if ENV_FILE is None or not ENV_FILE.exists():
         return {}
     secretos: dict[str, str] = {}
     for linea in ENV_FILE.read_text(encoding="utf-8").splitlines():
