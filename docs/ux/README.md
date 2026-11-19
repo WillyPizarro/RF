@@ -52,6 +52,7 @@ flowchart TD
   PLA04 --> PLA05[PLA-05 Tiene requisitoria]
   PLA04 --> PLA06[PLA-06 Sin requisitoria registrada]
   PLA04 --> PLA07[PLA-07 No se pudo completar]
+  PLA04 --> PLA08[PLA-08 Placa no registrada] -->|Volver con la placa cargada| PLA01
 
   HOME01 --> ROS01[ROS-01 Motivo de la verificación]
   ROS01 --> ROS02[ROS-02 Captura de rostro]
@@ -91,6 +92,7 @@ flowchart TD
 | PLA-05 | Placa con requisitoria | HU-03 · E1 (Then) |
 | PLA-06 | Sin requisitoria registrada | HU-03 · E5 La placa no tiene requisitoria en la fuente consultada |
 | PLA-07 | No se pudo completar la consulta | HU-03 · E3 Fuente no disponible; HU-08 · E3 |
+| PLA-08 | Placa no registrada en la fuente consultada | CONTRATO-HU-03 decisión 3 (aprobada el 2026-11-19): `placa_no_registrada`, ni negativo ni error (regla 7) |
 | OCR-01 | Visor de cámara de placa | HU-04 · E1 (When) |
 | OCR-02 | Confirmar o corregir lectura | HU-04 · E1 (Then) |
 | OCR-03 | Lectura fallida | HU-04 · E2 La placa no se puede leer |

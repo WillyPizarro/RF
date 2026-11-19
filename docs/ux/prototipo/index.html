@@ -205,7 +205,8 @@ const USERS = {
 const NAMES = { jperez:'J. Pérez', lrojas:'L. Rojas', revisor1:'Revisor 1', supervisor1:'Supervisor 1', sistema:'sistema' };
 const ROLE_LABEL = { agente:'Agente', revisor:'Revisor', supervisor:'Supervisor' };
 const ROLE_HOME = { agente:'HOME-01', revisor:'REV-01', supervisor:'BIT-01' };
-const PLATES = { 'ABC-123':'requisitoria', 'DEF-456':'sin', 'GHI-789':'caida' };
+const PLATES = { 'ABC-123':'requisitoria', 'DEF-456':'sin', 'GHI-789':'caida', 'XYZ-999':'noreg' };
+// Placa con formato válido que no está en la lista: la fuente no la conoce → placa_no_registrada (CONTRATO-HU-03 decisión 3; nunca "sin requisitoria")
 const MOTIVOS = [
   { v:'op1', t:'Opción 1 (por definir)' },
   { v:'op2', t:'Opción 2 (por definir)' },
@@ -472,6 +473,15 @@ function plateResult(p, cls, kicker, text){
   </div>`;
 }
 def('PLA-05', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-red', 'Resultado de la consulta', 'TIENE REQUISITORIA'); }});
+def('PLA-08', { role:'agente', fname:'Consultar placa', render(p){
+  // CONTRATO-HU-03 decisión 3: ni "sin requisitoria" ni error de fuente (regla 7). Neutro, sin verde ni rojo.
+  return bar('Resultado', {backA:'volverForm'}) + `<div class="body">
+    <div class="result r-slate" role="status"><div class="rk">Resultado de la consulta</div><div class="rp mono">${esc(p.placa)}</div>
+      <div class="rt">Placa no registrada en la fuente consultada. Verifique la placa.</div></div>
+    <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div></div>
+    <div style="margin-top:auto"><button class="btn primary" data-a="volverForm">Volver</button></div>
+  </div>`;
+}});
 def('PLA-06', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-gray', 'Resultado de la consulta', 'Sin requisitoria registrada en la fuente consultada'); }});
 def('PLA-07', { role:'agente', fname:'Consultar placa', render(){
   return bar('Consultar placa') + `<div class="body center">
@@ -781,15 +791,15 @@ const ACT = {
       if (tk !== S.token) return;
       const at = new Date();
       const mode = S.demo.plate;
-      const kind = mode === 'caida' ? 'caida' : mode === 'invalida' ? 'invalida' : (PLATES[placa] || 'sin');
+      const kind = mode === 'caida' ? 'caida' : mode === 'invalida' ? 'invalida' : mode === 'noreg' ? 'noreg' : (PLATES[placa] || 'noreg');
       if (kind === 'caida' || kind === 'invalida') {
         addLog({ user:'sistema', tipo:'Error', resultado: kind==='caida' ? 'Fuente de placas no disponible' : 'Respuesta fuera de contrato del simulador', detalle:'Placa ' + placa + ' · consulta de ' + S.user.u + ' · Motivo: ' + motivo });
         return setCur('PLA-07');   // el formulario sigue en S.draft (Reintentar conserva placa y motivo)
       }
-      const res = kind === 'requisitoria' ? 'Tiene requisitoria' : 'Sin requisitoria registrada en la fuente consultada';
+      const res = { requisitoria:'Tiene requisitoria', sin:'Sin requisitoria registrada en la fuente consultada', noreg:'Placa no registrada en la fuente consultada' }[kind];
       addLog({ user:S.user.u, tipo:'Consulta de placa', motivo, ref:placa, resultado:res });
       S.stack = [{ id:'HOME-01', p:{} }];
-      setCur(kind === 'requisitoria' ? 'PLA-05' : 'PLA-06', { placa, motivo, at });
+      setCur({ requisitoria:'PLA-05', sin:'PLA-06', noreg:'PLA-08' }[kind], { placa, motivo, at });   // en PLA-08 el formulario sigue en S.draft
     }, CFG.PLATE_MS);
   },
   volverForm(){ setCur('PLA-01'); },
@@ -921,7 +931,7 @@ function demoPanel(){
     <div style="display:flex;justify-content:space-between;align-items:center"><h2>Panel de demo (prototipo)</h2><button class="ib" data-a="demoClose" aria-label="Cerrar">✕</button></div>
     <div class="dnote">Herramienta del facilitador. No es parte del producto.</div>
     <h3>Simuladores (HU-08)</h3>
-    ${sel('plate','Respuesta de placa',[['auto','Según placa sintética'],['caida','Forzar fuente caída'],['invalida','Forzar respuesta inválida']],'ABC-123 tiene requisitoria · DEF-456 sin requisitoria · GHI-789 fuente caída')}
+    ${sel('plate','Respuesta de placa',[['auto','Según placa sintética'],['noreg','Forzar placa no registrada'],['caida','Forzar fuente caída'],['invalida','Forzar respuesta inválida']],'ABC-123 tiene requisitoria · DEF-456 sin requisitoria · GHI-789 fuente caída · XYZ-999 (y cualquier otra) no registrada')}
     ${sel('face','Respuesta de rostro',[['posible','Posible coincidencia'],['nc','No concluyente'],['sin','Sin coincidencia'],['error','Error del servicio'],['q-frente','Calidad: Mire de frente'],['q-luz','Calidad: Más luz'],['q-borrosa','Calidad: Imagen borrosa'],['q-varias','Calidad: Varias personas'],['q-sinrostro','Calidad: Sin rostro']])}
     ${sel('camera','Cámara (placa)',[['ok','Permiso concedido'],['denegado','Permiso denegado']])}
     ${sel('cameraFace','Cámara (rostro)',[['ok','Permiso concedido'],['denegado','Permiso denegado o retirado']],'Denegado: ROS-09 al continuar a cámara (HU-05 E6). Retirado: elegirlo estando en la captura y tocar Capturar (E7).')}

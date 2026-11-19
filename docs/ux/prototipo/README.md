@@ -13,7 +13,7 @@ Rol: UX. Fecha: 2026-11-19. Encargo: PM → UX "Prototipo navegable (H1)". Revis
 
 ## Pantallas implementadas (inventario aprobado el 2026-11-18)
 
-Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-01 a 07, OCR-01 a 04, ROS-01 a 09, VER-01/02, REV-01 a 04, BIT-01/02 y el panel de demo. Cada pantalla lleva su ID en el código. Para la revisión interna, "⚙ Demo → Mostrar ID de pantalla" muestra el ID en una esquina.
+Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-01 a 08, OCR-01 a 04, ROS-01 a 09, VER-01/02, REV-01 a 04, BIT-01/02 y el panel de demo. Cada pantalla lleva su ID en el código. Para la revisión interna, "⚙ Demo → Mostrar ID de pantalla" muestra el ID en una esquina.
 
 | Pedido del encargo | Dónde se ve |
 |---|---|
@@ -23,13 +23,14 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 | Cola del revisor; un agente nunca revisa su propia consulta | REV-01 (solo para el rol revisor). Si el agente entra por un enlace directo, ve ERR-01 y el intento se registra |
 | Bitácora de solo lectura | BIT-01/02, sin controles de edición, borrado ni exportación |
 | Sin permiso de cámara en rostro (HU-05 E6/E7) | ROS-09: sin galería ni otra vía de captura; nada se compara; ningún resultado facial. Se fuerza con "⚙ Demo → Cámara (rostro)". Marcas PA 29 (registro en la bitácora) y PA 30 (motivo al volver de ajustes), sin asumirlos |
+| Placa no registrada (CONTRATO-HU-03 decisión 3) | PLA-08 con `XYZ-999` (o cualquier placa válida que no esté en la lista), o "⚙ Demo → Respuesta de placa: Forzar placa no registrada". Neutro; ni "sin requisitoria" ni error. "Volver" regresa con la placa y el motivo cargados |
 | Errores de fuente que nunca se muestran como negativos | PLA-07, ROS-08 y el error "respuesta fuera de contrato" (HU-08 E3) |
 | Sin la palabra "identificado" | Verificado con una búsqueda en el archivo: 0 apariciones |
 | Valores provisionales | Motivo: lista "Opción 1/2/3 (por definir)" + "Otro" con 10 caracteres o más (PA 21). Máximo 3 candidatos (PA 22). Placa con "Solo estado" por defecto (PA 15). Espacio reservado para el aviso de tratamiento de datos en ROS-02 (PA 25) |
 
 ## Verificación hecha
 
-- Recorrido automatizado en jsdom (script fuera del repositorio) de los flujos de los tres roles: 46 comprobaciones en verde (2026-11-19). Entre ellas: ROS-09 por permiso negado (E6) y retirado (E7), sin resultados faciales y sin nuevos registros en la bitácora.
+- Recorrido automatizado en jsdom (script fuera del repositorio) de los flujos de los tres roles: 50 comprobaciones en verde (2026-11-19). Entre ellas: PLA-08 (por placa y forzada desde el panel de demo, con su registro en la bitácora y "Volver" con la placa cargada) y ROS-09 por permiso negado (E6) y retirado (E7), sin resultados faciales y sin nuevos registros en la bitácora.
 - Capturas en Chrome sin interfaz de AUTH-01, HOME-01, PLA-01 con errores, PLA-05, ROS-02, REV-02, BIT-01 y el panel de demo.
 
 ## Decisiones de diseño aplicadas
@@ -39,7 +40,7 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 - **Disparador de cámara blanco**, no rojo: el rojo queda reservado para "TIENE REQUISITORIA".
 - **El visor de rostro solo muestra el óvalo guía**, sin silueta, para no sugerir a una persona.
 - **"Volver" en PLA-07** regresa al formulario con la placa y el motivo cargados.
-- **Placas que no están en la lista sintética** (por ejemplo `XYZ-999`): el simulador responde "Sin requisitoria registrada en la fuente consultada", igual que `DEF-456`.
+- **Placas que no están en la lista sintética** (por ejemplo `XYZ-999`): desde el 2026-11-19 el simulador responde "placa no registrada" (PLA-08), según CONTRATO-HU-03 decisión 3. Antes respondía "sin requisitoria", lo que contradecía la regla 7.
 - **Bitácora**: se registran los inicios de sesión, intentos fallidos, bloqueos, consultas de placa, verificaciones de rostro, decisiones, revisiones vencidas, capturas eliminadas (tras una decisión o por vencimiento, ADR-0008), accesos denegados y errores. El rechazo por calidad no se registra como comparación.
 - **Bloqueo por intentos**: se cuenta por el nombre de usuario escrito, exista o no, para no revelar qué usuarios existen (observación de HU-01 para ARCH).
 

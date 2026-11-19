@@ -15,6 +15,7 @@
 | 5 | Placa con requisitoria | E1 (Then) | PLA-05 |
 | 6 | Sin requisitoria registrada | E5 La placa no tiene requisitoria en la fuente consultada | PLA-06 |
 | 7 | No se pudo completar | E3 Fuente no disponible | PLA-07 |
+| 8 | Placa no registrada | Sin escenario propio: CONTRATO-HU-03 decisión 3 (aprobada por el humano el 2026-11-19) y CONTRATO-HU-08 decisión 3 | PLA-08 |
 
 ### PLA-01 — Consultar placa
 ```
@@ -119,6 +120,30 @@
 - Texto literal de E3. Nunca dice "sin requisitoria". Ícono y color distintos a los de un resultado.
 - El error queda en la bitácora (backend).
 
+### PLA-08 — Placa no registrada (agregada el 2026-11-19)
+```
+┌──────────────────────────────┐
+│ ←  Resultado                 │
+├──────────────────────────────┤
+│ ┌──────────────────────────┐ │
+│ │ ■ GRIS AZULADO NEUTRO    │ │
+│ │  XYZ-999                 │ │
+│ │  Placa no registrada en  │ │
+│ │  la fuente consultada.   │ │
+│ │  Verifique la placa.     │ │
+│ └──────────────────────────┘ │
+│ Motivo: <texto ingresado>    │
+│ Consultado: 19/11/2026 10:42 │
+│                              │
+│  [         VOLVER         ]  │  → PLA-01 con placa y motivo cargados
+└──────────────────────────────┘
+```
+- La API responde `200` con `resultado = placa_no_registrada` (la fuente devolvió `404`). Texto literal del contrato.
+- **No es "sin requisitoria" ni un error de fuente** (regla 7): el texto es distinto al de PLA-06, no hay ícono de advertencia ni "Reintentar" como en PLA-07, y no se usa verde, ✓ ni rojo. El tono es gris azulado neutro, como "No concluyente", para que no se confunda con el gris de PLA-06.
+- La única acción es "Volver": regresa a PLA-01 con la placa y el motivo cargados, para corregir la placa y consultar de nuevo. La flecha ← hace lo mismo.
+- La consulta queda en la bitácora como `CONSULTA_PLACA` con ese resultado (backend).
+- No muestra el bloque PA 15: no hay datos que mostrar de una placa que la fuente no conoce.
+
 ## Decisiones de diseño
 - Placa y motivo en el mismo formulario (E2 parte de "ingresó una placa").
 - "Reintentar" conserva lo escrito, para no obligar a repetir el motivo.
@@ -127,6 +152,7 @@
 - PLA-06 y su redacción.
 - "Nueva consulta" en los resultados.
 - Placas sintéticas `DEF-456` y `GHI-789`.
+- (2026-11-19) Placa sintética `XYZ-999`, no registrada. En el prototipo, cualquier placa con formato válido que no esté en la lista también da PLA-08.
 
 ## Puntos abiertos que afectan el diseño
 - PA 15: datos visibles en el resultado (bloque marcado).
