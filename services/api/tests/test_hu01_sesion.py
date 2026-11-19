@@ -1,4 +1,4 @@
-"""CONTRATO-HU-01 v2 §3 — Renovación, cierre e inactividad (provisional, PA #18).
+"""CONTRATO-HU-01 v3 §3 — Renovación, cierre e inactividad (provisional, PA #18).
 
 Ruta autenticada usada: `GET /v1/me` (CONTRATO-HU-02). Tiempos cortos por configuración (§6):
 - `config_corta`: SESION_INACTIVIDAD_S=12, TOKEN_ACCESO_VIGENCIA_S=120.
@@ -73,8 +73,8 @@ def test_logout_sin_token(config_defecto):
 
 
 def test_inactividad_en_una_solicitud(config_corta, clave):
-    """§3 'Inactividad en el servidor' (decisión 6): una solicitud autenticada más de
-    SESION_INACTIVIDAD_S después de la última → 401 SESION_VENCIDA, evento SESION_VENCIDA, y la
+    """§3 'Inactividad en el servidor' (decisión 6, v3): una solicitud autenticada más de
+    SESION_INACTIVIDAD_S después de la última solicitud autenticada o renovación → 401 SESION_VENCIDA, evento SESION_VENCIDA, y la
     sesión queda invalidada (renovar después también da 401)."""
     ses = _sesion(config_corta, clave)
     ok, vencida, renovar = config_corta.lote([
@@ -123,3 +123,18 @@ def test_cerrar_sesion(config_defecto, clave):
     assert tipos(ev) == ["LOGOUT"], ev
     assert ev[0]["usuario_id"] == ses["usuario"]["id"] and ev[0]["rol"] == ROL
     assert renovar.estado == 401, renovar
+
+
+def test_la_renovacion_cuenta_como_actividad(config_corta, clave):
+    """§3 v3: una renovación exitosa cuenta como actividad en el servidor. Solo renovando cada
+    8 s (sin otras solicitudes autenticadas), la sesión sigue viva pasados 24 s (el doble de
+    SESION_INACTIVIDAD_S=12), y el último token de acceso sirve 8 s después de su renovación."""
+    ses = _sesion(config_corta, clave)
+    renov = ses["token_renovacion"]
+    acceso = None
+    for _ in range(3):
+        (r,) = config_corta.lote([_refresh(renov, esperar_s=8)])
+        assert r.estado == 200, r
+        renov, acceso = r.json()["token_renovacion"], r.json()["token_acceso"]
+    (me,) = config_corta.lote([_me(acceso, esperar_s=8)])
+    assert me.estado == 200, me

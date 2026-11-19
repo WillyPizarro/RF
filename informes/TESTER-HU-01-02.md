@@ -1,6 +1,6 @@
 # Informe TESTER — HU-01 + HU-02 (iniciar sesión y acceso por rol)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v2** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1, M-2) · **Rama:** `hu-01`
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v3** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-3) · **Rama:** `hu-01`
 **Estado:** pruebas escritas; **suite completa pendiente** de la orden del LEAD (orden del cierre, punto 3: después de la entrega del DEV y la aprobación del UX). Las corridas hechas hasta ahora solo comprobaron el arnés contra lo que había; no son hallazgos.
 
 ## Cómo se corren
@@ -22,7 +22,7 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 
 ## Caso del contrato → prueba
 
-### HU-01 (v2) — API (`services/api/tests/`)
+### HU-01 (v3) — API (`services/api/tests/`)
 
 | § | Caso | Prueba | Estado |
 |---|---|---|---|
@@ -44,6 +44,7 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 | 3 | Token de acceso vencido → 401 `NO_AUTENTICADO` | `::test_token_vencido` | Pendiente |
 | 3 | Inactividad en el servidor (solicitud y renovación) → 401 `SESION_VENCIDA`, evento, sesión invalidada | `::test_inactividad_en_una_solicitud`, `::test_inactividad_en_la_renovacion` | Pendiente |
 | 3 | La actividad mantiene la sesión | `::test_la_actividad_mantiene_la_sesion` | Pendiente |
+| 3 | Una renovación exitosa cuenta como actividad (v3) | `::test_la_renovacion_cuenta_como_actividad` | Pendiente |
 | 3 | Cerrar sesión → 204, `LOGOUT`, el `token_renovacion` deja de servir | `::test_cerrar_sesion` | Pendiente |
 | 5 | Campos de cada evento; `id_traza` = `X-Id-Traza` | `test_hu01_bitacora_config.py::test_campos_de_cada_evento`, `::test_id_traza_del_evento_igual_a_la_cabecera` | Pendiente |
 | 5 | Sin registro no hay sesión (503) | — | **NO VERIFICADO**: se prueba en HU-07 (decisión 2) |
@@ -54,7 +55,7 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 | 6 | Carga de usuarios idempotente; usuarios fijos; `inactivo1` inactivo | `::test_carga_de_usuarios_idempotente` | Pendiente |
 | 6 | `CLAVE_USUARIOS_PRUEBA` en `infra/.env` y no versionada | `::test_clave_de_usuarios_desde_el_entorno` | Pendiente |
 
-### HU-01 (v2) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
+### HU-01 (v3) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
 
 | Caso | Prueba | Estado |
 |---|---|---|
@@ -81,6 +82,10 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 | 3 | El menú sale de `GET /v1/me` | Jest `› el menú sale de GET /v1/me…` | Pendiente |
 | 3 | "Salir": logout con el token, SecureStore vacío, AUTH-01 sin mensaje | Jest `› Salir…` | Pendiente |
 | 3 | ERR-01 | — | **Diferido a HU-03 (v3)** |
+
+## Capturas
+
+El humano aceptó que el UX revise solo las capturas de Jest (M-3). Las del emulador quedan `NO VERIFICADO`.
 
 ## Cambios al arnés del Sprint 0
 
