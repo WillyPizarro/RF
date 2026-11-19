@@ -107,6 +107,8 @@ Umbrales medibles (tiempo de respuesta, tasa de falsos positivos aceptable, cali
 26. ¿El revisor de coincidencias debe ver el score de similitud? (HU-06)
 27. ¿El usuario en campo debe ver el motivo de la decisión del revisor, o solo la decisión? (HU-06)
 28. ¿Con qué redacción se comunica una coincidencia confirmada por el revisor, para que no se lea como "identificado"? (HU-06; validar con área legal)
+29. ¿Se registra en la bitácora un intento de verificación facial que no llegó a la captura por falta de permiso de cámara? Si se registra, ¿con qué datos (usuario, fecha, hora, motivo indicado) y qué figura como resultado? Lo único firme es que no se registra como comparación. (HU-05 E6 y E7)
+30. Si el usuario da el permiso de cámara desde los ajustes y vuelve a la app, ¿se conserva el motivo que ya indicó o debe indicarlo de nuevo? (HU-05 E6 y E7)
 
 ## Próximo paso
 

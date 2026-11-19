@@ -72,3 +72,8 @@ También aprobados los 8 elementos no solicitados por las HUs que propuso UX (`d
 - HU-06: supuestos provisionales de ADR-0003 (revisor distinto del agente; PA #2) y ADR-0008 (revisión vencida a las 24 h; PA #23).
 - HU-01 Escenario 4 (cuenta bloqueada, provisional PA #19) y HU-06 Escenario 4 (revisión vencida, provisional PA #23): aprobados por el usuario el 2026-11-18.
 - PRD PA #2: se agregan las opciones A a D (revisor separado, mismo agente, autorrevisión en modo operativo con ratificación, central en tiempo real) para decisión del MININTER.
+
+## Cambios tras el escalado de UX (aprobados por el usuario el 2026-11-19)
+
+- HU-05: nuevos Escenarios 6 (permiso de cámara denegado) y 7 (permiso retirado antes de capturar). OCR-04 solo cubría la placa (HU-04 E3). Sin captura no hay comparación, no se muestra ningún resultado facial y nada se registra como comparación.
+- HU-05 y PRD: Puntos Abiertos #29 y #30: si el intento sin captura se registra en la bitácora (y con qué datos), y si el motivo se conserva al volver de los ajustes.
