@@ -1,6 +1,6 @@
 # Informe TESTER — HU-01 + HU-02 (iniciar sesión y acceso por rol)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v3** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-3) · **Rama:** `hu-01`
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-4) · **Rama:** `hu-01`
 **Estado:** pruebas escritas; **suite completa pendiente** de la orden del LEAD (orden del cierre, punto 3: después de la entrega del DEV y la aprobación del UX). Las corridas hechas hasta ahora solo comprobaron el arnés contra lo que había; no son hallazgos.
 
 ## Cómo se corren
@@ -22,7 +22,7 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 
 ## Caso del contrato → prueba
 
-### HU-01 (v3) — API (`services/api/tests/`)
+### HU-01 (v4) — API (`services/api/tests/`)
 
 | § | Caso | Prueba | Estado |
 |---|---|---|---|
@@ -55,13 +55,14 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 | 6 | Carga de usuarios idempotente; usuarios fijos; `inactivo1` inactivo | `::test_carga_de_usuarios_idempotente` | Pendiente |
 | 6 | `CLAVE_USUARIOS_PRUEBA` en `infra/.env` y no versionada | `::test_clave_de_usuarios_desde_el_entorno` | Pendiente |
 
-### HU-01 (v3) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
+### HU-01 (v4) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
 
 | Caso | Prueba | Estado |
 |---|---|---|
 | AUTH-01: textos, franja y `testID="app-raiz"` | `AUTH-01 › sin sesión muestra…` | Pendiente |
 | La app usa `EXPO_PUBLIC_API_URL` + `/v1/auth/login` con el `fetch` global (§4 bis) | `AUTH-01 › envía usuario y clave…` | Pendiente |
 | Login correcto → inicio de su rol; el token va a SecureStore | `AUTH-01 › login correcto…` | Pendiente |
+| AUTH-01 vacío (v4): con el usuario o la clave vacíos o solo con espacios, "Ingrese su usuario y su clave" y ninguna solicitud de login | `AUTH-01 vacío (v4) › …` (6 combinaciones) | Pendiente |
 | AUTH-02: mensaje, el usuario queda escrito, la clave se vacía, sin intentos restantes | `AUTH-02 › …` | Pendiente |
 | AUTH-04: hora local HH:MM y minutos desde `bloqueado_hasta`, clave vacía, "Ingresar" activo | `AUTH-04 › …` | Pendiente. El contrato no fija el redondeo de los minutos: se acepta el entero por abajo o por arriba |
 | Otro error (red, 500, 503) → mensaje genérico, nunca el de credenciales | `otro error › …` (3 casos) | Pendiente |
@@ -83,7 +84,10 @@ Configuraciones de la API usadas por las pruebas (cambiarlas sin tocar código e
 | 3 | "Salir": logout con el token, SecureStore vacío, AUTH-01 sin mensaje | Jest `› Salir…` | Pendiente |
 | 3 | ERR-01 | — | **Diferido a HU-03 (v3)** |
 
-## Capturas
+## Capturas y revisión del UX
+
+Las mejoras 1, 3 y 4 de la revisión del UX (íconos, alto de "Salir", tono del error) no cambian el contrato y no tienen prueba; la 5 es la v4 y sí la tiene.
+
 
 El humano aceptó que el UX revise solo las capturas de Jest (M-3). Las del emulador quedan `NO VERIFICADO`.
 

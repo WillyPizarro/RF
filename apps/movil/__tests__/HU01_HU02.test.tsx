@@ -1,5 +1,5 @@
 /**
- * CONTRATO-HU-01 v2 §4 y §4 bis, CONTRATO-HU-02 v2 §3 — La app, de caja negra.
+ * CONTRATO-HU-01 v4 §4 y §4 bis, CONTRATO-HU-02 v3 §3 — La app, de caja negra.
  *
  * Interfaz (HU-01 §4 bis): la app completa es el export por defecto de `apps/movil/App.tsx`
  * (sin expo-router); llama a `EXPO_PUBLIC_API_URL + /v1/...` con el `fetch` global; la vista
@@ -52,6 +52,7 @@ const T = {
   credenciales: 'Usuario o clave incorrectos',
   inactividad: 'Su sesión se cerró por inactividad. Ingrese de nuevo.',
   otroError: 'No se pudo completar la operación; intente nuevamente',
+  camposVacios: 'Ingrese su usuario y su clave',
   salir: 'Salir',
   rolAgente: 'Rol: Agente',
   rolRevisor: 'Rol: Revisor',
@@ -251,6 +252,25 @@ describe('HU-01 AUTH-01 — login', () => {
     await ingresar('agente1', 'clave-buena');
     await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
     expect(mockAlmacen.size).toBeGreaterThan(0);
+  });
+});
+
+describe('HU-01 AUTH-01 vacío (v4)', () => {
+  test.each([
+    ['usuario y clave vacíos', '', ''],
+    ['usuario vacío', '', 'clave'],
+    ['clave vacía', 'agente1', ''],
+    ['solo espacios', '   ', '  '],
+    ['usuario con espacios', '   ', 'clave'],
+    ['clave con espacios', 'agente1', '   '],
+  ])('%s → "Ingrese su usuario y su clave" y no envía la solicitud', async (_n, usuario, clave) => {
+    servidorCon('agente');
+    await montar();
+    await ingresar(usuario, clave);
+    await waitFor(() => screen.getByText(T.camposVacios), ESPERA);
+    expect(llamadas.filter((l) => l.ruta === '/v1/auth/login')).toEqual([]);
+    expect(screen.queryByText(T.rolAgente)).toBeNull();
+    expect(screen.queryByText(T.credenciales)).toBeNull();
   });
 });
 
