@@ -6,6 +6,8 @@ Prototipo de solución móvil para la búsqueda y localización de vehículos y 
 
 **Plazo y entrega:** plazo total de 30 a 40 días. El proveedor define el stack y aloja el desarrollo y el demo; el MININTER recibe código fuente y manual de instalación al cierre (pendiente de aceptación → Puntos Abiertos #8 y #17).
 
+**Cronograma comprometido con el cliente (2026-11-19):** inicio el 2026-11-19, entrega final el 2026-12-30 (día 42) y plazo máximo de 45 días calendario (2027-01-02), con hitos el 23-nov, 2-dic, 21-dic, 28-dic y 30-dic. El estimado interno de trabajo sigue siendo de 30 a 40 días; la diferencia es reserva. Supuesto de trabajo vigente: el MININTER acepta el stack y el enfoque del proveedor (PA #8 y #17) hasta recibir la respuesta escrita, pedida para el 2026-11-23. Documentos: "Cronograma de implementación — Móvil Buscador (MVP)" y "Acta de inicio — Móvil Buscador (MVP)".
+
 ## Problema
 
 El MININTER necesita que su personal autorizado pueda verificar, desde un dispositivo móvil, si un vehículo (por su placa) o una persona (por su rostro) tiene requisitoria. Según el equipo, hoy no existe una solución hecha. El encargo pide además diagnosticar los procesos actuales de consulta y verificación, sus fuentes, restricciones de acceso y brechas tecnológicas.
@@ -89,11 +91,11 @@ Umbrales medibles (tiempo de respuesta, tasa de falsos positivos aceptable, cali
 10. ¿El paso a producción, la operación y el soporte posteriores están fuera de este servicio?
 11. ¿El prototipo debe funcionar con conectividad limitada o sin conexión?
 12. ¿Qué dispositivos móviles usará el personal (Android/iOS, institucionales o personales)?
-13. Resuelto: el plazo total es de 30 a 40 días para ambos componentes. Falta la fecha de inicio.
+13. Resuelto: inicio el 2026-11-19; plazo comprometido con el cliente de 45 días calendario, con entrega final el 2026-12-30 (estimado interno: 30 a 40 días).
 14. ¿El contrato permite usar herramientas de IA en la nube (p. ej. bolt.new) con información del proyecto?
 15. ¿Qué datos se muestran en la "visualización controlada del resultado" de placa (solo "con/sin requisitoria" o también datos del propietario/vehículo)?
 16. ¿Cuánto tiempo se conservan la bitácora, las imágenes de rostro y las de placa, y quién autoriza su eliminación?
-17. ¿El MININTER acepta por escrito que el MVP se valide solo con data sintética y simuladores, que las políticas de seguridad avanzadas se entreguen documentadas pero no implementadas, y que el stack lo defina el proveedor?
+17. ¿El MININTER acepta por escrito que el MVP se valide solo con data sintética y simuladores, que las políticas de seguridad avanzadas se entreguen documentadas pero no implementadas, y que el stack lo defina el proveedor? (Supuesto de trabajo desde 2026-11-19: se asume aceptado; la carta pide la respuesta escrita a más tardar el 2026-11-23. Si se rechaza, se reprograma el cronograma.)
 18. ¿Cuál es el tiempo máximo de inactividad antes de cerrar la sesión? (HU-01)
 19. ¿Cuántos intentos fallidos se permiten antes de bloquear la cuenta, y por cuánto tiempo? (HU-01)
 20. ¿Qué formatos de placa debe aceptar la validación (particulares, motos, antiguas, diplomáticas, temporales)? (HU-03)
@@ -108,6 +110,6 @@ Umbrales medibles (tiempo de respuesta, tasa de falsos positivos aceptable, cali
 
 ## Próximo paso
 
-Historias de Usuario aprobadas el 2026-11-18 (`docs/hus/`). Siguiente: UX (prototipo navegable) y ARCH (diseño técnico y ADRs).
+Historias de Usuario aprobadas el 2026-11-18 (`docs/hus/`); UX, diseño técnico y Sprint 0 completos. Siguiente (2026-11-19): UX construye el prototipo navegable para validarlo el 2026-12-01, y LEAD escribe los contratos de la iteración 1 (HU-08, HU-01, HU-02, HU-03, HU-07).
 
 Histórico: entrega al Agente BA para iniciar Historias de Usuario. Los Puntos Abiertos deben quedar reflejados en cada HU afectada (en especial #2, #4, #7, #15, #16 y #17 en las HUs de biometría, placas y trazabilidad).
