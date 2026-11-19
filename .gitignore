@@ -25,3 +25,6 @@ __pycache__/
 coverage/
 *.apk
 *.aab
+
+# Python: artefactos de empaquetado (DEV)
+*.egg-info/

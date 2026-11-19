@@ -1,0 +1,10 @@
+# Proxy TLS (ADR-0009). Con DOMINIO=localhost, Caddy usa su CA interna (TLS local).
+# Solo se enruta /v1/* hacia la API (SPRINT0 M-1 G); /openapi.json y el resto no se exponen.
+{$DOMINIO} {
+	handle /v1/* {
+		reverse_proxy api:8000
+	}
+	handle {
+		respond 404
+	}
+}

@@ -1,0 +1,84 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Movil Buscador API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v1/salud": {
+      "get": {
+        "tags": [
+          "salud"
+        ],
+        "summary": "Salud",
+        "operationId": "salud_v1_salud_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaludRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "La base o los simuladores no responden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaludRespuesta"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SaludRespuesta": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "title": "Estado"
+          },
+          "bd": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "title": "Bd"
+          },
+          "simuladores": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "title": "Simuladores"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estado",
+          "bd",
+          "simuladores",
+          "version"
+        ],
+        "title": "SaludRespuesta"
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+# Movil Buscador — esqueleto (SPRINT0, ADR-0009).
+# Arranque: docker compose -f infra/docker-compose.yml --env-file infra/.env up -d --build
+# Solo el proxy publica puertos (80 y 443). api, simuladores y db viven en redes internas.
+name: movil-buscador
+
+services:
+  db:
+    # Postgres oficial SOLO para desarrollo y pruebas (SPRINT0 M-1 C). En el VPS se usa Supabase.
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?falta POSTGRES_DB}
+    volumes:
+      - datos-bd:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [interna]
+    restart: unless-stopped
+
+  simuladores:
+    build: ../services/simuladores
+    volumes:
+      - ../services/simuladores/tests:/app/tests:ro
+    networks: [interna]
+    restart: unless-stopped
+
+  api:
+    build: ../services/api
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?falta DATABASE_URL}
+      SIMULADORES_URL: http://simuladores:8001
+    volumes:
+      - ../services/api/tests:/app/tests:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      simuladores:
+        condition: service_healthy
+    networks: [interna, borde]
+    restart: unless-stopped
+
+  proxy:
+    image: caddy:2.10
+    environment:
+      DOMINIO: ${DOMINIO:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-datos:/data
+      - caddy-config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [borde]
+    restart: unless-stopped
+
+networks:
+  # api <-> simuladores <-> db. El proxy no entra aqui.
+  interna:
+  # proxy <-> api.
+  borde:
+
+volumes:
+  datos-bd:
+  caddy-datos:
+  caddy-config:

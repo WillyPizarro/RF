@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "movil-buscador-simuladores"
+version = "0.1.0"
+description = "Simuladores de fuentes del prototipo Movil Buscador. Solo datos sinteticos."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi==0.165.0",
+    "uvicorn==0.54.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.2.0",
+    "httpx==0.28.1",
+]
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
