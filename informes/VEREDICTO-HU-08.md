@@ -89,6 +89,10 @@ Ajustes menores para la misma vuelta (sin cambio de resultado): `test_fuente_gal
 - **A1 cerrado: 🟢.**
 - Nota de entorno: en la vuelta 0, el LEAD corrió `run api pytest` sin `docker-compose.fotos.yml` y eso recreó `simuladores` sin el montaje. Para cualquier corrida con fotos, arrancar siempre con los dos archivos.
 
+## 7 ter. Aceptación del humano (vía PM, 2026-11-19)
+
+Los `NO VERIFICADO` 1 (JPEG) y 2 (`/v1/salud` a través del proxy) quedan **aceptados**, con una condición: el contrato de HU-05 debe exigir una prueba de carga de un JPEG antes de cargar las fotos reales con consentimiento. Anotado en `docs/contratos/PENDIENTES.md`.
+
 ## 8. Siguiente paso
 
-Con la aceptación del humano de los `NO VERIFICADO` 1 y 2 del §7, el LEAD abre el PR `hu-08 → main` con esta matriz.
+Aceptados los `NO VERIFICADO`, el LEAD prepara el PR `hu-08 → main` con esta matriz. El merge lo hace el humano.
