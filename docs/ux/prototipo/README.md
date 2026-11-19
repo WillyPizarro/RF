@@ -13,7 +13,7 @@ Rol: UX. Fecha: 2026-11-19. Encargo: PM → UX "Prototipo navegable (H1)". Revis
 
 ## Pantallas implementadas (inventario aprobado el 2026-11-18)
 
-Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-01 a 07, OCR-01 a 04, ROS-01 a 08, VER-01/02, REV-01 a 04, BIT-01/02 y el panel de demo. Cada pantalla lleva su ID en el código. Para la revisión interna, "⚙ Demo → Mostrar ID de pantalla" muestra el ID en una esquina.
+Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-01 a 07, OCR-01 a 04, ROS-01 a 09, VER-01/02, REV-01 a 04, BIT-01/02 y el panel de demo. Cada pantalla lleva su ID en el código. Para la revisión interna, "⚙ Demo → Mostrar ID de pantalla" muestra el ID en una esquina.
 
 | Pedido del encargo | Dónde se ve |
 |---|---|
@@ -22,13 +22,14 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 | Motivo obligatorio antes de consultar | PLA-02 (no consulta) y ROS-01 (no abre la cámara) |
 | Cola del revisor; un agente nunca revisa su propia consulta | REV-01 (solo para el rol revisor). Si el agente entra por un enlace directo, ve ERR-01 y el intento se registra |
 | Bitácora de solo lectura | BIT-01/02, sin controles de edición, borrado ni exportación |
+| Sin permiso de cámara en rostro (HU-05 E6/E7) | ROS-09: sin galería ni otra vía de captura; nada se compara; ningún resultado facial. Se fuerza con "⚙ Demo → Cámara (rostro)". Marcas PA 29 (registro en la bitácora) y PA 30 (motivo al volver de ajustes), sin asumirlos |
 | Errores de fuente que nunca se muestran como negativos | PLA-07, ROS-08 y el error "respuesta fuera de contrato" (HU-08 E3) |
 | Sin la palabra "identificado" | Verificado con una búsqueda en el archivo: 0 apariciones |
 | Valores provisionales | Motivo: lista "Opción 1/2/3 (por definir)" + "Otro" con 10 caracteres o más (PA 21). Máximo 3 candidatos (PA 22). Placa con "Solo estado" por defecto (PA 15). Espacio reservado para el aviso de tratamiento de datos en ROS-02 (PA 25) |
 
 ## Verificación hecha
 
-- Recorrido automatizado en jsdom (script fuera del repositorio) de los flujos de los tres roles: 42 comprobaciones, 41 en verde. La que falló por un error del propio script: esperaba otro ID tras cerrar la sesión por inactividad. El comportamiento de la app es el correcto: "atrás" no vuelve a la pantalla anterior.
+- Recorrido automatizado en jsdom (script fuera del repositorio) de los flujos de los tres roles: 46 comprobaciones en verde (2026-11-19). Entre ellas: ROS-09 por permiso negado (E6) y retirado (E7), sin resultados faciales y sin nuevos registros en la bitácora.
 - Capturas en Chrome sin interfaz de AUTH-01, HOME-01, PLA-01 con errores, PLA-05, ROS-02, REV-02, BIT-01 y el panel de demo.
 
 ## Decisiones de diseño aplicadas
@@ -45,7 +46,7 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 ## Escalado: diferencias con el inventario aprobado (respuesta del PM, 2026-11-19)
 
 1. **PA 2, variante B ("mismo usuario revisa", botón "Revisar ahora" en ROS-05) — EXCLUIDA (confirmado por el PM el 2026-11-19).** El inventario la preveía como opción del panel de demo, marcada "requiere reabrir ADR-0003". No se muestra el 1-dic: la regla 4 de `AGENTS.md` y el ADR-0003 no se reabren desde una demo. La pregunta del PA 2 del guion se mantiene igual. Si el área usuaria pide que el mismo agente revise, se anota como pedido y se escala, sin prometer nada.
-2. **Permiso de cámara denegado en la verificación de rostro — EN ESPERA del BA.** Ni HU-05 ni los wireframes lo cubren (OCR-04 es solo para la placa). El PM pasó la pregunta al BA. **No se diseña nada** hasta que el humano apruebe el escenario en HU-05. El PM avisará cuando se pueda agregar la pantalla.
+2. **Permiso de cámara denegado en la verificación de rostro — RESUELTO.** El humano aprobó HU-05 E6 y E7 (commit BA `9ebc9bf`). Se agregó ROS-09 (prototipo y `../wireframes/HU-05-verificar-rostro.md`) y la opción "Cámara (rostro)" en el panel de demo. Los PA 29 y 30 quedan marcados en la pantalla, sin asumirlos, y sus preguntas se agregaron al guion.
 
 ## Elementos no solicitados (aprobados por el PM el 2026-11-19)
 
@@ -59,7 +60,7 @@ Son herramientas del facilitador o textos de apoyo. No agregan funciones del pro
 
 ## Puntos abiertos que afectan el diseño
 
-Los mismos de `../README.md` (PA 2, 7, 15, 18 a 28). Las preguntas exactas para la sesión están en el guion.
+Los mismos de `../README.md` (PA 2, 7, 15, 18 a 28) y los PA 29 y 30 de ROS-09. Las preguntas exactas para la sesión están en el guion.
 
 ## Fuera de alcance respetado
 

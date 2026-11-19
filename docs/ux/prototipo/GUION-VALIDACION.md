@@ -32,7 +32,7 @@ Sesión virtual del martes 1-dic-2026. El facilitador comparte pantalla con `doc
 | 13–14 | Demo → "Vencer pendientes" · Salir · Login `jperez` → Mis verificaciones | VER-01 → VER-02 | El agente ve la decisión del revisor (redacción, **PA 28**) y no ve su motivo (**PA 27**). Si nadie revisa en 24 h, el agente ve "No concluyente — verifique por otros medios" (**PA 23**). |
 | 14–15 | Salir · Login `supervisor1` → abrir un registro de rostro | BIT-01 → BIT-02 | Bitácora de **solo lectura**: no se puede editar, borrar ni exportar. Cada consulta queda con usuario, fecha, motivo y resultado. En rostro se guardan el ID de captura y el score, **nunca la imagen**. Aparecen "Revisión vencida" y "Captura eliminada". |
 
-Si sobra tiempo: Demo → "Cerrar sesión por inactividad" (AUTH-03, **PA 18**) y Demo → PA 7 "1:1" para mostrar el campo "Identidad declarada".
+Si sobra tiempo: Demo → "Cerrar sesión por inactividad" (AUTH-03, **PA 18**) y Demo → PA 7 "1:1" para mostrar el campo "Identidad declarada". Demo → "Cámara (rostro): Permiso denegado o retirado" y Verificar rostro → Continuar a cámara (ROS-09, **PA 29 y PA 30**): sin permiso no hay otra forma de capturar, y nada se compara.
 
 ## Preguntas al área usuaria (registrar la respuesta en el acta)
 
@@ -52,6 +52,8 @@ Si sobra tiempo: Demo → "Cerrar sesión por inactividad" (AUTH-03, **PA 18**) 
 | 26 | ¿El revisor debe ver el score? | REV-02 |
 | 27 | ¿El agente debe ver el motivo del revisor? | VER-02 |
 | 28 | ¿Qué redacción usar cuando el revisor confirma la coincidencia? (validar con el área legal) | VER-02 |
+| 29 | ¿Se registra en la bitácora un intento de verificación facial que no llegó a la captura por falta de permiso de cámara? Si se registra, ¿con qué datos (usuario, fecha, hora, motivo indicado) y qué figura como resultado? | ROS-09 |
+| 30 | Si el agente da el permiso de cámara desde los ajustes y vuelve a la app, ¿se conserva el motivo que ya indicó o debe indicarlo de nuevo? | ROS-09 |
 
 ## Reglas que no se discuten en la sesión
 

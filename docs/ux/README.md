@@ -61,6 +61,7 @@ flowchart TD
   ROS04 --> ROS06[ROS-06 No concluyente]
   ROS04 --> ROS07[ROS-07 Sin coincidencia en la lista consultada]
   ROS04 --> ROS08[ROS-08 No se pudo completar]
+  ROS01 -->|sin permiso de cámara| ROS09[ROS-09 Sin permiso de cámara]
   ROS05 -->|PA 2 variante A| VER01[VER-01 Mis verificaciones]
   ROS05 -->|PA 2 variante B| REV02
   HOME01 --> VER01 --> VER02[VER-02 Estado / resultado de revisión]
@@ -102,6 +103,7 @@ flowchart TD
 | ROS-06 | No concluyente | HU-05 · E3 Banda intermedia |
 | ROS-07 | Sin coincidencia en la lista consultada | HU-05 · E4 |
 | ROS-08 | No se pudo completar la verificación | HU-05 · E5 El servicio de comparación no responde; HU-08 · E3 |
+| ROS-09 | Sin permiso de cámara | HU-05 · E6 Permiso negado; E7 Permiso retirado antes de capturar (agregada el 2026-11-19; PA 29 y PA 30) |
 | VER-01 | Mis verificaciones | HU-06 · E1 ("el usuario en campo ve el resultado") y E3 ("ve el estado Pendiente"); HU-06 · E4 Nadie revisa la coincidencia en 24 horas (provisional ADR-0008, PA 23) |
 | VER-02 | Detalle de mi verificación | HU-06 · E1 / E3 / E4 (vencida, PA 23) |
 | REV-01 | Pendientes de revisión | HU-06 · E1 (Dado) y E3 (sin alertas); HU-06 · E4 (la vencida sale de la cola y no aparece en REV-01, PA 23) |

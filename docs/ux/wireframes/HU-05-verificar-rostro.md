@@ -16,6 +16,7 @@
 | 6 | No concluyente | E3 Banda intermedia | ROS-06 |
 | 7 | Sin coincidencia en la lista consultada | E4 | ROS-07 |
 | 8 | No se pudo completar | E5 El servicio de comparación no responde (y HU-08 E3) | ROS-08 |
+| 9 | Sin permiso de cámara | E6 El usuario negó el permiso; E7 El permiso se retiró antes de capturar | ROS-09 |
 
 ### ROS-01 — Motivo (paso 1 de 2)
 ```
@@ -134,6 +135,30 @@
 │  [ REPETIR CAPTURA ] [Volver]│
 ```
 - Texto literal de E5. No muestra ninguno de los tres resultados faciales. El error queda en la bitácora.
+
+### ROS-09 — Sin permiso de cámara (E6 y E7, agregada el 2026-11-19)
+```
+│            📷                │
+│ La app no tiene permiso para │
+│ usar la cámara.              │
+│ Sin ese permiso no se puede  │
+│ verificar el rostro.         │
+│ Para darlo: Ajustes ›        │
+│ Aplicaciones › Movil Buscador│
+│ › Permisos › Cámara.         │
+│  [     ABRIR AJUSTES      ]  │
+│  [ Volver al inicio ]        │
+│ ┌ - - - - - - - - - - - - -┐ │
+│ │ ¿Se conserva el motivo al│ │
+│ │ volver de ajustes? PA 30 │ │
+│ │ ¿Se registra el intento  │ │
+│ │ en la bitácora?    PA 29 │ │
+│ └ - - - - - - - - - - - - -┘ │
+```
+- Análoga a OCR-04, con ruta de ajustes de Android. Aparece al tocar "Continuar a cámara" sin permiso (E6), o al volver a la captura o tocar "Capturar" si el permiso se retiró antes de capturar (E7).
+- Sin "Ingresar manualmente" ni galería: el rostro no tiene otra vía de captura. No se envía nada a comparar ni muestra ninguno de los tres resultados faciales.
+- No se registra ninguna comparación. Si el intento se registra o no es el PA 29; en el prototipo no se registra nada.
+- "Volver al inicio" no decide el PA 30. Si al volver de ajustes se conserva el motivo queda marcado como pendiente.
 
 ## Decisiones de diseño
 - El motivo va antes de la cámara: no se fotografía a nadie sin un motivo registrado.

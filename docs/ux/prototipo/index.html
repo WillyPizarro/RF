@@ -243,7 +243,7 @@ const S = {
   fails: {}, locks: {},
   draft: null,
   bitFilter: { fecha:'', usuario:'', tipo:'' },
-  demo: { plate:'auto', face:'posible', camera:'ok', ocr:'ABC-123', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
+  demo: { plate:'auto', face:'posible', camera:'ok', cameraFace:'ok', ocr:'ABC-123', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
   log: [], seqLog: 117,
   verifs: [], seqV: 10
 };
@@ -535,6 +535,23 @@ def('ROS-02', { role:'agente', fname:'Verificar rostro', dark:true, render(){
     <div style="padding:4px 16px 8px">${reserved('Aviso a la persona — por definir', 'Espacio reservado para el aviso de tratamiento de datos.', pa(25))}</div>
     <button class="shutter" data-a="capturarRostro" aria-label="Capturar"></button><div class="shutter-lbl" style="padding-bottom:16px">CAPTURAR</div>`;
 }});
+def('ROS-09', { role:'agente', fname:'Verificar rostro', render(){
+  // HU-05 E6/E7: sin galería ni otra vía de captura; no se compara; no hay resultado facial.
+  return bar('Verificar rostro', {backA:'home'}) + `<div class="body center">
+    <div class="state-ic st-warn">📷</div>
+    <div class="big-msg" role="alert">La app no tiene permiso para usar la cámara.</div>
+    <p class="note">Sin ese permiso no se puede verificar el rostro.</p>
+    <p class="note">Para darlo: Ajustes › Aplicaciones › Movil Buscador › Permisos › Cámara.</p>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <button class="btn primary" data-a="abrirAjustes">Abrir ajustes</button>
+      <button class="btn text" data-a="home">Volver al inicio</button></div>
+    <p class="hint" id="ajustes-hint" hidden>En el prototipo este botón no abre los ajustes.</p>
+    <div style="width:100%;text-align:left;display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      ${reserved('Al volver de ajustes, ¿se conserva el motivo indicado?', 'Por definir.', pa(30))}
+      ${reserved('¿Se registra en la bitácora este intento sin captura?', 'Por definir. No se registra como comparación.', pa(29))}
+    </div>
+  </div>`;
+}});
 def('ROS-03', { role:'agente', fname:'Verificar rostro', render(p){
   return bar('Verificar rostro') + `<div class="body center">
     <div class="state-ic st-warn">⚠</div>
@@ -791,9 +808,12 @@ const ACT = {
     syncDraft();
     const me = motivoError('ros');
     if (me) return setCur('ROS-01', { errs:{ motivo:me } });
-    go('ROS-02');
+    // HU-05 E6: sin permiso de cámara no hay captura ni comparación
+    go(S.demo.cameraFace === 'denegado' ? 'ROS-09' : 'ROS-02');
   },
   capturarRostro(){
+    // HU-05 E7: permiso retirado antes de capturar → misma explicación, nada se compara
+    if (S.demo.cameraFace === 'denegado') return replace('ROS-09');
     const f = S.demo.face;
     if (QUALITY[f]) return replace('ROS-03', { motivo:QUALITY[f] });   // no se compara ni se registra comparación
     const d = S.draft.ros, motivo = motivoText(d.sel, d.otro);
@@ -819,7 +839,7 @@ const ACT = {
       setCur(f === 'nc' ? 'ROS-06' : 'ROS-07', { motivo, at });
     }, CFG.FACE_MS);
   },
-  repetirCaptura(){ S.stack = [{id:'HOME-01',p:{}},{id:'ROS-01',p:{}}]; setCur('ROS-02'); },
+  repetirCaptura(){ if (S.demo.cameraFace === 'denegado') { S.stack = [{id:'HOME-01',p:{}},{id:'ROS-01',p:{}}]; return setCur('ROS-09'); } S.stack = [{id:'HOME-01',p:{}},{id:'ROS-01',p:{}}]; setCur('ROS-02'); },
   nuevaVerif(){ S.draft.ros = {sel:'',otro:'',id:''}; resetTo(['HOME-01'], 'ROS-01'); },
 
   /* HU-06 */
@@ -904,6 +924,7 @@ function demoPanel(){
     ${sel('plate','Respuesta de placa',[['auto','Según placa sintética'],['caida','Forzar fuente caída'],['invalida','Forzar respuesta inválida']],'ABC-123 tiene requisitoria · DEF-456 sin requisitoria · GHI-789 fuente caída')}
     ${sel('face','Respuesta de rostro',[['posible','Posible coincidencia'],['nc','No concluyente'],['sin','Sin coincidencia'],['error','Error del servicio'],['q-frente','Calidad: Mire de frente'],['q-luz','Calidad: Más luz'],['q-borrosa','Calidad: Imagen borrosa'],['q-varias','Calidad: Varias personas'],['q-sinrostro','Calidad: Sin rostro']])}
     ${sel('camera','Cámara (placa)',[['ok','Permiso concedido'],['denegado','Permiso denegado']])}
+    ${sel('cameraFace','Cámara (rostro)',[['ok','Permiso concedido'],['denegado','Permiso denegado o retirado']],'Denegado: ROS-09 al continuar a cámara (HU-05 E6). Retirado: elegirlo estando en la captura y tocar Capturar (E7).')}
     ${sel('ocr','Lectura de placa',[['ABC-123','Lee ABC-123'],['DEF-456','Lee DEF-456'],['GHI-789','Lee GHI-789'],['falla','Falla la lectura']])}
     <h3>Variantes de puntos abiertos</h3>
     <div class="fixed"><b>PA 2:</b> revisor separado (ADR-0003). La variante «mismo usuario» no se incluye: un agente nunca revisa su propia consulta.</div>
