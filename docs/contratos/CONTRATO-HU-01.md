@@ -153,14 +153,16 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 - El esquema exacto de `control_acceso` y la estrategia de renovación en la app (siempre que la sesión no venza con el usuario interactuando).
 - La navegación interna de la app (con o sin expo-router).
 
-## Preguntas abiertas p## Preguntas abiertas para el humano
+## Preguntas abiertas para el humano
 
 Respondidas por el humano el 2026-11-19:
 
 1. **Decisiones 1 a 8:** aprobadas.
 2. **Rama:** `hu-01` sale de `main` después del merge de `hu-08`.
-3. **UX:** no hubo respuesta explícita. Se aplica la propuesta (el UX revisa con capturas de Jest y del emulador) hasta que el humano diga otra cosa.
+3. **UX:** confirmada por el humano (vía PM, 2026-11-19). El UX revisa con capturas de Jest y del emulador, contra los wireframes, antes del veredicto.
 
- | Fecha | Cambio | Motivo | Aprobado por |
+## Changelog
+
+| Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
