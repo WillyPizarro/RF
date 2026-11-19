@@ -74,7 +74,7 @@ Nombres exactos que TESTER y DEV deben respetar:
 | 4 | La API alcanza a los simuladores por la red interna | prueba: con `simuladores` detenido, `/v1/salud` → 503 con `simuladores`; arriba → 200 |
 | 5 | Los simuladores no son accesibles desde fuera | prueba: `docker compose -f infra/docker-compose.yml config` no publica puertos para `simuladores`, `api` ni `db`; solo `proxy` publica 80 y 443 |
 | 6 | Las migraciones corren | comando: `docker compose -f infra/docker-compose.yml run --rm api alembic upgrade head` termina con código 0 sobre una base vacía (migración inicial sin tablas de negocio) |
-| 7 | Formato de error e id de traza (ADR-0007, ADR-0014) | prueba: `GET /v1/no-existe` → 404 `NO_ENCONTRADO`, y una solicitud inválida → 422 `SOLICITUD_INVALIDA`, ambos con el JSON de error; `id_traza` igual a la cabecera `X-Id-Traza` |
+| 7 | Formato de error e id de traza (ADR-0007, ADR-0014) | prueba: `GET /v1/no-existe` → 404 `NO_ENCONTRADO` con el JSON de error (el 422 se prueba con la primera HU que reciba datos, M-2); `id_traza` igual a la cabecera `X-Id-Traza` |
 | 8 | Logs estructurados sin secretos | prueba: una solicitud genera una línea de log JSON con `id_traza`; ninguna línea contiene el valor de `DATABASE_URL` ni de otras variables secretas |
 | 9 | El contrato OpenAPI está publicado y al día | prueba: `contratos/api/openapi.json` es idéntico al OpenAPI de la API, obtenido dentro de la red (`http://api:8000/openapi.json`) o con `app.openapi()` en pytest. El proxy **no** expone `/openapi.json`, solo enruta `/v1/*` (M-1 G); comando `npm run generar:api` en `apps/movil` genera los tipos sin errores |
 | 10 | La app compila y llama a la API solo a través de la URL configurada | comando: `npx tsc --noEmit` en `apps/movil` sin errores; prueba Jest sobre `PantallaEstado`: muestra "Conectado" cuando `/v1/salud` responde 200, y "Sin conexión con el servidor" ante cualquier respuesta distinta de 200 o error de red (fetch global simulado) (M-1 F) |
@@ -123,6 +123,14 @@ Responde las preguntas del DEV y del TESTER. **Reemplaza** lo que la sección 5 
 - **G.** El proxy solo enruta `/v1/*`; no expone `/openapi.json`. El criterio 9 compara dentro de la red o con `app.openapi()`.
 - **H.** Informes: `informes/TESTER-*.md` (TESTER) e `informes/DEV-*.md` (DEV).
 
+## M-2. El 422 se prueba con la primera HU (2026-11-18, aprobado por el humano)
+
+**Reemplaza M-1 B en lo que respecta a la prueba.** En el Sprint 0 la única ruta es `GET /v1/salud`, sin entrada que validar, así que no existe una solicitud real que produzca 422.
+- El DEV mantiene implementado el manejador de 422 `SOLICITUD_INVALIDA` con el formato estándar (M-1 B sigue vigente para la implementación).
+- El criterio 7 prueba solo el 404 `NO_ENCONTRADO`.
+- La prueba del 422 se escribe con la primera HU que reciba datos (HU-01, login) y queda anotada en su contrato.
+- No se agrega ninguna ruta solo para pruebas, ni en el producto ni en fixtures.
+
 ## 7. Preguntas abiertas para el humano
 
 1. **Repositorio git y remoto.** El proyecto no es un repositorio git todavía, y el proceso del LEAD trabaja con ramas y PR (`gh pr create`). ¿Inicializo git aquí y creas un repositorio privado en GitHub? (Nota: la conexión MCP de GitHub falló por token vencido; `gh` en la terminal debe estar autenticado.)
@@ -137,4 +145,5 @@ Responde las preguntas del DEV y del TESTER. **Reemplaza** lo que la sección 5 
 |---|---|---|
 | 2026-11-18 | Preguntas 1 a 5 respondidas: git inicializado (rama `sprint-0`; remoto en GitHub pendiente), servicio `db` local aprobado, contratos de HU en `docs/contratos/`, cuenta EAS a cargo del proveedor, estructura de monorepo aprobada | Usuario |
 | 2026-11-18 | M-1: aclaraciones A a H (salud 503, códigos de error, postgres:17, pantalla de estado, puertos, mensaje de la app, OpenAPI no expuesto, informes) | Usuario |
+| 2026-11-18 | M-2: la prueba del 422 se posterga a HU-01; el criterio 7 prueba solo el 404 | Usuario |
 | 2026-11-18 | `.gitignore` creado por el LEAD al inicializar git (excluye `settings.json`, `.env`, fotos y artefactos). El DEV puede agregar entradas, pero nunca quitar las de secretos ni fotos | LEAD |
