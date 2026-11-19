@@ -38,4 +38,9 @@ Al terminar: `herdr agent prompt lead "ENTREGA <ROL>: <resumen corto> — inform
 
 Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dice qué reemplaza. Si recibes "lee M-n del encargo", es esta sección.
 
-_(Sin instrucciones por ahora.)_
+### M-1 (2026-11-19) — Contratos v2
+
+**Reemplaza** la versión del encabezado: los documentos de trabajo ahora son CONTRATO-HU-01 **v2** y CONTRATO-HU-02 **v2**, aprobados por el humano. Los cambios están en sus changelogs: la nueva §4 bis de HU-01 (montaje en `apps/movil/App.tsx` sin expo-router, `fetch` global con `EXPO_PUBLIC_API_URL`, `testID="app-raiz"`, `BackHandler`), AUTH-03 observable desde afuera y qué cuenta como interacción.
+
+- **DEV:** cumple la §4 bis.
+- **TESTER:** monta `App.tsx` y verifica AUTH-03 como dice la v2.

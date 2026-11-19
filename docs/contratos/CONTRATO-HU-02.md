@@ -1,8 +1,8 @@
 # CONTRATO — HU-02 Acceder solo a las funciones de mi rol
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano)
+**Versión:** v2
+**Estado:** Aprobado (v1 y v2: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-02-acceso-por-rol.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 3 de 5
 **Rama de trabajo:** la misma de HU-01 (`hu-01`), porque HU-02 depende del login (DECISIÓN PROPUESTA 1)
 **Pasa por UX:** Sí. Pantallas HOME-01 y ERR-01 (`docs/ux/wireframes/HU-02-acceso-por-rol.md`).
@@ -102,7 +102,7 @@ Las mismas que CONTRATO-HU-01 (AGENTS.md).
 
 ## Fuera del contrato (decide el DEV)
 
-- Cómo se declara qué rol tiene cada ruta (decorador, dependencia o tabla) y cómo navega la app.
+- Cómo se declara qué rol tiene cada ruta (decorador, dependencia o tabla) y cómo navega la app, dentro de la interfaz que fija CONTRATO-HU-01 §4 bis (v2): montaje en `App.tsx` sin expo-router, `fetch` global y `testID="app-raiz"`.
 
 ## Preguntas abiertas para el humano
 
@@ -116,3 +116,4 @@ Respondidas por el humano el 2026-11-19:
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
+| v2 | 2026-11-19 | La app se prueba con la interfaz de CONTRATO-HU-01 §4 bis (v2) | Hueco que reportó el TESTER | Humano, 2026-11-19 |

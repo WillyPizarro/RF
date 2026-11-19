@@ -1,8 +1,8 @@
 # CONTRATO — HU-01 Iniciar sesión y mantener una sesión segura
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano)
+**Versión:** v2
+**Estado:** Aprobado (v1 y v2: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -84,10 +84,20 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 | Login correcto | Credenciales válidas | Va al inicio de su rol (el contenido de cada inicio lo fija HU-02) | Gherkin esc. 1 |
 | AUTH-02 | `401 CREDENCIALES_INVALIDAS` | Muestra "Usuario o clave incorrectos". El usuario queda escrito y la clave se vacía. No muestra los intentos restantes | Gherkin esc. 2, AUTH-02 |
 | AUTH-04 | `423 CUENTA_BLOQUEADA` | Muestra "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min).", con la hora local calculada desde `bloqueado_hasta`. Vacía la clave y "Ingresar" sigue activo | Gherkin esc. 4, AUTH-04 |
-| AUTH-03 | `inactividad_s` sin que el usuario toque la pantalla, o un `401 SESION_VENCIDA` | Vuelve al login con "Su sesión se cerró por inactividad. Ingrese de nuevo.". SecureStore, la caché de consultas y el store quedan vacíos; "atrás" no vuelve a la pantalla anterior | Gherkin esc. 3, AUTH-03, TDD |
-| Sesión activa | El usuario interactúa con la app | La sesión no vence mientras haya interacción (la app renueva a tiempo; cómo lo hace es libre) | ADR-0011 |
+| AUTH-03 | `inactividad_s` sin que el usuario toque la pantalla, o un `401 SESION_VENCIDA` | Vuelve al login con "Su sesión se cerró por inactividad. Ingrese de nuevo.". El almacenamiento simulado de `expo-secure-store` queda sin ninguna clave; si después inicia sesión otro usuario, no aparece ningún dato del anterior (nombre, rol, pantallas); la app no vuelve a enviar el token anterior en ninguna solicitud; y "atrás" (`hardwareBackPress` de `BackHandler`) no vuelve a la pantalla anterior | Gherkin esc. 3, AUTH-03, TDD · **v2** |
+| Sesión activa | El usuario interactúa con la app | La sesión no vence mientras haya interacción (la app renueva a tiempo; cómo lo hace es libre). **Cuenta como interacción** un `touchStart` sobre la vista raíz de la app, que lleva `testID="app-raiz"` | ADR-0011 · **v2** |
 | Otro error | Error de red o `5xx` en el login | Muestra "No se pudo completar la operación; intente nuevamente". Nunca muestra un mensaje de credenciales | AGENTS.md regla 7 · DECISIÓN PROPUESTA 7 |
 | Valor de inactividad | — | La app toma el tiempo de `inactividad_s` del login; no lo tiene fijo en el código | ADR-0011 ("sin cambiar código") |
+
+### 4 bis. Interfaz de la app para las pruebas (v2)
+
+| Caso | Valor exacto | Origen |
+|---|---|---|
+| Montaje | La app completa es el export por defecto de `apps/movil/App.tsx`. **Sin expo-router.** Renderizarlo muestra AUTH-01 si no hay sesión | SPRINT0 M-1 D · v2 |
+| API | La app llama a `EXPO_PUBLIC_API_URL` + `/v1/...` con el `fetch` global, como en el Sprint 0 | SPRINT0 M-1 D · v2 |
+| Vista raíz | Elemento con `testID="app-raiz"` que envuelve todas las pantallas | v2 |
+| Atrás | El botón atrás de Android es `BackHandler` (`hardwareBackPress`) | v2 |
+| Token | Se guarda en `expo-secure-store` (ADR-0013); el nombre de la clave es libre | ADR-0013 |
 
 ### 5. Bitácora y seguridad
 
@@ -151,7 +161,7 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 
 - Cómo se valida la clave contra Supabase Auth, cómo se firman y verifican los JWT, y dónde se guarda la última actividad de la sesión.
 - El esquema exacto de `control_acceso` y la estrategia de renovación en la app (siempre que la sesión no venza con el usuario interactuando).
-- La navegación interna de la app (con o sin expo-router).
+- La navegación interna de la app, siempre sin expo-router (v2) y montada desde `App.tsx`.
 
 ## Preguntas abiertas para el humano
 
@@ -166,3 +176,4 @@ Respondidas por el humano el 2026-11-19:
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
+| v2 | 2026-11-19 | §4 bis (montaje en `App.tsx` sin expo-router, `fetch` global, `testID="app-raiz"`, `BackHandler`); AUTH-03 observable desde afuera (SecureStore simulado sin claves, sin datos del usuario anterior, sin el token viejo) en lugar de "caché y store vacíos"; qué cuenta como interacción | Hueco que reportó el TESTER: el contrato no fijaba la interfaz de la app para Jest | Humano, 2026-11-19 |
