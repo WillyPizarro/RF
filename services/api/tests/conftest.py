@@ -79,7 +79,18 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
+_ORDEN_CONFIG = {"config_defecto": 0, "config_corta": 1, "config_token_corto": 2}
+
+
+def _orden_config(item: pytest.Item) -> int:
+    nombres = getattr(item, "fixturenames", ())
+    return max((v for k, v in _ORDEN_CONFIG.items() if k in nombres), default=0)
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    # HU-01: agrupa por configuración de la API para recrearla las menos veces posible
+    # (orden estable: dentro de cada grupo se respeta el orden de los archivos).
+    items.sort(key=_orden_config)
     if config.getoption("--integracion"):
         return
     omitir = pytest.mark.skip(
@@ -152,6 +163,11 @@ class Compose:
 
     def _base(self) -> list[str]:
         cmd = ["docker", "compose", "-f", str(COMPOSE_FILE)]
+        # ENCARGO-HU-01-02 regla 7: siempre con el montaje de fotos, para no recrear
+        # `simuladores` sin él (lección del veredicto de HU-08).
+        fotos = COMPOSE_FILE.parent / "docker-compose.fotos.yml"
+        if fotos.is_file():
+            cmd += ["-f", str(fotos)]
         if ENV_FILE is not None and ENV_FILE.exists():
             cmd += ["--env-file", str(ENV_FILE)]
         return cmd
@@ -279,3 +295,58 @@ def valores_secretos() -> dict[str, str]:
             if len(clave) >= 6:
                 secretos["DATABASE_URL (contraseña)"] = clave
     return secretos
+
+
+# ------------------------------------------------------ HU-01 / HU-02 (red interna)
+
+# Configuraciones cortas para probar tiempos sin esperar 10 o 15 minutos. Los valores por
+# defecto del contrato (600/900/5/900) se prueban con infra/.env sin cambios.
+CONFIG_CORTA = {  # inactividad y bloqueo cortos; el token dura más que la inactividad
+    "SESION_INACTIVIDAD_S": "12",
+    "TOKEN_ACCESO_VIGENCIA_S": "120",
+    "BLOQUEO_INTENTOS": "5",
+    "BLOQUEO_DURACION_S": "12",
+}
+CONFIG_TOKEN_CORTO = {  # el token de acceso vence antes que la inactividad
+    "SESION_INACTIVIDAD_S": "600",
+    "TOKEN_ACCESO_VIGENCIA_S": "6",
+    "BLOQUEO_INTENTOS": "5",
+    "BLOQUEO_DURACION_S": "900",
+}
+
+
+@pytest.fixture(scope="session")
+def sistema(pytestconfig: pytest.Config):
+    """API por la red interna + bitácora + configuración. Al final vuelve a infra/.env."""
+    from red_interna import Sistema
+
+    if RAIZ_REPO is None:
+        pytest.fail("Correr desde el anfitrión: pytest services/api/tests --integracion")
+    s = Sistema(RAIZ_REPO, pytestconfig.getoption("--espera-max"))
+    s.esperar_api()
+    yield s
+    if s.overrides_actuales:
+        s.configurar({})
+
+
+@pytest.fixture
+def config_defecto(sistema):
+    sistema.configurar({})
+    return sistema
+
+
+@pytest.fixture
+def config_corta(sistema):
+    sistema.configurar(CONFIG_CORTA)
+    return sistema
+
+
+@pytest.fixture
+def config_token_corto(sistema):
+    sistema.configurar(CONFIG_TOKEN_CORTO)
+    return sistema
+
+
+@pytest.fixture(scope="session")
+def clave(sistema) -> str:
+    return sistema.clave_pruebas()
