@@ -41,3 +41,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **DEV:** C6 es trabajo nuevo, junto con C5.
 - **TESTER:** usa `CONTRATOS_FUENTES_DIR`.
+
+### M-3 (2026-11-19) — Contrato v4
+
+**Reemplaza** a M-2 en la versión: el documento de trabajo ahora es el contrato **v4**. C7: en el §8, los textos prohibidos en `apps/movil/src/` son exactamente `//simuladores`, `simuladores:8001`, `:8001` y `/placas/`. Se quita `simuladores:`, que chocaba con el campo de `/v1/salud`.
+
+- **TESTER:** ajusta la prueba del §8.
+- **DEV:** no le cambia nada.

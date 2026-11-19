@@ -1,8 +1,8 @@
 # CONTRATO — HU-08 Simuladores de fuentes (base de placa y rostro)
 
 **Tipo:** Feature
-**Versión:** v3
-**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2 y v3: 2026-11-19, humano)
+**Versión:** v4
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2 a v4: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-08-simuladores-fuentes.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 1 de 5
 **Rama de trabajo:** `hu-08`, creada desde `main` (2ef0829)
 **Pasa por UX:** No. Esta HU no cambia nada visible en la app (regla de coordinación 8 del LEAD).
@@ -163,7 +163,7 @@ La prueba de punta a punta del escenario 2 (la API apuntando al mock, con las pr
 | Caso | Salida esperada | Origen |
 |---|---|---|
 | Sin puerto publicado | `docker compose -f infra/docker-compose.yml config` no publica ningún puerto de `simuladores` | ADR-0006 §6, ADR-0009, SPRINT0 criterio 5 |
-| Ni el proxy ni la app | El `Caddyfile` no enruta nada hacia `simuladores`, y `apps/movil/src/` no contiene `simuladores:`, `//simuladores`, `8001` ni `/placas/`. El nombre de campo `simuladores` de `GET /v1/salud` (SPRINT0 §5) está permitido | TDD › HU-08 criterio 1 · **v2 C2** |
+| Ni el proxy ni la app | El `Caddyfile` no enruta nada hacia `simuladores`, y `apps/movil/src/` no contiene ninguno de estos textos exactos: `//simuladores`, `simuladores:8001`, `:8001` ni `/placas/`. El nombre de campo `simuladores` de `GET /v1/salud` (SPRINT0 §5) está permitido | TDD › HU-08 criterio 1 · v2 C2 · **v4 C7** |
 | Desde la API sí | Desde el contenedor `api`, `GET http://simuladores:8001/placas/ZZA-101` → `200` | ADR-0006 §6 |
 | Salud intacta | `GET /v1/salud` sigue cumpliendo SPRINT0 §5 sin cambios | SPRINT0 |
 
@@ -239,3 +239,4 @@ Todas respondidas por el humano (vía PM) el 2026-11-19:
 | v1 | 2026-11-19 | Versión inicial; decisiones 1 a 8 aprobadas, preguntas respondidas | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | C1 carga de fotos (§4 bis) · C2 §8 prohíbe la dirección del simulador, no el campo `simuladores` de `/v1/salud` · C3 la prohibición de imágenes excluye `apps/movil/assets/` · C4 respuestas de `/control/modos` · C5 dependencias de prueba | Huecos que reportaron el TESTER (fotos, dependencias, H1, H2, `/control`) y el DEV (H2) | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | C6 los yaml se montan en el contenedor `simuladores` (`CONTRATOS_FUENTES_DIR`) | Hueco que reportó el TESTER: sin el montaje, C5 no se podía cumplir | Humano, 2026-11-19 |
+| v4 | 2026-11-19 | C7 los textos prohibidos del §8 pasan a ser `//simuladores`, `simuladores:8001`, `:8001` y `/placas/` (se quita `simuladores:`) | El TESTER reportó que `simuladores:` chocaba con el campo permitido de `/v1/salud` (error de redacción en C2) | Humano, 2026-11-19 |
