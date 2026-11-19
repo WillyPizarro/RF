@@ -32,6 +32,6 @@ Prototipo móvil (MVP, 30 a 40 días) para que personal autorizado verifique si 
 | ARCH | `docs/arch/` |
 | UX | `docs/ux/` |
 | BA / PM | `docs/hus/`, `PRD.md` |
-| Solo LEAD / humano | `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `skills-lock.json`, `settings.json`, `SPRINT0.md`, `docs/contratos/` |
+| Solo LEAD / humano | `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `skills-lock.json`, `settings.json`, `SPRINT0.md`, `docs/contratos/`, `informes/VEREDICTO-*.md` |
 
 Cada rol toca solo sus rutas. Los commits llevan el prefijo del rol (`[DEV]`, `[TESTER]`, …) e incluyen solo archivos de sus rutas. Nadie hace push a `main` ni mergea: eso lo decide el humano.
