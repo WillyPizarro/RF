@@ -5,7 +5,7 @@
 **Código verificado:** rama `sprint-0`, commit `119ec2a` (árbol limpio)
 **Entregas:** TESTER `0ff3428` (`informes/TESTER-SPRINT0.md`) · DEV `2d9c0c7` + `119ec2a` (`informes/DEV-SPRINT0.md`)
 
-**Resultado: 🔴 NO CUMPLE TODAVÍA.** 10 criterios en verde, 2 en rojo (los dos se devuelven al TESTER) y 2 `NO VERIFICADO` por entorno. Revisión humana pendiente en el criterio 14.
+**Resultado vuelta 1: 🔴** — **Resultado final (vuelta 2): 🟢 CUMPLE** (ver sección 10). 10 criterios en verde, 2 en rojo (los dos se devuelven al TESTER) y 2 `NO VERIFICADO` por entorno. Revisión humana pendiente en el criterio 14.
 
 ## 1. Propiedad de rutas
 
@@ -100,3 +100,25 @@ Pendiente de la cuenta EAS (pregunta 4 del Sprint 0). El humano puede aceptarlo 
 - Criterio 1: aceptado como `NO VERIFICADO` en esta máquina; se verifica con el comando literal en el VPS.
 - Criterio 15: aceptado como `NO VERIFICADO` hasta tener la cuenta EAS.
 - Criterio 14: confirmado (cero lógica de negocio).
+
+## 10. Vuelta 2 — suite completa (2026-11-19)
+
+**Commit verificado:** `7f12e22` (árbol limpio). La suite completa se corrió **una sola vez**, con las imágenes reconstruidas.
+
+Revisión previa de la corrección del TESTER (`7f12e22`): solo tocó sus rutas; el número de aserciones no cambió en ningún archivo; el único cambio fuera de los `conftest` (`test_contrato_openapi.py`) agrega una aserción, no quita ninguna. **Sin trampas.**
+
+| # | Criterio | Evidencia | Resultado |
+|---|---|---|---|
+| 1 | Arranque con un solo comando | Puerto 80 reservado por Windows | `NO VERIFICADO` (aceptado por el humano) |
+| 2–5, 7–9 | Salud, dependencias, red, errores, logs, OpenAPI | `pytest services/api/tests --integracion`: **43 passed**; simuladores: **3 passed**; `generar:api` sin diferencias | 🟢 |
+| 6 | Migraciones | `alembic upgrade head` → exit 0 | 🟢 |
+| 10 | La app compila y usa la URL configurada | `npx tsc --noEmit` → exit 0; Jest **10/10** | 🟢 |
+| 11 | Runners | `run --rm api pytest` → 43 skipped (con motivo), exit 0; `run --rm simuladores pytest` → 3 passed, exit 0; `npm test` → 10/10 | 🟢 |
+| 12 | Sin secretos | gitleaks sobre toda la historia: "no leaks found" | 🟢 |
+| 13 | ADRs transversales | Sección 6 (sin cambios en el código desde la vuelta 1) | 🟢 |
+| 14 | Cero lógica de negocio | Confirmado por el humano | 🟢 |
+| 15 | Android de referencia | Sin cuenta EAS | `NO VERIFICADO` (aceptado por el humano) |
+
+**Resultado final: 🟢 CUMPLE.** 13 criterios en verde y 2 `NO VERIFICADO` aceptados por el humano. Vueltas usadas: 1 (TESTER). Ningún desacuerdo llegó a la segunda vuelta.
+
+**Pendiente para abrir el PR:** remoto en GitHub y `gh` instalado y autenticado.
