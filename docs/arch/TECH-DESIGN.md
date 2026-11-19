@@ -82,6 +82,18 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0013](adrs/0013-estado-app.md) | Estado en memoria (TanStack Query) y sesión en SecureStore | Aceptado |
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
 
+## Modelos biométricos fijados
+
+Verificado el 2026-11-18 (encargo del LEAD, Sprint 0). El detalle de la prueba de la API está en el [ADR-0004 › Versiones y modelos fijados](adrs/0004-verificacion-facial.md#versiones-y-modelos-fijados-sprint-0-2026-11-18).
+
+| Pieza | Versión / archivo | Licencia | SHA-256 |
+|---|---|---|---|
+| OpenCV | `opencv-python-headless==5.1.0.95` | — | — |
+| YuNet (detección) | `face_detection_yunet_2026may.onnx` | **MIT** (LICENSE de `models/face_detection_yunet/`) | `ebafce4e3c118d6554634be5c27ab333b4c047a9a8c3faf1d7cf93101c22f0f0` |
+| SFace (reconocimiento) | `face_recognition_sface_2021dec.onnx` | **Apache 2.0** (LICENSE de `models/face_recognition_sface/`) | `0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79` |
+
+Fuente: opencv_zoo, rama `main`, commit `48b10fa505aeb51fbd127fc60a5c660040e823b7`. Las dos licencias permiten el uso en un servicio contratado (regla de negocio 6); ninguno de los modelos es de InsightFace. La API de 5.1 es compatible con lo que asume el ADR-0004, salvo el nombre de la constante en Python: se usa `cv.FaceRecognizerSF_FR_COSINE`.
+
 ## Modelo de datos
 
 Base de datos de la API (Postgres en Supabase). El esquema `auth` pertenece a Supabase y no se modifica. Todas las tablas de negocio llevan `es_sintetico boolean not null default true`.
@@ -227,11 +239,11 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - **Capturas de candidatos en reposo hasta 24 h** en la nube, fuera del Perú: es el riesgo principal de la evaluación de impacto (ADR-0008, ADR-0009).
 - **Consentimiento ampliado** para las fotos del equipo: debe estar firmado antes del día 6, o la prueba biométrica temprana se retrasa.
 - **Datos biométricos poco representativos** (unas 20 personas del equipo): la evaluación no se puede extrapolar a producción; se reporta por subgrupo y con la regla de 3.
-- **Licencias de YuNet y SFace:** según la skill, MIT y Apache 2.0, pero **NO VERIFICADO** contra el LICENSE vigente de opencv_zoo. Hay que verificarlo y anotar los hashes en el Sprint 0.
+- ~~Licencias de YuNet y SFace sin verificar~~: **verificadas el 2026-11-18** (ver "Modelos biométricos fijados"). La prueba de la API en la imagen Linux del contenedor `api` es un requisito del contrato de HU-05 (LEAD).
 - **Expresión regular de placa** no verificada contra la normativa (PA #20).
 - **Contratos de las fuentes** diseñados sin conocer las reales (PA #6): pueden requerir reescribir los adaptadores.
 - **Planes de terceros:** Supabase gratis puede pausarse en la semana de validación; conviene evaluar un mes del plan Pro.
-- **Diagramas:** pasaron la validación, la generación y la verificación estática de `archify`, pero la revisión automática en el navegador no pudo ejecutarse porque Chrome no se conecta desde el entorno de generación. Falta revisarlos visualmente.
+- **Diagramas:** pasaron todas las verificaciones de `archify`, incluida la revisión automática en el navegador (el usuario la ejecutó desde su PowerShell el 2026-11-18).
 
 ### Estado de los conflictos y puntos abiertos encargados al ARCH
 

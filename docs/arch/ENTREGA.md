@@ -26,5 +26,5 @@
 
 - **PA #17 / #8 (bloqueante):** aceptación escrita de la propuesta (stack e infraestructura del proveedor, simuladores, entrega con compose).
 - PA #7 (1:1 frente a lista), PA #2 (quién revisa), PA #6 (fuentes y campos reales), PA #4 (metas definitivas), PA #16 (retención en producción) y PA #20 (formatos de placa: la expresión regular está **NO VERIFICADA**).
-- Licencias de YuNet y SFace sin verificar contra opencv_zoo (Sprint 0).
-- ~~Diagramas C4 y de secuencia pendientes~~: **entregados el 2026-11-18** en [`diagramas/`](diagramas/) y enlazados desde la sección "Diagramas" del TDD. Falta la revisión automática en el navegador (Chrome no se conecta desde el entorno) y una revisión visual.
+- ~~Licencias de YuNet y SFace sin verificar~~: **verificadas el 2026-11-18** (YuNet MIT, SFace Apache 2.0). Quedan fijados `opencv-python-headless==5.1.0.95`, `face_detection_yunet_2026may.onnx` y `face_recognition_sface_2021dec.onnx`, con sus hashes (TDD › Modelos biométricos fijados; ADR-0004). La prueba de la API en la imagen Linux del contenedor `api` es un requisito del contrato de HU-05 (LEAD).
+- ~~Diagramas C4 y de secuencia pendientes~~: **entregados el 2026-11-18** en [`diagramas/`](diagramas/) y enlazados desde la sección "Diagramas" del TDD. Pasaron la revisión automática en el navegador (el usuario la ejecutó el 2026-11-18).
