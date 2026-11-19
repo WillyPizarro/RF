@@ -1,7 +1,7 @@
-"""CONTRATO-HU-08 v1 §4 'Sin fotos en el repositorio' (AGENTS.md regla 8, decisión 6).
+"""CONTRATO-HU-08 v2 §4 'Sin fotos en el repositorio' (AGENTS.md regla 8, decisión 6, v2 C3).
 
-Solo anfitrión: recorre los archivos versionados (`git ls-files`) y busca imágenes por extensión
-y por firma de bytes.
+Ningún archivo de imagen versionado (`git ls-files`) fuera de `apps/movil/assets/` (íconos y
+splash de la app). Solo anfitrión; busca por extensión y por firma de bytes.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import pytest
 
 EXTENSIONES = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".heic", ".heif", ".tif",
                ".tiff", ".avif", ".jfif"}
+EXCEPCION = "apps/movil/assets/"  # v2 C3
 FIRMAS = (b"\xff\xd8\xff", b"\x89PNG\r\n\x1a\n", b"GIF87a", b"GIF89a", b"BM")
 
 
@@ -21,7 +22,8 @@ def _versionados(raiz) -> list[str]:
         pytest.skip("git no está disponible")
     r = subprocess.run(["git", "ls-files", "-z"], cwd=raiz, capture_output=True)
     assert r.returncode == 0
-    return [p for p in r.stdout.decode("utf-8").split("\0") if p]
+    return [p for p in r.stdout.decode("utf-8").split("\0")
+            if p and not p.startswith(EXCEPCION)]
 
 
 def test_ninguna_imagen_versionada_por_extension(raiz_repo):

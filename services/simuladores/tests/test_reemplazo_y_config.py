@@ -39,7 +39,11 @@ def test_url_por_fuente_en_env_example_con_comentario(raiz_repo, var):
     lineas = _env_example(raiz_repo)
     i = _linea_de(lineas, var)
     assert i is not None, f"{var} no figura en infra/.env.example"
-    comentario_arriba = i > 0 and lineas[i - 1].strip().startswith("#")
+    # Vale un comentario en la misma línea, o el que abre su bloque de variables contiguas.
+    j = i - 1
+    while j >= 0 and re.match(r"^\s*[A-Z_][A-Z0-9_]*\s*=", lineas[j]):
+        j -= 1
+    comentario_arriba = j >= 0 and lineas[j].strip().startswith("#")
     comentario_en_linea = "#" in lineas[i].split("=", 1)[1]
     assert comentario_arriba or comentario_en_linea, f"{var} sin comentario"
 
@@ -109,4 +113,5 @@ def test_mock_desde_el_yaml_cumple_el_mismo_contrato(raiz_repo, mock_placas):
     with urllib.request.urlopen(req, timeout=10) as r:
         resp = Respuesta(r.status, dict(r.headers.items()), r.read())
     assert resp.estado == 200
-    assert errores_contra_yaml(cargar_yaml(raiz_repo, "placas"), ruta, "GET", resp) == []
+    doc = cargar_yaml(raiz_repo / "contratos" / "fuentes", "placas")
+    assert errores_contra_yaml(doc, ruta, "GET", resp) == []

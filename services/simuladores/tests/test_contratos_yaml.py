@@ -1,9 +1,10 @@
 """CONTRATO-HU-08 v1 §6 — Contratos documentados (`contratos/fuentes/*.yaml`).
 
-Solo anfitrión: el contenedor `simuladores` no tiene `contratos/`. Necesita
-`pip install -r services/simuladores/tests/requirements-pruebas.txt`; sin esas dependencias, las
-pruebas se omiten (NO VERIFICADO, indicación del LEAD 2026-11-19).
-Las que comparan con lo desplegado necesitan además `--integracion`.
+Contrato v3 C5/C6: el contenedor `simuladores` trae pyyaml y jsonschema y monta los yaml en
+CONTRATOS_FUENTES_DIR. En el anfitrión se usan los del repositorio. Si faltan, las pruebas se
+omiten con el motivo; que C5 y C6 se cumplan lo verifica test_herramientas.py.
+La validación OpenAPI 3.1 completa usa openapi-spec-validator si está instalado (anfitrión,
+requirements-pruebas.txt); si no, se omite solo esa prueba.
 """
 
 from __future__ import annotations
@@ -14,11 +15,10 @@ import pytest
 
 yaml = pytest.importorskip("yaml", reason="falta pyyaml (requirements-pruebas.txt)")
 pytest.importorskip("jsonschema", reason="falta jsonschema (requirements-pruebas.txt)")
-pytest.importorskip("openapi_spec_validator",
-                    reason="falta openapi-spec-validator (requirements-pruebas.txt)")
 
+from conftest import RAIZ_REPO  # noqa: E402
 from ayudas_contrato import (  # noqa: E402
-    CAMPOS_PERSONA, CAMPOS_PLACA, CAMPOS_REQUISITORIA, PALABRA_PROHIBIDA, PERSONA_EXISTE,
+    buscar_dir_contratos, CAMPOS_PERSONA, CAMPOS_PLACA, CAMPOS_REQUISITORIA, PALABRA_PROHIBIDA, PERSONA_EXISTE,
     PERSONA_NO_EXISTE, PLACA_CON, PLACA_NO_EXISTE, PLACA_SIN, YAMLS, cargar_yaml,
     errores_contra_yaml,
 )
@@ -50,8 +50,16 @@ MUESTRAS = {
 }
 
 
-def _texto(raiz, fuente):
-    return (raiz / "contratos" / "fuentes" / YAMLS[fuente]).read_text(encoding="utf-8")
+@pytest.fixture(scope="module")
+def dir_fuentes():
+    d = buscar_dir_contratos(RAIZ_REPO)
+    if d is None:
+        pytest.skip("No se encuentran los yaml (ni CONTRATOS_FUENTES_DIR ni el repositorio)")
+    return d
+
+
+def _texto(dir_fuentes, fuente):
+    return (dir_fuentes / YAMLS[fuente]).read_text(encoding="utf-8")
 
 
 def _propiedades(obj, acc=None):
@@ -72,16 +80,18 @@ def _propiedades(obj, acc=None):
 # --- Existen y son OpenAPI 3.1 válidos ------------------------------------------------------
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_existe(raiz_repo, fuente):
-    assert (raiz_repo / "contratos" / "fuentes" / YAMLS[fuente]).is_file()
+def test_existe(dir_fuentes, fuente):
+    assert (dir_fuentes / YAMLS[fuente]).is_file()
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_openapi_31_valido(raiz_repo, fuente):
+def test_openapi_31_valido(dir_fuentes, fuente):
+    pytest.importorskip("openapi_spec_validator",
+                        reason="falta openapi-spec-validator (requirements-pruebas.txt)")
     from openapi_spec_validator import validate
     from openapi_spec_validator.validation import OpenAPIV31SpecValidator
 
-    doc = cargar_yaml(raiz_repo, fuente)
+    doc = cargar_yaml(dir_fuentes, fuente)
     assert str(doc.get("openapi", "")).startswith("3.1"), doc.get("openapi")
     validate(doc, cls=OpenAPIV31SpecValidator)
 
@@ -89,36 +99,36 @@ def test_openapi_31_valido(raiz_repo, fuente):
 # --- Contenido -------------------------------------------------------------------------------
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_rutas_del_contrato(raiz_repo, fuente):
-    paths = set(cargar_yaml(raiz_repo, fuente).get("paths") or {})
+def test_rutas_del_contrato(dir_fuentes, fuente):
+    paths = set(cargar_yaml(dir_fuentes, fuente).get("paths") or {})
     assert RUTAS_CONTRATO[fuente] <= paths, f"faltan {RUTAS_CONTRATO[fuente] - paths}"
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_sin_ruta_de_control(raiz_repo, fuente):
+def test_sin_ruta_de_control(dir_fuentes, fuente):
     """§6 'Ruta de control': /control/* no figura en los yaml."""
-    paths = cargar_yaml(raiz_repo, fuente).get("paths") or {}
+    paths = cargar_yaml(dir_fuentes, fuente).get("paths") or {}
     assert not [p for p in paths if p.startswith("/control")]
-    assert "/control/" not in _texto(raiz_repo, fuente)
+    assert "/control/" not in _texto(dir_fuentes, fuente)
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_documenta_los_campos(raiz_repo, fuente):
-    faltan = CAMPOS[fuente] - _propiedades(cargar_yaml(raiz_repo, fuente))
+def test_documenta_los_campos(dir_fuentes, fuente):
+    faltan = CAMPOS[fuente] - _propiedades(cargar_yaml(dir_fuentes, fuente))
     assert not faltan, f"campos no documentados: {sorted(faltan)}"
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_documenta_los_codigos_de_error(raiz_repo, fuente):
-    texto = _texto(raiz_repo, fuente)
+def test_documenta_los_codigos_de_error(dir_fuentes, fuente):
+    texto = _texto(dir_fuentes, fuente)
     faltan = {c for c in CODIGOS[fuente] if c not in texto}
     assert not faltan, f"códigos no documentados: {sorted(faltan)}"
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_un_ejemplo_por_respuesta(raiz_repo, fuente):
+def test_un_ejemplo_por_respuesta(dir_fuentes, fuente):
     """§6 'Contenido': un ejemplo por respuesta (en el tipo JSON de cada respuesta)."""
-    doc = cargar_yaml(raiz_repo, fuente)
+    doc = cargar_yaml(dir_fuentes, fuente)
     sin = []
     for ruta, ops in (doc.get("paths") or {}).items():
         for metodo, op in (ops or {}).items():
@@ -140,31 +150,31 @@ def test_un_ejemplo_por_respuesta(raiz_repo, fuente):
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_documenta_tiempo_de_respuesta(raiz_repo, fuente):
-    texto = _texto(raiz_repo, fuente)
+def test_documenta_tiempo_de_respuesta(dir_fuentes, fuente):
+    texto = _texto(dir_fuentes, fuente)
     assert "x-tiempo-respuesta-ms" in texto or re.search(r"tiempo de respuesta", texto, re.I)
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_sin_palabra_prohibida(raiz_repo, fuente):
+def test_sin_palabra_prohibida(dir_fuentes, fuente):
     """§6 + AGENTS.md regla 1."""
-    assert PALABRA_PROHIBIDA not in _texto(raiz_repo, fuente).lower()
+    assert PALABRA_PROHIBIDA not in _texto(dir_fuentes, fuente).lower()
 
 
-# --- Coinciden con lo desplegado (necesita --integracion) -----------------------------------
+# --- Coinciden con lo desplegado (red de Docker o --integracion) -----------------------------------
 
 @pytest.mark.parametrize("fuente,ruta", [(f, r) for f in FUENTES for r in MUESTRAS[f]])
-def test_respuesta_normal_valida_contra_yaml(solo_anfitrion, modos_limpios, fuente, ruta):
+def test_respuesta_normal_valida_contra_yaml(dir_fuentes, modos_limpios, fuente, ruta):
     """§6 'Coinciden con lo desplegado': 200 y 404 en modo normal validan contra el yaml."""
-    doc = cargar_yaml(solo_anfitrion, fuente)
+    doc = cargar_yaml(dir_fuentes, fuente)
     r = modos_limpios.get(ruta)
     assert r.estado in (200, 404), f"{ruta}: {r.estado}"
     assert errores_contra_yaml(doc, ruta, "GET", r) == []
 
 
-def test_foto_cargada_valida_contra_yaml(solo_anfitrion, modos_limpios):
+def test_foto_cargada_valida_contra_yaml(dir_fuentes, modos_limpios):
     """§6 + §2 'Foto cargada': el tipo de contenido de la foto está documentado."""
-    doc = cargar_yaml(solo_anfitrion, "requisitorias-personas")
+    doc = cargar_yaml(dir_fuentes, "requisitorias-personas")
     for n in range(1, 100):
         r = modos_limpios.get(f"/personas/SIM-P-{n:04d}")
         if r.estado == 200 and r.json().get("foto_ids"):
@@ -175,9 +185,9 @@ def test_foto_cargada_valida_contra_yaml(solo_anfitrion, modos_limpios):
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-def test_malformada_no_valida_contra_yaml(solo_anfitrion, modos_limpios, fuente):
+def test_malformada_no_valida_contra_yaml(dir_fuentes, modos_limpios, fuente):
     """§5 `malformada`: 200 con un cuerpo que NO valida contra el contrato de su fuente."""
-    doc = cargar_yaml(solo_anfitrion, fuente)
+    doc = cargar_yaml(dir_fuentes, fuente)
     ruta = MUESTRAS[fuente][0]
     modos_limpios.poner_modo(fuente, "malformada")
     r = modos_limpios.get(ruta)

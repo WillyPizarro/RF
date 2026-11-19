@@ -3,12 +3,9 @@
 `PUT /control/modos/{fuente}` body `{"modo", "latencia_ms"?}` · `GET /control/modos`.
 Cada prueba deja todas las fuentes en `normal` (fixture `modos_limpios`).
 
-Lo que el contrato no fija y por eso NO se verifica: el código de estado exacto de un PUT válido
-(se acepta cualquier 2xx) y la forma interna de cada valor de `GET /control/modos` (solo se exige
-que sea un objeto que refleje el modo puesto).
+v2 C4: un PUT válido → 200 `{"modo","latencia_ms"}` (latencia_ms null salvo en `latencia`, por
+defecto 5000); `GET /control/modos` → 200 con una clave por fuente y valores `{"modo","latencia_ms"}`.
 """
-
-import json
 
 import pytest
 
@@ -38,7 +35,8 @@ DATOS = {
 
 
 def _es_2xx(r):
-    return r.estado is not None and 200 <= r.estado < 300
+    """v2 C4: un cambio válido responde exactamente 200."""
+    return r.estado == 200
 
 
 def _normal_ok(cliente, fuente):
@@ -52,22 +50,32 @@ def _normal_ok(cliente, fuente):
 # --- Control ---------------------------------------------------------------------------------
 
 def test_get_control_modos_lista_las_tres_fuentes(modos_limpios):
+    """§5 'Lectura' (v2 C4): 200, una clave por fuente, valores {"modo","latencia_ms"}."""
     r = modos_limpios.get("/control/modos")
     assert r.estado == 200, r.texto
     d = r.json()
     assert set(d) == set(FUENTES)
-    assert all(isinstance(v, dict) for v in d.values())
-    for v in d.values():
-        assert "normal" in json.dumps(v)
+    for f, v in d.items():
+        assert v == {"modo": "normal", "latencia_ms": None}, f"{f}: {v}"
 
 
 @pytest.mark.parametrize("fuente", FUENTES)
-@pytest.mark.parametrize("modo", ["latencia", "error_500", "malformada", "normal"])
-def test_put_modo_valido_se_refleja_en_get(modos_limpios, fuente, modo):
-    r = modos_limpios.poner_modo(fuente, modo)
-    assert _es_2xx(r), f"PUT {fuente} {modo}: {r.estado} {r.texto[:200]}"
-    estado = modos_limpios.get("/control/modos").json()
-    assert modo in json.dumps(estado[fuente]), estado
+@pytest.mark.parametrize("modo,latencia_ms,esperada", [
+    ("latencia", None, 5000),
+    ("latencia", 1234, 1234),
+    ("error_500", None, None),
+    ("malformada", None, None),
+    ("normal", None, None),
+])
+def test_put_modo_valido_responde_y_se_refleja_en_get(modos_limpios, fuente, modo, latencia_ms,
+                                                       esperada):
+    """§5 'Cambio válido' y 'Lectura' (v2 C4)."""
+    r = modos_limpios.poner_modo(fuente, modo, latencia_ms)
+    assert r.estado == 200, f"PUT {fuente} {modo}: {r.estado} {r.texto[:200]}"
+    assert r.json() == {"modo": modo, "latencia_ms": esperada}
+    g = modos_limpios.get("/control/modos")
+    assert g.estado == 200
+    assert g.json()[fuente] == {"modo": modo, "latencia_ms": esperada}
 
 
 @pytest.mark.parametrize("fuente", ["otra", "personas", "PLACAS"])

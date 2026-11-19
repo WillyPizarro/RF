@@ -183,9 +183,22 @@ YAMLS = {
 }
 
 
-def cargar_yaml(raiz: Path, fuente: str) -> dict:
-    import yaml  # noqa: PLC0415 - solo en el anfitrión
-    with open(raiz / "contratos" / "fuentes" / YAMLS[fuente], encoding="utf-8") as f:
+def buscar_dir_contratos(raiz_repo: Path | None) -> Path | None:
+    """Carpeta con los yaml de las fuentes: variable CONTRATOS_FUENTES_DIR (v3 C6, dentro del
+    contenedor) o contratos/fuentes del repositorio (anfitrión)."""
+    import os  # noqa: PLC0415
+    candidatos = [os.environ.get("CONTRATOS_FUENTES_DIR")]
+    if raiz_repo is not None:
+        candidatos.append(str(raiz_repo / "contratos" / "fuentes"))
+    for c in candidatos:
+        if c and Path(c).is_dir():
+            return Path(c)
+    return None
+
+
+def cargar_yaml(dir_fuentes: Path, fuente: str) -> dict:
+    import yaml  # noqa: PLC0415
+    with open(dir_fuentes / YAMLS[fuente], encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 

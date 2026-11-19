@@ -203,12 +203,22 @@ def cliente(pytestconfig: pytest.Config) -> Cliente:
         _CLIENTES.append(Cliente(via_api=True))
         return _CLIENTES[-1]
     try:
-        socket.getaddrinfo(urlparse(URL_SIMULADORES).hostname, None)
+        ips = {a[4][0] for a in socket.getaddrinfo(urlparse(URL_SIMULADORES).hostname, 8001)}
     except OSError:
         pytest.skip(
             "El nombre 'simuladores' no resuelve: no se está en la red de Docker. "
             "Correr con docker compose run, o desde el anfitrión con --integracion."
         )
+    # Con `docker compose run simuladores`, el contenedor de pruebas también lleva el alias
+    # `simuladores` y el nombre puede resolver a sí mismo (donde no corre el servidor). Se usa
+    # la dirección del servicio, que es la que no es propia.
+    try:
+        propias = {a[4][0] for a in socket.getaddrinfo(socket.gethostname(), None)}
+    except OSError:
+        propias = set()
+    otras = sorted(ips - propias)
+    if otras and len(otras) < len(ips):
+        globals()["URL_SIMULADORES"] = f"http://{otras[0]}:8001"
     _CLIENTES.append(Cliente(via_api=False))
     return _CLIENTES[-1]
 
@@ -274,3 +284,20 @@ def esperar_salud(cli: Cliente, segundos: int = 90) -> None:
             pass
         time.sleep(2)
     pytest.fail(f"simuladores no volvió a responder /salud en {segundos} s")
+
+
+def leer_env_infra() -> dict[str, str]:
+    """Variables de infra/.env (las del entorno del proceso tienen prioridad)."""
+    import os  # noqa: PLC0415
+
+    valores: dict[str, str] = {}
+    if RAIZ_REPO is not None and (RAIZ_REPO / "infra" / ".env").is_file():
+        for ln in (RAIZ_REPO / "infra" / ".env").read_text(encoding="utf-8").splitlines():
+            ln = ln.strip()
+            if ln and not ln.startswith("#") and "=" in ln:
+                k, v = ln.split("=", 1)
+                valores[k.strip()] = v.strip().strip('"').strip("'")
+    for k in ("SIM_FOTOS_ORIGEN", "SIM_FOTOS_LLAVE"):
+        if os.environ.get(k) is not None:
+            valores[k] = os.environ[k]
+    return valores

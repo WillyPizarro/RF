@@ -7,7 +7,6 @@ Solo anfitrión. "Salud intacta" (`GET /v1/salud`) la cubren las pruebas del Spr
 from __future__ import annotations
 
 import json
-import re
 
 import pytest
 
@@ -32,15 +31,17 @@ def test_caddyfile_no_enruta_a_simuladores(raiz_repo):
 
 
 def test_app_no_conoce_el_simulador(raiz_repo):
-    """§8 'Ni la app': apps/movil/src/ no contiene `simuladores`, `8001` ni `/placas/`."""
+    """§8 'Ni la app' (v4 C7): apps/movil/src/ no contiene ninguno de los textos exactos
+    `//simuladores`, `simuladores:8001`, `:8001` ni `/placas/`. El campo `simuladores` de
+    GET /v1/salud está permitido."""
     src = raiz_repo / "apps" / "movil" / "src"
     assert src.is_dir(), "no existe apps/movil/src/"
     hallazgos = []
     for f in src.rglob("*"):
         if f.is_file():
             texto = f.read_text(encoding="utf-8", errors="ignore")
-            for patron in ("simuladores", "8001", "/placas/"):
-                if re.search(re.escape(patron), texto, re.I):
+            for patron in ("//simuladores", "simuladores:8001", ":8001", "/placas/"):
+                if patron in texto:
                     hallazgos.append(f"{f.relative_to(raiz_repo)}: {patron}")
     assert not hallazgos, hallazgos
 
