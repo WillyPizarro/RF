@@ -48,3 +48,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **TESTER:** ajusta la prueba del §8.
 - **DEV:** no le cambia nada.
+
+### M-4 (2026-11-19) — Corrida definitiva
+
+**No reemplaza nada.** El commit definitivo del DEV es `d08b907` (ENTREGA DEV sobre la v4, con C5 y C6).
+
+- **TESTER:** corre la suite completa una sola vez sobre la punta de `hu-08`, reconstruyendo las imágenes (`--build`) y arrancando con `infra/docker-compose.fotos.yml`. En tu `infra/.env` local (no se versiona) defines `SIM_FOTOS_ORIGEN`, apuntando a una carpeta **fuera del repositorio**, y `SIM_FOTOS_LLAVE`. Las imágenes de prueba se generan en tiempo de ejecución y no se commitean. Al terminar: `ENTREGA TESTER` con el informe final.
+- **DEV:** sin cambios; no hagas más commits en `hu-08` salvo que el LEAD te los pida.
