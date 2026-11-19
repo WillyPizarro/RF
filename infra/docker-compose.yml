@@ -23,8 +23,16 @@ services:
 
   simuladores:
     build: ../services/simuladores
+    environment:
+      # Fotos de la galeria (HU-08, ADR-0008): se leen de SIM_FOTOS_DIR y se guardan cifradas
+      # (AES-GCM) en el volumen fotos-galeria. El origen se monta con docker-compose.fotos.yml.
+      SIM_FOTOS_DIR: /fotos-origen
+      SIM_FOTOS_ALMACEN: /datos/fotos
+      SIM_FOTOS_LLAVE: ${SIM_FOTOS_LLAVE:-}
     volumes:
       - ../services/simuladores/tests:/app/tests:ro
+      - fotos-galeria:/datos/fotos
+    # Sin "ports": solo la API lo alcanza por la red interna (ADR-0006 §6, ADR-0009).
     networks: [interna]
     restart: unless-stopped
 
@@ -32,7 +40,12 @@ services:
     build: ../services/api
     environment:
       DATABASE_URL: ${DATABASE_URL:?falta DATABASE_URL}
-      SIMULADORES_URL: http://simuladores:8001
+      SIMULADORES_URL: ${SIMULADORES_URL:-http://simuladores:8001}
+      # URL por fuente (HU-08, ADR-0006 §2). Vacia = usa SIMULADORES_URL.
+      FUENTE_PLACAS_URL: ${FUENTE_PLACAS_URL:-}
+      FUENTE_REQUISITORIAS_URL: ${FUENTE_REQUISITORIAS_URL:-}
+      FUENTE_GALERIA_URL: ${FUENTE_GALERIA_URL:-}
+      FUENTE_TIMEOUT_S: ${FUENTE_TIMEOUT_S:-3}
     volumes:
       - ../services/api/tests:/app/tests:ro
     depends_on:
@@ -68,5 +81,6 @@ networks:
 
 volumes:
   datos-bd:
+  fotos-galeria:
   caddy-datos:
   caddy-config:

@@ -1,0 +1,186 @@
+openapi: 3.1.0
+info:
+  title: Fuente requisitorias-personas (simulada)
+  version: 1.0.0
+  description: |
+    Contrato de la fuente de personas con requisitoria y sus fotos de referencia (ADR-0006,
+    ADR-0004, ADR-0008, contrato HU-08 v1). La implementa el contenedor `simuladores` con datos
+    100 % sintéticos; una fuente real puede reemplazarlo si cumple este mismo contrato. Los campos
+    son provisionales hasta conocer la fuente real (PRD PA #6).
+
+    - Toda persona de esta fuente tiene requisitoria (la galería es de personas con requisitoria
+      simulada, ADR-0004).
+    - `foto_ids` puede estar vacío si sus fotos todavía no se cargaron.
+    - Documento sintético: `SIM-` + 8 dígitos (no se confunde con un DNI real).
+    - Las fotos se guardan cifradas en la fuente y se entregan descifradas solo por la red
+      interna. Ninguna foto vive en el repositorio (ADR-0008).
+
+    Tiempo de respuesta simulado: sin latencia artificial en operación normal (< 50 ms para datos,
+    < 200 ms para una foto). El consumidor aplica un timeout de 3 s (ADR-0014).
+servers:
+  - url: http://simuladores:8001
+    description: Simulador en la red interna de Docker (no publicado)
+paths:
+  /personas/{persona_id}:
+    get:
+      operationId: consultarPersona
+      summary: Datos mínimos de la persona, su requisitoria y sus fotos de referencia
+      x-tiempo-respuesta-ms: 50
+      parameters:
+        - $ref: "#/components/parameters/PersonaId"
+      responses:
+        "200":
+          description: Persona registrada en la fuente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"
+              examples:
+                persona:
+                  value:
+                    persona_id: SIM-P-0001
+                    nombres: Ana
+                    apellidos: Prueba Muestra
+                    documento: SIM-00000001
+                    requisitoria:
+                      codigo: SIM-RQP-0001
+                      motivo: Orden de captura por robo agravado (simulada)
+                      autoridad: Juzgado Penal Simulado N.º 2
+                      fecha_emision: "2023-06-09"
+                    foto_ids: [SIM-P-0001__1]
+                    es_sintetico: true
+        "404":
+          description: La fuente no conoce a la persona.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                no_registrada:
+                  value:
+                    codigo: PERSONA_NO_REGISTRADA
+                    mensaje: La persona no está registrada en la fuente
+        "500":
+          $ref: "#/components/responses/Falla"
+  /personas/{persona_id}/fotos/{foto_id}:
+    get:
+      operationId: obtenerFotoPersona
+      summary: Foto de referencia de la persona, descifrada
+      x-tiempo-respuesta-ms: 200
+      parameters:
+        - $ref: "#/components/parameters/PersonaId"
+        - name: foto_id
+          in: path
+          required: true
+          description: Uno de los `foto_ids` de la persona.
+          schema:
+            type: string
+          example: SIM-P-0001__1
+      responses:
+        "200":
+          description: |
+            Bytes de la imagen (JPEG o PNG). Sin ejemplo de imagen: ninguna foto se versiona
+            (AGENTS.md regla 8).
+          headers:
+            Cache-Control:
+              description: Siempre `no-store`.
+              schema:
+                type: string
+              example: no-store
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+              example: (bytes JPEG de la foto)
+            image/png:
+              schema:
+                type: string
+                format: binary
+              example: (bytes PNG de la foto)
+        "404":
+          description: La persona no está registrada, o la foto no está disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                foto_no_disponible:
+                  value:
+                    codigo: FOTO_NO_DISPONIBLE
+                    mensaje: La foto no está disponible
+                persona_no_registrada:
+                  value:
+                    codigo: PERSONA_NO_REGISTRADA
+                    mensaje: La persona no está registrada en la fuente
+        "500":
+          $ref: "#/components/responses/Falla"
+components:
+  parameters:
+    PersonaId:
+      name: persona_id
+      in: path
+      required: true
+      description: Clave sintética de la persona (`SIM-P-####`).
+      schema:
+        type: string
+      example: SIM-P-0001
+  responses:
+    Falla:
+      description: Falla de la fuente.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            falla:
+              value:
+                codigo: ERROR_SIMULADO
+                mensaje: Falla simulada de la fuente
+  schemas:
+    Requisitoria:
+      type: object
+      required: [codigo, motivo, autoridad, fecha_emision]
+      properties:
+        codigo:
+          type: string
+          description: Código de la requisitoria (sintético, `SIM-RQP-####`).
+        motivo:
+          type: string
+        autoridad:
+          type: string
+          description: Autoridad que emitió la requisitoria.
+        fecha_emision:
+          type: string
+          format: date
+    Persona:
+      type: object
+      required: [persona_id, nombres, apellidos, documento, requisitoria, foto_ids, es_sintetico]
+      properties:
+        persona_id:
+          type: string
+        nombres:
+          type: string
+        apellidos:
+          type: string
+        documento:
+          type: string
+          pattern: "^SIM-[0-9]{8}$"
+        requisitoria:
+          $ref: "#/components/schemas/Requisitoria"
+        foto_ids:
+          type: array
+          items:
+            type: string
+        es_sintetico:
+          type: boolean
+          const: true
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          enum: [PERSONA_NO_REGISTRADA, FOTO_NO_DISPONIBLE, ERROR_SIMULADO]
+        mensaje:
+          type: string

@@ -1,0 +1,8 @@
+# Monta las fotos de la galeria en el simulador (HU-08, ADR-0008). Las fotos viven FUERA del
+# repositorio, en la carpeta del host SIM_FOTOS_ORIGEN (ver infra/.env.example).
+# Uso:
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d --build
+services:
+  simuladores:
+    volumes:
+      - ${SIM_FOTOS_ORIGEN:?falta SIM_FOTOS_ORIGEN (carpeta del host con las fotos)}:/fotos-origen:ro

@@ -1,0 +1,2435 @@
+{
+ "nota": "Datos 100 % sinteticos generados por scripts/generar_semilla.py. No editar a mano.",
+ "vehiculos": [
+  {
+   "placa": "ZZ0-229",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ0-288",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ0-638",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-228",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Negro",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0001",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-08-08"
+   }
+  },
+  {
+   "placa": "ZZ1-259",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-395",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-508",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Verde",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-650",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-809",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-882",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ1-906",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0002",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2024-09-18"
+   }
+  },
+  {
+   "placa": "ZZ2-108",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-159",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-349",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-370",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-472",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-479",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-491",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0003",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-03-30"
+   }
+  },
+  {
+   "placa": "ZZ2-593",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-869",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ2-976",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ3-059",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ3-069",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ3-513",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-013",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0004",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-12-22"
+   }
+  },
+  {
+   "placa": "ZZ4-130",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Gris",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-142",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Gris",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-317",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-368",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-390",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Negro",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-476",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-630",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0005",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-02-15"
+   }
+  },
+  {
+   "placa": "ZZ4-722",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ4-786",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-061",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-137",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-151",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-317",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-420",
+   "marca": "Toyota",
+   "modelo": "Yaris",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0006",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2024-07-05"
+   }
+  },
+  {
+   "placa": "ZZ5-519",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-573",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-643",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-654",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-854",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-856",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ5-881",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Blanco",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0007",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2025-05-25"
+   }
+  },
+  {
+   "placa": "ZZ6-192",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-232",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-271",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Blanco",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-456",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Blanco",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-506",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-759",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ6-899",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0008",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2025-03-19"
+   }
+  },
+  {
+   "placa": "ZZ7-486",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ7-630",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Negro",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ7-701",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ7-731",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ7-808",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ7-984",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-136",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0009",
+    "motivo": "Orden de captura del vehículo (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-11-28"
+   }
+  },
+  {
+   "placa": "ZZ8-161",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Beige",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-320",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-321",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Negro",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-470",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Verde",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-882",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Negro",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ8-952",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Negro",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ9-315",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0010",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2025-06-30"
+   }
+  },
+  {
+   "placa": "ZZ9-463",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Gris",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ9-564",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ9-756",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ9-777",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZ9-947",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZA-101",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0011",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2024-08-25"
+   }
+  },
+  {
+   "placa": "ZZA-237",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0012",
+    "motivo": "Orden de captura del vehículo (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-07-04"
+   }
+  },
+  {
+   "placa": "ZZA-243",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZA-653",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZA-887",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZA-986",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-087",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-141",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-200",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Beige",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0013",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2025-03-30"
+   }
+  },
+  {
+   "placa": "ZZB-201",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-260",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Rojo",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-379",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-449",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Blanco",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-620",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Negro",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-650",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Blanco",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZB-935",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Rojo",
+   "tipo": "SUV",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0014",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-07-28"
+   }
+  },
+  {
+   "placa": "ZZC-241",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZC-281",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZC-528",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZC-672",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Gris",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZC-702",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Rojo",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZC-780",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-042",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0015",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-08-19"
+   }
+  },
+  {
+   "placa": "ZZD-106",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Gris",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-142",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-187",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Plata",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-281",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-299",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Blanco",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-531",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Negro",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-656",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Plata",
+   "tipo": "SUV",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0016",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-02-04"
+   }
+  },
+  {
+   "placa": "ZZD-694",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Beige",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-951",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZD-968",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Rojo",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZE-082",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZE-924",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZF-301",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZF-414",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0017",
+    "motivo": "Orden de captura del vehículo (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-02-29"
+   }
+  },
+  {
+   "placa": "ZZF-727",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Beige",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-073",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-399",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-447",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Blanco",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-479",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Blanco",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-783",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZG-859",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Negro",
+   "tipo": "SUV",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0018",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2025-08-14"
+   }
+  },
+  {
+   "placa": "ZZH-780",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Plata",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZI-113",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZI-161",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZJ-294",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZJ-322",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Azul",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZJ-471",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Negro",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZJ-559",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0019",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2023-01-22"
+   }
+  },
+  {
+   "placa": "ZZJ-815",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZK-095",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZK-157",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Negro",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZK-323",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZK-572",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZK-803",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Verde",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-100",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0020",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-01-25"
+   }
+  },
+  {
+   "placa": "ZZL-250",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-388",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-422",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Plata",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-538",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-617",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-625",
+   "marca": "Suzuki",
+   "modelo": "Vitara",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-690",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0021",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-12-25"
+   }
+  },
+  {
+   "placa": "ZZL-741",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Azul",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-765",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Gris",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-790",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Verde",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-822",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZL-944",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZM-110",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZM-244",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0022",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-03-07"
+   }
+  },
+  {
+   "placa": "ZZM-576",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Verde",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZM-740",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-059",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-184",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Rojo",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-211",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-458",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-505",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0023",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-09-07"
+   }
+  },
+  {
+   "placa": "ZZN-891",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZN-999",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-051",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-261",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Blanco",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-360",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-489",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-507",
+   "marca": "Nissan",
+   "modelo": "Sentra",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0024",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-12-30"
+   }
+  },
+  {
+   "placa": "ZZO-536",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-688",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZO-891",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZP-249",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Beige",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZP-326",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZP-503",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZP-608",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0025",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2023-05-07"
+   }
+  },
+  {
+   "placa": "ZZP-672",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-090",
+   "marca": "Kia",
+   "modelo": "Picanto",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-135",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-243",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-298",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-458",
+   "marca": "Chevrolet",
+   "modelo": "Sail",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZQ-569",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0026",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-04-14"
+   }
+  },
+  {
+   "placa": "ZZR-075",
+   "marca": "Hyundai",
+   "modelo": "Tucson",
+   "color": "Beige",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZR-087",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Blanco",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-028",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-260",
+   "marca": "Toyota",
+   "modelo": "Yaris",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-295",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-386",
+   "marca": "Toyota",
+   "modelo": "Hilux",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-595",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Azul",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0027",
+    "motivo": "Vehículo vinculado a investigación (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-09-02"
+   }
+  },
+  {
+   "placa": "ZZS-632",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZS-780",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZT-039",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Azul",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZT-044",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Rojo",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZT-209",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Negro",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZT-833",
+   "marca": "Volkswagen",
+   "modelo": "Gol",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZU-121",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Verde",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0028",
+    "motivo": "Orden de captura del vehículo (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-09-03"
+   }
+  },
+  {
+   "placa": "ZZU-324",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZU-372",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZU-453",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZU-583",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Azul",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZU-869",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Gris",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-066",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-306",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0029",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2024-05-21"
+   }
+  },
+  {
+   "placa": "ZZV-390",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Blanco",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-398",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Azul",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-669",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-691",
+   "marca": "Chevrolet",
+   "modelo": "Spark",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZV-760",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Blanco",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZW-064",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Negro",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZW-461",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Plata",
+   "tipo": "SUV",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0030",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-05-14"
+   }
+  },
+  {
+   "placa": "ZZW-682",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Plata",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZW-913",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZW-960",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Blanco",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZX-358",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZX-461",
+   "marca": "Honda",
+   "modelo": "CB 190R",
+   "color": "Verde",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZX-465",
+   "marca": "Toyota",
+   "modelo": "Corolla",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZX-787",
+   "marca": "Nissan",
+   "modelo": "Frontier",
+   "color": "Verde",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0031",
+    "motivo": "Hurto de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2024-02-21"
+   }
+  },
+  {
+   "placa": "ZZY-003",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Gris",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZY-206",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZY-373",
+   "marca": "Hyundai",
+   "modelo": "Accent",
+   "color": "Verde",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZY-523",
+   "marca": "Toyota",
+   "modelo": "RAV4",
+   "color": "Rojo",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZY-622",
+   "marca": "Suzuki",
+   "modelo": "Swift",
+   "color": "Plata",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZY-875",
+   "marca": "Hyundai",
+   "modelo": "Elantra",
+   "color": "Beige",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-053",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Gris",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": true,
+   "requisitoria": {
+    "codigo": "SIM-RQV-0032",
+    "motivo": "Robo de vehículo (simulado)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-01-20"
+   }
+  },
+  {
+   "placa": "ZZZ-338",
+   "marca": "Volkswagen",
+   "modelo": "Amarok",
+   "color": "Gris",
+   "tipo": "Camioneta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-500",
+   "marca": "Chevrolet",
+   "modelo": "Onix",
+   "color": "Blanco",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-533",
+   "marca": "Honda",
+   "modelo": "Wave 110",
+   "color": "Blanco",
+   "tipo": "Motocicleta",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-777",
+   "marca": "Kia",
+   "modelo": "Sportage",
+   "color": "Gris",
+   "tipo": "SUV",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-795",
+   "marca": "Nissan",
+   "modelo": "Versa",
+   "color": "Azul",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  },
+  {
+   "placa": "ZZZ-987",
+   "marca": "Kia",
+   "modelo": "Rio",
+   "color": "Rojo",
+   "tipo": "Automóvil",
+   "requisitoria_vigente": false,
+   "requisitoria": null
+  }
+ ],
+ "personas": [
+  {
+   "persona_id": "SIM-P-0001",
+   "nombres": "Ana",
+   "apellidos": "Prueba Muestra",
+   "documento": "SIM-00000001",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0001",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-06-09"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0002",
+   "nombres": "Bruno",
+   "apellidos": "Simulado Sintético",
+   "documento": "SIM-00000002",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0002",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-09-23"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0003",
+   "nombres": "Carla",
+   "apellidos": "Ensayo Demo",
+   "documento": "SIM-00000003",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0003",
+    "motivo": "Orden de captura por lesiones graves (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-04-22"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0004",
+   "nombres": "Diego",
+   "apellidos": "Simulado Sintético",
+   "documento": "SIM-00000004",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0004",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2023-08-08"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0005",
+   "nombres": "Elena",
+   "apellidos": "Simulado Muestra",
+   "documento": "SIM-00000005",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0005",
+    "motivo": "Orden de captura por lesiones graves (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2025-06-03"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0006",
+   "nombres": "Fabio",
+   "apellidos": "Ficticio Sintético",
+   "documento": "SIM-00000006",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0006",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2025-09-05"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0007",
+   "nombres": "Gloria",
+   "apellidos": "Sintético Simulado",
+   "documento": "SIM-00000007",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0007",
+    "motivo": "Orden de captura por receptación (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2025-07-09"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0008",
+   "nombres": "Hugo",
+   "apellidos": "Ejemplo Prueba",
+   "documento": "SIM-00000008",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0008",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2023-05-24"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0009",
+   "nombres": "Irene",
+   "apellidos": "Ensayo Ficticio",
+   "documento": "SIM-00000009",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0009",
+    "motivo": "Orden de captura por lesiones graves (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2023-09-23"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0010",
+   "nombres": "Jorge",
+   "apellidos": "Ensayo Prueba",
+   "documento": "SIM-00000010",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0010",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2025-09-26"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0011",
+   "nombres": "Karina",
+   "apellidos": "Demo Prueba",
+   "documento": "SIM-00000011",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0011",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-01-23"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0012",
+   "nombres": "Luis",
+   "apellidos": "Ejemplo Muestra",
+   "documento": "SIM-00000012",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0012",
+    "motivo": "Orden de captura por lesiones graves (simulada)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2023-04-03"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0013",
+   "nombres": "Marta",
+   "apellidos": "Ficticio Prueba",
+   "documento": "SIM-00000013",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0013",
+    "motivo": "Orden de captura por hurto (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-02-13"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0014",
+   "nombres": "Nicolás",
+   "apellidos": "Sintético Ficticio",
+   "documento": "SIM-00000014",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0014",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 2",
+    "fecha_emision": "2025-09-14"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0015",
+   "nombres": "Olga",
+   "apellidos": "Ficticio Sintético",
+   "documento": "SIM-00000015",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0015",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2025-06-27"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0016",
+   "nombres": "Pablo",
+   "apellidos": "Ensayo Sintético",
+   "documento": "SIM-00000016",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0016",
+    "motivo": "Orden de captura por hurto (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-01-20"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0017",
+   "nombres": "Rosa",
+   "apellidos": "Simulado Muestra",
+   "documento": "SIM-00000017",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0017",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-02-01"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0018",
+   "nombres": "Sergio",
+   "apellidos": "Sintético Muestra",
+   "documento": "SIM-00000018",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0018",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2024-05-03"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0019",
+   "nombres": "Teresa",
+   "apellidos": "Muestra Ejemplo",
+   "documento": "SIM-00000019",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0019",
+    "motivo": "Orden de captura por robo agravado (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-09-26"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0020",
+   "nombres": "Víctor",
+   "apellidos": "Prueba Demo",
+   "documento": "SIM-00000020",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0020",
+    "motivo": "Orden de captura por receptación (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2023-05-11"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0021",
+   "nombres": "Ana",
+   "apellidos": "Sintético Simulado",
+   "documento": "SIM-00000021",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0021",
+    "motivo": "Orden de captura por hurto (simulada)",
+    "autoridad": "Juzgado Penal Simulado N.º 1",
+    "fecha_emision": "2024-07-21"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0022",
+   "nombres": "Bruno",
+   "apellidos": "Demo Ejemplo",
+   "documento": "SIM-00000022",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0022",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2023-08-17"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0023",
+   "nombres": "Carla",
+   "apellidos": "Simulado Ficticio",
+   "documento": "SIM-00000023",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0023",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Juzgado de Investigación Preparatoria Simulado N.º 3",
+    "fecha_emision": "2025-09-13"
+   }
+  },
+  {
+   "persona_id": "SIM-P-0024",
+   "nombres": "Diego",
+   "apellidos": "Ejemplo Ensayo",
+   "documento": "SIM-00000024",
+   "requisitoria": {
+    "codigo": "SIM-RQP-0024",
+    "motivo": "Orden de captura por estafa (simulada)",
+    "autoridad": "Sala Penal Simulada N.º 4",
+    "fecha_emision": "2023-04-15"
+   }
+  }
+ ]
+}

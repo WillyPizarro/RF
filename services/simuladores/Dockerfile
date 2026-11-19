@@ -13,7 +13,8 @@ RUN pip install ".[dev]"
 
 COPY . .
 
-RUN useradd --create-home --uid 10001 simuladores && chown -R simuladores /app
+# /datos/fotos: almacenamiento cifrado de la galeria (volumen, ADR-0008/0009).
+RUN useradd --create-home --uid 10001 simuladores && mkdir -p /datos/fotos && chown -R simuladores /app /datos
 USER simuladores
 
 EXPOSE 8001

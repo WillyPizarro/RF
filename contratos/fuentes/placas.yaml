@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: Fuente placas (simulada)
+  version: 1.0.0
+  description: |
+    Contrato de la fuente de vehículos por placa (ADR-0006, contrato HU-08 v1).
+    La implementa el contenedor `simuladores` con datos 100 % sintéticos; una fuente real puede
+    reemplazarlo si cumple este mismo contrato. Los campos son provisionales hasta que el MININTER
+    entregue los de la fuente real (PRD PA #6).
+
+    - La placa se envía normalizada: mayúsculas y con guion (`ZZA-101`). La fuente no normaliza
+      ni valida el formato: una placa que no conoce (incluidas las escritas en minúsculas)
+      responde `404 PLACA_NO_REGISTRADA`.
+    - `404 PLACA_NO_REGISTRADA` (la fuente no conoce la placa) es distinto de `200` con
+      `requisitoria_vigente: false` (la conoce y no tiene requisitoria vigente).
+    - Placas sintéticas: prefijo reservado `ZZ`, formato `^[A-Z0-9]{3}-[0-9]{3}$`.
+
+    Tiempo de respuesta simulado: sin latencia artificial en operación normal (< 50 ms en la red
+    interna). El consumidor aplica un timeout de 3 s (ADR-0014).
+servers:
+  - url: http://simuladores:8001
+    description: Simulador en la red interna de Docker (no publicado)
+paths:
+  /placas/{placa}:
+    get:
+      operationId: consultarPlaca
+      summary: Datos del vehículo y su requisitoria vehicular vigente
+      x-tiempo-respuesta-ms: 50
+      parameters:
+        - name: placa
+          in: path
+          required: true
+          description: Placa normalizada, en mayúsculas y con guion.
+          schema:
+            type: string
+          example: ZZA-101
+      responses:
+        "200":
+          description: Vehículo registrado en la fuente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehiculo"
+              examples:
+                con_requisitoria:
+                  summary: Vehículo con requisitoria vigente
+                  value:
+                    placa: ZZA-101
+                    marca: Chevrolet
+                    modelo: Spark
+                    color: Negro
+                    tipo: Automóvil
+                    requisitoria_vigente: true
+                    requisitoria:
+                      codigo: SIM-RQV-0011
+                      motivo: Hurto de vehículo (simulado)
+                      autoridad: Juzgado de Investigación Preparatoria Simulado N.º 3
+                      fecha_emision: "2024-08-25"
+                    es_sintetico: true
+                sin_requisitoria:
+                  summary: Vehículo sin requisitoria vigente
+                  value:
+                    placa: ZZB-201
+                    marca: Nissan
+                    modelo: Sentra
+                    color: Azul
+                    tipo: Automóvil
+                    requisitoria_vigente: false
+                    requisitoria: null
+                    es_sintetico: true
+        "404":
+          description: La fuente no conoce la placa. No significa "sin requisitoria".
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                no_registrada:
+                  value:
+                    codigo: PLACA_NO_REGISTRADA
+                    mensaje: La placa no está registrada en la fuente
+        "500":
+          description: Falla de la fuente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                falla:
+                  value:
+                    codigo: ERROR_SIMULADO
+                    mensaje: Falla simulada de la fuente
+components:
+  schemas:
+    Requisitoria:
+      type: object
+      required: [codigo, motivo, autoridad, fecha_emision]
+      properties:
+        codigo:
+          type: string
+          description: Código de la requisitoria (sintético, `SIM-RQV-####`).
+        motivo:
+          type: string
+        autoridad:
+          type: string
+          description: Autoridad que emitió la requisitoria.
+        fecha_emision:
+          type: string
+          format: date
+    Vehiculo:
+      type: object
+      required: [placa, marca, modelo, color, tipo, requisitoria_vigente, requisitoria, es_sintetico]
+      properties:
+        placa:
+          type: string
+        marca:
+          type: string
+        modelo:
+          type: string
+        color:
+          type: string
+        tipo:
+          type: string
+          description: Tipo de vehículo (Automóvil, Camioneta, SUV, Motocicleta).
+        requisitoria_vigente:
+          type: boolean
+        requisitoria:
+          description: Datos de la requisitoria si `requisitoria_vigente` es true; si no, null.
+          oneOf:
+            - $ref: "#/components/schemas/Requisitoria"
+            - type: "null"
+        es_sintetico:
+          type: boolean
+          const: true
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          enum: [PLACA_NO_REGISTRADA, ERROR_SIMULADO]
+        mensaje:
+          type: string
