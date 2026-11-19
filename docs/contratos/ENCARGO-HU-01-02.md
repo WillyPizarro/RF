@@ -59,3 +59,11 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 - **DEV:** sin cambios. Tu entrega `e6c6f22` está en revisión del UX; no hagas commits hasta que el LEAD te pase sus observaciones.
 - **TESTER:** ajusta tus pruebas de inactividad a la v3. La suite completa espera la próxima M-n.
 - **Capturas:** el humano aceptó que el UX revise solo las de Jest. Las del emulador quedan `NO VERIFICADO`.
+
+### M-4 (2026-11-19) — Revisión del UX: CONTRATO-HU-01 v4 y mejoras
+
+**Reemplaza** a M-3 en la versión de HU-01: el documento de trabajo ahora es CONTRATO-HU-01 **v4**. HU-02 sigue en v3. El UX aprobó (`docs/ux/revisiones/HU-01-02.md`, commit `44712b9`) con 5 observaciones de tipo MEJORA. El humano decidió:
+
+- **v4 (observación 5):** en AUTH-01, "Ingresar" con el usuario o la clave vacíos (o solo con espacios) muestra "Ingrese su usuario y su clave" y no envía la solicitud.
+- **DEV — hacer ahora** (sin tocar ningún texto): la v4, más las observaciones **1** (íconos ⚠ en AUTH-02, ⓘ en AUTH-03 y 🔒 en AUTH-04, ocultos al lector de pantalla), **3** ("Salir" de al menos 48 dp de alto) y **4** (tono neutro o ámbar, no rojo, para el error de red o del servidor). La observación **2** (íconos de HOME-01) queda para HU-03 y HU-05. Al terminar: `ENTREGA DEV` con el commit, el informe actualizado y capturas nuevas de AUTH-01 (vacío), AUTH-02 a AUTH-04, AUTH-xx y un inicio.
+- **TESTER:** agrega la prueba de la v4. Sigue sin correr la suite completa; espera la M-n.

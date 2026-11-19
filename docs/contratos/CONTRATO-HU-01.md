@@ -1,8 +1,8 @@
 # CONTRATO — HU-01 Iniciar sesión y mantener una sesión segura
 
 **Tipo:** Feature
-**Versión:** v3
-**Estado:** Aprobado (v1 a v3: 2026-11-19, humano)
+**Versión:** v4
+**Estado:** Aprobado (v1 a v4: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -82,6 +82,7 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 |---|---|---|---|
 | AUTH-01 | Abrir la app sin sesión | Pantalla de login con "Usuario", "Clave" y "Ingresar", más la franja "DATOS SINTÉTICOS · PROTOTIPO" | Wireframe AUTH-01 |
 | Login correcto | Credenciales válidas | Va al inicio de su rol (el contenido de cada inicio lo fija HU-02) | Gherkin esc. 1 |
+| AUTH-01 vacío | "Ingresar" con el usuario o la clave vacíos (o solo con espacios) | Muestra "Ingrese su usuario y su clave" y **no envía** la solicitud | Revisión UX #5 · **v4** |
 | AUTH-02 | `401 CREDENCIALES_INVALIDAS` | Muestra "Usuario o clave incorrectos". El usuario queda escrito y la clave se vacía. No muestra los intentos restantes | Gherkin esc. 2, AUTH-02 |
 | AUTH-04 | `423 CUENTA_BLOQUEADA` | Muestra "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min).", con la hora local calculada desde `bloqueado_hasta`. Vacía la clave y "Ingresar" sigue activo | Gherkin esc. 4, AUTH-04 |
 | AUTH-03 | `inactividad_s` sin que el usuario toque la pantalla, o un `401 SESION_VENCIDA` | Vuelve al login con "Su sesión se cerró por inactividad. Ingrese de nuevo.". El almacenamiento simulado de `expo-secure-store` queda sin ninguna clave; si después inicia sesión otro usuario, no aparece ningún dato del anterior (nombre, rol, pantallas); la app no vuelve a enviar el token anterior en ninguna solicitud; y "atrás" (`hardwareBackPress` de `BackHandler`) no vuelve a la pantalla anterior | Gherkin esc. 3, AUTH-03, TDD · **v2** |
@@ -125,7 +126,7 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 | Roles | `agente` · `revisor` · `supervisor` |
 | Códigos | `401 CREDENCIALES_INVALIDAS` · `423 CUENTA_BLOQUEADA` · `401 NO_AUTENTICADO` · `401 SESION_VENCIDA` · `422 SOLICITUD_INVALIDA` · `503 SERVICIO_NO_DISPONIBLE` |
 | Mensajes de la API | "Usuario o clave incorrectos" · "Cuenta bloqueada temporalmente" · "Inicie sesión nuevamente" · "Su sesión se cerró por inactividad" · "No se pudo completar la operación; intente nuevamente" |
-| Textos de la app | "Usuario" · "Clave" · "Ingresar" · "DATOS SINTÉTICOS · PROTOTIPO" · "Usuario o clave incorrectos" · "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min)." · "Su sesión se cerró por inactividad. Ingrese de nuevo." · "No se pudo completar la operación; intente nuevamente" |
+| Textos de la app | "Usuario" · "Clave" · "Ingresar" · "Ingrese su usuario y su clave" (v4) · "DATOS SINTÉTICOS · PROTOTIPO" · "Usuario o clave incorrectos" · "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min)." · "Su sesión se cerró por inactividad. Ingrese de nuevo." · "No se pudo completar la operación; intente nuevamente" |
 | Eventos de bitácora | `LOGIN_OK` · `LOGIN_FALLIDO` · `CUENTA_BLOQUEADA` · `SESION_VENCIDA` · `LOGOUT` |
 | Variables | `SESION_INACTIVIDAD_S` · `TOKEN_ACCESO_VIGENCIA_S` · `BLOQUEO_INTENTOS` · `BLOQUEO_DURACION_S` · `CLAVE_USUARIOS_PRUEBA` |
 | Comando | `python -m app.cargar_usuarios` (en el contenedor `api`) |
@@ -178,3 +179,4 @@ Respondidas por el humano el 2026-11-19:
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
 | v2 | 2026-11-19 | §4 bis (montaje en `App.tsx` sin expo-router, `fetch` global, `testID="app-raiz"`, `BackHandler`); AUTH-03 observable desde afuera (SecureStore simulado sin claves, sin datos del usuario anterior, sin el token viejo) en lugar de "caché y store vacíos"; qué cuenta como interacción | Hueco que reportó el TESTER: el contrato no fijaba la interfaz de la app para Jest | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | §3: una renovación exitosa cuenta como actividad en el servidor | Aviso del DEV: el contrato no lo decía, y sin eso la sesión vencería en pantallas que no llaman a la API aunque el usuario las esté tocando | Humano, 2026-11-19 |
+| v4 | 2026-11-19 | §4: AUTH-01 con campos vacíos muestra "Ingrese su usuario y su clave" y no envía la solicitud | Revisión UX #5 (`docs/ux/revisiones/HU-01-02.md`) | Humano, 2026-11-19 |
