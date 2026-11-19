@@ -67,3 +67,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 - **v4 (observación 5):** en AUTH-01, "Ingresar" con el usuario o la clave vacíos (o solo con espacios) muestra "Ingrese su usuario y su clave" y no envía la solicitud.
 - **DEV — hacer ahora** (sin tocar ningún texto): la v4, más las observaciones **1** (íconos ⚠ en AUTH-02, ⓘ en AUTH-03 y 🔒 en AUTH-04, ocultos al lector de pantalla), **3** ("Salir" de al menos 48 dp de alto) y **4** (tono neutro o ámbar, no rojo, para el error de red o del servidor). La observación **2** (íconos de HOME-01) queda para HU-03 y HU-05. Al terminar: `ENTREGA DEV` con el commit, el informe actualizado y capturas nuevas de AUTH-01 (vacío), AUTH-02 a AUTH-04, AUTH-xx y un inicio.
 - **TESTER:** agrega la prueba de la v4. Sigue sin correr la suite completa; espera la M-n.
+
+### M-5 (2026-11-19) — Suite completa
+
+**No reemplaza nada.** El UX dio su aprobación final (`docs/ux/revisiones/HU-01-02.md`, commit `12d9f78`). El commit definitivo del DEV es `c1b432f`, sobre CONTRATO-HU-01 v4 y CONTRATO-HU-02 v3.
+
+- **TESTER:** corre la suite completa **una sola vez** sobre la punta de `hu-01`: pytest de la API (en la red interna, con tus recreaciones de `api` para los tiempos cortos y luego de vuelta a `infra/.env`), pytest de los simuladores (para comprobar que HU-08 no se rompió) y Jest de la app. Arranca con `--build` y con los dos archivos de compose. Al terminar: `ENTREGA TESTER` con el informe final.
+- **DEV:** no hagas más commits en `hu-01` salvo que el LEAD te los pida.
