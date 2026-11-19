@@ -34,3 +34,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **DEV:** C5 (dependencias de prueba en el grupo `dev` del simulador) es trabajo nuevo. Confirma que lo ya construido cumple C1 a C4. Al terminar: `ENTREGA DEV` con el informe actualizado.
 - **TESTER:** ajusta las pruebas a C1 a C5 (incluidos H1 y H2) y haz la corrida definitiva cuando Docker esté disponible. Al terminar: `ENTREGA TESTER` con el informe final.
+
+### M-2 (2026-11-19) — Contrato v3
+
+**Reemplaza** a M-1 en la versión: el documento de trabajo ahora es el contrato **v3**. Agrega C6: `infra/docker-compose.yml` monta `../contratos/fuentes` en solo lectura en `/app/contratos/fuentes` del contenedor `simuladores`, con `CONTRATOS_FUENTES_DIR=/app/contratos/fuentes`.
+
+- **DEV:** C6 es trabajo nuevo, junto con C5.
+- **TESTER:** usa `CONTRATOS_FUENTES_DIR`.

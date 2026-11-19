@@ -1,8 +1,8 @@
 # CONTRATO — HU-08 Simuladores de fuentes (base de placa y rostro)
 
 **Tipo:** Feature
-**Versión:** v2
-**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano)
+**Versión:** v3
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2 y v3: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-08-simuladores-fuentes.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 1 de 5
 **Rama de trabajo:** `hu-08`, creada desde `main` (2ef0829)
 **Pasa por UX:** No. Esta HU no cambia nada visible en la app (regla de coordinación 8 del LEAD).
@@ -188,6 +188,8 @@ La prueba de punta a punta del escenario 2 (la API apuntando al mock, con las pr
 
 El contenedor `simuladores` incluye, como dependencias de prueba (grupo `dev`), un lector de YAML y un validador de JSON Schema (por ejemplo `pyyaml` y `jsonschema`, con versiones fijadas). Así, la validación contra los yaml de la sección 6 corre con `docker compose -f infra/docker-compose.yml run --rm simuladores pytest`. Las agrega el DEV, porque `pyproject.toml` está en sus rutas.
 
+**v3 C6:** `infra/docker-compose.yml` monta `../contratos/fuentes` en solo lectura en `/app/contratos/fuentes` del contenedor `simuladores` y define `CONTRATOS_FUENTES_DIR=/app/contratos/fuentes`. Las pruebas encuentran los yaml en esa variable.
+
 ## Rutas de cada rol
 
 | Rol | Rutas | Origen |
@@ -236,3 +238,4 @@ Todas respondidas por el humano (vía PM) el 2026-11-19:
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial; decisiones 1 a 8 aprobadas, preguntas respondidas | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | C1 carga de fotos (§4 bis) · C2 §8 prohíbe la dirección del simulador, no el campo `simuladores` de `/v1/salud` · C3 la prohibición de imágenes excluye `apps/movil/assets/` · C4 respuestas de `/control/modos` · C5 dependencias de prueba | Huecos que reportaron el TESTER (fotos, dependencias, H1, H2, `/control`) y el DEV (H2) | Humano, 2026-11-19 |
+| v3 | 2026-11-19 | C6 los yaml se montan en el contenedor `simuladores` (`CONTRATOS_FUENTES_DIR`) | Hueco que reportó el TESTER: sin el montaje, C5 no se podía cumplir | Humano, 2026-11-19 |
