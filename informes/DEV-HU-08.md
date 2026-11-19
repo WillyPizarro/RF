@@ -1,8 +1,19 @@
 # Informe DEV — HU-08 Simuladores de fuentes
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-HU-08.md` v1 (aprobado 2026-11-19) · **Encargo:** `docs/contratos/ENCARGO-HU-08.md` (sin M-n) · **Rama:** `hu-08` · **Fecha:** 2026-11-19
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-08.md` **v4** (v1 a v4 aprobados 2026-11-19) · **Encargo:** `docs/contratos/ENCARGO-HU-08.md` con M-1, M-2 y M-3 · **Rama:** `hu-08` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER. `services/simuladores/tests/` tiene cambios en el árbol de trabajo que no son míos: no los miré ni los incluí en mis commits.
+
+## Revisión contra v2, v3 y v4
+
+| Cambio | Qué hice | Verificación |
+|---|---|---|
+| C1 carga de fotos (§4 bis) | Nada: ya lo cumplía lo construido en v1 (origen `/fotos-origen`, nombres `<persona_id>__<n>.<jpg|png>`, `foto_id` `<persona_id>__<n>`, carga en cada solicitud, `version` estable entre reinicios con la misma llave, cifrado con `SIM_FOTOS_LLAVE`) | Script propio y Docker (ver "Lo que verifiqué") |
+| C2 y C7 textos prohibidos en `apps/movil/src/` | Nada que cambiar | `grep -F` de `//simuladores`, `simuladores:8001`, `:8001` y `/placas/` → sin coincidencias |
+| C3 imágenes versionadas fuera de `apps/movil/assets/` | Nada que cambiar | `git ls-files` → ninguna |
+| C4 respuestas de `/control/modos` | Nada: ya devolvía `{"modo", "latencia_ms"}`, con `latencia_ms` en `null` salvo en `latencia` (5000 por defecto) | Script propio |
+| C5 dependencias de prueba | `pyyaml==6.0.3` y `jsonschema==4.26.0` en el grupo `dev` de `services/simuladores/pyproject.toml` | `run --rm simuladores python -c "import yaml, jsonschema"` → OK; `pytest --version` → 9.2.0 |
+| C6 montaje de los yaml | `infra/docker-compose.yml`: `../contratos/fuentes` → `/app/contratos/fuentes:ro` y `CONTRATOS_FUENTES_DIR=/app/contratos/fuentes` en `simuladores` | `run --rm simuladores sh -c 'ls $CONTRATOS_FUENTES_DIR'` → los tres yaml y el README; `docker compose config` muestra el bind en solo lectura |
 
 ## Qué construí
 
@@ -83,6 +94,6 @@ Sin migraciones.
 
 ## Avisos para el LEAD
 
-1. **Conflicto en el §8 del contrato:** "`apps/movil/src/` no contiene `simuladores`". `apps/movil/src/api/esquema.ts` (generado del OpenAPI de la API en el Sprint 0) lo contiene porque `GET /v1/salud` devuelve el campo `simuladores`, que SPRINT0 §5 fija y el mismo §8 pide no cambiar ("Salud intacta"). No toqué nada: lo decide el LEAD (por ejemplo, acotar la búsqueda a URL o hosts).
-2. **Arnés de pruebas:** la imagen del simulador ahora necesita `cryptography` (se instala con `pip install ".[dev]"` en el Dockerfile, no hace falta nada más). `docker compose run --rm simuladores pytest` monta el volumen `fotos-galeria` y recibe `SIM_FOTOS_DIR=/fotos-origen`, que no existe sin el override: la galería arranca vacía. Una prueba que defina su propio `SIM_FOTOS_DIR` lo verá reflejado sin reiniciar.
+1. ~~Conflicto en el §8~~: resuelto en v2 (C2) y v4 (C7).
+2. **Arnés de pruebas:** la imagen del simulador ahora necesita `cryptography`, `pyyaml` y `jsonschema` (se instalan con `pip install ".[dev]"` en el Dockerfile; hay que reconstruir la imagen con `--build`). Los yaml están en `$CONTRATOS_FUENTES_DIR`. `docker compose run --rm simuladores pytest` monta el volumen `fotos-galeria` y recibe `SIM_FOTOS_DIR=/fotos-origen`, que no existe sin el override: la galería arranca vacía. Una prueba que defina su propio `SIM_FOTOS_DIR` lo verá reflejado sin reiniciar.
 3. **`.gitignore`:** ignora `*.jpg` y `*.jpeg`, pero no `*.png`. No está en mis rutas de este contrato; sugiero agregar `*.png` para reforzar la regla 8.

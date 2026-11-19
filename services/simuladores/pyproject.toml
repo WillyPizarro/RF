@@ -17,6 +17,9 @@ dependencies = [
 dev = [
     "pytest==9.2.0",
     "httpx==0.28.1",
+    # Validacion de respuestas contra contratos/fuentes/*.yaml (contrato HU-08 v2, C5).
+    "pyyaml==6.0.3",
+    "jsonschema==4.26.0",
 ]
 
 [tool.setuptools]

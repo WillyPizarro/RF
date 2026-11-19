@@ -29,8 +29,12 @@ services:
       SIM_FOTOS_DIR: /fotos-origen
       SIM_FOTOS_ALMACEN: /datos/fotos
       SIM_FOTOS_LLAVE: ${SIM_FOTOS_LLAVE:-}
+      # Donde las pruebas encuentran los yaml de las fuentes (HU-08 v3, C6).
+      CONTRATOS_FUENTES_DIR: /app/contratos/fuentes
     volumes:
       - ../services/simuladores/tests:/app/tests:ro
+      # Contratos de las fuentes, para validar respuestas en las pruebas (HU-08 v3, C5 y C6).
+      - ../contratos/fuentes:/app/contratos/fuentes:ro
       - fotos-galeria:/datos/fotos
     # Sin "ports": solo la API lo alcanza por la red interna (ADR-0006 §6, ADR-0009).
     networks: [interna]
