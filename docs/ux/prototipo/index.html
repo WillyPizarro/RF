@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Movil Buscador · Prototipo</title>
+<!--
+  Prototipo navegable (UX) — HU-01 a HU-08.
+  Fuente: docs/ux/wireframes/ (inventario aprobado el 2026-11-18) y docs/ux/README.md.
+  Archivo local, sin servicios externos, sin dependencias, sin persistencia (al recargar se reinicia).
+  Solo datos sintéticos. Rostros = siluetas SVG dibujadas aquí; ninguna foto.
+  Los IDs de pantalla (AUTH-01, PLA-05, ...) son los del inventario.
+-->
+<style>
+:root{
+  --blue:#1D4ED8;--blue-bg:#EFF6FF;--blue-line:#BFDBFE;
+  --amber:#B45309;--amber-bg:#FFFBEB;--amber-line:#FCD34D;
+  --red:#B91C1C;--red-bg:#FEF2F2;--red-line:#FECACA;
+  --gray:#475569;--gray-bg:#F1F5F9;--gray-line:#CBD5E1;
+  --slate:#334155;--ink:#0F172A;--muted:#64748B;--line:#CBD5E1;
+  --surface:#FFFFFF;--page:#D7DEE7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--page);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#phone{width:432px;height:935px;flex:none;background:#111;border-radius:44px;padding:10px;box-shadow:0 30px 60px -20px rgba(15,23,42,.45),0 0 0 2px #2a2a2a inset;transform-origin:center center}
+#screen{width:412px;height:915px;background:var(--surface);border-radius:34px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+body.mobile #stage{position:static;display:block}
+body.mobile #phone{width:100vw;height:100vh;height:100dvh;border-radius:0;padding:0;box-shadow:none;transform:none!important}
+body.mobile #screen{width:100%;height:100%;border-radius:0}
+.sbar{height:30px;flex:none;background:#0F172A;color:#E2E8F0;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:13px;font-weight:600}
+.sbar .ic{display:flex;gap:6px;align-items:center}
+.sbar svg{width:14px;height:14px;fill:#E2E8F0}
+.nbar{height:44px;flex:none;background:#0F172A;display:flex;justify-content:space-around;align-items:center}
+.nbar button{background:none;border:0;color:#CBD5E1;width:64px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.nbar svg{width:18px;height:18px;stroke:#CBD5E1;fill:none;stroke-width:2}
+#app{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
+.synth{flex:none;position:relative;background:#1E293B;color:#FDE68A;font-size:11px;letter-spacing:.14em;text-align:center;padding:5px 4px;font-weight:700}
+.scr{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;background:var(--surface)}
+.scr.dark{background:#0B1120;color:#E2E8F0}
+.bar{display:flex;align-items:center;gap:6px;padding:6px 10px 6px 6px;min-height:58px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:2}
+.dark .bar{background:#0B1120;border-color:#1E293B}
+.bar h1{font-size:19px;font-weight:600;margin:0;flex:1;min-width:0;padding-left:6px}
+.bar .step{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap}
+.ib{width:48px;height:48px;border:0;background:none;border-radius:24px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;flex:none}
+.ib:hover{background:var(--gray-bg)}
+.dark .ib:hover{background:#1E293B}
+.rolebar{padding:14px 16px 12px 18px;align-items:flex-start}
+.hello{font-size:20px;font-weight:700}
+.sub{font-size:14px;color:var(--muted);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.body{padding:18px;display:flex;flex-direction:column;gap:14px;flex:1}
+.center{align-items:center;text-align:center;justify-content:center}
+.lbl{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.field{display:flex;flex-direction:column}
+.inp{width:100%;min-height:52px;border:1.5px solid #94A3B8;border-radius:10px;padding:10px 14px;font-size:17px;background:#fff}
+.inp:focus{outline:3px solid var(--blue-line);border-color:var(--blue)}
+textarea.inp{min-height:88px;resize:vertical}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#334155 50%),linear-gradient(135deg,#334155 50%,transparent 50%);background-position:calc(100% - 22px) 23px,calc(100% - 16px) 23px;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+.inp.invalid{border-color:var(--red);border-width:2px;background:#FFFBFB}
+.err{color:var(--red);font-size:15px;margin-top:6px;display:flex;gap:6px;font-weight:500}
+.hint{font-size:13px;color:var(--muted);margin-top:4px}
+.mono{font-family:ui-monospace,"Cascadia Mono","Consolas","Roboto Mono",monospace;letter-spacing:.06em}
+.plate-inp{text-transform:uppercase;font-size:22px;font-weight:700}
+.row{display:flex;gap:10px;align-items:stretch}
+.btn{min-height:52px;border-radius:12px;border:0;padding:12px 18px;font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;text-transform:uppercase}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:#1E40AF}
+.btn.primary:disabled{background:#93A5D8;cursor:default}
+.btn.sec{background:var(--surface);color:var(--blue);border:1.5px solid var(--blue)}
+.btn.text{background:none;color:var(--blue);text-transform:none;letter-spacing:0;font-weight:600;min-height:48px}
+.dark .btn.text{color:#93C5FD}
+.btn-salir{min-height:44px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 14px;font-weight:600;cursor:pointer;color:var(--slate)}
+.camicon{width:56px;flex:none;border:1.5px solid var(--blue);background:var(--blue-bg);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.camicon svg{width:26px;height:26px;stroke:var(--blue);fill:none;stroke-width:2}
+.bigaction{min-height:96px;border-radius:16px;border:0;background:var(--blue);color:#fff;font-size:19px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:16px;padding:0 22px;cursor:pointer;width:100%}
+.bigaction svg{width:34px;height:34px;stroke:#fff;fill:none;stroke-width:2}
+.bigaction:hover{background:#1E40AF}
+.link{background:none;border:0;color:var(--blue);font-weight:600;font-size:16px;cursor:pointer;min-height:48px;text-decoration:underline;text-underline-offset:3px;padding:0 4px}
+.alert{border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;font-size:16px;line-height:1.35}
+.alert .ai{font-size:20px;line-height:1}
+.alert.warn{background:var(--amber-bg);border:1.5px solid var(--amber-line);color:#78350F}
+.alert.info{background:var(--blue-bg);border:1.5px solid var(--blue-line);color:#1E3A8A}
+.alert.error{background:var(--red-bg);border:1.5px solid var(--red-line);color:#7F1D1D}
+.result{border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px;border:2px solid}
+.result .rk{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.result .rt{font-size:25px;font-weight:800;line-height:1.2}
+.result .rp{font-size:30px;font-weight:800}
+.r-red{background:var(--red);border-color:var(--red);color:#fff}
+.r-amber{background:var(--amber-bg);border-color:var(--amber);color:#78350F}
+.r-amber .rt{color:var(--amber)}
+.r-slate{background:#EEF2F7;border-color:#64748B;color:#1E293B}
+.r-gray{background:var(--gray-bg);border-color:#94A3B8;color:#1E293B}
+.meta{font-size:15px;color:var(--slate);display:flex;flex-direction:column;gap:4px}
+.meta b{font-weight:600;color:var(--ink)}
+.note{font-size:15px;color:var(--slate);line-height:1.4}
+.pa{display:inline-flex;align-items:center;font-size:11px;font-weight:700;color:var(--amber);border:1.5px dashed var(--amber);border-radius:6px;padding:1px 6px;background:var(--amber-bg);white-space:nowrap;letter-spacing:.02em;line-height:1.5}
+body.nomarks .pa{display:none!important}
+.reserved{border:1.5px dashed #94A3B8;border-radius:12px;padding:12px 14px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:6px;background:#FAFBFC}
+.reserved .rh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;color:var(--slate)}
+.dark .reserved{background:rgba(15,23,42,.7);border-color:#64748B;color:#CBD5E1}
+.dark .reserved .rh{color:#E2E8F0}
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--amber)}
+.state-ic{width:76px;height:76px;border-radius:38px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:8px auto 4px}
+.st-warn{background:#E2E8F0;color:#334155}
+.st-deny{background:var(--red-bg);color:var(--red)}
+.st-done{background:var(--blue-bg);color:var(--blue)}
+.big-msg{font-size:24px;font-weight:800;line-height:1.25}
+.card{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;text-align:left;width:100%;cursor:pointer;display:flex;flex-direction:column;gap:3px;font-size:15px}
+.card:hover{border-color:#94A3B8;background:#F8FAFC}
+.card .ct{font-weight:700;font-size:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card .cs{color:var(--slate)}
+.list{display:flex;flex-direction:column;gap:10px}
+.chip{font-size:10px;font-weight:800;letter-spacing:.08em;color:#475569;background:#E2E8F0;border-radius:4px;padding:1px 5px}
+.empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:16px}
+.viewer{flex:1;min-height:420px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#334155 0%,#111827 70%)}
+.plate-frame{width:280px;height:110px;border:3px solid #fff;border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
+.face-oval{width:210px;height:280px;border:3px dashed #fff;border-radius:50%;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.face-oval svg{width:190px;opacity:.28}
+.vhint{color:#E2E8F0;font-size:16px;text-align:center;padding:14px 18px 6px}
+.shutter{width:84px;height:84px;border-radius:42px;border:6px solid #94A3B8;background:#fff;cursor:pointer;margin:6px auto 0;display:block;box-shadow:0 0 0 4px rgba(255,255,255,.2)}
+.shutter-lbl{color:#fff;text-align:center;font-weight:700;letter-spacing:.1em;font-size:14px;margin-top:6px}
+.spin{width:56px;height:56px;border-radius:28px;border:5px solid #CBD5E1;border-top-color:var(--blue);animation:sp 0.9s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp figure{margin:0;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#F8FAFC}
+.cmp figcaption{font-size:12px;font-weight:800;letter-spacing:.1em;text-align:center;padding:6px;background:#E2E8F0;color:#334155}
+.cmp svg{display:block;width:100%;aspect-ratio:3/4}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid var(--line);border-radius:12px;padding:4px}
+.pager button{width:48px;height:44px;border:0;background:var(--gray-bg);border-radius:10px;font-size:20px;cursor:pointer}
+.pager button:disabled{opacity:.35;cursor:default}
+.radio{display:flex;align-items:center;gap:12px;min-height:50px;border:1.5px solid var(--line);border-radius:12px;padding:6px 14px;cursor:pointer;font-size:16px}
+.radio input{width:22px;height:22px;accent-color:var(--blue)}
+.radios{display:flex;flex-direction:column;gap:8px}
+.radios.invalid .radio{border-color:var(--red)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:15px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;word-break:break-word}
+.lock{display:flex;gap:8px;align-items:center;background:var(--gray-bg);border-radius:10px;padding:10px 12px;font-weight:600;color:var(--slate)}
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.filters select{min-height:44px;font-size:14px;padding:6px 26px 6px 8px;background-position:calc(100% - 16px) 19px,calc(100% - 11px) 19px}
+.logc .ct{font-size:14px;color:var(--muted);font-weight:600}
+.logc .cl{font-weight:700;font-size:15px}
+.idbadge{position:absolute;left:8px;bottom:8px;z-index:5;background:#0F172A;color:#FDE68A;font:700 11px ui-monospace,Consolas,monospace;padding:3px 7px;border-radius:6px;opacity:.9;pointer-events:none}
+.fab{position:absolute;right:6px;top:2px;z-index:6;border:1px solid #475569;background:#334155;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:0 9px;height:20px;cursor:pointer;line-height:18px}
+.sheet-bg{position:absolute;inset:0;background:rgba(15,23,42,.45);z-index:10;display:flex;align-items:flex-end}
+.sheet{background:#fff;width:100%;max-height:86%;overflow-y:auto;border-radius:20px 20px 0 0;padding:6px 16px 18px;font-size:14px}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:#CBD5E1;margin:6px auto 8px}
+.sheet h2{font-size:17px;margin:4px 0 2px}
+.sheet h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.sheet label.sl{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;font-weight:600}
+.sheet select{min-height:40px;border:1.5px solid var(--line);border-radius:8px;padding:4px 8px;background:#fff}
+.sheet .tg{display:flex;align-items:center;gap:10px;min-height:40px;font-weight:600}
+.sheet .tg input{width:20px;height:20px}
+.sheet .dbtn{width:100%;min-height:42px;border:1.5px solid var(--line);background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-weight:600;cursor:pointer;text-align:left;padding:6px 12px}
+.sheet .dnote{font-size:12px;color:var(--muted);margin:-2px 0 8px}
+.sheet .fixed{background:var(--gray-bg);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:8px}
+.sep{height:1px;background:var(--line);margin:4px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.login-head{text-align:center;padding:36px 0 10px}
+.login-head .logo{width:72px;height:72px;border-radius:20px;background:#E2E8F0;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.login-head .logo svg{width:40px;height:40px;stroke:#334155;fill:none;stroke-width:2}
+.login-head h1{margin:0;font-size:26px}
+.login-head p{margin:6px 0 0;color:var(--muted);font-size:16px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="phone">
+    <div id="screen">
+      <div class="sbar" aria-hidden="true"><span id="clock">--:--</span><span class="ic">
+        <svg viewBox="0 0 24 24"><path d="M2 20h3v-4H2zm5 0h3v-8H7zm5 0h3V8h-3zm5 0h3V4h-3z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm2-2h6v2H9z"/></svg></span></div>
+      <div id="app"></div>
+      <nav class="nbar" aria-label="Navegación de Android">
+        <button data-a="navBack" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M16 4 7 12l9 8z"/></svg></button>
+        <button data-a="navHome" aria-label="Inicio"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/></svg></button>
+        <button aria-label="Recientes" tabindex="-1"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ================= Configuración (valores provisionales) ================= */
+const CFG = {
+  MAX_FAILS: 5,          // PA 19 · ADR-0011
+  LOCK_MIN: 15,          // PA 19 · ADR-0011
+  REVIEW_EXPIRY_H: 24,   // PA 23 · ADR-0008
+  MAX_CANDIDATES: 3,     // PA 22 · valor provisional del encargo
+  OTRO_MIN: 10,          // PA 21 · ADR-0011
+  PLATE_MS: 1500,
+  FACE_MS: 2000
+};
+
+/* ================= Datos sintéticos ================= */
+const USERS = {
+  jperez:      { pass:'demo123', role:'agente',     name:'J. Pérez' },
+  revisor1:    { pass:'demo123', role:'revisor',    name:'Revisor 1' },
+  supervisor1: { pass:'demo123', role:'supervisor', name:'Supervisor 1' }
+};
+const NAMES = { jperez:'J. Pérez', lrojas:'L. Rojas', revisor1:'Revisor 1', supervisor1:'Supervisor 1', sistema:'sistema' };
+const ROLE_LABEL = { agente:'Agente', revisor:'Revisor', supervisor:'Supervisor' };
+const ROLE_HOME = { agente:'HOME-01', revisor:'REV-01', supervisor:'BIT-01' };
+const PLATES = { 'ABC-123':'requisitoria', 'DEF-456':'sin', 'GHI-789':'caida' };
+const MOTIVOS = [
+  { v:'op1', t:'Opción 1 (por definir)' },
+  { v:'op2', t:'Opción 2 (por definir)' },
+  { v:'op3', t:'Opción 3 (por definir)' },
+  { v:'otro', t:'Otro' }
+];
+const QUALITY = {
+  'q-frente':'Mire de frente',
+  'q-luz':'Más luz',
+  'q-borrosa':'Imagen borrosa',
+  'q-varias':'Solo debe aparecer una persona',
+  'q-sinrostro':'No se detectó un rostro'
+};
+const TXT = {
+  posible:'Posible coincidencia — requiere revisión',
+  nc:'No concluyente — verifique por otros medios',
+  sin:'Sin coincidencia en la lista consultada',
+  plateErr:'No se pudo completar la consulta; intente nuevamente',
+  faceErr:'No se pudo completar la verificación; intente nuevamente'
+};
+const DECISION = {
+  confirmar:{ label:'Confirmar coincidencia', log:'Coincidencia confirmada', agent:'Revisión: coincidencia confirmada por el revisor' },
+  descartar:{ label:'Descartar', log:'Descartada', agent:'Revisión: descartada por el revisor' },
+  nc:       { label:'No concluyente', log:'No concluyente', agent:'Revisión: no concluyente según el revisor' }
+};
+
+/* ================= Estado ================= */
+const MIN = 60000, HOUR = 60*MIN;
+const S = {
+  user: null,                 // { u, role, name }
+  cur: { id:'AUTH-01', p:{} },
+  stack: [],
+  token: 0,                   // invalida temporizadores al navegar
+  login: { msg:null, username:'', lockUntil:0 },
+  fails: {}, locks: {},
+  draft: null,
+  bitFilter: { fecha:'', usuario:'', tipo:'' },
+  demo: { plate:'auto', face:'posible', camera:'ok', ocr:'ABC-123', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
+  log: [], seqLog: 117,
+  verifs: [], seqV: 10
+};
+function freshDraft(){ return { pla:{placa:'',sel:'',otro:''}, ros:{sel:'',otro:'',id:''}, rev:{vid:null,dec:'',mot:''} }; }
+S.draft = freshDraft();
+
+function rid(prefix){ return prefix + Math.random().toString(16).slice(2,6) + Math.random().toString(16).slice(2,6); }
+function addLog(e){ S.seqLog++; const r = Object.assign({ n:S.seqLog, at:new Date() }, e); S.log.push(r); return r; }
+function motivoText(sel, otro){ const m = MOTIVOS.find(x=>x.v===sel); if(!m) return ''; return sel==='otro' ? 'Otro: ' + otro.trim() : m.t; }
+
+(function seed(){
+  const now = Date.now();
+  const at = ms => new Date(now - ms);
+  const mk = (id, user, ago, estado, extra) => Object.assign({ id, user, motivo:'Opción 2 (por definir)', at:at(ago), estado, captureId:rid('CAP-'), score:0.70, candidates:CFG.MAX_CANDIDATES }, extra||{});
+  const v2 = mk('V-0002','jperez', 50*HOUR, 'vencida', { score:0.68 });
+  const v3 = mk('V-0003','jperez', 28*HOUR, 'revisada', { decision:'descartar', decisionAt:at(27.6*HOUR), score:0.66, motivo:'Opción 1 (por definir)' });
+  const v5 = mk('V-0005','jperez', 3*HOUR, 'revisada', { decision:'confirmar', decisionAt:at(2.7*HOUR), score:0.74 });
+  const v7 = mk('V-0007','jperez', 52*MIN, 'pendiente', { score:0.71 });
+  const v9 = mk('V-0009','lrojas', 40*MIN, 'pendiente', { score:0.69, motivo:'Opción 3 (por definir)' });
+  S.verifs = [v2, v3, v5, v7, v9];
+  const L = (ago, e) => { S.seqLog++; S.log.push(Object.assign({ n:S.seqLog, at:at(ago) }, e)); };
+  const face = v => ({ user:v.user, tipo:'Verificación de rostro', motivo:v.motivo, resultado:TXT.posible, ref:v.id, captureId:v.captureId, score:v.score });
+  L(50*HOUR, face(v2));
+  L(28*HOUR, face(v3));
+  L(27.6*HOUR, { user:'revisor1', tipo:'Decisión de revisión', ref:'V-0003', resultado:'Descartada', detalle:'Motivo de la decisión: rasgos distintos en la comparación' });
+  L(27.6*HOUR-1000, { user:'sistema', tipo:'Captura eliminada', ref:'V-0003', resultado:'Causa: decisión del revisor', captureId:v3.captureId });
+  L(26*HOUR, { user:'sistema', tipo:'Revisión vencida', ref:'V-0002', resultado:'24 h sin revisión', pa:23 });
+  L(26*HOUR-1000, { user:'sistema', tipo:'Captura eliminada', ref:'V-0002', resultado:'Causa: vencimiento 24 h', captureId:v2.captureId, pa:23 });
+  L(3*HOUR, face(v5));
+  L(2.7*HOUR, { user:'revisor1', tipo:'Decisión de revisión', ref:'V-0005', resultado:'Coincidencia confirmada', detalle:'Motivo de la decisión: rasgos compatibles en la comparación' });
+  L(2.7*HOUR-1000, { user:'sistema', tipo:'Captura eliminada', ref:'V-0005', resultado:'Causa: decisión del revisor', captureId:v5.captureId });
+  L(75*MIN, { user:'jperez', tipo:'Intento fallido', resultado:'Usuario o clave incorrectos' });
+  L(74*MIN, { user:'jperez', tipo:'Inicio de sesión', resultado:'Correcto' });
+  L(70*MIN, { user:'jperez', tipo:'Acceso denegado', resultado:'Función: Revisión' });
+  L(64*MIN, { user:'sistema', tipo:'Error', resultado:'Fuente de placas no disponible', detalle:'Placa GHI-789' });
+  L(60*MIN, { user:'jperez', tipo:'Consulta de placa', motivo:'Opción 1 (por definir)', ref:'ABC-123', resultado:'Tiene requisitoria' });
+  L(52*MIN, face(v7));
+  L(40*MIN, face(v9));
+  L(20*MIN, { user:'revisor1', tipo:'Inicio de sesión', resultado:'Correcto' });
+})();
+
+/* ================= Utilidades ================= */
+const $ = s => document.querySelector(s);
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const p2 = n => String(n).padStart(2,'0');
+function fHM(d){ return p2(d.getHours())+':'+p2(d.getMinutes()); }
+function fDM(d){ return p2(d.getDate())+'/'+p2(d.getMonth()+1); }
+function fDate(d){ return fDM(d)+'/'+d.getFullYear(); }
+function fShort(d){ return fDM(d)+' '+fHM(d); }
+function fFull(d){ return fDate(d)+' '+fHM(d); }
+function fSec(d){ return fDate(d)+' '+fHM(d)+':'+p2(d.getSeconds()); }
+function pa(n, t){ return `<span class="pa" title="Punto abierto ${n} — pendiente">PA ${n}${t?' · '+t:''}</span>`; }
+function reserved(title, note, tags){ return `<div class="reserved"><div class="rh"><span>${title}</span><span>${tags||''}</span></div>${note?`<div>${note}</div>`:''}</div>`; }
+const ICON = {
+  car:'<svg viewBox="0 0 24 24"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M3 12h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>',
+  face:'<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+  cam:'<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  shield:'<svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg>'
+};
+/* Siluetas genéricas (no son personas). variant cambia la forma para distinguir captura y referencias. */
+function silhouette(variant){
+  const bgs = ['#E2E8F0','#DDE3EA','#E5E7EB','#E0E7EF'];
+  const heads = [[60,58,22,26],[60,56,24,25],[60,57,21,27],[60,59,23,24]];
+  const hair = [
+    'M38 52c0-16 10-24 22-24s22 8 22 24c-6-8-14-10-22-10s-16 2-22 10z',
+    'M37 58c-2-20 8-32 23-32s25 12 23 32c-3-10-6-14-23-16-17 2-20 6-23 16z',
+    'M40 46c4-12 12-16 20-16s16 4 20 16c-8-4-14-5-20-5s-12 1-20 5z',
+    'M36 60c0-22 10-34 24-34s24 12 24 34l-4-14c-5-6-12-8-20-8s-15 2-20 8z'
+  ];
+  const v = variant % 4, h = heads[v];
+  return `<svg viewBox="0 0 120 160" role="img" aria-label="Silueta sintética ${variant+1} (no es una foto)">
+    <rect width="120" height="160" fill="${bgs[v]}"/>
+    <ellipse cx="${h[0]}" cy="${h[1]}" rx="${h[2]}" ry="${h[3]}" fill="#94A3B8"/>
+    <path d="${hair[v]}" fill="#64748B"/>
+    <path d="M18 160c4-30 20-46 42-46s38 16 42 46z" fill="#94A3B8"/>
+    <text x="60" y="154" text-anchor="middle" font-size="6.5" font-family="sans-serif" fill="#475569">SILUETA SINTÉTICA</text>
+  </svg>`;
+}
+
+/* ================= Navegación ================= */
+function homeOf(){ return S.user ? ROLE_HOME[S.user.role] : 'AUTH-01'; }
+function setCur(id, p){ S.token++; S.cur = { id, p:p||{} }; render(); }
+function go(id, p){
+  syncDraft();
+  const sc = SCREENS[id];
+  if (sc.role && (!S.user || S.user.role !== sc.role)) return denied(sc.fname);
+  S.stack.push(S.cur); setCur(id, p);
+}
+function replace(id, p){ syncDraft(); setCur(id, p); }
+function back(){
+  syncDraft();
+  const sc = SCREENS[S.cur.id];
+  if (sc.noBack) return;
+  if (!S.stack.length) return;
+  const prev = S.stack.pop(); setCur(prev.id, prev.p);
+}
+function backTo(id, p){ syncDraft(); while (S.stack.length && S.stack[S.stack.length-1].id !== id) S.stack.pop(); if (S.stack.length) S.stack.pop(); setCur(id, p); }
+function resetTo(stackIds, id, p){ syncDraft(); S.stack = stackIds.map(x=>({id:x,p:{}})); setCur(id, p); }
+function denied(fname){
+  addLog({ user:S.user.u, tipo:'Acceso denegado', resultado:'Función: ' + fname });
+  S.stack = []; setCur('ERR-01');
+}
+function logoutTo(msg){
+  S.user = null; S.stack = []; S.draft = freshDraft();
+  S.login = { msg, username: S.login.username, lockUntil: S.login.lockUntil };
+  setCur('AUTH-01');
+}
+function syncDraft(){
+  document.querySelectorAll('#app [data-bind]').forEach(el => {
+    const [g,k] = el.dataset.bind.split('.');
+    if (el.type === 'radio') { if (el.checked) S.draft[g][k] = el.value; }
+    else S.draft[g][k] = el.value;
+  });
+}
+
+/* ================= Componentes ================= */
+function motivoField(g, errs){
+  const d = S.draft[g];
+  const opts = MOTIVOS.map(m => `<option value="${m.v}" ${d.sel===m.v?'selected':''}>${esc(m.t)}</option>`).join('');
+  const e1 = errs && errs.motivo;
+  return `<div class="field">
+    <label class="lbl" for="${g}-sel">Motivo de consulta * ${pa(21,'provisional')}</label>
+    <select id="${g}-sel" class="inp ${e1 && d.sel!=='otro'?'invalid':''}" data-bind="${g}.sel" data-c="rerender" ${e1&&d.sel!=='otro'?'aria-invalid="true"':''}>
+      <option value="" ${!d.sel?'selected':''}>Seleccione</option>${opts}
+    </select>
+    ${d.sel==='otro' ? `<label class="lbl" for="${g}-otro" style="margin-top:12px">Describa el motivo *</label>
+      <textarea id="${g}-otro" class="inp ${e1?'invalid':''}" data-bind="${g}.otro" maxlength="300" placeholder="Mínimo ${CFG.OTRO_MIN} caracteres">${esc(d.otro)}</textarea>` : ''}
+    ${e1 ? `<div class="err" role="alert"><span>⚠</span><span>${esc(e1)}</span></div>` : ''}
+  </div>`;
+}
+function motivoError(g){
+  const d = S.draft[g];
+  if (!d.sel) return 'Indique el motivo de la consulta.';
+  if (d.sel === 'otro' && d.otro.trim().length < CFG.OTRO_MIN) return `Describa el motivo (mínimo ${CFG.OTRO_MIN} caracteres).`;
+  return null;
+}
+function normPlate(raw){
+  const s = String(raw||'').toUpperCase().replace(/\s+/g,'');
+  const m = s.match(/^([A-Z0-9]{3})-?(\d{3})$/);
+  return m ? m[1]+'-'+m[2] : null;
+}
+function bar(title, o){
+  o = o||{};
+  const left = o.close ? `<button class="ib" data-a="${o.closeA||'back'}" aria-label="Cerrar">✕</button>` : (o.back===false ? '' : `<button class="ib" data-a="${o.backA||'back'}" aria-label="Volver">←</button>`);
+  return `<header class="bar">${left}<h1>${title}</h1>${o.right||''}</header>`;
+}
+function roleBar(title){
+  return `<header class="bar rolebar"><div style="flex:1;min-width:0">
+      <div class="hello">${title}</div>
+      <div class="sub">Rol: ${ROLE_LABEL[S.user.role]}${S.user.role==='revisor'?' '+pa(2):''}${S.user.role==='supervisor'?' '+pa(24):''}</div>
+    </div><button class="btn-salir" data-a="logout">Salir</button></header>`;
+}
+function newVerif(){
+  S.seqV++;
+  return 'V-' + String(S.seqV).padStart(4,'0');
+}
+
+/* ================= Pantallas ================= */
+const SCREENS = {};
+function def(ids, o){ ids.split(',').forEach(id => SCREENS[id] = o); }
+
+/* ---------- HU-01 ---------- */
+def('AUTH-01', { render(){
+  const L = S.login;
+  let alert = '';
+  if (L.msg === 'error') alert = `<div class="alert error" role="alert"><span class="ai">⚠</span><span>Usuario o clave incorrectos</span></div>`;
+  if (L.msg === 'inact') alert = `<div class="alert info" role="status"><span class="ai">ⓘ</span><span>Su sesión se cerró por inactividad. Ingrese de nuevo. ${pa(18,'tiempo')}</span></div>`;
+  if (L.msg === 'lock') { const u = new Date(L.lockUntil); const mins = Math.max(1, Math.ceil((L.lockUntil - Date.now())/MIN));
+    alert = `<div class="alert warn" role="alert"><span class="ai">🔒</span><span>Cuenta bloqueada temporalmente. Podrá volver a intentar a las ${fHM(u)} (en ${mins} min). ${pa(19)}</span></div>`; }
+  return `<div class="body">
+    <div class="login-head"><div class="logo">${ICON.shield}</div><h1>Movil Buscador</h1><p>Acceso solo para personal autorizado</p></div>
+    ${alert}
+    <form data-submit="login" style="display:flex;flex-direction:column;gap:14px" autocomplete="off">
+      <div class="field"><label class="lbl" for="u">Usuario</label><input id="u" class="inp" value="${esc(L.username)}" autocapitalize="none" spellcheck="false"></div>
+      <div class="field"><label class="lbl" for="pw">Clave</label><input id="pw" class="inp" type="password"></div>
+      <button class="btn primary" type="submit">Ingresar</button>
+    </form>
+  </div>`;
+}, idOf(){ return { error:'AUTH-02', inact:'AUTH-03', lock:'AUTH-04' }[S.login.msg] || 'AUTH-01'; }, noBack:true });
+
+/* ---------- HU-02 ---------- */
+def('HOME-01', { role:'agente', fname:'Inicio del agente', noBack:true, render(){
+  const pend = S.verifs.filter(v => v.user===S.user.u && v.estado==='pendiente').length;
+  return roleBar('Hola, ' + esc(S.user.name)) + `<div class="body">
+    <button class="bigaction" data-a="toPlaca">${ICON.car}<span>CONSULTAR PLACA</span></button>
+    <button class="bigaction" data-a="toRostro">${ICON.face}<span>VERIFICAR ROSTRO</span></button>
+    <div style="text-align:center;margin-top:6px"><button class="link" data-a="toVer">Mis verificaciones${pend?` (${pend} pend.)`:''}</button></div>
+  </div>`;
+}});
+def('ERR-01', { noBack:true, render(){
+  return `<div class="body center">
+    <div class="state-ic st-deny">⛔</div>
+    <div class="big-msg">No tiene permiso para usar esta función.</div>
+    <p class="note">El intento quedó registrado.</p>
+    <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="home">Volver al inicio</button></div>
+  </div>`;
+}});
+
+/* ---------- HU-03 / HU-04 ---------- */
+def('PLA-01,PLA-02,PLA-03', { role:'agente', fname:'Consultar placa', render(p){
+  const d = S.draft.pla, e = p.errs || {};
+  return bar('Consultar placa') + `<div class="body">
+    <div class="field">
+      <label class="lbl" for="placa">Placa ${pa(20,'formato provisional')}</label>
+      <div class="row">
+        <input id="placa" class="inp mono plate-inp ${e.placa?'invalid':''}" data-bind="pla.placa" value="${esc(d.placa)}" maxlength="8" placeholder="ABC-123" autocapitalize="characters" spellcheck="false" ${e.placa?'aria-invalid="true"':''}>
+        <button class="camicon" data-a="toOcr" aria-label="Leer con cámara" title="Leer con cámara">${ICON.cam}</button>
+      </div>
+      ${e.placa ? `<div class="err" role="alert"><span>⚠</span><span>El formato de placa no es válido. Formato esperado: ABC-123 (3 letras o números, guion, 3 números)</span></div>` : ''}
+    </div>
+    ${motivoField('pla', e)}
+    <div style="margin-top:auto"><button class="btn primary" data-a="consultarPlaca">Consultar</button></div>
+  </div>`;
+}, idOf(p){ const e = p.errs||{}; return e.motivo && e.placa ? 'PLA-02 + PLA-03' : e.motivo ? 'PLA-02' : e.placa ? 'PLA-03' : 'PLA-01'; }});
+def('PLA-04', { role:'agente', fname:'Consultar placa', noBack:true, render(p){
+  return bar('Consultar placa', {back:false}) + `<div class="body center"><div class="spin" aria-hidden="true"></div>
+    <div style="font-size:20px;font-weight:700" role="status">Consultando…</div><div class="note">Placa <span class="mono"><b>${esc(p.placa)}</b></span></div>
+    <div style="width:100%;margin-top:20px"><button class="btn primary" disabled>Consultar</button></div></div>`;
+}});
+function plateResult(p, cls, kicker, text){
+  return bar('Resultado', {backA:'home'}) + `<div class="body">
+    <div class="result ${cls}" role="status"><div class="rk">${kicker}</div><div class="rp mono">${esc(p.placa)}</div><div class="rt">${text}</div></div>
+    ${S.demo.pa15==='datos' ? reserved('Datos adicionales', '(campos por definir)', pa(15)) : ''}
+    <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div></div>
+    <div style="margin-top:auto"><button class="btn primary" data-a="nuevaPlaca">Nueva consulta</button></div>
+  </div>`;
+}
+def('PLA-05', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-red', 'Resultado de la consulta', 'TIENE REQUISITORIA'); }});
+def('PLA-06', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-gray', 'Resultado de la consulta', 'Sin requisitoria registrada en la fuente consultada'); }});
+def('PLA-07', { role:'agente', fname:'Consultar placa', render(){
+  return bar('Consultar placa') + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" role="alert">${TXT.plateErr}</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:16px">
+      <button class="btn primary" data-a="consultarPlaca">Reintentar</button>
+      <button class="btn text" data-a="volverForm">Volver</button></div>
+  </div>`;
+}});
+def('OCR-01', { role:'agente', fname:'Leer placa', dark:true, render(){
+  return bar('Leer placa', {close:true}) + `<div class="viewer"><div class="plate-frame"></div></div>
+    <div class="vhint">Encuadre la placa y toque Capturar</div>
+    <button class="shutter" data-a="capturarPlaca" aria-label="Capturar"></button><div class="shutter-lbl">CAPTURAR</div>
+    <div style="text-align:center;padding:8px 0 18px"><button class="btn text" data-a="back">Ingresar manualmente</button></div>`;
+}});
+def('OCR-02', { role:'agente', fname:'Leer placa', render(p){
+  return bar('Placa leída', {backA:'retakeOcr'}) + `<div class="body">
+    <div class="field"><label class="lbl" for="ocrp">Placa leída ✎</label>
+      <input id="ocrp" class="inp mono plate-inp" value="${esc(p.placa)}" maxlength="8" autocapitalize="characters" spellcheck="false"></div>
+    <p class="note">Confirme o corrija la placa antes de consultar.</p>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      <button class="btn primary" data-a="usarPlaca">Usar esta placa</button>
+      <button class="btn text" data-a="retakeOcr">Volver a capturar</button></div>
+  </div>`;
+}});
+def('OCR-03', { role:'agente', fname:'Leer placa', render(){
+  return bar('Leer placa', {backA:'retakeOcr'}) + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" role="alert">No se pudo leer la placa.</div><p class="note">Pruebe de frente y con más luz.</p>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:12px">
+      <button class="btn primary" data-a="retakeOcr">Volver a intentar</button>
+      <button class="btn text" data-a="manual">Ingresar manualmente</button></div>
+  </div>`;
+}});
+def('OCR-04', { role:'agente', fname:'Leer placa', render(){
+  return bar('Leer placa') + `<div class="body center">
+    <div class="state-ic st-warn">📷</div>
+    <div class="big-msg" role="alert">La app no tiene permiso para usar la cámara.</div>
+    <p class="note">Para darlo: Ajustes › Aplicaciones › Movil Buscador › Permisos › Cámara.</p>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:12px">
+      <button class="btn primary" data-a="abrirAjustes">Abrir ajustes</button>
+      <button class="btn text" data-a="manual">Ingresar manualmente</button></div>
+    <p class="hint" id="ajustes-hint" hidden>En el prototipo este botón no abre los ajustes.</p>
+  </div>`;
+}});
+
+/* ---------- HU-05 ---------- */
+def('ROS-01', { role:'agente', fname:'Verificar rostro', render(p){
+  const e = p.errs || {};
+  return bar('Verificar rostro', {right:'<span class="step">1 de 2</span>'}) + `<div class="body">
+    ${motivoField('ros', e)}
+    ${S.demo.pa7==='1a1' ? `<div class="reserved"><div class="rh"><span>Identidad declarada</span>${pa(7,'solo variante 1:1')}</div>
+      <input class="inp" data-bind="ros.id" value="${esc(S.draft.ros.id)}" aria-label="Identidad declarada"><div>(tipo de dato por definir)</div></div>` : ''}
+    <div style="margin-top:auto"><button class="btn primary" data-a="continuarCamara">Continuar a cámara</button></div>
+  </div>`;
+}, idOf(p){ return p.errs && p.errs.motivo ? 'ROS-01 · falta motivo' : 'ROS-01'; }});
+def('ROS-02', { role:'agente', fname:'Verificar rostro', dark:true, render(){
+  return bar('Verificar rostro', {right:'<span class="step">2 de 2</span>'}) + `<div class="viewer" style="min-height:360px"><div class="face-oval"></div></div>
+    <div class="vhint">Rostro de frente, buena luz, una sola persona.</div>
+    <div style="padding:4px 16px 8px">${reserved('Aviso a la persona — por definir', 'Espacio reservado para el aviso de tratamiento de datos.', pa(25))}</div>
+    <button class="shutter" data-a="capturarRostro" aria-label="Capturar"></button><div class="shutter-lbl" style="padding-bottom:16px">CAPTURAR</div>`;
+}});
+def('ROS-03', { role:'agente', fname:'Verificar rostro', render(p){
+  return bar('Verificar rostro') + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" style="font-size:30px" role="alert">${esc(p.motivo)}</div>
+    <p class="note">La captura no se envió a comparar.</p>
+    <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="repetirCaptura">Repetir captura</button></div>
+  </div>`;
+}});
+def('ROS-04', { role:'agente', fname:'Verificar rostro', noBack:true, render(){
+  return bar('Verificar rostro', {back:false}) + `<div class="body center"><div class="spin" aria-hidden="true"></div>
+    <div style="font-size:20px;font-weight:700" role="status">Comparando con la lista de prueba…</div></div>`;
+}});
+function faceMeta(p){ return `<div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Fecha y hora:</b> ${fFull(p.at)}</div>${p.vid?`<div><b>ID:</b> ${p.vid}</div>`:''}</div>`; }
+def('ROS-05', { role:'agente', fname:'Verificar rostro', render(p){
+  return bar('Resultado', {backA:'home'}) + `<div class="body">
+    <div class="result r-amber" role="status"><div class="rk">Resultado de la verificación</div><div class="rt">${TXT.posible}</div></div>
+    <p class="note" style="margin:0"><b>Esto no es una identificación.</b> Un revisor debe validar la coincidencia. ${S.demo.pa7==='1a1'?pa(7,'texto en 1:1'):''}</p>
+    <div class="status">⏳ Estado: Pendiente de revisión</div>
+    ${reserved('Datos del candidato', 'No se muestran por ahora.', pa(15)+' '+pa(22))}
+    ${faceMeta(p)}
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      <button class="btn sec" data-a="toVer">Ver en Mis verificaciones</button>
+      <button class="btn primary" data-a="nuevaVerif">Nueva verificación</button></div>
+  </div>`;
+}});
+def('ROS-06', { role:'agente', fname:'Verificar rostro', render(p){
+  return bar('Resultado', {backA:'home'}) + `<div class="body">
+    <div class="result r-slate" role="status"><div class="rk">Resultado de la verificación</div><div class="rt">${TXT.nc}</div></div>
+    ${faceMeta(p)}
+    <div style="margin-top:auto"><button class="btn primary" data-a="nuevaVerif">Nueva verificación</button></div>
+  </div>`;
+}});
+def('ROS-07', { role:'agente', fname:'Verificar rostro', render(p){
+  return bar('Resultado', {backA:'home'}) + `<div class="body">
+    <div class="result r-gray" role="status"><div class="rk">Resultado de la verificación</div><div class="rt">${TXT.sin}</div></div>
+    <p class="note" style="margin:0">La comparación se hizo solo contra la lista disponible. ${pa(7)}</p>
+    ${faceMeta(p)}
+    <div style="margin-top:auto"><button class="btn primary" data-a="nuevaVerif">Nueva verificación</button></div>
+  </div>`;
+}});
+def('ROS-08', { role:'agente', fname:'Verificar rostro', render(){
+  return bar('Verificar rostro') + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" role="alert">${TXT.faceErr}</div>
+    <div class="row" style="width:100%;margin-top:16px">
+      <button class="btn primary" data-a="repetirCaptura">Repetir captura</button>
+      <button class="btn sec" style="width:auto" data-a="home">Volver</button></div>
+  </div>`;
+}});
+
+/* ---------- HU-06 (agente) ---------- */
+function verStatus(v){
+  if (v.estado === 'pendiente') return `<span class="status">⏳ Pendiente de revisión</span>`;
+  if (v.estado === 'vencida') return `<span style="font-weight:700;color:#334155">${TXT.nc}</span> ${pa(23,'24 h')}`;
+  return `<span style="font-weight:700;color:#334155">Revisada</span>`;
+}
+def('VER-01', { role:'agente', fname:'Mis verificaciones', render(){
+  const mine = S.verifs.filter(v => v.user===S.user.u).sort((a,b)=>b.at-a.at);
+  return bar('Mis verificaciones', {backA:'home'}) + `<div class="body">
+    <p class="note" style="margin:0">Verificaciones que terminaron en posible coincidencia.</p>
+    <div class="list">${mine.length ? mine.map(v => `<button class="card" data-a="verDetalle" data-vid="${v.id}">
+      <span class="ct">${v.id} · ${fShort(v.at)}</span><span>${verStatus(v)}</span></button>`).join('') : '<div class="empty">No tiene verificaciones con posible coincidencia.</div>'}</div>
+  </div>`;
+}});
+def('VER-02', { role:'agente', fname:'Mis verificaciones', render(p){
+  const v = S.verifs.find(x => x.id===p.vid);
+  let rev;
+  if (v.estado === 'pendiente') rev = `<div class="status">⏳ Estado: Pendiente de revisión</div>`;
+  else if (v.estado === 'vencida') rev = `<div class="result r-slate" style="padding:14px"><div class="rt" style="font-size:20px">${TXT.nc}</div></div><div>${pa(23,'vencida: 24 h sin revisión')}</div>`;
+  else rev = `<div style="font-size:18px;font-weight:700">${DECISION[v.decision].agent} ${pa(28,'redacción')}</div>
+      <div class="meta">${fFull(v.decisionAt)}</div>
+      ${reserved('Motivo del revisor — por definir', '', pa(27))}`;
+  return bar(v.id) + `<div class="body">
+    <div class="meta"><div><b>${v.id}</b> · ${fFull(v.at)}</div><div><b>Motivo:</b> ${esc(v.motivo)}</div></div>
+    <div class="sep"></div>
+    <div><div class="lbl" style="color:var(--muted)">Resultado inicial</div><div style="font-size:18px;font-weight:700;color:var(--amber)">${TXT.posible}</div></div>
+    <div class="sep"></div>
+    ${rev}
+  </div>`;
+}});
+
+/* ---------- HU-06 (revisor) ---------- */
+def('REV-01', { role:'revisor', fname:'Revisión', noBack:true, render(){
+  const pend = S.verifs.filter(v => v.estado==='pendiente').sort((a,b)=>a.at-b.at);
+  return roleBar('Pendientes de revisión') + `<div class="body">
+    <div class="list">${pend.length ? pend.map(v => `<button class="card" data-a="revisar" data-vid="${v.id}">
+      <span class="ct">⏳ ${v.id} · ${fShort(v.at)}</span>
+      <span class="cs">Usuario: ${esc(NAMES[v.user]||v.user)}</span>
+      <span class="cs">Motivo: ${esc(v.motivo)}</span></button>`).join('') : '<div class="empty">No hay coincidencias pendientes</div>'}</div>
+  </div>`;
+}});
+def('REV-02,REV-03', { role:'revisor', fname:'Revisión', render(p){
+  const v = S.verifs.find(x => x.id===p.vid);
+  const d = S.draft.rev, e = p.errs || {};
+  const lista = S.demo.pa7 === 'lista';
+  const n = lista ? v.candidates : 1, c = Math.min(p.cand||0, n-1);
+  const radios = Object.keys(DECISION).map(k => `<label class="radio"><input type="radio" name="dec" value="${k}" data-bind="rev.dec" ${d.dec===k?'checked':''}> ${DECISION[k].label}</label>`).join('');
+  return bar('Revisar ' + v.id) + `<div class="body">
+    <div class="meta"><div><b>Motivo de la consulta:</b> ${esc(v.motivo)}</div><div>${esc(NAMES[v.user]||v.user)} · ${fShort(v.at)}</div></div>
+    <div class="cmp">
+      <figure><figcaption>CAPTURA</figcaption>${silhouette(0)}</figure>
+      <figure><figcaption>REFERENCIA</figcaption>${silhouette(c+1)}</figure>
+    </div>
+    ${lista ? `<div class="pager"><button data-a="cand" data-d="-1" ${c===0?'disabled':''} aria-label="Candidato anterior">‹</button>
+      <span style="font-weight:700">Candidato ${c+1} de ${n}</span>
+      <button data-a="cand" data-d="1" ${c===n-1?'disabled':''} aria-label="Candidato siguiente">›</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${pa(22,'máx. '+CFG.MAX_CANDIDATES)} ${pa(7,'lista')}</div>` : `<div>${pa(7,'1:1 · una referencia')}</div>`}
+    ${reserved('Datos de la referencia', '(campos por definir)', pa(15))}
+    ${reserved('Score — por definir', '', pa(26))}
+    <div class="field"><div class="lbl" id="declbl">Decisión *</div>
+      <div class="radios ${e.dec?'invalid':''}" role="radiogroup" aria-labelledby="declbl">${radios}</div>
+      ${e.dec ? `<div class="err" role="alert"><span>⚠</span><span>Elija una decisión.</span></div>` : ''}</div>
+    <div class="field"><label class="lbl" for="revmot">Motivo de la decisión *</label>
+      <textarea id="revmot" class="inp ${e.mot?'invalid':''}" data-bind="rev.mot" maxlength="500">${esc(d.mot)}</textarea>
+      ${e.mot ? `<div class="err" role="alert"><span>⚠</span><span>Escriba el motivo de su decisión.</span></div>` : ''}</div>
+    <button class="btn primary" data-a="guardarDecision" data-vid="${v.id}">Guardar decisión</button>
+  </div>`;
+}, idOf(p){ return p.errs && (p.errs.dec || p.errs.mot) ? 'REV-03' : 'REV-02'; }});
+def('REV-04', { role:'revisor', fname:'Revisión', noBack:true, render(p){
+  return bar('Decisión registrada', {back:false}) + `<div class="body center">
+    <div class="state-ic st-done">✓</div>
+    <div class="big-msg" role="status">Decisión registrada</div>
+    <p class="note">${p.vid} · ${esc(DECISION[p.dec].label)} · ${fHM(p.at)}</p>
+    <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="home">Volver a pendientes</button></div>
+  </div>`;
+}});
+
+/* ---------- HU-07 ---------- */
+function logLine(r){
+  const parts = [r.tipo];
+  if (r.ref) parts.push(r.ref);
+  if (r.motivo) parts.push('Motivo: ' + r.motivo);
+  if (r.resultado) parts.push(r.resultado);
+  return parts.map(esc).join(' · ');
+}
+def('BIT-01', { role:'supervisor', fname:'Bitácora', noBack:true, render(){
+  const F = S.bitFilter;
+  const all = S.log.slice().sort((a,b)=>b.at-a.at);
+  const uniq = f => [...new Set(all.map(f))];
+  const sel = (k, label, vals) => `<select class="inp" data-c="bitFilter" data-k="${k}" aria-label="Filtrar por ${label}"><option value="">${label}</option>${vals.map(x=>`<option ${F[k]===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
+  const rows = all.filter(r => (!F.fecha || fDate(r.at)===F.fecha) && (!F.usuario || r.user===F.usuario) && (!F.tipo || r.tipo===F.tipo));
+  return roleBar('Bitácora') + `<div class="body" style="gap:10px">
+    <div class="reserved" style="padding:10px"><div class="rh"><span>Filtros</span>${pa(24)}</div>
+      <div class="filters">${sel('fecha','Fecha',uniq(r=>fDate(r.at)))}${sel('usuario','Usuario',uniq(r=>r.user))}${sel('tipo','Tipo',uniq(r=>r.tipo))}</div></div>
+    <div class="lock">🔒 Registros de solo lectura</div>
+    <div class="list">${rows.length ? rows.map(r => `<button class="card logc" data-a="bitDetalle" data-n="${r.n}">
+      <span class="ct">${fShort(r.at)} · ${esc(r.user)} <span class="chip">SINTÉTICO</span> ${r.pa?pa(r.pa):''}</span>
+      <span class="cl">${logLine(r)}</span></button>`).join('') : '<div class="empty">No hay registros con estos filtros.</div>'}</div>
+  </div>`;
+}});
+def('BIT-02', { role:'supervisor', fname:'Bitácora', render(p){
+  const r = S.log.find(x => x.n===p.n);
+  const row = (k,v) => v==null||v==='' ? '' : `<dt>${k}</dt><dd>${v}</dd>`;
+  const isFace = r.tipo === 'Verificación de rostro';
+  return bar('Registro #' + String(r.n).padStart(6,'0')) + `<div class="body">
+    <div class="lock">🔒 Registro de solo lectura</div>
+    <dl class="kv">
+      ${row('Usuario', esc(r.user))}
+      ${row('Fecha y hora', fSec(r.at))}
+      ${row('Tipo', esc(r.tipo))}
+      ${row(r.tipo==='Consulta de placa'?'Placa':'Referencia', r.ref?`<span class="${r.tipo==='Consulta de placa'?'mono':''}">${esc(r.ref)}</span>`:'')}
+      ${row('Motivo', esc(r.motivo))}
+      ${row('Resultado', esc(r.resultado))}
+      ${row('Detalle', esc(r.detalle))}
+      ${row('ID de captura', r.captureId?`<span class="mono">${esc(r.captureId)}</span>`:'')}
+      ${isFace ? row('Score', r.score.toFixed(2)) : ''}
+      ${isFace || r.tipo==='Captura eliminada' ? row('Imagen', 'no almacenada') : ''}
+      ${row('Origen', 'datos sintéticos')}
+    </dl>
+    ${r.pa ? `<div>${pa(r.pa)}</div>` : ''}
+  </div>`;
+}});
+
+/* ================= Acciones ================= */
+const ACT = {
+  navBack(){ back(); },
+  navHome(){ if (S.user) ACT.home(); },
+  back(){ back(); },
+  home(){ syncDraft(); S.stack = []; setCur(homeOf()); },
+  logout(){ S.login.username = ''; S.login.lockUntil = 0; logoutTo(null); },
+  rerender(){ syncDraft(); const errs = S.cur.p.errs; if (errs && errs.motivo) delete errs.motivo; render(); },
+
+  /* HU-01 */
+  login(){
+    const u = $('#u').value.trim(), pw = $('#pw').value;
+    S.login.username = u;
+    const now = Date.now();
+    if (S.locks[u] && now < S.locks[u]) { S.login.msg = 'lock'; S.login.lockUntil = S.locks[u]; return setCur('AUTH-01'); }
+    const acc = USERS[u];
+    if (acc && acc.pass === pw) {
+      S.fails[u] = 0; delete S.locks[u];
+      S.user = { u, role:acc.role, name:acc.name };
+      S.login = { msg:null, username:'', lockUntil:0 };
+      addLog({ user:u, tipo:'Inicio de sesión', resultado:'Correcto' });
+      S.stack = []; S.draft = freshDraft();
+      return setCur(ROLE_HOME[acc.role]);
+    }
+    // Se cuenta por nombre de usuario escrito, exista o no, para no revelar qué usuarios existen.
+    S.fails[u] = (S.fails[u]||0) + 1;
+    addLog({ user:u||'(vacío)', tipo:'Intento fallido', resultado:'Usuario o clave incorrectos' });
+    if (S.fails[u] >= CFG.MAX_FAILS) {
+      S.fails[u] = 0; S.locks[u] = now + CFG.LOCK_MIN*MIN;
+      addLog({ user:u||'(vacío)', tipo:'Cuenta bloqueada', resultado:`${CFG.MAX_FAILS} intentos fallidos seguidos · ${CFG.LOCK_MIN} min`, pa:19 });
+      S.login.msg = 'lock'; S.login.lockUntil = S.locks[u];
+    } else S.login.msg = 'error';
+    setCur('AUTH-01');
+  },
+
+  /* HU-02 */
+  toPlaca(){ S.draft.pla = {placa:'',sel:'',otro:''}; go('PLA-01'); },
+  toRostro(){ S.draft.ros = {sel:'',otro:'',id:''}; go('ROS-01'); },
+  toVer(){ go('VER-01'); },
+
+  /* HU-03 */
+  consultarPlaca(){
+    syncDraft();
+    const d = S.draft.pla, errs = {};
+    const placa = normPlate(d.placa);
+    if (!placa) errs.placa = true;
+    const me = motivoError('pla'); if (me) errs.motivo = me;
+    if (errs.placa || errs.motivo) return setCur('PLA-01', { errs });
+    d.placa = placa;
+    const motivo = motivoText(d.sel, d.otro);
+    setCur('PLA-04', { placa });
+    const tk = S.token;
+    setTimeout(() => {
+      if (tk !== S.token) return;
+      const at = new Date();
+      const mode = S.demo.plate;
+      const kind = mode === 'caida' ? 'caida' : mode === 'invalida' ? 'invalida' : (PLATES[placa] || 'sin');
+      if (kind === 'caida' || kind === 'invalida') {
+        addLog({ user:'sistema', tipo:'Error', resultado: kind==='caida' ? 'Fuente de placas no disponible' : 'Respuesta fuera de contrato del simulador', detalle:'Placa ' + placa + ' · consulta de ' + S.user.u + ' · Motivo: ' + motivo });
+        return setCur('PLA-07');   // el formulario sigue en S.draft (Reintentar conserva placa y motivo)
+      }
+      const res = kind === 'requisitoria' ? 'Tiene requisitoria' : 'Sin requisitoria registrada en la fuente consultada';
+      addLog({ user:S.user.u, tipo:'Consulta de placa', motivo, ref:placa, resultado:res });
+      S.stack = [{ id:'HOME-01', p:{} }];
+      setCur(kind === 'requisitoria' ? 'PLA-05' : 'PLA-06', { placa, motivo, at });
+    }, CFG.PLATE_MS);
+  },
+  volverForm(){ setCur('PLA-01'); },
+  nuevaPlaca(){ S.draft.pla = {placa:'',sel:'',otro:''}; resetTo(['HOME-01'], 'PLA-01'); },
+
+  /* HU-04 */
+  toOcr(){ syncDraft(); go(S.demo.camera === 'denegado' ? 'OCR-04' : 'OCR-01'); },
+  capturarPlaca(){ S.demo.ocr === 'falla' ? replace('OCR-03') : replace('OCR-02', { placa:S.demo.ocr }); },
+  retakeOcr(){ replace(S.demo.camera === 'denegado' ? 'OCR-04' : 'OCR-01'); },
+  usarPlaca(){ const v = $('#ocrp').value.toUpperCase().trim(); S.draft.pla.placa = v; backTo('PLA-01'); },
+  manual(){ backTo('PLA-01'); },
+  abrirAjustes(){ const h = $('#ajustes-hint'); if (h) h.hidden = false; },
+
+  /* HU-05 */
+  continuarCamara(){
+    syncDraft();
+    const me = motivoError('ros');
+    if (me) return setCur('ROS-01', { errs:{ motivo:me } });
+    go('ROS-02');
+  },
+  capturarRostro(){
+    const f = S.demo.face;
+    if (QUALITY[f]) return replace('ROS-03', { motivo:QUALITY[f] });   // no se compara ni se registra comparación
+    const d = S.draft.ros, motivo = motivoText(d.sel, d.otro);
+    replace('ROS-04');
+    const tk = S.token;
+    setTimeout(() => {
+      if (tk !== S.token) return;
+      const at = new Date();
+      if (f === 'error') {
+        addLog({ user:'sistema', tipo:'Error', resultado:'Servicio de comparación no responde', detalle:'Verificación de ' + S.user.u + ' · Motivo: ' + motivo });
+        return setCur('ROS-08');
+      }
+      const captureId = rid('CAP-');
+      const score = { posible:0.70, nc:0.50, sin:0.20 }[f] + Math.round(Math.random()*40)/1000;
+      S.stack = [{ id:'HOME-01', p:{} }];
+      if (f === 'posible') {
+        const vid = newVerif();
+        S.verifs.push({ id:vid, user:S.user.u, motivo, at, estado:'pendiente', captureId, score, candidates: S.demo.pa7==='lista' ? CFG.MAX_CANDIDATES : 1 });
+        addLog({ user:S.user.u, tipo:'Verificación de rostro', motivo, ref:vid, resultado:TXT.posible, captureId, score });
+        return setCur('ROS-05', { motivo, at, vid });
+      }
+      addLog({ user:S.user.u, tipo:'Verificación de rostro', motivo, resultado: f==='nc'?TXT.nc:TXT.sin, captureId, score });
+      setCur(f === 'nc' ? 'ROS-06' : 'ROS-07', { motivo, at });
+    }, CFG.FACE_MS);
+  },
+  repetirCaptura(){ S.stack = [{id:'HOME-01',p:{}},{id:'ROS-01',p:{}}]; setCur('ROS-02'); },
+  nuevaVerif(){ S.draft.ros = {sel:'',otro:'',id:''}; resetTo(['HOME-01'], 'ROS-01'); },
+
+  /* HU-06 */
+  verDetalle(el){ go('VER-02', { vid:el.dataset.vid }); },
+  revisar(el){ const vid = el.dataset.vid; if (S.draft.rev.vid !== vid) S.draft.rev = { vid, dec:'', mot:'' }; go('REV-02', { vid, cand:0 }); },
+  cand(el){ syncDraft(); const p = S.cur.p; p.cand = (p.cand||0) + Number(el.dataset.d); render(); },
+  guardarDecision(el){
+    syncDraft();
+    const vid = el.dataset.vid, d = S.draft.rev, errs = {};
+    if (!d.dec) errs.dec = true;
+    if (!d.mot.trim()) errs.mot = true;
+    if (errs.dec || errs.mot) return setCur('REV-03', { vid, cand:S.cur.p.cand, errs });
+    const v = S.verifs.find(x => x.id===vid);
+    const at = new Date();
+    v.estado = 'revisada'; v.decision = d.dec; v.decisionAt = at; v.reviewer = S.user.u;
+    addLog({ user:S.user.u, tipo:'Decisión de revisión', ref:vid, resultado:DECISION[d.dec].log, detalle:'Motivo de la decisión: ' + d.mot.trim() });
+    addLog({ user:'sistema', tipo:'Captura eliminada', ref:vid, resultado:'Causa: decisión del revisor', captureId:v.captureId });
+    const dec = d.dec;
+    S.draft.rev = { vid:null, dec:'', mot:'' };
+    S.stack = [];
+    setCur('REV-04', { vid, dec, at });
+  },
+
+  /* HU-07 */
+  bitDetalle(el){ go('BIT-02', { n:Number(el.dataset.n) }); },
+
+  /* Panel de demo */
+  demoOpen(){ syncDraft(); S.demo.open = true; render(); },
+  demoClose(){ S.demo.open = false; render(); },
+  demoInact(){ S.demo.open = false; S.login.lockUntil = 0; logoutTo('inact'); },
+  demoLock(){
+    S.demo.open = false;
+    const until = Date.now() + CFG.LOCK_MIN*MIN;
+    S.locks.jperez = until; S.fails.jperez = 0;
+    addLog({ user:'jperez', tipo:'Cuenta bloqueada', resultado:`${CFG.MAX_FAILS} intentos fallidos seguidos (simulado) · ${CFG.LOCK_MIN} min`, pa:19 });
+    S.login.username = 'jperez'; S.login.lockUntil = until; logoutTo('lock');
+  },
+  demoUnlock(){ S.locks = {}; S.fails = {}; if (S.login.msg==='lock') S.login.msg = null; S.demo.open = false; render(); },
+  demoExpire(){
+    S.demo.open = false;
+    const pend = S.verifs.filter(v => v.estado==='pendiente');
+    pend.forEach(v => {
+      v.estado = 'vencida';
+      addLog({ user:'sistema', tipo:'Revisión vencida', ref:v.id, resultado:'24 h sin revisión', pa:23 });
+      addLog({ user:'sistema', tipo:'Captura eliminada', ref:v.id, resultado:'Causa: vencimiento 24 h', captureId:v.captureId, pa:23 });
+    });
+    if (S.cur.id==='REV-02' || S.cur.id==='REV-03') { S.stack = []; return setCur('REV-01'); }
+    render();
+  },
+  demoDirect(){
+    S.demo.open = false;
+    if (!S.user) return render();
+    openRoute({ agente:'#/revision', revisor:'#/bitacora', supervisor:'#/placa' }[S.user.role]);
+  },
+  demoReset(){ location.reload(); }
+};
+
+/* Enlaces directos (para probar ERR-01). El control real está en el backend (supuesto de HU-02). */
+const ROUTES = { '#/placa':'PLA-01', '#/rostro':'ROS-01', '#/mis-verificaciones':'VER-01', '#/revision':'REV-01', '#/bitacora':'BIT-01' };
+function openRoute(hash){
+  const id = ROUTES[hash];
+  if (!id || !S.user) return render();
+  const sc = SCREENS[id];
+  if (sc.role !== S.user.role) return denied(sc.fname);
+  S.stack = [{ id:homeOf(), p:{} }]; setCur(id);
+}
+window.addEventListener('hashchange', () => {
+  const h = location.hash;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* file:// en algunos navegadores */ }
+  openRoute(h);
+});
+
+/* ================= Render ================= */
+function demoPanel(){
+  const D = S.demo;
+  const sel = (k, label, opts, note) => `<label class="sl">${label}<select data-c="demo" data-k="${k}">${opts.map(([v,t])=>`<option value="${v}" ${D[k]===v?'selected':''}>${t}</option>`).join('')}</select>${note?`<span class="dnote">${note}</span>`:''}</label>`;
+  return `<div class="sheet-bg" data-a="demoClose"><div class="sheet" role="dialog" aria-label="Panel de demo">
+    <div class="grab"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2>Panel de demo (prototipo)</h2><button class="ib" data-a="demoClose" aria-label="Cerrar">✕</button></div>
+    <div class="dnote">Herramienta del facilitador. No es parte del producto.</div>
+    <h3>Simuladores (HU-08)</h3>
+    ${sel('plate','Respuesta de placa',[['auto','Según placa sintética'],['caida','Forzar fuente caída'],['invalida','Forzar respuesta inválida']],'ABC-123 tiene requisitoria · DEF-456 sin requisitoria · GHI-789 fuente caída')}
+    ${sel('face','Respuesta de rostro',[['posible','Posible coincidencia'],['nc','No concluyente'],['sin','Sin coincidencia'],['error','Error del servicio'],['q-frente','Calidad: Mire de frente'],['q-luz','Calidad: Más luz'],['q-borrosa','Calidad: Imagen borrosa'],['q-varias','Calidad: Varias personas'],['q-sinrostro','Calidad: Sin rostro']])}
+    ${sel('camera','Cámara (placa)',[['ok','Permiso concedido'],['denegado','Permiso denegado']])}
+    ${sel('ocr','Lectura de placa',[['ABC-123','Lee ABC-123'],['DEF-456','Lee DEF-456'],['GHI-789','Lee GHI-789'],['falla','Falla la lectura']])}
+    <h3>Variantes de puntos abiertos</h3>
+    <div class="fixed"><b>PA 2:</b> revisor separado (ADR-0003). La variante «mismo usuario» no se incluye: un agente nunca revisa su propia consulta.</div>
+    ${sel('pa7','PA 7 · Tipo de comparación',[['lista','Lista acotada'],['1a1','1:1']])}
+    ${sel('pa15','PA 15 · Resultado de placa',[['solo','Solo estado'],['datos','Estado + datos (campos por definir)']],'Valor provisional: solo estado.')}
+    <label class="tg"><input type="checkbox" data-c="demoChk" data-k="marks" ${D.marks?'checked':''}> Mostrar marcas de PA</label>
+    <label class="tg"><input type="checkbox" data-c="demoChk" data-k="ids" ${D.ids?'checked':''}> Mostrar ID de pantalla</label>
+    <h3>Eventos</h3>
+    <button class="dbtn" data-a="demoInact">Cerrar sesión por inactividad (PA 18)</button>
+    <button class="dbtn" data-a="demoLock">Bloquear cuenta de jperez (simular 5 intentos · PA 19)</button>
+    <button class="dbtn" data-a="demoUnlock">Desbloquear cuentas</button>
+    <button class="dbtn" data-a="demoExpire">Vencer pendientes (simular 24 h · PA 23)</button>
+    <button class="dbtn" data-a="demoDirect" ${S.user?'':'disabled'}>Abrir enlace directo a una función de otro rol</button>
+    <button class="dbtn" data-a="demoReset">Reiniciar prototipo</button>
+    <div class="dnote" style="margin-top:8px">Usuarios: jperez · revisor1 · supervisor1 — clave demo123</div>
+  </div></div>`;
+}
+function render(){
+  const sc = SCREENS[S.cur.id];
+  const html = sc.render(S.cur.p || {});
+  const sid = sc.idOf ? sc.idOf(S.cur.p || {}) : S.cur.id;
+  document.body.classList.toggle('nomarks', !S.demo.marks);
+  $('#app').innerHTML = `<div class="synth">DATOS SINTÉTICOS · PROTOTIPO</div>
+    <main class="scr ${sc.dark?'dark':''}" id="scr" aria-label="${sid}">${html}</main>
+    ${S.demo.ids ? `<div class="idbadge">${sid}</div>` : ''}
+    <button class="fab" data-a="demoOpen" aria-label="Abrir panel de demo">⚙ Demo</button>
+    ${S.demo.open ? demoPanel() : ''}`;
+  const inv = document.querySelector('#scr .invalid');
+  if (inv) { const f = inv.matches('input,select,textarea') ? inv : inv.querySelector('input'); if (f) f.focus(); }
+}
+
+/* ================= Eventos ================= */
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-a]');
+  if (!el || el.disabled) return;
+  if (el.classList.contains('sheet-bg') && ev.target !== el) return;
+  const fn = ACT[el.dataset.a];
+  if (fn) { ev.preventDefault(); fn(el); }
+});
+document.addEventListener('submit', ev => { const a = ev.target.dataset.submit; if (a) { ev.preventDefault(); ACT[a](); } });
+document.addEventListener('change', ev => {
+  const el = ev.target, c = el.dataset.c;
+  if (c === 'rerender') ACT.rerender();
+  if (c === 'demo') { S.demo[el.dataset.k] = el.value; render(); }
+  if (c === 'demoChk') { S.demo[el.dataset.k] = el.checked; render(); }
+  if (c === 'bitFilter') { S.bitFilter[el.dataset.k] = el.value; render(); }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && S.demo.open) ACT.demoClose();
+  if (ev.key === 'Enter' && ev.target.id === 'placa') { ev.preventDefault(); ACT.consultarPlaca(); }
+});
+
+function fit(){
+  const mobile = window.innerWidth <= 500;
+  document.body.classList.toggle('mobile', mobile);
+  if (!mobile) { const s = Math.min(1, (window.innerHeight - 24) / 935, (window.innerWidth - 24) / 432); $('#phone').style.transform = `scale(${s})`; }
+}
+function tick(){ $('#clock').textContent = fHM(new Date()); }
+window.addEventListener('resize', fit);
+fit(); tick(); setInterval(tick, 20000);
+render();
+</script>
+</body>
+</html>

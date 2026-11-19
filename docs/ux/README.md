@@ -5,7 +5,7 @@ Estado: **aprobado por el usuario (vía BA) el 2026-11-18**: elementos no solici
 
 ## Proyecto / herramienta
 
-- Herramienta de entrega: wireframes en texto estructurado (este directorio) + prompt para generar el prototipo navegable en bolt.new (`bolt-prompt.md`), **pendiente de envío hasta que se resuelva el PA 14**.
+- Herramienta de entrega: wireframes en texto estructurado (este directorio) + **prototipo navegable local** en [`prototipo/`](prototipo/README.md) (HTML sin dependencias ni servicios externos, 2026-11-19). Decisión del humano (2026-11-19): **no se usa bolt.new**; `bolt-prompt.md` queda solo como referencia.
 - Canal/formato: **app móvil Android, vertical (teléfono)**. Android es la plataforma de referencia según ADR-0010 (provisional hasta el PA 12). El prototipo es web con marco de teléfono Android.
 - Idioma de la interfaz: español (Perú).
 - Roles (ADR-0003): **agente** (el "usuario en campo" de las HUs), **revisor** y **supervisor** (el "responsable del servicio" de HU-02/HU-07, que consulta la bitácora). Un agente nunca revisa su propia consulta.
@@ -22,7 +22,9 @@ Estado: **aprobado por el usuario (vía BA) el 2026-11-18**: elementos no solici
 | [wireframes/HU-06-revisar-coincidencia.md](wireframes/HU-06-revisar-coincidencia.md) | Cola del revisor, comparación lado a lado, decisión, vista del agente |
 | [wireframes/HU-07-bitacora-consultas.md](wireframes/HU-07-bitacora-consultas.md) | Bitácora de solo lectura y detalle de registro |
 | [wireframes/HU-08-simuladores-fuentes.md](wireframes/HU-08-simuladores-fuentes.md) | Sin pantallas propias; dónde se ven sus errores; panel de demo |
-| [bolt-prompt.md](bolt-prompt.md) | Prompt listo para bolt.new (**NO ENVIAR** hasta que se resuelva el PA 14) |
+| [prototipo/index.html](prototipo/index.html) | Prototipo navegable local, HU-01 a HU-08, tres roles ([notas de entrega](prototipo/README.md)) |
+| [prototipo/GUION-VALIDACION.md](prototipo/GUION-VALIDACION.md) | Guion de recorrido de 15 min para la validación del 1-dic-2026 |
+| [bolt-prompt.md](bolt-prompt.md) | Solo referencia: no se usa bolt.new (decisión del humano, 2026-11-19) |
 
 ## Mapa de flujos
 
