@@ -57,6 +57,8 @@ export const colores = {
   errorBorde: '#D9534F',
   advertencia: '#FFF4DC',
   advertenciaBorde: '#E0A526',
+  neutro: '#F1F3F5',
+  neutroBorde: '#9AA4AF',
 };
 
 const estilos = StyleSheet.create({
@@ -72,7 +74,7 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   botonOpcion: { paddingVertical: 24, marginBottom: 16 },
-  botonSecundario: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colores.primario, minHeight: 40, paddingVertical: 8 },
+  botonSecundario: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colores.primario, minHeight: 48, paddingVertical: 8 },
   botonDeshabilitado: { backgroundColor: '#E3E7EC', borderColor: '#E3E7EC' },
   botonPresionado: { opacity: 0.8 },
   textoBoton: { color: '#FFFFFF', fontSize: 18, fontWeight: '700', textTransform: 'uppercase' },

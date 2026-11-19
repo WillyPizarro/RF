@@ -1,8 +1,29 @@
 # Informe DEV — HU-01 + HU-02 (sesión y acceso por rol)
 
-**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-01.md` **v2** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` con M-1 y M-2 · **Rama:** `hu-01` · **Fecha:** 2026-11-19
+**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` con M-1 a M-4 · **Rama:** `hu-01` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER.
+
+## Cambios por M-3 y M-4 (revisión del UX)
+
+| Origen | Qué cambió | Archivos |
+|---|---|---|
+| HU-01 v3 (M-3) | Nada: la renovación exitosa ya contaba como actividad en `e6c6f22` | — |
+| HU-01 v4 (UX #5) | "Ingresar" con el usuario o la clave vacíos, o solo con espacios, muestra "Ingrese su usuario y su clave" (tono ámbar, sin ícono) y **no envía** la solicitud | `src/pantallas/PantallaLogin.tsx`, `src/estado/sesion.ts` |
+| UX #1 | Íconos ⚠ (AUTH-02), ⓘ (AUTH-03) y 🔒 (AUTH-04) delante del mensaje, ocultos al lector de pantalla (`accessibilityElementsHidden` e `importantForAccessibility="no-hide-descendants"`). El texto del mensaje sigue en su propio `Text`, sin cambios | `src/pantallas/PantallaLogin.tsx` |
+| UX #3 | "Salir" (y "Mis verificaciones", que usa el mismo estilo secundario) con 48 de alto mínimo | `src/pantallas/comunes.tsx` |
+| UX #4 | El error de red o del servidor pasa a un tono neutro gris, sin ícono. "Usuario o clave incorrectos" sigue en rojo | `src/pantallas/PantallaLogin.tsx`, `src/pantallas/comunes.tsx` |
+| UX #2 | Sin cambios: queda para HU-03 y HU-05 (M-4) | — |
+
+Lo verifiqué con otra prueba Jest temporal, ya borrada:
+
+- Las cuatro combinaciones de campos vacíos o con espacios muestran el mensaje y hacen **0** llamadas a `fetch`.
+- `getByText` sigue encontrando cada mensaje con su texto exacto.
+- El ícono ⚠ tiene las dos propiedades que lo ocultan al lector de pantalla.
+- AUTH-03 sigue funcionando.
+- `npx tsc --noEmit` no da errores.
+
+**Capturas nuevas (M-4):** `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\HU-01-02-v4\`. Hay un PNG y un HTML de cada una de estas pantallas: `AUTH-01_vacio`, `AUTH-02_credenciales`, `AUTH-03_inactividad`, `AUTH-04_bloqueada`, `AUTH-xx_otro_error` y `HOME-01_inicio_agente`. Se hicieron con el mismo método que las anteriores: el árbol de Jest pasado a HTML y fotografiado con Chrome headless.
 
 ## Qué construí
 
@@ -49,7 +70,7 @@ No leí ni ejecuté las pruebas del TESTER.
 
 **Comportamiento de la app que el contrato no fija:**
 
-- **Campos vacíos:** "Ingresar" con usuario o clave vacíos no llama a la API ni muestra nada.
+- **Campos vacíos:** desde la v4 los fija el contrato (ver arriba).
 - **Clave:** se vacía apenas se envía, sea cual sea el resultado.
 - **Usuario tras un cierre:** al cerrar la sesión, el login se vuelve a montar con el campo de usuario vacío, así no queda ningún dato del usuario anterior.
 - **Atrás:** en ERR-01 vuelve al inicio del rol. En las demás pantallas lo maneja el sistema: no hay pila de pantallas a la que volver.

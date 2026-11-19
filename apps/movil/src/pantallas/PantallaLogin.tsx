@@ -20,28 +20,50 @@ export function textoBloqueo(hastaIso: string, ahora: number = Date.now()): stri
   return `Cuenta bloqueada temporalmente. Podrá volver a intentar a las ${hora} (en ${minutos} min).`;
 }
 
+/**
+ * Mensaje del login. El icono distingue el tipo sin depender del color (revision UX #1) y queda
+ * oculto para el lector de pantalla, que lee solo el texto.
+ */
 function Mensaje({ aviso }: { aviso: Aviso }) {
   let texto: string;
   let estilo;
+  let icono: string | null = null;
   switch (aviso.tipo) {
+    case 'vacios':
+      texto = 'Ingrese su usuario y su clave';
+      estilo = estilos.advertencia;
+      break;
     case 'inactividad':
       texto = 'Su sesión se cerró por inactividad. Ingrese de nuevo.';
       estilo = estilos.info;
+      icono = 'ⓘ';
       break;
     case 'credenciales':
       texto = 'Usuario o clave incorrectos';
       estilo = estilos.error;
+      icono = '⚠';
       break;
     case 'bloqueo':
       texto = textoBloqueo(aviso.hasta);
       estilo = estilos.advertencia;
+      icono = '🔒';
       break;
     default:
+      // Falla de red o del servidor: tono neutro, no es un error del usuario (revision UX #4).
       texto = MENSAJE_ERROR;
-      estilo = estilos.error;
+      estilo = estilos.neutro;
   }
   return (
     <View style={[estilos.mensaje, estilo]} accessibilityRole="alert" accessibilityLiveRegion="polite">
+      {icono ? (
+        <Text
+          style={estilos.icono}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          {icono}
+        </Text>
+      ) : null}
       <Text style={estilos.textoMensaje}>{texto}</Text>
     </View>
   );
@@ -50,12 +72,17 @@ function Mensaje({ aviso }: { aviso: Aviso }) {
 /** AUTH-01 a AUTH-04 (CONTRATO-HU-01 §4). */
 export default function PantallaLogin() {
   const aviso = usarSesion((estado) => estado.aviso);
+  const avisar = usarSesion((estado) => estado.avisar);
   const [usuario, setUsuario] = useState('');
   const [clave, setClave] = useState('');
   const [enviando, setEnviando] = useState(false);
 
   async function alIngresar() {
-    if (enviando || !usuario.trim() || !clave) return;
+    if (enviando) return;
+    if (!usuario.trim() || !clave.trim()) {
+      avisar({ tipo: 'vacios' }); // CONTRATO-HU-01 v4: no se envia la solicitud
+      return;
+    }
     setEnviando(true);
     const claveEnviada = clave;
     setClave(''); // la clave se vacia en cualquier resultado (AUTH-02, AUTH-04)
@@ -128,9 +155,11 @@ const estilos = StyleSheet.create({
   },
   espacio: { height: 24 },
   cargando: { marginTop: 16 },
-  mensaje: { borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 8 },
-  textoMensaje: { fontSize: 15, color: colores.texto },
+  mensaje: { flexDirection: 'row', alignItems: 'flex-start', borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 8 },
+  icono: { fontSize: 16, marginRight: 8, color: colores.texto },
+  textoMensaje: { flex: 1, fontSize: 15, color: colores.texto },
   info: { backgroundColor: colores.info, borderColor: colores.infoBorde },
   error: { backgroundColor: colores.error, borderColor: colores.errorBorde },
   advertencia: { backgroundColor: colores.advertencia, borderColor: colores.advertenciaBorde },
+  neutro: { backgroundColor: colores.neutro, borderColor: colores.neutroBorde },
 });

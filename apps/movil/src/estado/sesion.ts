@@ -4,6 +4,7 @@ import type { Perfil } from '../api/sesion';
 
 /** Aviso que muestra el login al volver (AUTH-03) o al fallar (AUTH-02, AUTH-04, otro error). */
 export type Aviso =
+  | { tipo: 'vacios' }
   | { tipo: 'inactividad' }
   | { tipo: 'credenciales' }
   | { tipo: 'bloqueo'; hasta: string }
