@@ -42,12 +42,12 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 - **Bitácora**: se registran los inicios de sesión, intentos fallidos, bloqueos, consultas de placa, verificaciones de rostro, decisiones, revisiones vencidas, capturas eliminadas (tras una decisión o por vencimiento, ADR-0008), accesos denegados y errores. El rechazo por calidad no se registra como comparación.
 - **Bloqueo por intentos**: se cuenta por el nombre de usuario escrito, exista o no, para no revelar qué usuarios existen (observación de HU-01 para ARCH).
 
-## Escalado: diferencias con el inventario aprobado (requieren decisión del PM)
+## Escalado: diferencias con el inventario aprobado (respuesta del PM, 2026-11-19)
 
-1. **PA 2, variante B ("mismo usuario revisa", botón "Revisar ahora" en ROS-05) — no incluida.** El inventario la preveía como opción del panel de demo, marcada "requiere reabrir ADR-0003". El encargo y la regla 4 de `AGENTS.md` dicen que un agente nunca revisa su propia consulta, así que el prototipo no la muestra. El panel indica que la variante está excluida. Si el PM quiere mostrarla en la validación, se agrega.
-2. **Permiso de cámara denegado en la verificación de rostro**: ni HU-05 ni los wireframes lo cubren (OCR-04 es solo para la placa). No se diseñó. Pregunta para el BA: ¿HU-05 necesita un escenario de "sin permiso de cámara"?
+1. **PA 2, variante B ("mismo usuario revisa", botón "Revisar ahora" en ROS-05) — EXCLUIDA (confirmado por el PM el 2026-11-19).** El inventario la preveía como opción del panel de demo, marcada "requiere reabrir ADR-0003". No se muestra el 1-dic: la regla 4 de `AGENTS.md` y el ADR-0003 no se reabren desde una demo. La pregunta del PA 2 del guion se mantiene igual. Si el área usuaria pide que el mismo agente revise, se anota como pedido y se escala, sin prometer nada.
+2. **Permiso de cámara denegado en la verificación de rostro — EN ESPERA del BA.** Ni HU-05 ni los wireframes lo cubren (OCR-04 es solo para la placa). El PM pasó la pregunta al BA. **No se diseña nada** hasta que el humano apruebe el escenario en HU-05. El PM avisará cuando se pueda agregar la pantalla.
 
-## Elementos no solicitados (pendientes de aprobación)
+## Elementos no solicitados (aprobados por el PM el 2026-11-19)
 
 Son herramientas del facilitador o textos de apoyo. No agregan funciones del producto:
 
