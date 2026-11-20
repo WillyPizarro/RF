@@ -1,7 +1,8 @@
 """DoD criterio 5 — Los simuladores no son accesibles desde fuera.
 
 SPRINT0.md §5: `docker compose -f infra/docker-compose.yml config` no publica puertos
-para `simuladores`, `api` ni `db`; solo `proxy` publica 80 y 443.
+para `simuladores`, `api` ni `db`; solo `proxy` publica 80 y 443 (o los alternos de
+PROXY_PUERTO_HTTP / PROXY_PUERTO_HTTPS, ENCARGO-HU-03-07).
 """
 
 import pytest
@@ -37,8 +38,36 @@ def test_servicio_interno_no_publica_puertos(servicios, nombre):
     assert _publicados(servicios[nombre]) == set(), servicios[nombre].get("ports")
 
 
-def test_proxy_publica_solo_80_y_443(servicios):
-    assert _publicados(servicios["proxy"]) == {"80", "443"}, servicios["proxy"].get("ports")
+def test_proxy_publica_solo_sus_dos_puertos(servicios):
+    """El proxy publica solo HTTP y HTTPS: PROXY_PUERTO_HTTP / PROXY_PUERTO_HTTPS de infra/.env
+    si están definidos (puerto alterno, ENCARGO-HU-03-07), 80 y 443 si no."""
+    from conftest import _env_infra
+
+    env = _env_infra()
+    esperados = {env.get("PROXY_PUERTO_HTTP") or "80", env.get("PROXY_PUERTO_HTTPS") or "443"}
+    assert _publicados(servicios["proxy"]) == esperados, servicios["proxy"].get("ports")
+
+
+def test_proxy_sin_variables_publica_80_y_443(compose, tmp_path):
+    """ENCARGO-HU-03-07: sin PROXY_PUERTO_HTTP ni PROXY_PUERTO_HTTPS se publican 80 y 443 (VPS)."""
+    from conftest import ENV_FILE
+
+    lineas = ENV_FILE.read_text(encoding="utf-8").splitlines() if ENV_FILE.exists() else []
+    sin = [ln for ln in lineas if not ln.strip().startswith(("PROXY_PUERTO_HTTP=",
+                                                             "PROXY_PUERTO_HTTPS="))]
+    env = tmp_path / "env-sin-puertos"
+    env.write_text("\n".join(sin) + "\n", encoding="utf-8")
+    cmd = [a for a in compose._base() if a != str(ENV_FILE)]
+    if "--env-file" in cmd:
+        cmd.remove("--env-file")
+    import json
+    import subprocess
+
+    r = subprocess.run(cmd + ["--env-file", str(env), "config", "--format", "json"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    assert r.returncode == 0, r.stderr[-1500:]
+    proxy = json.loads(r.stdout)["services"]["proxy"]
+    assert _publicados(proxy) == {"80", "443"}, proxy.get("ports")
 
 
 def test_solo_el_proxy_publica_puertos(servicios):

@@ -52,6 +52,23 @@ URL_API_INTERNA = "http://api:8000"  # M-1 E
 URL_SIMULADORES_INTERNA = "http://simuladores:8001"  # M-1 E
 
 
+def _env_infra() -> dict[str, str]:
+    valores: dict[str, str] = {}
+    if ENV_FILE is not None and ENV_FILE.exists():
+        for ln in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            ln = ln.strip()
+            if ln and not ln.startswith("#") and "=" in ln:
+                k, v = ln.split("=", 1)
+                valores[k.strip()] = v.strip().strip('"').strip("'")
+    return valores
+
+
+def _url_base_por_defecto() -> str:
+    """https://localhost, con el puerto HTTPS alterno de infra/.env si lo hay (sin fijarlo aquí)."""
+    puerto = os.environ.get("PROXY_PUERTO_HTTPS") or _env_infra().get("PROXY_PUERTO_HTTPS", "")
+    return f"https://localhost:{puerto}" if puerto and puerto != "443" else "https://localhost"
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     grupo = parser.getgroup("esqueleto")
     grupo.addoption(
@@ -62,8 +79,9 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     grupo.addoption(
         "--url-base",
-        default=os.environ.get("URL_BASE_PRUEBAS", "https://localhost"),
-        help="URL pública del proxy (por defecto https://localhost).",
+        default=os.environ.get("URL_BASE_PRUEBAS") or _url_base_por_defecto(),
+        help="URL pública del proxy. Por defecto: URL_BASE_PRUEBAS, o https://localhost con el "
+             "PROXY_PUERTO_HTTPS de infra/.env si está definido (ENCARGO-HU-03-07, puerto alterno).",
     )
     grupo.addoption(
         "--espera-max",
@@ -80,7 +98,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 _ORDEN_CONFIG = {"config_defecto": 0, "config_corta": 1, "config_token_corto": 2,
-                 "config_intentos_alto": 3}
+                 "config_intentos_alto": 3, "config_formato": 4, "al_final": 9}
 
 
 def _orden_config(item: pytest.Item) -> int:
@@ -400,3 +418,16 @@ def config_intentos_alto(sistema):
 @pytest.fixture(scope="session")
 def clave(sistema) -> str:
     return sistema.clave_pruebas()
+
+
+@pytest.fixture(scope="session")
+def inicio_sesion_pruebas(sistema) -> str:
+    """Instante (UTC) en que empezó la sesión de pruebas, para acotar lo que generó la suite."""
+    return sistema.inicio
+
+
+@pytest.fixture
+def al_final(sistema, inicio_sesion_pruebas):
+    """Para pruebas que miran lo que generó toda la suite: se ordenan al final."""
+    sistema.configurar({})
+    return sistema

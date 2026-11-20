@@ -106,6 +106,7 @@ class Sistema:
         self.env_actual = self.env_base
         self.overrides_actuales: dict[str, str] = {}
         self._tmp = Path(tempfile.mkdtemp(prefix="tester-hu01-"))
+        self.inicio = self.ahora_docker()  # cuándo empezó la sesión (lo usa HU-07 §2)
 
     # ---------------------------------------------------------------- compose
     def _base(self, env: Path | None = None) -> list[str]:
@@ -132,7 +133,8 @@ class Sistema:
         ps = []
         for p in peticiones:
             q = dict(p)
-            q["url"] = URL_API + q.pop("ruta")
+            if "url" not in q:  # `url` absoluta para otro servicio de la red (simuladores, mock)
+                q["url"] = URL_API + q.pop("ruta")
             if isinstance(q.get("crudo"), (bytes, bytearray)):
                 q["crudo"] = base64.b64encode(q["crudo"]).decode("ascii")
             ps.append(q)
@@ -175,6 +177,15 @@ class Sistema:
         assert r.returncode == 0, f"psql falló:\n{r.stderr[-2000:]}"
         return [json.loads(ln) for ln in r.stdout.splitlines() if ln.strip()]
 
+    def psql(self, script: str, timeout: float = 120, db: str | None = None
+             ) -> subprocess.CompletedProcess:
+        """Corre un script SQL como el usuario de POSTGRES_USER (dueño del clúster local), con
+        ON_ERROR_STOP. Devuelve el proceso: returncode != 0 si alguna sentencia falló."""
+        env = leer_env(self.env_base)
+        return self.compose("exec", "-T", "db", "psql", "-U", env.get("POSTGRES_USER", "postgres"),
+                            "-d", db or env.get("POSTGRES_DB", "postgres"), "-At", "-v",
+                            "ON_ERROR_STOP=1", "-f", "-", entrada=script, timeout=timeout)
+
     def eventos(self, id_traza: str) -> list[dict]:
         assert id_traza, "la respuesta no trae X-Id-Traza"
         t = id_traza.replace("'", "''")
@@ -203,6 +214,37 @@ class Sistema:
         self.env_actual = env
         self.overrides_actuales = dict(overrides)
         self.esperar_api()
+
+    # ------------------------------------------------------- HU-03 / HU-07
+    def token(self, usuario: str) -> str:
+        r = self.login(usuario, self.clave_pruebas())
+        assert r.estado == 200, f"login de {usuario}: {r}"
+        return r.json()["token_acceso"]
+
+    def modo_placas(self, modo: str, latencia_ms: int | None = None) -> None:
+        """CONTRATO-HU-08 §5: PUT http://simuladores:8001/control/modos/placas (desde api)."""
+        cuerpo: dict = {"modo": modo}
+        if latencia_ms is not None:
+            cuerpo["latencia_ms"] = latencia_ms
+        r = self.lote([{"metodo": "PUT", "url": "http://simuladores:8001/control/modos/placas",
+                        "json": cuerpo}])[0]
+        assert r.estado == 200, f"no se pudo poner placas en {modo}: {r}"
+
+    def ahora_docker(self) -> str:
+        """Marca de tiempo para `docker compose logs --since` (UTC, RFC 3339)."""
+        from datetime import datetime, timezone
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+    def llamadas_a_la_fuente(self, placa: str, desde: str) -> int | None:
+        """Cuántas veces pidió la API `GET /placas/<placa>` al simulador desde `desde`, según su
+        log de acceso (LEAD, respuesta 3). None si el log no trae líneas de acceso reconocibles:
+        el formato del log no es contractual, y entonces el conteo queda NO VERIFICADO."""
+        r = self.compose("logs", "--no-color", "--no-log-prefix", "--since", desde, "simuladores")
+        assert r.returncode == 0, r.stderr[-1000:]
+        texto = r.stdout + r.stderr
+        if "GET /" not in texto:
+            return None
+        return texto.count(f"GET /placas/{placa}")
 
     def clave_pruebas(self) -> str:
         clave = os.environ.get("CLAVE_USUARIOS_PRUEBA") or leer_env(self.env_base).get(
