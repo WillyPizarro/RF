@@ -41,6 +41,22 @@
 - La placa se muestra en mayúsculas y con fuente monoespaciada, para leerla bien.
 - El componente de motivo es el mismo que en ROS-01: catálogo configurable más "Otro" (ADR-0011, provisional). Las opciones siguen "por definir": el catálogo inicial de ARCH se valida con el área usuaria y no se muestra como decidido.
 
+### PLA-01 · sin catálogo — No se pudo cargar el catálogo de motivos (agregado el 2026-11-19, CONTRATO-HU-03 v4)
+```
+┌──────────────────────────────┐
+│ ←  Consultar placa           │
+├──────────────────────────────┤
+│            ⚠                 │
+│ No se pudo completar la      │
+│ consulta; intente nuevamente │
+│                              │
+│  [       REINTENTAR       ]  │  ← vuelve a pedir el catálogo
+│  [ Volver ]                  │  ← al inicio
+└──────────────────────────────┘
+```
+- Se muestra si `GET /v1/motivos` falla. Usa el mismo texto y el mismo estilo que PLA-07.
+- No muestra el formulario: sin catálogo no se puede elegir el motivo, y sin motivo no hay consulta (regla 2). Tampoco dice nada que se lea como un resultado (regla 7).
+
 ### PLA-02 — Falta motivo
 ```
 │ Motivo de consulta *         │
