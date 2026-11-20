@@ -20,8 +20,7 @@ E1 y E2 se cumplen sobre todo en el backend: la bitácora solo admite insercione
 │ Rol: Supervisor      [PA 24] │
 ├──────────────────────────────┤
 │ ┌ - - - - - - - - - - - - -┐ │
-│ │ Filtros [PA 24]          │ │
-│ │ [Fecha ▾][Usuario ▾][Tipo▾│ │
+│ │ Filtros ▾         [PA 24]│ │  ← plegados; un toque los abre
 │ └ - - - - - - - - - - - - -┘ │
 │ 18/11 11:10 · revisor1       │
 │  Revisión · V-0007 · Descart.│
@@ -51,6 +50,29 @@ E1 y E2 se cumplen sobre todo en el backend: la bitácora solo admite insercione
 - Tipos que se ven en el prototipo: inicio de sesión, intento fallido, cuenta bloqueada, consulta de placa, verificación de rostro, decisión de revisión, revisión vencida, captura eliminada (`CAPTURA_ELIMINADA`, ADR-0008, con su causa: decisión del revisor o vencimiento de 24 h), acceso denegado, error.
 - Las revisiones vencidas solo se ven aquí (HU-06 E4: salen de la cola del revisor). Llevan la marca PA 23.
 - Sin botones de editar, borrar ni exportar.
+
+### BIT-01 · filtros desplegados (CONTRATO-HU-07 v3 y v4, 2026-11-19)
+```
+│ ┌ - - - - - - - - - - - - -┐ │
+│ │ Filtros ▴         [PA 24]│ │
+│ │ Usuario                  │ │
+│ │ [______________________] │ │
+│ │ Desde        Hasta       │ │
+│ │ [dd/mm/aaaa] [dd/mm/aaaa]│ │
+│ │ ⚠ Use fechas con el      │ │  ← solo si una fecha no es válida;
+│ │   formato dd/mm/aaaa.    │ │    no se envía la solicitud
+│ │ Tipo                     │ │
+│ │ (Inicio de sesión) (…)   │ │  ← una opción por etiqueta de tipo
+│ │ Resultado                │ │
+│ │ (Tiene requisitoria) (…) │ │
+│ │ [   Aplicar filtros    ] │ │
+│ └ - - - - - - - - - - - - -┘ │
+│ <lista de registros>         │
+```
+- **Plegados por defecto** (CONTRATO-HU-07 v4): "Filtros ▾" abre el panel con un toque y "Filtros ▴" lo cierra. Así la lista queda arriba en el teléfono.
+- "Aplicar filtros" consulta con los filtros elegidos y pliega el panel.
+- "Desde" y "Hasta" usan el teclado numérico. El selector de fecha queda para cuando se resuelva el PA 24.
+- Con el panel plegado no se ve si hay filtros activos: el contador "Filtros (n)" no está en el contrato. Si el área usuaria lo pide al resolver el PA 24, hace falta una versión nueva del contrato.
 
 ### BIT-02 — Detalle
 ```
