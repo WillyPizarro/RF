@@ -163,12 +163,12 @@ Tiene que listar el teléfono con el estado `device`. Si dice `unauthorized`, fa
 Desde `apps/movil/`:
 
 ```
-! npx eas login
-npx eas init          # una vez: vincula el proyecto y agrega extra.eas.projectId a app.json
-npx eas build --profile development --platform android
+! npx eas-cli@27.11.0 login
+npx eas-cli@27.11.0 init          # una vez: vincula el proyecto y agrega extra.eas.projectId a app.json
+npx eas-cli@27.11.0 build --profile development --platform android
 ```
 
-- **Login:** `! npx eas login` lo hace el humano en la terminal. El token queda en su perfil de usuario, **nunca en el repositorio**.
+- **Login:** `! npx eas-cli@27.11.0 login` lo hace el humano en la terminal. El token queda en su perfil de usuario, **nunca en el repositorio**.
 - **`eas init`:** escribe `extra.eas.projectId` en `app.json`. Es un identificador público, no un secreto. Ese cambio lo commitea el DEV cuando el LEAD lo pida.
 - **Resultado:** EAS compila en la nube y da un enlace o QR al **APK**. Para instalarlo:
   - abrir el enlace en el teléfono, o
