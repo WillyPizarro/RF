@@ -88,3 +88,14 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 - **HU-07 v2:** la migración se corre con `docker compose … run --rm api alembic upgrade head`, y la base destino va en `MIGRACION_DATABASE_URL` (rol dueño, en `infra/.env`, nunca versionada; en `.env.example` sin clave). Si falta, usa la base del proyecto.
 - **DEV:** cumple las dos.
 - **TESTER:** ya puedes escribir las pruebas que dependen de esto. Para el conteo de reintentos sigue valiendo mi respuesta a tu pregunta (3).
+
+### M-2 (2026-11-19) — Revisión del UX: mejoras sin cambio de contrato
+
+**No reemplaza nada.** El UX aprobó con 4 observaciones MEJORA (`docs/ux/revisiones/HU-03-07.md`, commit `8aa120f`). La 1 y la 3 cambian textos visibles y esperan la decisión del humano: si se aprueban, llegan como una versión del contrato en una M-n siguiente.
+
+- **DEV — hacer ahora, sin tocar ningún texto:**
+  - **Observación 2:** el ⚠ en el aviso de error de BIT-01, oculto para el lector de pantalla, como en PLA-07.
+  - **Observación 4:** `keyboardType="numbers-and-punctuation"` en "Desde" y "Hasta" de BIT-01.
+  - **Capturas:** el registro `ERROR_FUENTE` de las capturas de BIT-01 y BIT-02 tiene que llevar un usuario real (CONTRATO-HU-07 §2), no "sistema".
+  - **Entrega:** espera la M-n de la versión del contrato antes de entregar, para entregar todo junto.
+- **TESTER:** si tus datos de Jest tienen un `ERROR_FUENTE` sin usuario, corrígelos (§2: lleva los mismos campos que la consulta). La suite completa espera su M-n.
