@@ -54,3 +54,15 @@ Se abre con una M-n cuando el humano tenga el VPS, el dominio y Supabase. La ver
 `herdr agent prompt lead "ENTREGA <ROL>: <resumen corto> — informes/<ROL>-DESPLIEGUE-01.md"`.
 
 ## Instrucciones del ciclo (M-n)
+
+### M-1 (2026-11-19) — Entrega del DEV de la fase A; regresión local
+
+**No reemplaza nada.** El DEV entregó la fase A (`8402ef2`). Cambió también el compose base (`infra/docker-compose.yml`): las variables de `db` y `auth` ahora tienen valores por defecto vacíos (`:-`), para que el VPS no necesite valores falsos.
+
+- **TESTER**, en la fase A y **después** de terminar la suite de HU-04, en el worktree de `despliegue-01`:
+  1. Lo que ya pedía el encargo.
+  2. Una **regresión local completa**: pytest de la API con el proxy en el puerto alterno y `PROXY_DISPONIBLE=1`, los simuladores y Jest. Así se comprueba que el cambio del compose base no rompió el entorno local.
+  3. Que `infra/docker-compose.vps.yml` no le pasa a `api` ni `AUTH_ADMIN_CLAVE` ni `AUTH_JWT_SECRETO`, revisando `docker compose … config`.
+
+  Al terminar: `ENTREGA TESTER`, con el informe en `informes/TESTER-DESPLIEGUE-01.md`.
+- **DEV:** sin cambios. Los pasos del §8 para el acta ya están en `PENDIENTES.md` (los agregó el LEAD).
