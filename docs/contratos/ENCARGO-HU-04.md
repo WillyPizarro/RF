@@ -174,3 +174,16 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
      - termina con `ENTREGA TESTER` y el informe actualizado.
 - **La clave de los usuarios** la dicta el humano. No se escribe en ningún archivo.
 - **Al terminar,** el DEV deja el sistema con `infra/.env` y quita `adb reverse`. **La CA queda instalada** hasta el cierre del proyecto, como dice el acta.
+
+### M-9 (2026-11-20) — Revisión del UX: safe area (BLOQUEA)
+
+**No reemplaza nada.** En la prueba física, el UX encontró que la franja "DATOS SINTÉTICOS · PROTOTIPO" tapa la barra de estado de Android en **todas** las pantallas. Lo clasificó **BLOQUEA** (`docs/ux/revisiones/HU-04.md`, observación 2, commit `bc63ffd`). No cambia el contrato.
+
+- **DEV:** **empieza cuando el PM avise que terminó la sesión física con el humano.** Metro está sirviendo el JS al teléfono, y un cambio a mitad de la sesión se recargaría en vivo. Sin tocar ningún texto:
+  - **Safe area superior e inferior,** con `react-native-safe-area-context`, resuelta **una sola vez** para todas las pantallas.
+  - **La zona de la barra de estado** con el fondo de la franja e íconos claros.
+  - **Que Jest siga pasando:** si el proveedor del safe area necesita una simulación en Jest, dilo en el informe. El TESTER la agrega en sus rutas.
+  - **Capturas del S23**, fuera del repositorio, de OCR-01, OCR-02, PLA-01 y HOME-01.
+
+  Al terminar: `ENTREGA DEV` con el commit y las capturas.
+- **TESTER:** cuando llegue la entrega, corre el Jest completo. Si hace falta simular `react-native-safe-area-context`, la simulación va en `apps/movil/__tests__/` o en el `setup` de Jest que esté en tus rutas.
