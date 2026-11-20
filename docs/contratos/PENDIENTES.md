@@ -18,3 +18,4 @@
   - **Placas:** solo las sintéticas impresas `ZZ` de la hoja de `pruebas/datos/`.
   - **Registro:** en `pruebas/datos/ocr-precision.csv`, **sin imágenes**.
   - **Fuera del veredicto de HU-04**, igual que el p95 de HU-03 (decisión 10).
+- **Acta de eliminación al cierre del proyecto (ADR-0008; CONTRATO-HU-04 v3, humano 2026-11-19):** borrar la CA local de Caddy del Samsung Galaxy S23 Ultra (Ajustes › Seguridad › Otros ajustes de seguridad › Credenciales de usuario, o la ruta que deje el DEV en `informes/DEV-HU-04.md`), quitar la depuración USB si ya no se usa, y dejarlo anotado en el acta.

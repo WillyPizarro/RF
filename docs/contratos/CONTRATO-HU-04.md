@@ -1,8 +1,8 @@
 # CONTRATO — HU-04 Capturar la placa con la cámara
 
 **Tipo:** Feature
-**Versión:** v2
-**Estado:** Aprobado (v1 y v2: 2026-11-19, humano vía PM)
+**Versión:** v3
+**Estado:** Aprobado (v1 a v3: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
 **Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. El UX revisa con capturas de Jest y, si hay dispositivo, con capturas del dev build.
@@ -122,6 +122,18 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | De noche o en ángulo | Se mide y se reporta, sin meta, en la misma medición aparte | ADR-0011 · v2 |
 | Registro | Las capturas no se guardan. Se registra solo la placa impresa, lo leído, la condición (día, noche, ángulo, distancia) y si coincide, en `pruebas/datos/ocr-precision.csv`. **Ninguna imagen** | Regla 8, ADR-0002 |
 
+### 8. Conexión del dev build con la API local (v3)
+
+El dev build en el S23 Ultra llega a la API local por HTTPS, con la CA local de Caddy (opción B del humano, 2026-11-19).
+
+| Caso | Salida esperada | Dónde | Origen |
+|---|---|---|---|
+| Conexión | Con la CA local de Caddy instalada en el teléfono como certificado del usuario y `adb reverse tcp:8443 tcp:8443`, el dev build (con `EXPO_PUBLIC_API_URL=https://localhost:8443`) inicia sesión y carga `GET /v1/motivos` | Dispositivo | Humano (vía PM) · **v3** |
+| Confianza solo en depuración | El `network_security_config` de Android confía en los certificados del usuario **solo dentro de `<debug-overrides>`**. El `base-config` confía únicamente en los certificados del sistema y no permite texto plano | Archivo generado (`npx expo prebuild` en una copia fuera del repositorio) | Humano (vía PM) · **v3** |
+| El build de release no incluye el override | En la variante `release`, la app no es depurable (`android:debuggable` no es `true`), así que Android ignora `<debug-overrides>`. Si se genera un APK de release, `aapt dump xmltree` (o `apkanalyzer`) sobre su manifiesto lo confirma | Archivo generado o APK de release | Condición 3 del humano · **v3** |
+| Sin secretos | La CA de Caddy y su llave privada **nunca** se versionan. `git ls-files` no muestra ningún `.crt`, `.pem`, `.key` ni `.der`, y `.gitignore` los excluye | Repositorio | Condición 2 del humano, regla 8 · **v3** |
+| Pasos para el humano | En `informes/DEV-HU-04.md`: pasos numerados en español simple, para Samsung con Android 16, para **exportar** la CA desde el contenedor `proxy`, **instalarla** en el teléfono, usar `adb reverse` y **borrarla** al cierre del proyecto | Informe del DEV | Condición 1 del humano · **v3** |
+
 ## Nombres que no se negocian
 
 | Tipo | Valor exacto |
@@ -148,6 +160,8 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | La placa impresa se lee de verdad (§6) | No | Sí |
 | Precisión (§7) | No | **Aparte**, en la fase de pruebas (v2) |
 | Sin red (§3) | No | Sí, en modo avión |
+| Conexión a la API local con la CA de Caddy (§8) | No | Sí |
+| Override solo en depuración; sin secretos (§8) | No (no hay build) | Archivo generado o APK de release, y `git ls-files` |
 
 **Expo Go no sirve** (ADR-0002): todo lo de la columna derecha exige el dev build. Si no hay dispositivo o dev build a tiempo, esa columna queda `NO VERIFICADO` y se escala.
 
@@ -199,3 +213,4 @@ Respuestas del humano (vía PM, 2026-11-19):
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 2, contrato 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | §7, "Qué se prueba dónde" y decisión 5: la precisión del OCR va aparte, en la fase de pruebas del 16 al 26-dic; en el veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16), con las fotos tomadas por el humano | Respuesta del humano a la pregunta 3 | Humano (vía PM), 2026-11-19 |
+| v3 | 2026-11-19 | §8 nuevo: el dev build llega a la API local por HTTPS con la CA de Caddy instalada en el teléfono, `network_security_config` con `debug-overrides` solo para depuración, `adb reverse tcp:8443`; el build de release no incluye el override; la CA y su llave nunca se versionan; pasos para el humano, incluido el borrado al cierre | Respuesta del humano a la ESCALA de la etapa 2 (opción B y sus 3 condiciones) | Humano (vía PM), 2026-11-19 |

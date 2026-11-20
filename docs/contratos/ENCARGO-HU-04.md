@@ -93,3 +93,25 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
 
 - **TESTER:** el guion de la etapa 2 cubre solo los casos "Dispositivo" del §6. La plantilla del CSV de precisión queda preparada para la fase de pruebas.
 - **DEV:** sin cambios.
+
+### M-3 (2026-11-19) — CONTRATO-HU-04 v3: conexión del teléfono a la API local
+
+**Reemplaza** a M-2 en la versión: el documento de trabajo ahora es CONTRATO-HU-04 **v3**. Hay un §8 nuevo. El humano eligió la **opción B**: la CA local de Caddy se instala en el S23 Ultra, el `network_security_config` lleva `debug-overrides` **solo para depuración** y se usa `adb reverse tcp:8443`.
+
+- **DEV:**
+  - **Configuración del dev build:** aplica la configuración del §8 desde `app.json`, con un plugin de configuración en `apps/movil/`.
+  - **Secretos:** asegura en `.gitignore` (solo agregando) que no se versione ningún `.crt`, `.pem`, `.key` ni `.der`.
+  - **Pasos para el humano:** agrega a `informes/DEV-HU-04.md` pasos numerados, en español simple, para Samsung con Android 16:
+    - exportar la CA desde el contenedor `proxy` a una carpeta **fuera del repositorio**;
+    - pasarla al teléfono e instalarla como certificado del usuario;
+    - `adb reverse tcp:8443 tcp:8443`;
+    - generar el dev build con `EXPO_PUBLIC_API_URL=https://localhost:8443`;
+    - **borrar el certificado al cierre del proyecto** (va al acta de eliminación, en `PENDIENTES.md`).
+
+  Al terminar: `ENTREGA DEV` con el commit.
+- **TESTER:** agrega la verificación del §8 que no necesita el teléfono:
+  - corre `npx expo prebuild --platform android` en una **copia de `apps/movil` fuera del repositorio**;
+  - comprueba que los certificados del usuario aparecen solo dentro de `<debug-overrides>`, que el `base-config` no permite texto plano y que `release` no es depurable;
+  - comprueba con `git ls-files` que no hay certificados ni llaves versionados.
+
+  La conexión real queda para el guion de la etapa 2.
