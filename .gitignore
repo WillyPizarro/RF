@@ -5,6 +5,11 @@ settings.json
 *.env
 infra/.env
 !infra/.env.example
+# Certificados y llaves (CA local de Caddy, CONTRATO-HU-04 v3 §8): nunca en el repositorio
+*.crt
+*.pem
+*.key
+*.der
 
 # Fotos y datos biométricos: nunca en el repositorio (ADR-0008)
 datos-biometricos/

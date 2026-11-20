@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { abrirAjustes, capturarYLeer, VisorCamara } from '../camara/lectorPlaca';
 import { proponerPlaca } from '../camara/placaLeida';
@@ -83,6 +83,14 @@ export default function PantallaOcr({ inicio, regex, alUsar, alSalir }: Props) {
           <View style={estilos.capaMarco} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <View style={estilos.marco} />
           </View>
+          {/* Mientras se lee la foto (revision UX HU-04, obs. 1): sin texto nuevo. */}
+          {leyendo ? (
+            <View style={estilos.capaMarco} pointerEvents="none">
+              <View style={estilos.leyendo}>
+                <ActivityIndicator size="large" color="#FFFFFF" accessibilityLabel="Cargando" />
+              </View>
+            </View>
+          ) : null}
         </View>
         <View style={estilos.pie}>
           <Text style={estilos.indicacion}>Encuadre la placa y toque Capturar</Text>
@@ -193,6 +201,7 @@ const estilos = StyleSheet.create({
   tituloCabecera: { flex: 1, fontSize: 19, fontWeight: '700', color: colores.texto },
   visor: { flex: 1, backgroundColor: '#000000', alignItems: 'center', justifyContent: 'center' },
   capaMarco: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
+  leyendo: { backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 40, padding: 18 },
   marco: {
     width: '80%',
     aspectRatio: 2.4,

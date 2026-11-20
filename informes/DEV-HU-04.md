@@ -1,8 +1,35 @@
 # Informe DEV — HU-04 (capturar la placa con la cámara), etapa 1
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v2** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 y M-2 (ninguna cambia lo que hace el DEV) · **Rama:** `hu-04` · **Fecha:** 2026-11-19
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-4 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` ni drivers ni SDK de Android. Solo agregué dependencias npm al proyecto.
+
+## Cambios por M-3 y M-4 (HU-04 v3 §8 y revisión del UX)
+
+### M-4: indicador de carga en OCR-01
+
+Mientras `capturarYLeer` está en curso, aparece sobre el marco el `ActivityIndicator` de la app, blanco y con `accessibilityLabel="Cargando"`. No agrega ningún texto visible, y "Capturar" sigue desactivado. Antes de tocar no aparece.
+
+Captura nueva: `OCR-01-leyendo`.
+
+### M-3: conexión del dev build con la API local (§8)
+
+- **Plugin `apps/movil/plugins/redDepuracion.js`**, registrado en `app.json`:
+  - Agrega `android:networkSecurityConfig="@xml/network_security_config"` al `<application>` y quita `usesCleartextTraffic`, que con ese atributo no aplica.
+  - **`src/main/res/xml/network_security_config.xml`** (lo usa el build de release):
+    - el `base-config` lleva `cleartextTrafficPermitted="false"` y solo los certificados `system`;
+    - los certificados `user` aparecen **solo** dentro de `<debug-overrides>`.
+  - **`src/debug/res/xml/network_security_config.xml`** (solo en debug): lo mismo, más un `domain-config` que permite texto plano **solo hacia `localhost` y `127.0.0.1`**. El dev build carga el JS desde Metro por `http://localhost:8081` con `adb reverse`; sin esa excepción no podría.
+  - **Release:** un build de release no incluye el source set `debug` y no es depurable, así que Android ignora `<debug-overrides>`.
+- **`.gitignore`** (raíz, solo agregando): `*.crt`, `*.pem`, `*.key` y `*.der`. `git ls-files` no muestra ningún archivo con esas extensiones.
+- **`apps/movil/.env.example`:** `EXPO_PUBLIC_API_URL=https://localhost:8443`.
+
+**Verificación:**
+
+- **Mods del plugin:** los corrí con `evalModsAsync` de `expo/config-plugins` sobre una carpeta temporal fuera del repositorio. El manifiesto queda con `networkSecurityConfig`, sin `usesCleartextTraffic`, y los dos XML salen como se describe arriba.
+- **Prebuild completo:** `npx expo prebuild --platform android` en una copia de `apps/movil` fuera del repositorio **se colgó en este equipo**, en un paso propio de Expo (`withPackageRefactor`), antes de llegar a los plugins de la app. Lo dejo anotado para la verificación del TESTER.
+- **Indicador:** Jest temporal, ya borrado, con 17 casos en verde. El indicador aparece al tocar "Capturar" y no antes.
+- `tsc` no da errores.
 
 ## Librerías elegidas
 
@@ -97,6 +124,7 @@ Están en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\HU-04\`, en PNG y H
 |---|---|
 | `PLA-01-camara` | PLA-01 con 📷 habilitado |
 | `OCR-01` | Visor con el marco, "Capturar" e "Ingresar manualmente" |
+| `OCR-01-leyendo` | Leyendo la foto: indicador sobre el marco y "Capturar" desactivado (M-4) |
 | `OCR-02` | Placa leída, editable |
 | `OCR-03` | No se pudo leer |
 | `OCR-04` | Sin permiso de cámara |
@@ -158,14 +186,68 @@ npx expo run:android --device
 
 `prebuild` genera `android/`, que no se versiona. Usa la misma configuración de `app.json`.
 
-### 7. Antes de la etapa 2: cómo llega el teléfono a la API
+### 7. Conexión del teléfono a la API local (opción B, §8)
 
-**Esto queda abierto para el LEAD.**
+**Qué se logra:**
 
-- **Por qué no sirve la URL de la PC:** la app lee `EXPO_PUBLIC_API_URL` al empaquetar el JS (Metro), y `https://localhost:8443` es la PC, no el teléfono.
-- **Por qué no basta `adb reverse tcp:8443 tcp:8443`:** el certificado es de la CA interna de Caddy, y Android no confía en él.
-- **Opciones, a decidir antes de la etapa 2:**
-  - **(a)** Un sitio HTTP solo para desarrollo en el proxy, más `adb reverse` y permitir texto plano en el dev build.
-  - **(b)** Instalar la CA de Caddy en el teléfono y agregar una `network_security_config` solo para el dev build.
-  - **(c)** Apuntar a la API del VPS cuando exista.
-- **Qué depende de esto:** la cámara y el OCR funcionan sin la API, pero para llegar a PLA-01 hay que iniciar sesión y cargar `GET /v1/motivos`.
+- **Certificado:** el teléfono confía en el certificado de la PC (la CA local de Caddy), solo en el dev build.
+- **Puerto:** el `localhost:8443` del teléfono llega a la PC por el cable USB.
+
+Antes de empezar, la PC tiene la API arrancada con el proxy en el puerto 8443 (`infra/.env`).
+
+**A. Exportar el certificado de la PC (una vez)**
+
+1. Crear una carpeta **fuera del repositorio**, por ejemplo `C:\Willy\Trabajo\MININTER\Movil_Buscador_certificados`.
+2. Desde la carpeta del repositorio, en PowerShell, copiar **solo el certificado raíz público**, nunca un archivo `.key`:
+
+   ```
+   docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env cp proxy:/data/caddy/pki/authorities/local/root.crt C:\Willy\Trabajo\MININTER\Movil_Buscador_certificados\caddy-local.crt
+   ```
+
+3. Este certificado sirve mientras exista el volumen `caddy-datos`. Si alguien borra ese volumen (por ejemplo con `docker compose down -v`), Caddy genera uno nuevo y hay que repetir A y B.
+
+**B. Instalarlo en el S23 Ultra (Android 16)**
+
+1. Con el teléfono conectado y `adb devices` en `device`, pasar el archivo a Descargas:
+
+   ```
+   adb push C:\Willy\Trabajo\MININTER\Movil_Buscador_certificados\caddy-local.crt /sdcard/Download/caddy-local.crt
+   ```
+
+2. En el teléfono: **Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento del dispositivo › Certificado de CA**.
+3. Android avisa que una CA puede ver el tráfico cifrado: tocar **Instalar de todas formas**, desbloquear con el PIN y elegir `caddy-local.crt` en Descargas.
+4. Comprobarlo: **Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › pestaña Usuario**. Tiene que aparecer "Caddy Local Authority".
+5. Borrar la copia de Descargas, que ya no hace falta:
+
+   ```
+   adb shell rm /sdcard/Download/caddy-local.crt
+   ```
+
+**C. Cada vez que se conecta el teléfono**
+
+1. Conectar el cable y comprobar con `adb devices`.
+2. Redirigir los puertos:
+
+   ```
+   adb reverse tcp:8443 tcp:8443
+   adb reverse tcp:8081 tcp:8081
+   ```
+
+   El 8443 es la API y el 8081 es Metro, de donde el dev build carga el JS. `adb reverse --list` muestra los dos.
+3. En `apps/movil/`, copiar `.env.example` a `.env`, que no se versiona. Debe quedar `EXPO_PUBLIC_API_URL=https://localhost:8443`.
+4. Arrancar Metro: `npx expo start --dev-client`. En el teléfono, abrir la app y elegir el servidor `http://localhost:8081`.
+5. Iniciar sesión con un usuario de prueba. Si aparece la lista de motivos al tocar "Consultar placa", la conexión funciona.
+
+**D. Generar el dev build con la configuración del §8**
+
+- Se genera con el paso 5 (EAS) o el 6 (local), **después de este cambio**. El plugin solo entra al compilar, así que un dev build anterior no tiene la configuración de red.
+- La URL de la API **no** va en el build: la pone Metro desde `apps/movil/.env` (paso C.3). Por eso no hay que regenerar el build para cambiarla.
+
+**E. Borrar el certificado al cierre del proyecto** (va al acta de eliminación de `PENDIENTES.md`)
+
+1. En el teléfono: **Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › Usuario › Caddy Local Authority › Quitar**.
+2. Si hubiera otros certificados de usuario que tampoco sirven, **Borrar credenciales**, en la misma pantalla, los elimina todos.
+3. Quitar las redirecciones: `adb reverse --remove-all`.
+4. Desinstalar el dev build: `adb uninstall pe.prototipo.movilbuscador`.
+5. En la PC, borrar la carpeta `C:\Willy\Trabajo\MININTER\Movil_Buscador_certificados`.
+6. Para invalidar la CA en la PC, borrar el volumen de Caddy: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env down` y después `docker volume rm movil-buscador_caddy-datos`.
