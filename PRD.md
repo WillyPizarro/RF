@@ -111,6 +111,7 @@ Umbrales medibles (tiempo de respuesta, tasa de falsos positivos aceptable, cali
 28. ¿Con qué redacción se comunica una coincidencia confirmada por el revisor, para que no se lea como "identificado"? (HU-06; validar con área legal)
 29. ¿Se registra en la bitácora un intento de verificación facial que no llegó a la captura por falta de permiso de cámara? Si se registra, ¿con qué datos (usuario, fecha, hora, motivo indicado) y qué figura como resultado? Lo único firme es que no se registra como comparación. (HU-05 E6 y E7)
 30. Si el usuario da el permiso de cámara desde los ajustes y vuelve a la app, ¿se conserva el motivo que ya indicó o debe indicarlo de nuevo? (HU-05 E6 y E7)
+31. ML Kit (lectura de placa en HU-04 y calidad facial en HU-05) envía a Google métricas técnicas de uso (modelo del teléfono, paquete y versión de la app, latencia, errores y un identificador por instalación) a servidores fuera del Perú; según Google no envía la imagen ni el texto leído, y no hay una forma oficial de desactivarlo. En el MVP se mantiene, se documenta y se avisa al usuario (decisión del 2026-11-20; `docs/arch/evaluaciones/HU-04-telemetria-mlkit.md`). ¿El MININTER acepta este envío en el prototipo? Para producción, ¿exige bloquearlo (MDM) o un OCR y una detección facial sin telemetría? (HU-04, HU-05; relacionado con el PA #14)
 
 ## Próximo paso
 
