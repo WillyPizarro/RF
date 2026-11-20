@@ -1,8 +1,8 @@
 # Guion de la etapa 2 — HU-04 en el Samsung Galaxy S23 Ultra (Android 16)
 
-**Contrato:** `docs/contratos/CONTRATO-HU-04.md` **v3**. **Encargo:** `docs/contratos/ENCARGO-HU-04.md` (M-1 a M-3).
+**Contrato:** `docs/contratos/CONTRATO-HU-04.md` **v4**. **Encargo:** `docs/contratos/ENCARGO-HU-04.md` (M-1 a M-3, M-8, M-10 y M-11).
 **Quién:** el humano toma las fotos y opera el teléfono; el TESTER guía, corre los comandos y anota.
-**Cuándo:** cuando el LEAD dé la orden de la etapa 2 (M-n). **Este guion no se ejecutó.**
+**Cuándo:** etapa 2 (M-8). **Se ejecutó el 2026-11-20**, salvo los pasos 8 (M-10) y 9 (M-11), que son de la mini sesión. Los resultados están en `informes/TESTER-HU-04.md`.
 
 **Qué cubre (M-2):**
 - los casos "Dispositivo" del §6;
@@ -47,7 +47,7 @@ La **precisión del OCR (§7) no entra**: va en la fase de pruebas del 16 al 26-
 | 2.1 | Dejar el permiso sin decidir: `adb shell pm revoke pe.prototipo.movilbuscador android.permission.CAMERA` y `adb shell pm clear-permission-flags pe.prototipo.movilbuscador android.permission.CAMERA user-set user-fixed` | Sin error | |
 | 2.2 | En PLA-01, tocar 📷 ("Leer con cámara") | Aparece el diálogo del sistema que pide el permiso de cámara | |
 | 2.3 | Elegir "No permitir" | OCR-04: "La app no tiene permiso para usar la cámara." | |
-| 2.4 | Tocar "Abrir ajustes" y después `adb shell "dumpsys activity activities \| grep -E 'topResumedActivity\|mResumedActivity'"` | Se abre la ficha de la app en Ajustes: el comando muestra `com.android.settings` con la información de `pe.prototipo.movilbuscador` | |
+| 2.4 | Tocar "Abrir ajustes" y después `adb shell "dumpsys activity activities \| grep -E 'topResumedActivity\|mResumedActivity'"` | Se abre la ficha de la app en Ajustes (`com.android.settings`) **o su pantalla de permisos** (en Samsung con Android 16, `com.google.android.permissioncontroller`; CONTRATO-HU-04 v4) | |
 | 2.5 | En Ajustes › Permisos › Cámara, elegir "Permitir solo mientras se usa la app"; volver a la app y tocar 📷 | OCR-01 con el visor en vivo | |
 
 ## 3. Sin lectura continua (§6, regla 6)
@@ -66,7 +66,7 @@ La **precisión del OCR (§7) no entra**: va en la fase de pruebas del 16 al 26-
 | 4.4 | Elegir "Control vehicular" y tocar "Consultar" | PLA-06: "Sin requisitoria registrada en la fuente consultada" (`ZZB-201`) | |
 | 4.5 | Repetir 4.1 con `ZZZ-999` y consultar con un motivo | OCR-02 con `ZZZ-999`; después PLA-08 "Placa no registrada en la fuente consultada. Verifique la placa." | |
 | 4.6 | En OCR-01, tapar la cámara con la mano y tocar "Capturar" | OCR-03: "No se pudo leer la placa. Pruebe de frente y con más luz." | |
-| 4.7 | Captura de pantalla de OCR-02 (fuera del repositorio): `adb exec-out screencap -p > C:\Willy\Trabajo\MININTER\hu04-capturas\ocr-02.png` | Archivo creado fuera del repositorio | |
+| 4.7 | Captura de pantalla de OCR-02 (fuera del repositorio). En PowerShell 5.1 el `>` corrompe la salida binaria; se usa `cmd /c`: `cmd /c "adb exec-out screencap -p > C:\Willy\Trabajo\MININTER\hu04-capturas\ocr-02.png"` | Archivo PNG válido fuera del repositorio | |
 
 ## 5. La foto se borra (§6, "La foto se borra")
 
@@ -86,6 +86,32 @@ La **precisión del OCR (§7) no entra**: va en la fase de pruebas del 16 al 26-
 | 6.4 | `adb shell cmd connectivity airplane-mode disable` | Vuelve la red | |
 
 > **Nota:** `adb reverse` va por USB y puede seguir funcionando con el modo avión activo. Si en 6.3 la consulta funciona, repetir 6.2 y 6.3 con `adb reverse --remove tcp:8443`. Después restaurarlo con `adb reverse tcp:8443 tcp:8443`.
+
+## 8. Sin caché HTTP en disco (§6, v4) — mini sesión de la M-10
+
+Se hace con el dev build que ya trae la M-10 del DEV (`Cache-Control: no-store` en la API y `cache: 'no-store'` en la app).
+
+| Paso | Acción o comando | Esperado | Resultado |
+|---|---|---|---|
+| 8.1 | Borrar la caché de la app antes: `adb shell pm clear pe.prototipo.movilbuscador` (borra también la sesión; el permiso de cámara se vuelve a pedir) | Sin error | |
+| 8.2 | Abrir la app, iniciar sesión con `agente1`, tocar "Consultar placa" (PLA-01 carga los motivos) y consultar `ZZA-101` con un motivo | PLA-05 "TIENE REQUISITORIA" | |
+| 8.3 | `adb shell run-as pe.prototipo.movilbuscador ls -R cache/http-cache` | **Ninguna entrada de `/v1/`**: ni `/v1/me`, ni `/v1/motivos`, ni `/v1/consultas/placa`. Las de Metro (`:8081`) no cuentan. Si la carpeta no existe, también cumple | |
+| 8.4 | Si aparece algún archivo, ver a qué URL corresponde sin mostrar el contenido: `adb shell run-as pe.prototipo.movilbuscador grep -l "/v1/" -r cache/http-cache` | Ninguna salida | |
+
+## 9. Cola de telemetría de ML Kit (hallazgo C, M-11) — mini sesión
+
+La corre el **PM** con `adb`. Se hace **después** de leer al menos una placa en la mini sesión (paso 8.2 o una lectura con 📷), para que la cola tenga eventos. La copia de la base va **fuera del repositorio** y se borra al terminar (9.6).
+
+| Paso | Comando (PowerShell; la copia binaria va con `cmd /c`) | Esperado | Resultado |
+|---|---|---|---|
+| 9.1 | Antes, leer una placa impresa con 📷 → "Capturar" → OCR-02 | OCR-02 con la placa | |
+| 9.2 | `adb shell run-as pe.prototipo.movilbuscador ls -la databases` | Se ve `com.google.android.datatransport.events` (y quizá `-wal` y `-shm`). Anotar los nombres | |
+| 9.3 | `$d = "C:\Willy\Trabajo\MININTER\hu04-capturas\datatransport"; New-Item -ItemType Directory -Force $d \| Out-Null` | Carpeta fuera del repositorio | |
+| 9.4 | `cmd /c "adb exec-out run-as pe.prototipo.movilbuscador cat databases/com.google.android.datatransport.events > C:\Willy\Trabajo\MININTER\hu04-capturas\datatransport\com.google.android.datatransport.events"`. Repetir con `-wal` y con `-shm` si aparecieron en 9.2 (mismo nombre más el sufijo, en la misma carpeta) | Los archivos copiados, con tamaño mayor que 0 | |
+| 9.5 | `python -I pruebas\datos\revisar_datatransport.py C:\Willy\Trabajo\MININTER\hu04-capturas\datatransport` (desde la raíz del repositorio) | Termina con "Ninguna imagen … y ningún texto de placa ZZ en la cola" (código 0). Lista las tablas, la cantidad de eventos y los datos legibles, para compararlos con la divulgación de Google (ARCH). **Si aparece una imagen o un texto `ZZ…`, la decisión se reabre** (M-11) | |
+| 9.6 | `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\hu04-capturas\datatransport` | La copia borrada | |
+
+> El script solo lee la copia e imprime un resumen recortado: no vuelca cargas completas. La salida se pasa al TESTER para el informe, sin adjuntar la base.
 
 ## 7. Al terminar
 
