@@ -1,7 +1,7 @@
 # Informe TESTER — HU-03 + HU-07 (consulta de placa y bitácora)
 
 **Contratos:** `docs/contratos/CONTRATO-HU-03.md` **v3** y `docs/contratos/CONTRATO-HU-07.md` **v2** (más HU-08 v4, HU-01 v5 y HU-02 v3, vigentes) · **Encargo:** `docs/contratos/ENCARGO-HU-03-07.md` (M-1) · **Rama:** `hu-03`
-**Estado:** pruebas escritas; **suite completa pendiente** de la orden del LEAD (orden del cierre, punto 3). Lo corrido hasta ahora solo comprobó el arnés; no son hallazgos, salvo el aviso preliminar P1.
+**Estado:** pruebas escritas; **suite completa pendiente** de la orden del LEAD (orden del cierre, punto 3). Lo corrido hasta ahora solo comprobó el arnés; no son hallazgos.
 
 ## Cómo se corren
 
@@ -83,9 +83,9 @@
 |---|---|---|
 | HU-02 §2: matriz de `403` + `ACCESO_DENEGADO` con usuario, rol, ruta y método; sin efecto; `401` antes que `403` | `test_hu03_mock_y_roles.py::test_matriz_de_roles` (9), `::test_sin_token_401_antes_que_403` (3), `::test_403_identico_entre_rutas` | Pendiente |
 | HU-01 §5: fail-closed del login | `test_hu07_bitacora_db.py::test_fail_closed_login` | Pendiente |
-| HU-01: retomar la sesión → AUTH-03 (renovación `200` y `/v1/me` `401`; o las dos `401 SESION_VENCIDA`) | Jest `HU-01 AUTH-03 al retomar la sesión` (2) | Pendiente; ver P1 |
+| HU-01: retomar la sesión → AUTH-03 (renovación `200` y `/v1/me` `401`; o las dos `401 SESION_VENCIDA`) | Jest `HU01_retomar_me_vencida.test.tsx` y `HU01_retomar_todo_vencido.test.tsx` (un archivo por variante) | Pendiente (en la comprobación del arnés, las dos en verde) |
 | Proxy: 34 pruebas en verde con el puerto alterno; el proxy publica solo sus dos puertos, y sin variables 80 y 443 | `test_red.py::test_proxy_publica_solo_sus_dos_puertos`, `::test_proxy_sin_variables_publica_80_y_443` y las del Sprint 0 | Pendiente |
 
-## Aviso preliminar (no es la corrida que cuenta)
+## P1 retirado (falso positivo de la prueba)
 
-**P1.** Contra la app que hay hoy en la rama (código de HU-01 ya en `main`), retomar la sesión cuando la renovación **y** `/v1/me` responden `401 SESION_VENCIDA` no muestra el aviso de AUTH-03. La variante "renovación `200` y `/v1/me` `401`" sí lo muestra. El arbitraje A1 de HU-01/02 dice "venga de la solicitud que venga". Se repite en la corrida final.
+El aviso preliminar P1 ("retomar con renovación y `/v1/me` en `401 SESION_VENCIDA` no muestra AUTH-03") venía de **la prueba, no de la app**. Las dos variantes estaban en un mismo `test.each`, y la segunda heredaba el estado en memoria de módulo que dejaba la primera: la app no mostraba el login al montar, y la prueba fallaba antes del escenario (lo señaló el LEAD). Evidencia: la segunda variante, corrida sola, pasa. Corrección: cada variante va en su propio archivo (`HU01_retomar_me_vencida.test.tsx`, `HU01_retomar_todo_vencido.test.tsx`), porque Jest da un registro de módulos limpio por archivo. Probé antes `jest.isolateModules`, pero carga otra copia de React (`useRef` de `null`), lo mismo que en el Sprint 0. Resultado: las dos en verde contra la app actual.

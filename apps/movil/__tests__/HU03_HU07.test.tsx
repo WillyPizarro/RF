@@ -1,6 +1,8 @@
 /**
- * CONTRATO-HU-03 v3 §6 (PLA-01 a PLA-08, ERR-01), CONTRATO-HU-07 v2 §5 (BIT-01, BIT-02) y el caso
- * pendiente de HU-01 (retomar la sesión al abrir la app con /v1/me → 401 SESION_VENCIDA).
+ * CONTRATO-HU-03 v3 §6 (PLA-01 a PLA-08, ERR-01) y CONTRATO-HU-07 v2 §5 (BIT-01, BIT-02).
+ * El caso pendiente de HU-01 (retomar la sesión) está en HU01_retomar_*.test.tsx: un archivo por
+ * variante, para que cada una arranque con la app recién cargada (la app guarda estado en
+ * memoria de módulo y Jest da un registro de módulos limpio por archivo).
  *
  * Interfaz (HU-01 §4 bis): export por defecto de `App.tsx`, `fetch` global con
  * `EXPO_PUBLIC_API_URL`, `testID="app-raiz"`, token en `expo-secure-store` (simulado en memoria).
@@ -649,23 +651,3 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
 // =============================================================================================
 // HU-01 (pendiente de HU-01/02): retomar la sesión al abrir la app
 // =============================================================================================
-
-describe('HU-01 AUTH-03 al retomar la sesión', () => {
-  test.each([
-    ['la renovación responde 200 y /v1/me 401 SESION_VENCIDA', false],
-    ['la renovación y /v1/me responden 401 SESION_VENCIDA', true],
-  ])('al volver a abrir la app con sesión guardada: %s → AUTH-03', async (_n, refreshVencido) => {
-    servidor('agente');
-    await entrar('agente');
-    await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
-    expect(mockAlmacen.size).toBeGreaterThan(0);
-    screen.unmount();
-    rutas['GET /v1/me'] = () => err(401, 'SESION_VENCIDA', 'Su sesión se cerró por inactividad');
-    if (refreshVencido) {
-      rutas['POST /v1/auth/refresh'] = () => err(401, 'SESION_VENCIDA', 'Su sesión se cerró por inactividad');
-    }
-    await render(<App />);
-    await waitFor(() => screen.getByText(T.inactividad), ESPERA);
-    expect(screen.queryByText(T.rolAgente)).toBeNull();
-  });
-});
