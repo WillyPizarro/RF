@@ -2,9 +2,9 @@
 
 **Tipo:** Feature
 **Versión:** v1
-**Estado:** Pendiente de aprobación
+**Estado:** Aprobado (2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
-**Rama de trabajo:** la decide el humano (propuesta: `hu-04` desde `main` `fa75945`)
+**Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. El UX revisa con capturas de Jest y, si hay dispositivo, con capturas del dev build.
 
 ---
@@ -170,11 +170,11 @@ Las placas impresas y las capturas de pantalla del dispositivo quedan **fuera de
 
 | # | Decisión | Por qué hace falta | Estado |
 |---|---|---|---|
-| 1 | Módulo de borde `src/camara/lectorPlaca.ts` con 4 funciones fijas, que el TESTER simula en Jest | Sin una interfaz fija, la prueba tendría que conocer la librería que elija el DEV (como pasó en HU-01, §4 bis) | Pendiente |
-| 2 | La placa propuesta es el primer candidato que cumple `formato_placa.regex` (con los espacios o el punto cambiados por guion). Si no hay ninguno, OCR-03, y la app no adivina caracteres (`O`/`0`) | Ni la HU ni el wireframe dicen qué hacer con texto que no es una placa. Mostrarlo igual invitaría a consultar basura | Pendiente |
-| 3 | "Usar esta placa" conserva el motivo que ya estaba elegido; si no había, queda vacío | El wireframe dice "donde falta el motivo", pero no aclara si se borra uno ya elegido | Pendiente |
-| 4 | Placas impresas en papel con el prefijo `ZZ` y la leyenda "PRUEBA — NO VÁLIDA" | Pedido del PM: nada de placas reales, y que la impresa no pueda confundirse con una placa oficial | Pendiente |
-| 5 | La medición de precisión (≥ 100 capturas) entra en este veredicto si hay dispositivo; si no, queda `NO VERIFICADO` | ADR-0011 la fija como criterio, pero depende del dispositivo y de quien hace las capturas | Pendiente |
+| 1 | Módulo de borde `src/camara/lectorPlaca.ts` con 4 funciones fijas, que el TESTER simula en Jest | Sin una interfaz fija, la prueba tendría que conocer la librería que elija el DEV (como pasó en HU-01, §4 bis) | Aprobada por el humano (vía PM, 2026-11-19) |
+| 2 | La placa propuesta es el primer candidato que cumple `formato_placa.regex` (con los espacios o el punto cambiados por guion). Si no hay ninguno, OCR-03, y la app no adivina caracteres (`O`/`0`) | Ni la HU ni el wireframe dicen qué hacer con texto que no es una placa. Mostrarlo igual invitaría a consultar basura | Aprobada por el humano (vía PM, 2026-11-19) |
+| 3 | "Usar esta placa" conserva el motivo que ya estaba elegido; si no había, queda vacío | El wireframe dice "donde falta el motivo", pero no aclara si se borra uno ya elegido | Aprobada por el humano (vía PM, 2026-11-19) |
+| 4 | Placas impresas en papel con el prefijo `ZZ` y la leyenda "PRUEBA — NO VÁLIDA" | Pedido del PM: nada de placas reales, y que la impresa no pueda confundirse con una placa oficial | Aprobada por el humano (vía PM, 2026-11-19) |
+| 5 | La medición de precisión (≥ 100 capturas) entra en este veredicto si hay dispositivo; si no, queda `NO VERIFICADO` | ADR-0011 la fija como criterio, pero depende del dispositivo y de quien hace las capturas | **Pendiente** (pregunta 3) |
 
 ## Fuera del contrato (decide el DEV)
 
@@ -184,18 +184,16 @@ Las placas impresas y las capturas de pantalla del dispositivo quedan **fuera de
 
 ## Preguntas abiertas para el humano
 
-1. **PA #12, dispositivo:** ¿hay un **Android real** para las pruebas? ¿Qué modelo y qué versión de Android tiene? ¿Se puede conectar por USB a esta máquina con la depuración USB activa (para `adb`)? Sin dispositivo, toda la columna "Android real" queda `NO VERIFICADO`.
-2. **Dev build:** ¿cómo se genera?
-   - **A)** Con una cuenta EAS: la cuota gratuita alcanza, y es la tarea pendiente del Sprint 0.
-   - **B)** En local, con `npx expo run:android`: hace falta instalar el Android SDK y un JDK en esta máquina.
-3. **Pruebas físicas:** las capturas con el teléfono las tiene que hacer una persona, porque un agente no puede sostener el celular.
-   - ¿Quién las hace?
-   - ¿La medición de precisión (≥ 100 capturas de día, decisión 5) entra en el veredicto de HU-04 o va aparte, como el p95 de HU-03?
-4. **PA #4 y PA #16** siguen abiertos. Este contrato usa los valores provisionales del ADR-0011 (≥ 90 % de día) y el supuesto de la HU (la foto no se guarda). ¿Se confirma?
-5. **Decisiones 1 a 4.** ¿Se aprueban como están?
+Respuestas del humano (vía PM, 2026-11-19):
+
+1. **Dispositivo (PA #12):** un **Samsung Galaxy S23 Ultra**, que se puede conectar por USB. La versión de Android la confirma el humano. Faltan en esta PC `adb` (Android platform-tools) y quizá el driver USB de Samsung; las instrucciones van en el encargo.
+2. **Dev build:** **A, con EAS** (el humano tiene cuenta de Expo). Si se complica, B en local. El login lo hace el humano con `! npx eas login`; **nadie guarda el token en el repositorio**.
+3. **Quién hace las capturas físicas y si la precisión entra en este veredicto:** **PENDIENTE.** La parte física espera esta respuesta.
+4. **PA #4 y PA #16:** se confirman los provisionales (≥ 90 % de día; la foto no se guarda).
+5. **Decisiones 1 a 4:** aprobadas tal cual.
 
 ## Changelog
 
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
-| v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 2, contrato 1 | — |
+| v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 2, contrato 1 | Humano (vía PM), 2026-11-19 |
