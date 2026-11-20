@@ -134,3 +134,9 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   - **pytest de los simuladores**, en el contenedor y en el anfitrión.
   - **Al terminar:** `api` vuelve a `infra/.env`, y mandas `ENTREGA TESTER` con el informe. Los casos "Dispositivo" quedan como pendientes de la etapa 2, no como `NO VERIFICADO`.
 - **DEV:** no hagas más commits en `hu-04` salvo que el LEAD te los pida.
+
+### M-6 (2026-11-19) — Corrección del informe del DEV (comandos de EAS)
+
+**No reemplaza nada.** Aviso del PM: el paquete npm `eas` no es el de Expo (es un motor de plantillas). El de Expo es **`eas-cli`** (hoy en la 27.11.0). En la etapa 2, el PM ya dejó `adb` 37.0.3 instalado y el S23 Ultra (SM-S918B, Android 16) conectado y autorizado.
+
+- **DEV — único commit permitido en `hu-04` durante la suite:** en `informes/DEV-HU-04.md`, cambia todos los `npx eas …` por `npx eas-cli@27.11.0 …`: `login`, `init`, `build` y los demás. El login va como `! npx eas-cli@27.11.0 login`. **Solo el informe:** no agregues `eas-cli` como dependencia ni toques `package.json` mientras corre la suite. Avisa con `ENTREGA DEV` y el commit.
