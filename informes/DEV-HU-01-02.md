@@ -1,8 +1,30 @@
 # Informe DEV — HU-01 + HU-02 (sesión y acceso por rol)
 
-**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` con M-1 a M-4 · **Rama:** `hu-01` · **Fecha:** 2026-11-19
+**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` con M-1 a M-6 · **Rama:** `hu-01` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER.
+
+## Corrección por M-6 (veredicto, vuelta 1: A1)
+
+**Problema:** un `401 SESION_VENCIDA` en el `GET /v1/me` no mostraba AUTH-03.
+- Después del login caía en el mensaje genérico.
+- Al retomar la sesión al abrir la app, con la renovación en `200`, cerraba sin aviso.
+
+**Corrección:** en `apps/movil/src/sesion/controlador.ts`, `cargarPerfil` ahora informa si el fallo fue un `401 SESION_VENCIDA`.
+- `ingresar` y `restaurar` cierran la sesión con el aviso de inactividad en ese caso: "Su sesión se cerró por inactividad. Ingrese de nuevo." (CONTRATO-HU-01 §4, AUTH-03).
+- Los demás fallos de `/v1/me` siguen igual: mensaje genérico tras el login y login sin mensaje al retomar.
+- No cambió ningún texto.
+
+**Verificación:** con una prueba Jest temporal, ya borrada, que monta `App.tsx` con `fetch` y `expo-secure-store` simulados.
+
+| Caso | Sin el arreglo | Con el arreglo |
+|---|---|---|
+| Login `200` y luego `/v1/me` con `401 SESION_VENCIDA` | Falla | AUTH-03, y el almacenamiento queda vacío |
+| Retomar: renovación `200` y luego `/v1/me` con `401 SESION_VENCIDA` | Falla | AUTH-03, y el almacenamiento queda vacío |
+| Login `200` y luego `/v1/me` con `500` (control) | Pasa | Sigue el mensaje genérico |
+| Retomar con `/v1/me` en `500` (control) | Pasa | Sigue el login sin mensaje |
+
+`tsc` no da errores.
 
 ## Cambios por M-3 y M-4 (revisión del UX)
 

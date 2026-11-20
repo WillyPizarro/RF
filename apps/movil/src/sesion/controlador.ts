@@ -108,12 +108,19 @@ export async function salir(): Promise<void> {
   }
 }
 
-async function cargarPerfil(actual: number): Promise<Perfil | null> {
-  if (!sesion) return null;
+/**
+ * GET /v1/me tras abrir la sesion. Si falla, `vencida` dice si fue un 401 SESION_VENCIDA: ese 401
+ * muestra AUTH-03 venga de la solicitud que venga (CONTRATO-HU-01 §4, veredicto A1).
+ */
+async function cargarPerfil(actual: number): Promise<{ perfil: Perfil | null; vencida: boolean }> {
+  if (!sesion) return { perfil: null, vencida: false };
   const respuesta = await obtenerPerfil(sesion.tokenAcceso);
-  if (actual !== generacion) return null;
-  if (respuesta.estado === 200 && respuesta.cuerpo) return respuesta.cuerpo as Perfil;
-  return null;
+  if (actual !== generacion) return { perfil: null, vencida: false };
+  if (respuesta.estado === 200 && respuesta.cuerpo) {
+    return { perfil: respuesta.cuerpo as Perfil, vencida: false };
+  }
+  const vencida = respuesta.estado === 401 && respuesta.cuerpo?.codigo === 'SESION_VENCIDA';
+  return { perfil: null, vencida };
 }
 
 /** Login completo: POST /v1/auth/login y luego GET /v1/me (el menu sale de /v1/me). */
@@ -126,13 +133,13 @@ export async function ingresar(usuario: string, clave: string): Promise<void> {
     if (respuesta.estado === 200 && respuesta.cuerpo) {
       abrir(respuesta.cuerpo as RespuestaSesion);
       await guardarTokens(sesion!.tokenAcceso, sesion!.tokenRenovacion);
-      const perfil = await cargarPerfil(actual);
+      const { perfil, vencida } = await cargarPerfil(actual);
       if (actual !== generacion) return;
       if (perfil) {
         entrar(perfil);
         return;
       }
-      await cerrarSesion({ tipo: 'error' });
+      await cerrarSesion(vencida ? { tipo: 'inactividad' } : { tipo: 'error' });
       return;
     }
     const codigo = respuesta.cuerpo?.codigo;
@@ -168,12 +175,14 @@ export async function restaurar(): Promise<void> {
     if (respuesta.estado === 200 && respuesta.cuerpo) {
       abrir(respuesta.cuerpo as RespuestaSesion);
       await guardarTokens(sesion!.tokenAcceso, sesion!.tokenRenovacion);
-      const perfil = await cargarPerfil(actual);
+      const { perfil, vencida } = await cargarPerfil(actual);
       if (actual !== generacion) return;
       if (perfil) {
         usarSesion.getState().entrar(perfil);
         return;
       }
+      await cerrarSesion(vencida ? { tipo: 'inactividad' } : null);
+      return;
     }
     const vencida = respuesta.estado === 401 && respuesta.cuerpo?.codigo === 'SESION_VENCIDA';
     await cerrarSesion(vencida ? { tipo: 'inactividad' } : null);
