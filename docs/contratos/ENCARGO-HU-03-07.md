@@ -99,3 +99,15 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
   - **Capturas:** el registro `ERROR_FUENTE` de las capturas de BIT-01 y BIT-02 tiene que llevar un usuario real (CONTRATO-HU-07 §2), no "sistema".
   - **Entrega:** espera la M-n de la versión del contrato antes de entregar, para entregar todo junto.
 - **TESTER:** si tus datos de Jest tienen un `ERROR_FUENTE` sin usuario, corrígelos (§2: lleva los mismos campos que la consulta). La suite completa espera su M-n.
+
+### M-3 (2026-11-19) — CONTRATO-HU-03 v4 y CONTRATO-HU-07 v3
+
+**Reemplaza** a M-1 en las versiones: los documentos de trabajo ahora son CONTRATO-HU-03 **v4** y CONTRATO-HU-07 **v3**, aprobados por el humano (vía PM), a partir de la revisión del UX.
+
+- **HU-07 v3 (§5):**
+  - **BIT-02:** el título es "Registro #<primeros 8 caracteres del id>", y el id completo va en el campo "ID" del detalle.
+  - **Filtros de BIT-01:** se fijan sus textos: "Filtros", "Usuario", "Desde", "Hasta", "Tipo", "Resultado", la ayuda "dd/mm/aaaa" y "Aplicar filtros".
+  - **Fecha inválida:** muestra "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud.
+- **HU-03 v4 (§6, PLA-01 sin catálogo):** si falla `GET /v1/motivos`, se muestra el error de PLA-07 ("No se pudo completar la consulta; intente nuevamente", con "Reintentar" y "Volver") y no se puede consultar.
+- **DEV:** cumple las dos versiones, junto con la M-2. Al terminar: `ENTREGA DEV` con el commit, el informe actualizado y capturas nuevas de BIT-01 (filtros, error de fecha y error de carga), BIT-02 y PLA-01 sin catálogo.
+- **TESTER:** agrega las pruebas de las dos versiones. La suite completa espera su M-n.

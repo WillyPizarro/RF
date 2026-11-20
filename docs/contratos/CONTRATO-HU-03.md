@@ -1,8 +1,8 @@
 # CONTRATO — HU-03 Consultar si una placa tiene requisitoria (ingreso manual)
 
 **Tipo:** Feature
-**Versión:** v3
-**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano · v3: 2026-11-19, humano vía PM)
+**Versión:** v4
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano · v3 y v4: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-03-consultar-placa.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 4 de 5
 **Rama de trabajo:** `hu-03` (HU-03 + HU-07), desde `main` después del merge de `hu-01` (o desde `hu-01`, rebasada después)
 **Pasa por UX:** Sí. Pantallas PLA-01 a PLA-07 (`docs/ux/wireframes/HU-03-consultar-placa.md`) y una pantalla nueva para la placa no registrada (DECISIÓN PROPUESTA 3). Se revisa con capturas de Jest y del emulador contra los wireframes, como en HU-01.
@@ -104,6 +104,7 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 |---|---|---|---|
 | Acceso | "Consultar placa" en HOME-01 | Se habilita y abre PLA-01 | CONTRATO-HU-02 decisión 4 |
 | PLA-01 | — | Campo "Placa" (en mayúsculas, con fuente monoespaciada), selector "Motivo de consulta *" con el catálogo de `GET /v1/motivos`, y "Describa el motivo *" solo si se elige "Otro". Botón "Consultar". El botón de cámara (HU-04) aparece deshabilitado | PLA-01, CONTRATO-HU-02 decisión 4 |
+| PLA-01 sin catálogo | `GET /v1/motivos` responde con un error, falla la red o llega una respuesta inesperada | El error de PLA-07: "No se pudo completar la consulta; intente nuevamente", con "Reintentar" (vuelve a pedir el catálogo) y "Volver". No se puede consultar | Revisión UX de HU-03/07 · **v4** |
 | PLA-02 | Consultar sin motivo | "Indique el motivo de la consulta." en el campo de motivo, con el foco ahí. **No se envía nada** | Gherkin esc. 2, PLA-02 |
 | PLA-02 | "Otro" con < 10 caracteres | "Describa el motivo (mínimo 10 caracteres)." No se envía nada | PLA-02 |
 | PLA-03 | Formato inválido | "El formato de placa no es válido. Formato esperado: <formato_placa.descripcion>" (con los valores por defecto: "… Formato esperado: ABC-123 (3 letras o números, guion, 3 números)"). La app valida con `formato_placa.regex` de `GET /v1/motivos` y no envía nada (**v3**). Si faltan el motivo y el formato, se muestran los dos mensajes | Gherkin esc. 4, PLA-03 |
@@ -184,3 +185,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | La prueba de la pantalla ERR-01 llega desde HU-02 (§6, fila `403`) | En HU-01/02 ninguna solicitud de la app podía recibir un `403` | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | §1, §6 PLA-03, §7 y decisión 9: `GET /v1/motivos` agrega `formato_placa` `{regex, descripcion}` desde `PLACA_FORMATO_REGEX` y `PLACA_FORMATO_DESCRIPCION`; PLA-03 valida en la app con esa descripción sin enviar nada | Pregunta del TESTER: sin la forma fijada, la prueba de la app tendría que leer el código del DEV | Humano (vía PM), 2026-11-19 |
+| v4 | 2026-11-19 | §6: si falla `GET /v1/motivos`, PLA-01 muestra el error de PLA-07 ("No se pudo completar la consulta; intente nuevamente", con "Reintentar" y "Volver") y no se puede consultar | Revisión UX de HU-03/07 (notas): el DEV lo construyó y el contrato no lo decía | Humano (vía PM), 2026-11-19 |
