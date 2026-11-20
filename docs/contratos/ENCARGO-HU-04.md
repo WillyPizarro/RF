@@ -140,3 +140,15 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
 **No reemplaza nada.** Aviso del PM: el paquete npm `eas` no es el de Expo (es un motor de plantillas). El de Expo es **`eas-cli`** (hoy en la 27.11.0). En la etapa 2, el PM ya dejó `adb` 37.0.3 instalado y el S23 Ultra (SM-S918B, Android 16) conectado y autorizado.
 
 - **DEV — único commit permitido en `hu-04` durante la suite:** en `informes/DEV-HU-04.md`, cambia todos los `npx eas …` por `npx eas-cli@27.11.0 …`: `login`, `init`, `build` y los demás. El login va como `! npx eas-cli@27.11.0 login`. **Solo el informe:** no agregues `eas-cli` como dependencia ni toques `package.json` mientras corre la suite. Avisa con `ENTREGA DEV` y el commit.
+
+### M-7 (2026-11-19) — Proyecto EAS y dev build (etapa 2)
+
+**No reemplaza nada.** Decisión del humano (vía PM): el proyecto EAS va en la cuenta de equipo **`willypizarros-team`**. El humano ya inició sesión, y la sesión vive en su perfil de Windows, no en el repositorio. **DEV: no empieces hasta que el LEAD te avise que el TESTER terminó la suite de la etapa 1**, para no pisarse en la misma carpeta.
+
+- **DEV:**
+  1. En `apps/movil/app.json`, `"owner": "willypizarros-team"`.
+  2. `npx eas-cli@27.11.0 init` para vincular el proyecto. Escribe `extra.eas.projectId`, que es público y sí va en el repositorio.
+  3. Commit `[DEV]` en `hu-04`, sin `Co-Authored-By`.
+  4. `npx eas-cli@27.11.0 build --profile development --platform android --non-interactive`. Pásale al LEAD **el enlace o el QR del APK**, nunca un token ni una credencial.
+  - **Si el build falla por ML Kit** (`not linked` u otro error): aplica tu alternativa `expo-text-extractor` **dentro de `src/camara/lectorPlaca.ts`**, sin cambiar la forma del §1 del contrato. Infórmame del cambio antes de seguir, porque obliga a repetir el Jest de la etapa 1.
+  - **Al terminar:** `ENTREGA DEV` con el commit, el enlace del APK y el informe actualizado.
