@@ -1,5 +1,6 @@
 /**
- * CONTRATO-HU-04 v1 — Capturar la placa con la cámara (etapa 1, Jest).
+ * CONTRATO-HU-04 v5 — Capturar la placa con la cámara (etapa 1, Jest), con el aviso de
+ * telemetría de ML Kit en OCR-01 (§3, v5).
  *
  * Interfaz (HU-04 "Interfaz observable" y §1): se monta `App.tsx` (CONTRATO-HU-01 §4 bis) y la
  * cámara y el OCR se reemplazan por el MÓDULO DE BORDE `src/camara/lectorPlaca.ts`, simulado con
@@ -88,6 +89,13 @@ const T = {
   sinPermiso: 'La app no tiene permiso para usar la cámara.',
   comoDar: 'Para darlo: Ajustes › Aplicaciones › Movil Buscador › Permisos › Cámara.',
   ajustes: 'Abrir ajustes',
+  // Aviso de telemetría (v5)
+  avisoTitulo: 'Antes de leer la placa',
+  avisoTexto:
+    'Para leer la placa, la app usa ML Kit, una herramienta de Google que funciona en este teléfono. Según Google, ML Kit no le envía la foto ni la placa leída, pero sí le envía datos técnicos de uso y un código de esta instalación.',
+  entendido: 'Entendido',
+  salir: 'Salir',
+  inactividad: 'Su sesión se cerró por inactividad. Ingrese de nuevo.',
 };
 
 // --- Servidor falso --------------------------------------------------------------------------
@@ -139,7 +147,7 @@ const MOTIVOS = [
 const FORMATO = { regex: '^[A-Z0-9]{3}-[0-9]{3}$', descripcion: 'ABC-123 (3 letras o números, guion, 3 números)' };
 
 let sec = 0;
-function servidor(formato = FORMATO) {
+function servidor(formato = FORMATO, inactividad_s = 600) {
   const tokens = new Set<string>();
   const dar = () => {
     sec += 1;
@@ -147,7 +155,7 @@ function servidor(formato = FORMATO) {
       token_acceso: `acceso-${sec}`,
       token_renovacion: `renov-${sec}`,
       expira_en: 900,
-      inactividad_s: 600,
+      inactividad_s,
       usuario: { id: 'u-agente', usuario: 'agente1', nombre: 'Ana Agente', rol: 'agente' },
     };
     tokens.add(d.token_acceso);
@@ -210,7 +218,17 @@ async function tocarCamara() {
   await fireEvent.press(screen.getByLabelText(T.camara));
 }
 
+/** Abre OCR-01 y, si aparece el aviso de telemetría (v5, primera vez por sesión), lo cierra. */
 async function abrirOcr01() {
+  await abrirOcr01ConAviso();
+  if (screen.queryByText(T.entendido)) {
+    await fireEvent.press(screen.getByText(T.entendido));
+    await waitFor(() => expect(screen.queryByText(T.avisoTitulo)).toBeNull(), ESPERA);
+  }
+}
+
+/** Abre OCR-01 sin tocar el aviso. */
+async function abrirOcr01ConAviso() {
   mockAsegurarPermiso.mockResolvedValue('concedido');
   await tocarCamara();
   await waitFor(() => screen.getByText(T.encuadre), ESPERA);
@@ -229,6 +247,16 @@ function campoOcr02() {
   return ins[0];
 }
 
+let oyentesAtras: Array<() => boolean | null | undefined> = [];
+
+async function presionarAtras() {
+  await act(async () => {
+    for (const f of [...oyentesAtras].reverse()) {
+      if (f()) break;
+    }
+  });
+}
+
 beforeEach(() => {
   mockAlmacen.clear();
   llamadas = [];
@@ -239,7 +267,11 @@ beforeEach(() => {
   mockAbrirAjustes.mockReset().mockResolvedValue(undefined);
   (global as unknown as { fetch: unknown }).fetch = fetchSimulado;
   fetchSimulado.mockClear();
-  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((() => ({ remove: () => undefined })) as unknown as typeof BackHandler.addEventListener);
+  oyentesAtras = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation(((_e: string, f: () => boolean) => {
+    oyentesAtras.push(f);
+    return { remove: () => (oyentesAtras = oyentesAtras.filter((x) => x !== f)) };
+  }) as unknown as typeof BackHandler.addEventListener);
   servidor();
 });
 
@@ -592,5 +624,133 @@ describe('HU-04 §1 — módulo de borde', () => {
   test('App.tsx tampoco las importa', () => {
     const app = fs.readFileSync(path.join(__dirname, '..', 'App.tsx'), 'utf8');
     expect([...app.matchAll(NATIVA)].map((m) => m[1])).toEqual([]);
+  });
+});
+
+// =============================================================================================
+// §3 Aviso de telemetría de ML Kit (v5)
+// =============================================================================================
+
+describe('HU-04 §3 (v5) — aviso de telemetría en OCR-01', () => {
+  test('la primera vez por sesión aparece la tarjeta con sus textos; "Capturar" desactivado; "Ingresar manualmente" activo', async () => {
+    mockCapturarYLeer.mockResolvedValue({ texto: 'ZZA-101' });
+    await abrirPla01();
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+    expect(screen.getByText(T.avisoTexto)).toBeTruthy();
+    expect(screen.getByText(T.entendido)).toBeTruthy();
+    const capturar = screen.getByText(T.capturar);
+    expect(capturar).toBeDisabled();
+    await fireEvent.press(capturar);
+    expect(mockCapturarYLeer).not.toHaveBeenCalled();
+    expect(screen.getByText(T.manual)).toBeEnabled();
+  });
+
+  test('tocar fuera de la tarjeta (el visor) no hace nada', async () => {
+    await abrirPla01();
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+    await fireEvent.press(screen.getByTestId('visor-simulado'));
+    expect(screen.getByText(T.avisoTitulo)).toBeTruthy();
+    expect(screen.getByText(T.capturar)).toBeDisabled();
+    expect(mockCapturarYLeer).not.toHaveBeenCalled();
+  });
+
+  test('"Entendido": la tarjeta desaparece, "Capturar" se activa y en esa sesión no vuelve a aparecer', async () => {
+    mockCapturarYLeer.mockResolvedValue({ texto: 'ZZA-101' });
+    await abrirPla01();
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+    await fireEvent.press(screen.getByText(T.entendido));
+    await waitFor(() => expect(screen.queryByText(T.avisoTitulo)).toBeNull(), ESPERA);
+    expect(screen.getByText(T.capturar)).toBeEnabled();
+    await fireEvent.press(screen.getByText(T.capturar));
+    await waitFor(() => screen.getByText(T.placaLeida), ESPERA);
+    expect(mockCapturarYLeer).toHaveBeenCalledTimes(1);
+    // Salir y volver a OCR-01 en la misma sesión: no aparece.
+    await fireEvent.press(screen.getByText(T.recapturar));
+    await waitFor(() => screen.getByText(T.encuadre), ESPERA);
+    expect(screen.queryByText(T.avisoTitulo)).toBeNull();
+    await fireEvent.press(screen.getByText(T.cerrar));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    await abrirOcr01ConAviso();
+    expect(screen.queryByText(T.avisoTitulo)).toBeNull();
+    expect(screen.getByText(T.capturar)).toBeEnabled();
+  });
+
+  test.each(['✕', 'atrás', 'Ingresar manualmente'])(
+    'salir con "%s" con la tarjeta a la vista no la da por vista: al volver a OCR-01 aparece de nuevo',
+    async (como) => {
+      await abrirPla01();
+      await abrirOcr01ConAviso();
+      await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+      if (como === '✕') await fireEvent.press(screen.getByText(T.cerrar));
+      else if (como === 'atrás') await presionarAtras();
+      else await fireEvent.press(screen.getByText(T.manual));
+      await waitFor(() => screen.getByText(T.motivo), ESPERA);
+      expect(screen.queryByText(T.avisoTitulo)).toBeNull();
+      await abrirOcr01ConAviso();
+      await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+      expect(mockCapturarYLeer).not.toHaveBeenCalled();
+    },
+  );
+
+  test('solo en memoria: tras "Salir" y volver a entrar, aparece otra vez; SecureStore sin claves nuevas por el aviso', async () => {
+    await abrirPla01();
+    const antes = [...mockAlmacen.keys()].sort();
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+    await fireEvent.press(screen.getByText(T.entendido));
+    await waitFor(() => expect(screen.queryByText(T.avisoTitulo)).toBeNull(), ESPERA);
+    expect([...mockAlmacen.keys()].sort()).toEqual(antes);
+    expect([...mockAlmacen.values()].join('\n')).not.toMatch(/entendido|aviso|telemetr|mlkit|ml kit/i);
+    // Volver al inicio y salir.
+    await fireEvent.press(screen.getByText(T.cerrar));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    for (let i = 0; i < 5 && !screen.queryByText(T.salir); i += 1) await presionarAtras();
+    await fireEvent.press(screen.getByText(T.salir));
+    await waitFor(() => screen.getByText(T.ingresar), ESPERA);
+    // Nueva sesión.
+    const ins = inputs();
+    await fireEvent.changeText(ins.find((i) => !i.props.secureTextEntry)!, 'agente1');
+    await fireEvent.changeText(ins.find((i) => i.props.secureTextEntry)!, 'clave');
+    await fireEvent.press(screen.getByText(T.ingresar));
+    await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
+    await fireEvent.press(screen.getByText(T.consultarPlaca));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+  });
+
+  test('solo en memoria: tras el cierre por inactividad, el aviso aparece otra vez y AUTH-03 sigue igual', async () => {
+    servidor(FORMATO, 2);
+    await abrirPla01();
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+    await fireEvent.press(screen.getByText(T.entendido));
+    await waitFor(() => expect(screen.queryByText(T.avisoTitulo)).toBeNull(), ESPERA);
+    await fireEvent.press(screen.getByText(T.cerrar));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    await dormir(3500);
+    await waitFor(() => screen.getByText(T.inactividad), ESPERA);
+    servidor(FORMATO, 600);
+    const ins = inputs();
+    await fireEvent.changeText(ins.find((i) => !i.props.secureTextEntry)!, 'agente1');
+    await fireEvent.changeText(ins.find((i) => i.props.secureTextEntry)!, 'clave');
+    await fireEvent.press(screen.getByText(T.ingresar));
+    await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
+    await fireEvent.press(screen.getByText(T.consultarPlaca));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    await abrirOcr01ConAviso();
+    await waitFor(() => screen.getByText(T.avisoTitulo), ESPERA);
+  });
+
+  test('sin permiso: OCR-04 no muestra el aviso', async () => {
+    mockAsegurarPermiso.mockResolvedValue('denegado');
+    await abrirPla01();
+    await tocarCamara();
+    await waitFor(() => screen.getByText(T.sinPermiso), ESPERA);
+    expect(screen.queryByText(T.avisoTitulo)).toBeNull();
+    expect(screen.queryByText(T.entendido)).toBeNull();
   });
 });
