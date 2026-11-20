@@ -15,6 +15,8 @@ export async function llamarApi(
   if (opciones.cuerpo !== undefined) cabeceras['Content-Type'] = 'application/json';
   if (opciones.token) cabeceras.Authorization = `Bearer ${opciones.token}`;
   const respuesta = await fetch(`${urlApi()}${ruta}`, {
+    // Nada de la API en la cache HTTP del dispositivo (CONTRATO-HU-04 v4, ADR-0013).
+    cache: 'no-store',
     method: opciones.metodo ?? 'GET',
     headers: cabeceras,
     body: opciones.cuerpo === undefined ? undefined : JSON.stringify(opciones.cuerpo),

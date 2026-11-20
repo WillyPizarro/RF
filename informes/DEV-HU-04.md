@@ -1,8 +1,56 @@
 # Informe DEV — HU-04 (capturar la placa con la cámara), etapa 1
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-7 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v4** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-11 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` ni drivers ni SDK de Android. Solo agregué dependencias npm al proyecto.
+
+## M-9, M-10 y M-11 (después de la sesión física)
+
+### M-9: safe area (observación 2 del UX, BLOQUEA)
+
+- **`react-native-safe-area-context` ~5.11.1:** la versión de SDK 58, instalada con `expo install`.
+- **`App.tsx`:**
+  - Un solo `SafeAreaProvider` y un `ZonaSegura` que envuelve todas las pantallas.
+  - La zona de la barra de estado (`insets.top`) lleva el fondo oscuro de la franja (`colores.franja`, `#1B1F24`), así que la franja "DATOS SINTÉTICOS · PROTOTIPO" queda **debajo** de la barra.
+  - Abajo, `insets.bottom` en blanco.
+  - `StatusBar style="light"`: íconos claros.
+  - No cambió ningún texto.
+- **Jest:** el proveedor recibe `initialMetrics` con márgenes 0 cuando no hay medidas nativas. Con eso, Jest dibuja las pantallas **sin simular** la librería: no hace falta un mock en `__tests__/`.
+- **Dev build nuevo:** `react-native-safe-area-context` es un **módulo nativo**, así que el dev build anterior no lo trae. Para la mini sesión hace falta el nuevo, cuyo enlace va abajo.
+
+### M-10: sin caché HTTP (CONTRATO-HU-04 v4)
+
+- **API (`services/api/app/traza.py`):** el middleware que pone `X-Id-Traza` agrega `Cache-Control: no-store` a **toda** respuesta, incluidos los errores y las rutas que no existen.
+  - Verificado con la API reconstruida, por la red interna y por el proxy (`https://localhost:8443`).
+  - Respuestas probadas: `/v1/salud` 200, `/v1/me` sin token 401, `/v1/no-existe` 404, `PUT /v1/bitacora` 405, login vacío 422 y `/v1/motivos` sin token 401.
+  - Todas llevan `Cache-Control: no-store`.
+- **App:** `cache: 'no-store'` en el `fetch` de `src/api/cliente.ts` (todas las llamadas a la API) y en `src/api/salud.ts`.
+
+**Verificación:** Jest temporal, ya borrado, con 18 casos en verde. Las llamadas del login, `/v1/me` y `/v1/motivos` llevan `cache: 'no-store'`, y la app monta con el safe area sin mock. `tsc` no da errores.
+
+### M-11: de dónde viene `com.google.android.datatransport`
+
+**Método:** no corrí `./gradlew :app:dependencies`. Esta PC no tiene JDK ni SDK de Android, y no los instalé. Además, el prebuild en una copia se cuelga (ver M-3). Usé la alternativa que permite M-11:
+
+1. Las dependencias que declara cada módulo nativo en `node_modules/*/android/build.gradle`.
+2. La cadena de los POM en Google Maven (`dl.google.com/dl/android/maven2`, lectura pública).
+
+**Resultado:**
+
+| Origen | Cadena hasta `datatransport` | En qué build |
+|---|---|---|
+| `@react-native-ml-kit/text-recognition` (OCR) | `com.google.mlkit:text-recognition:16.0.1` → `com.google.mlkit:common:18.11.0` → `transport-api` 2.2.1, `transport-backend-cct` 2.3.3, `transport-runtime` 2.2.6. También por `text-recognition-bundled-common:17.0.0` → `vision-common:17.3.0`, y por `play-services-mlkit-text-recognition:19.0.1` → `play-services-mlkit-text-recognition-common:19.1.0` | **Todos**: dev build y release |
+| `expo-dev-launcher` | `debugOnly` `com.google.mlkit:barcode-scanning:17.3.0` → `common` y `vision-common` → `datatransport` | **Solo el dev build** |
+| `expo-camera` | `barcode-scanning` y `play-services-code-scanner` en `compileOnly`, porque `barcodeScannerEnabled` es `false` en `app.json`: no entran al APK | Ninguno |
+
+**Conclusión:**
+
+- `datatransport` llega por **ML Kit**: es su canal de telemetría (`transport-backend-cct`).
+- En el APK de release viene solo del reconocimiento de texto. En el dev build hay una segunda vía, el escáner de códigos del menú de desarrollo de `expo-dev-launcher`.
+- Quitar el escáner de `expo-camera` no cambia nada, porque ya está fuera. La única forma de quitar `datatransport` sería sacar ML Kit.
+- El aviso de la opción A **no está implementado**: espera la v5.
+
+**Observación para la etapa 2:** `com.google.mlkit:text-recognition:16.0.1` depende también de `play-services-mlkit-text-recognition`, el artefacto de Play Services. El modelo está incluido (`text-recognition-bundled-common`), pero la prueba en **modo avión** del §3 es la que confirma que la lectura funciona sin red. No la doy por verificada.
 
 ## M-7: proyecto EAS y dev build (etapa 2)
 

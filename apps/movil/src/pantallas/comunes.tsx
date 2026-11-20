@@ -97,6 +97,8 @@ export function fechaHoraCompleta(iso: string): string {
 
 export const colores = {
   fondo: '#FFFFFF',
+  // Fondo de la franja "DATOS SINTETICOS · PROTOTIPO" y de la zona de la barra de estado.
+  franja: '#1B1F24',
   texto: '#1B1F24',
   tenue: '#5B6470',
   primario: '#0B4F8A',
@@ -117,7 +119,7 @@ export const colores = {
 };
 
 const estilos = StyleSheet.create({
-  franja: { backgroundColor: '#1B1F24', paddingVertical: 6, alignItems: 'center' },
+  franja: { backgroundColor: colores.franja, paddingVertical: 6, alignItems: 'center' },
   textoFranja: { color: '#FFD54F', fontSize: 12, fontWeight: '700', letterSpacing: 1 },
   boton: {
     flexDirection: 'row',

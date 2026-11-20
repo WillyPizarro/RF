@@ -1,4 +1,5 @@
-"""Middleware de id_traza: cada respuesta lleva X-Id-Traza y genera una linea de log JSON."""
+"""Middleware de id_traza: cada respuesta lleva X-Id-Traza y Cache-Control: no-store, y genera una
+linea de log JSON."""
 
 import logging
 import time
@@ -28,6 +29,9 @@ def registrar_middleware_traza(app: FastAPI) -> None:
                 log.exception("error_no_controlado")
                 respuesta = respuesta_error(500, id_traza)
             respuesta.headers[CABECERA_TRAZA] = id_traza
+            # Ninguna respuesta de la API se guarda en caches HTTP (CONTRATO-HU-04 v4, ADR-0013),
+            # tampoco las de error.
+            respuesta.headers["Cache-Control"] = "no-store"
             log.info(
                 "solicitud",
                 extra={
