@@ -12,3 +12,11 @@
 - **Despliegue (OBLIGATORIO, humano 2026-11-19, veredicto HU-01/02):** en el VPS, comprobar que la clave de un login no queda en los logs del proxy (Caddy). Es la misma comprobación que `test_la_clave_no_queda_en_los_logs_del_proxy` (CONTRATO-HU-01 §5), hecha sobre el despliegue real.
 - **HU-03/07 (humano 2026-11-19, veredicto HU-01/02):** puerto local alterno y configurable para el proxy (`PROXY_PUERTO_HTTP`, y el de HTTPS si hace falta), para que las pruebas que pasan por el proxy corran en verde en esta máquina. Encargado en `ENCARGO-HU-03-07.md`.
 - **HU-03 (observación del veredicto HU-01/02):** falta una prueba de Jest para retomar la sesión al abrir la app cuando `/v1/me` responde `401 SESION_VENCIDA` (`restaurar`). Debe mostrar AUTH-03 (CONTRATO-HU-01 §4).
+- **BLOQUEO DESPLIEGUE-01 (humano 2026-11-19):** VPS, dominio y Supabase. Los contrata el humano **a más tardar el 2-dic**. La ventana de despliegue es del 3 al 7-dic, y la lista de probadores se define antes del 8-dic.
+- **Acta de eliminación al cierre (CONTRATO-DESPLIEGUE-01 §8, ADR-0008):**
+  - borrar el VPS, con discos y snapshots;
+  - borrar el proyecto de Supabase, con sus respaldos;
+  - borrar los builds y el proyecto de EAS, o como mínimo los enlaces internos;
+  - borrar el registro DNS del subdominio y decidir qué se hace con el dominio;
+  - revocar la llave SSH dedicada;
+  - pedir a los probadores que desinstalen la app.

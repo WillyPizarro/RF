@@ -28,7 +28,7 @@ Prototipo móvil (MVP, 30 a 40 días) para que personal autorizado verifique si 
 | Rol | Rutas |
 |---|---|
 | TESTER | `services/api/tests/`, `services/simuladores/tests/`, `apps/movil/__tests__/`, `apps/movil/.maestro/`, `pruebas/carga/`, `pruebas/datos/`, `informes/TESTER-*.md` |
-| DEV | `apps/movil/` (salvo `__tests__/` y `.maestro/`), `services/api/` (salvo `tests/`), `services/simuladores/` (salvo `tests/`), `infra/`, `contratos/api/`, `contratos/fuentes/`, `scripts/`, `informes/DEV-*.md`, `README.md` raíz, `.gitignore` (solo agregar; nunca quitar las entradas de secretos y fotos) |
+| DEV | `apps/movil/` (salvo `__tests__/` y `.maestro/`), `services/api/` (salvo `tests/`), `services/simuladores/` (salvo `tests/`), `infra/`, `contratos/api/`, `contratos/fuentes/`, `scripts/`, `informes/DEV-*.md`, `docs/despliegue/`, `README.md` raíz, `.gitignore` (solo agregar; nunca quitar las entradas de secretos y fotos) |
 | ARCH | `docs/arch/` |
 | UX | `docs/ux/` |
 | BA / PM | `docs/hus/`, `PRD.md` |

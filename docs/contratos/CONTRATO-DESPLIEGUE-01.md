@@ -2,11 +2,11 @@
 
 **Tipo:** Feature (despliegue)
 **Versión:** v1
-**Estado:** Pendiente de aprobación
+**Estado:** Aprobado (2026-11-19, humano vía PM)
 **Origen:** encargo PM → LEAD (2026-11-19, decisión del humano): el MININTER y el equipo prueban desde **sus** celulares en el demo del **jueves 10-dic**. Va en paralelo a HU-04 y no la frena.
 **Alcance:** lo que hoy está en `main` (`fa75945`, Iteración 1: HU-08, HU-01, HU-02, HU-03 y HU-07). HU-04 y las siguientes se suben después con el mismo comando (§6).
-**Rama de trabajo:** la decide el humano (propuesta: `despliegue-01` desde `main` `fa75945`)
-**Plazo:** desplegado, y probado por el humano desde su S23 Ultra **por enlace (no por cable)**, antes del **8-dic**.
+**Rama de trabajo:** `despliegue-01`, desde `main` `fa75945`, en un worktree aparte (`C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`) para no pisar `hu-04`
+**Plazo:** el humano contrata el VPS, el dominio y Supabase a más tardar el **miércoles 2-dic**. La ventana de despliegue es del **3 al 7-dic**. Desplegado, y probado por el humano desde su S23 Ultra **por enlace (no por cable)**, antes del **8-dic**.
 
 ---
 
@@ -96,6 +96,7 @@
 | Documento | Contenido | Origen |
 |---|---|---|
 | **Guía corta para probadores** (español simple, 1 o 2 páginas) | 1. Abrir el enlace en el celular Android. 2. Permitir la instalación desde esa fuente (Samsung con Android 16, y una nota genérica para otros Android). 3. Abrir "Movil Buscador". 4. Los usuarios de prueba (`agente1`, `revisor1`, `supervisor1`), **sin la clave**: "la clave se la da el responsable del demo". 5. Qué probar: las placas `ZZA-101`, `ZZB-201` y `ZZZ-999` con un motivo, y la bitácora con `supervisor1`. 6. Qué **no** esperar todavía: rostro (HU-05) y cámara (HU-04, hasta el siguiente despliegue). 7. Que todos los datos son ficticios. 8. Cómo desinstalar la app | Encargo |
+| **Pasos para el dominio** (español simple) | Cómo comprar el dominio (junto con el VPS) y cómo crear el registro DNS `A` del subdominio hacia la IP del VPS. Lo hace el humano | Respuesta 2 del humano |
 | **Manual de despliegue** | Requisitos del VPS, DNS, `.env` del VPS (solo los nombres de las variables), cómo crear el proyecto de Supabase, cómo migrar y cargar usuarios, los comandos del §6, cómo ver logs y cómo borrar todo (§8) | ADR-0009 §3 (base del manual de entrega) |
 
 ### 8. Borrado al cierre (acta de eliminación)
@@ -151,10 +152,10 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 
 | # | Decisión | Por qué hace falta | Estado |
 |---|---|---|---|
-| 1 | La credencial de administración de Auth se pasa solo a `cargar_usuarios` al correrlo; la API en marcha no la tiene | Hoy `AUTH_JWT_SECRETO` vive en el entorno de `api` y permite firmar un token `service_role`. En la nube eso daría a la API en marcha más privilegio que el necesario | Pendiente |
-| 2 | La guía y el manual van en `docs/despliegue/`, a cargo del DEV | Nadie es dueño de esa carpeta en `AGENTS.md` | Pendiente |
-| 3 | El VPS se configura con `DOMINIO` real y los puertos por defecto (80 y 443); solo SSH con llave, sin clave | ADR-0009 y lo mínimo de seguridad para un servidor en internet | Pendiente |
-| 4 | El despliegue del servidor se hace desde esta PC por SSH con `scripts/desplegar.ps1`, y el código llega al VPS desde `origin` (GitHub), no copiando archivos sueltos | Repetible y sin secretos en tránsito | Pendiente |
+| 1 | La credencial de administración de Auth se pasa solo a `cargar_usuarios` al correrlo; la API en marcha no la tiene | Hoy `AUTH_JWT_SECRETO` vive en el entorno de `api` y permite firmar un token `service_role`. En la nube eso daría a la API en marcha más privilegio que el necesario | Aprobada por el humano (vía PM, 2026-11-19) |
+| 2 | La guía y el manual van en `docs/despliegue/`, a cargo del DEV | Nadie es dueño de esa carpeta en `AGENTS.md` | Aprobada por el humano (vía PM, 2026-11-19) |
+| 3 | El VPS se configura con `DOMINIO` real y los puertos por defecto (80 y 443); solo SSH con llave, sin clave | ADR-0009 y lo mínimo de seguridad para un servidor en internet | Aprobada por el humano (vía PM, 2026-11-19) |
+| 4 | El despliegue del servidor se hace desde esta PC por SSH con `scripts/desplegar.ps1`, y el código llega al VPS desde `origin` (GitHub), no copiando archivos sueltos | Repetible y sin secretos en tránsito | Aprobada por el humano (vía PM, 2026-11-19) |
 
 ## Fuera del contrato (decide el DEV)
 
@@ -164,18 +165,18 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 
 ## Preguntas abiertas para el humano
 
-1. **VPS:** ¿qué proveedor y qué cuenta (por ejemplo DigitalOcean, Hetzner, Vultr, Contabo; ~2 vCPU y 4 GB de RAM, US$ 6–12 al mes)? ¿Ya existe el servidor, o se crea? ¿En qué región?
-2. **Dominio:** ¿qué dominio o subdominio usamos para el certificado (por ejemplo `demo.<su-dominio>`)? ¿Quién crea el registro DNS `A` que apunta a la IP del VPS?
-3. **Supabase:** ¿el proyecto ya existe en São Paulo o se crea? ¿Plan gratuito o Pro durante la semana del demo, para que no se pause?
-4. **Probadores:**
-   - ¿Quiénes reciben el enlace (cuántas personas)?
-   - ¿Todos con los mismos usuarios de prueba, o hacen falta más usuarios (por ejemplo `agente3` a `agenteN`)? Agregar usuarios cambia la lista fija de CONTRATO-HU-01 §6 y exige una versión de ese contrato.
-   - ¿Quién reparte la clave, y por qué canal?
-5. **Acceso de los agentes al VPS:** ¿el DEV y el TESTER pueden entrar por SSH, con una llave que el humano autoriza y que nunca se versiona? ¿O corre el humano los comandos que ellos dejen?
-6. **Decisiones 1 a 4:** ¿se aprueban?
+Respuestas del humano (vía PM, 2026-11-19):
+
+1. **VPS (y 3, Supabase):** los contrata el humano a más tardar el **miércoles 2-dic**. Él elige el proveedor del VPS (2 vCPU y 4 GB, US$ 6–12 al mes). Supabase arranca en el plan **gratuito** y pasa a **Pro** la semana del demo. La ventana de despliegue es del **3 al 7-dic**.
+2. **Dominio:** no tiene. Lo compra junto con el VPS. El DEV deja en `docs/despliegue/` los pasos en español simple para comprarlo y crear el registro DNS `A` del subdominio; los hace el humano.
+4. **Probadores:** los **usuarios actuales** para el 10-dic. El humano reparte la clave por un canal privado. La lista de probadores la define antes del 8-dic (**pendiente**).
+5. **Acceso al VPS:** por **SSH con una llave dedicada** que autoriza el humano. Nunca se versiona y se revoca al cierre.
+6. **Decisiones 1 a 4:** aprobadas tal cual. `docs/despliegue/` pasa a `AGENTS.md` como ruta del DEV.
+
+**Lo que no necesita el VPS avanza ya**, sin bloquear HU-04: el perfil `preview`, `scripts/desplegar.ps1`, el compose del VPS, la guía y los documentos, y las verificaciones en local.
 
 ## Changelog
 
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
-| v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD (despliegue temprano para el demo del 10-dic) | — |
+| v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD (despliegue temprano para el demo del 10-dic) | Humano (vía PM), 2026-11-19 |
