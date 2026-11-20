@@ -1,8 +1,8 @@
 # CONTRATO — HU-04 Capturar la placa con la cámara
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano vía PM)
+**Versión:** v2
+**Estado:** Aprobado (v1 y v2: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
 **Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. El UX revisa con capturas de Jest y, si hay dispositivo, con capturas del dev build.
@@ -118,8 +118,8 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | Caso | Salida esperada | Origen |
 |---|---|---|
 | Placas de prueba | Solo **placas sintéticas impresas** con el prefijo `ZZ` de HU-08 (por ejemplo `ZZA-101`, `ZZB-201`, `ZZZ-999` y otras de la semilla), en papel y del tamaño de una placa, con la leyenda **"PRUEBA — NO VÁLIDA"** en letra chica. **Nunca placas de vehículos reales** | Encargo PM, regla 8 · DECISIÓN PROPUESTA 4 |
-| Precisión de día | ≥ 90 % de lecturas exactas (lo que muestra OCR-02 es igual a la placa impresa, antes de corregir) en ≥ 100 capturas de día con el celular de referencia | ADR-0011 · DECISIÓN PROPUESTA 5 |
-| De noche o en ángulo | Se mide y se reporta, sin meta | ADR-0011 |
+| Precisión de día | ≥ 90 % de lecturas exactas (lo que muestra OCR-02 es igual a la placa impresa, antes de corregir) en ≥ 100 capturas de día con el celular de referencia | ADR-0011 · **v2: va aparte**, en la fase de pruebas del 16 al 26-dic (como el p95 de HU-03), **no en este veredicto** |
+| De noche o en ángulo | Se mide y se reporta, sin meta, en la misma medición aparte | ADR-0011 · v2 |
 | Registro | Las capturas no se guardan. Se registra solo la placa impresa, lo leído, la condición (día, noche, ángulo, distancia) y si coincide, en `pruebas/datos/ocr-precision.csv`. **Ninguna imagen** | Regla 8, ADR-0002 |
 
 ## Nombres que no se negocian
@@ -145,7 +145,8 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | Confirmar, corregir, volver; nunca consulta sola (§5) | Sí, contando las llamadas a `fetch` | Paso a paso, una vez |
 | Nada en SecureStore ni a la API (§6) | Sí | — |
 | La foto se borra del disco (§6) | No (no hay disco) | Sí, con `adb` |
-| La placa impresa se lee de verdad; precisión (§6, §7) | No | Sí |
+| La placa impresa se lee de verdad (§6) | No | Sí |
+| Precisión (§7) | No | **Aparte**, en la fase de pruebas (v2) |
 | Sin red (§3) | No | Sí, en modo avión |
 
 **Expo Go no sirve** (ADR-0002): todo lo de la columna derecha exige el dev build. Si no hay dispositivo o dev build a tiempo, esa columna queda `NO VERIFICADO` y se escala.
@@ -174,7 +175,7 @@ Las placas impresas y las capturas de pantalla del dispositivo quedan **fuera de
 | 2 | La placa propuesta es el primer candidato que cumple `formato_placa.regex` (con los espacios o el punto cambiados por guion). Si no hay ninguno, OCR-03, y la app no adivina caracteres (`O`/`0`) | Ni la HU ni el wireframe dicen qué hacer con texto que no es una placa. Mostrarlo igual invitaría a consultar basura | Aprobada por el humano (vía PM, 2026-11-19) |
 | 3 | "Usar esta placa" conserva el motivo que ya estaba elegido; si no había, queda vacío | El wireframe dice "donde falta el motivo", pero no aclara si se borra uno ya elegido | Aprobada por el humano (vía PM, 2026-11-19) |
 | 4 | Placas impresas en papel con el prefijo `ZZ` y la leyenda "PRUEBA — NO VÁLIDA" | Pedido del PM: nada de placas reales, y que la impresa no pueda confundirse con una placa oficial | Aprobada por el humano (vía PM, 2026-11-19) |
-| 5 | La medición de precisión (≥ 100 capturas) entra en este veredicto si hay dispositivo; si no, queda `NO VERIFICADO` | ADR-0011 la fija como criterio, pero depende del dispositivo y de quien hace las capturas | **Pendiente** (pregunta 3) |
+| 5 | La medición de precisión (≥ 100 capturas de día, ≥ 90 %) **va aparte**, en la fase de pruebas del 16 al 26-dic, como el p95 de HU-03. En el veredicto de HU-04 entra solo el paso a paso físico en el S23 Ultra (Android 16) | ADR-0011 la fija como criterio, pero depende de que el humano tome ≥ 100 fotos | Aprobada por el humano (vía PM, 2026-11-19) · **v2** |
 
 ## Fuera del contrato (decide el DEV)
 
@@ -188,7 +189,7 @@ Respuestas del humano (vía PM, 2026-11-19):
 
 1. **Dispositivo (PA #12):** un **Samsung Galaxy S23 Ultra**, que se puede conectar por USB, con **Android 16** (confirmado por el humano vía PM, 2026-11-19). Faltan en esta PC `adb` (Android platform-tools) y quizá el driver USB de Samsung; las instrucciones van en el encargo.
 2. **Dev build:** **A, con EAS** (el humano tiene cuenta de Expo). Si se complica, B en local. El login lo hace el humano con `! npx eas login`; **nadie guarda el token en el repositorio**.
-3. **Quién hace las capturas físicas:** **el humano** (vía PM, 2026-11-19). **Si la precisión (≥ 100 capturas) entra en este veredicto o va aparte:** sigue **PENDIENTE** (decisión 5).
+3. **Capturas físicas y precisión:** las fotos **las toma el humano**. La **precisión va aparte**, en la fase de pruebas del 16 al 26-dic; en este veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16). Respuesta completa del humano (vía PM, 2026-11-19) → **v2**.
 4. **PA #4 y PA #16:** se confirman los provisionales (≥ 90 % de día; la foto no se guarda).
 5. **Decisiones 1 a 4:** aprobadas tal cual.
 
@@ -197,3 +198,4 @@ Respuestas del humano (vía PM, 2026-11-19):
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 2, contrato 1 | Humano (vía PM), 2026-11-19 |
+| v2 | 2026-11-19 | §7, "Qué se prueba dónde" y decisión 5: la precisión del OCR va aparte, en la fase de pruebas del 16 al 26-dic; en el veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16), con las fotos tomadas por el humano | Respuesta del humano a la pregunta 3 | Humano (vía PM), 2026-11-19 |

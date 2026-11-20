@@ -86,3 +86,10 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   - **Para imprimir:** una **instrucción de una línea** (por ejemplo, abrir el HTML en el navegador e imprimir en A4 al 100 %, sin ajustar a la página).
 
   Al terminar: `ENTREGA TESTER: hoja de placas — <ruta>` con el commit. Lo demás de la etapa 1 sigue igual.
+
+### M-2 (2026-11-19) — CONTRATO-HU-04 v2
+
+**Reemplaza** la versión del encabezado: el documento de trabajo ahora es CONTRATO-HU-04 **v2**, aprobado por el humano (vía PM). **La precisión del OCR va aparte** (fase de pruebas del 16 al 26-dic, anotada en `PENDIENTES.md`). En el veredicto de HU-04 entra solo el **paso a paso físico** en el S23 Ultra (Android 16), con las fotos que toma el humano.
+
+- **TESTER:** el guion de la etapa 2 cubre solo los casos "Dispositivo" del §6. La plantilla del CSV de precisión queda preparada para la fase de pruebas.
+- **DEV:** sin cambios.

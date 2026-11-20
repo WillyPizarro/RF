@@ -12,3 +12,9 @@
 - **Despliegue (OBLIGATORIO, humano 2026-11-19, veredicto HU-01/02):** en el VPS, comprobar que la clave de un login no queda en los logs del proxy (Caddy). Es la misma comprobación que `test_la_clave_no_queda_en_los_logs_del_proxy` (CONTRATO-HU-01 §5), hecha sobre el despliegue real.
 - **HU-03/07 (humano 2026-11-19, veredicto HU-01/02):** puerto local alterno y configurable para el proxy (`PROXY_PUERTO_HTTP`, y el de HTTPS si hace falta), para que las pruebas que pasan por el proxy corran en verde en esta máquina. Encargado en `ENCARGO-HU-03-07.md`.
 - **HU-03 (observación del veredicto HU-01/02):** falta una prueba de Jest para retomar la sesión al abrir la app cuando `/v1/me` responde `401 SESION_VENCIDA` (`restaurar`). Debe mostrar AUTH-03 (CONTRATO-HU-01 §4).
+- **Fase de pruebas, 16 al 26-dic (desde CONTRATO-HU-04 v2, humano 2026-11-19):** medir la precisión del OCR de placa con el dev build en el Samsung Galaxy S23 Ultra (Android 16), con las fotos tomadas por el humano:
+  - **Meta:** ≥ 90 % de lecturas exactas (antes de corregir) en ≥ 100 capturas de día (ADR-0011, provisional PA #4).
+  - **Sin meta:** de noche y en ángulo se mide y se reporta.
+  - **Placas:** solo las sintéticas impresas `ZZ` de la hoja de `pruebas/datos/`.
+  - **Registro:** en `pruebas/datos/ocr-precision.csv`, **sin imágenes**.
+  - **Fuera del veredicto de HU-04**, igual que el p95 de HU-03 (decisión 10).
