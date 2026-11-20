@@ -90,3 +90,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **DEV:** sin cambios por la v5: es lo que ya hace `services/api/app/auth.py`. Sigue con A1 de M-6.
 - **TESTER:** agrega la prueba de la v5 (fallo después de `bloqueado_hasta` → `401 CREDENCIALES_INVALIDAS`, no `423`). Para A2 ya puedes apoyarte en esa regla si te sirve.
+
+### M-8 (2026-11-19) — Pruebas que pasan por el proxy
+
+**No reemplaza nada.** No cambia ningún contrato. Pedido del PM: las pruebas que pasan por el proxy (`https://localhost`, fixture `sistema_sano`, `test_red.py`) ya están aceptadas como `NO VERIFICADO` en esta máquina (Sprint 0 y HU-08). Esperar 90 s por cada una cuesta unos 48 min por corrida.
+
+- **TESTER**, en tus rutas (`services/api/tests/`): antes de usar el proxy, haz un chequeo de unos 2 s (o lee una variable, por ejemplo `PROXY_DISPONIBLE=0`). Si el proxy no responde, esas pruebas se marcan `skip` con el motivo **"NO VERIFICADO: puerto 80 ocupado por http.sys"**. Nunca pueden quedar en verde sin haber corrido. Con el proxy arriba, se comportan como hoy. Documenta en tu informe cómo se activa. Si no se puede hacer sin tocar un contrato, avísame con `PREGUNTA TESTER`.
+- **No corras la suite completa:** solo comprueba que esas pruebas se omiten rápido y con ese motivo. Mi corrida de la vuelta 1 sigue con el arnés anterior. Al terminar: `ENTREGA TESTER` con el commit.
