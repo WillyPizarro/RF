@@ -572,8 +572,18 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
     const tipos = Object.keys(ETIQUETAS_TIPO);
     const regs = tipos.map((t, i) =>
       registro(100 - i, t, {
+        // Solo un LOGIN_FALLIDO de un usuario inexistente va sin usuario ("sistema"). CONSULTA_PLACA
+        // y ERROR_FUENTE llevan usuario, motivo, placa y consulta_id (HU-07 §2, M-2).
         usuario: t === 'LOGIN_FALLIDO' ? null : 'agente1',
         resultado: t === 'CONSULTA_PLACA' ? 'con_requisitoria' : t === 'ERROR_FUENTE' ? 'error' : null,
+        ...(t === 'CONSULTA_PLACA' || t === 'ERROR_FUENTE'
+          ? {
+              motivo: 'control_vehicular',
+              parametros: t === 'ERROR_FUENTE' ? { placa: 'ZZA-101', fuente: 'placas' } : { placa: 'ZZA-101' },
+              consulta_id: `c-${i}`,
+              codigo_error: t === 'ERROR_FUENTE' ? 'FUENTE_NO_DISPONIBLE' : null,
+            }
+          : {}),
       }),
     );
     await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: regs, siguiente_cursor: null } }));
