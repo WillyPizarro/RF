@@ -217,3 +217,14 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   - **Qué se busca:** ninguna imagen (cabeceras JPEG o PNG), ningún texto de placa leído (`ZZ…`) y ningún dato que no esté en la divulgación de Google.
 
   El resultado va a tu informe. La copia de la base **no se versiona** y se borra al terminar.
+
+### M-12 (2026-11-20) — CONTRATO-HU-04 v5: aviso de telemetría
+
+**Reemplaza** a M-10 en la versión: el documento de trabajo ahora es CONTRATO-HU-04 **v5**, aprobado por el humano (vía PM, 2026-11-20).
+
+- **§3:** el aviso "Antes de leer la placa" en OCR-01, con los textos exactos del contrato. Aparece la primera vez por sesión y solo se recuerda en memoria. Mientras se ve, "Capturar" queda desactivado. Salir sin tocar "Entendido" no lo da por visto, y no aparece en OCR-04.
+- **§6:** la telemetría queda como excepción conocida, y se agrega la revisión de la cola en la mini sesión.
+
+- **DEV:** implementa el aviso **junto con la M-9, la M-10 y la M-11**, en una sola `ENTREGA DEV`. Agrega la captura de OCR-01 con el aviso para el UX.
+- **TESTER:** agrega el Jest del aviso, con todos los casos de la fila "Aviso de telemetría" de "Qué se prueba dónde". El paso de la cola ya está en el guion.
+- **DESPLIEGUE-01:** cuando el BA haga el commit del anexo (`docs/hus/anexos/HU-04-aviso-telemetria-mlkit.md`), el DEV pasa su §2 a `docs/despliegue/GUIA-PROBADORES.md` en el worktree de `despliegue-01`. Te aviso cuando esté.

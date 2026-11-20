@@ -1,8 +1,8 @@
 # CONTRATO — HU-04 Capturar la placa con la cámara
 
 **Tipo:** Feature
-**Versión:** v5 (pendiente de aprobación; v4 aprobada)
-**Estado:** Aprobado (v1 a v3: 2026-11-19 · v4: 2026-11-20, humano vía PM)
+**Versión:** v5
+**Estado:** Aprobado (v1 a v3: 2026-11-19 · v4 y v5: 2026-11-20, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
 **Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. El UX revisa con capturas de Jest y, si hay dispositivo, con capturas del dev build.
@@ -231,4 +231,4 @@ Respuestas del humano (vía PM, 2026-11-19):
 | v2 | 2026-11-19 | §7, "Qué se prueba dónde" y decisión 5: la precisión del OCR va aparte, en la fase de pruebas del 16 al 26-dic; en el veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16), con las fotos tomadas por el humano | Respuesta del humano a la pregunta 3 | Humano (vía PM), 2026-11-19 |
 | v3 | 2026-11-19 | §8 nuevo: el dev build llega a la API local por HTTPS con la CA de Caddy instalada en el teléfono, `network_security_config` con `debug-overrides` solo para depuración, `adb reverse tcp:8443`; el build de release no incluye el override; la CA y su llave nunca se versionan; pasos para el humano, incluido el borrado al cierre | Respuesta del humano a la ESCALA de la etapa 2 (opción B y sus 3 condiciones) | Humano (vía PM), 2026-11-19 |
 | v4 | 2026-11-20 | §6: sin caché HTTP (`Cache-Control: no-store` en toda respuesta de `/v1`, la app con `fetch` y `cache: 'no-store'`, y `cache/http-cache` sin `/v1/` en el dispositivo); "Abrir ajustes" puede abrir la pantalla de permisos de la app | Hallazgos B y D de la prueba física en el S23 Ultra | Humano (vía PM), 2026-11-20 |
-| v5 | 2026-11-20 | §3: aviso de telemetría de ML Kit en OCR-01 (la primera vez por sesión, solo en memoria; textos del UX y el BA); §6: título precisado (la foto y el texto leído) con la telemetría como excepción conocida, y la revisión de la cola en el dispositivo | Decisión del humano sobre el hallazgo C (opción A, puntos 3 y 5) | Pendiente |
+| v5 | 2026-11-20 | §3: aviso de telemetría de ML Kit en OCR-01 (la primera vez por sesión, solo en memoria; textos del UX y el BA); §6: título precisado (la foto y el texto leído) con la telemetría como excepción conocida, y la revisión de la cola en el dispositivo | Decisión del humano sobre el hallazgo C (opción A, puntos 3 y 5) | Humano (vía PM), 2026-11-20. No se guarda en la bitácora la constancia de "Entendido" en el MVP |
