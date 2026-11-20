@@ -1,8 +1,8 @@
 # CONTRATO — HU-03 Consultar si una placa tiene requisitoria (ingreso manual)
 
 **Tipo:** Feature
-**Versión:** v2
-**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano)
+**Versión:** v3
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano · v3: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-03-consultar-placa.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 4 de 5
 **Rama de trabajo:** `hu-03` (HU-03 + HU-07), desde `main` después del merge de `hu-01` (o desde `hu-01`, rebasada después)
 **Pasa por UX:** Sí. Pantallas PLA-01 a PLA-07 (`docs/ux/wireframes/HU-03-consultar-placa.md`) y una pantalla nueva para la placa no registrada (DECISIÓN PROPUESTA 3). Se revisa con capturas de Jest y del emulador contra los wireframes, como en HU-01.
@@ -45,7 +45,8 @@ GET /v1/motivos   (rol agente)
 
 | Caso | Salida esperada | Origen |
 |---|---|---|
-| Catálogo | `200` `{"motivos":[{"codigo":"control_vehicular","descripcion":"Control vehicular"},{"codigo":"intervencion_policial","descripcion":"Intervención policial"},{"codigo":"denuncia","descripcion":"Denuncia"},{"codigo":"operativo","descripcion":"Operativo"},{"codigo":"otro","descripcion":"Otro"}]}`. Solo los activos; `otro` siempre va al final | ADR-0011 (catálogo inicial, provisional PA #21) · DECISIÓN PROPUESTA 5 |
+| Catálogo | `200` `{"motivos":[{"codigo":"control_vehicular","descripcion":"Control vehicular"},{"codigo":"intervencion_policial","descripcion":"Intervención policial"},{"codigo":"denuncia","descripcion":"Denuncia"},{"codigo":"operativo","descripcion":"Operativo"},{"codigo":"otro","descripcion":"Otro"}],"formato_placa":{"regex":"^[A-Z0-9]{3}-[0-9]{3}$","descripcion":"ABC-123 (3 letras o números, guion, 3 números)"}}`. Solo los activos; `otro` siempre va al final | ADR-0011 (catálogo inicial, provisional PA #21) · DECISIÓN PROPUESTA 5 |
+| Formato de placa (**v3**) | `formato_placa.regex` y `formato_placa.descripcion` son los valores vigentes de `PLACA_FORMATO_REGEX` y `PLACA_FORMATO_DESCRIPCION` (§7). Si cambian, la respuesta cambia sin tocar código | DECISIÓN 9 · **v3** |
 | Configurable | Agregar o desactivar un motivo en `motivo_catalogo` cambia la respuesta sin tocar código | ADR-0011 |
 | Otro rol | `revisor` o `supervisor` → `403 SIN_PERMISO` + `ACCESO_DENEGADO` | CONTRATO-HU-02 |
 
@@ -105,7 +106,7 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 | PLA-01 | — | Campo "Placa" (en mayúsculas, con fuente monoespaciada), selector "Motivo de consulta *" con el catálogo de `GET /v1/motivos`, y "Describa el motivo *" solo si se elige "Otro". Botón "Consultar". El botón de cámara (HU-04) aparece deshabilitado | PLA-01, CONTRATO-HU-02 decisión 4 |
 | PLA-02 | Consultar sin motivo | "Indique el motivo de la consulta." en el campo de motivo, con el foco ahí. **No se envía nada** | Gherkin esc. 2, PLA-02 |
 | PLA-02 | "Otro" con < 10 caracteres | "Describa el motivo (mínimo 10 caracteres)." No se envía nada | PLA-02 |
-| PLA-03 | Formato inválido | "El formato de placa no es válido. Formato esperado: ABC-123 (3 letras o números, guion, 3 números)". No se envía nada. Si faltan el motivo y el formato, se muestran los dos mensajes | Gherkin esc. 4, PLA-03 |
+| PLA-03 | Formato inválido | "El formato de placa no es válido. Formato esperado: <formato_placa.descripcion>" (con los valores por defecto: "… Formato esperado: ABC-123 (3 letras o números, guion, 3 números)"). La app valida con `formato_placa.regex` de `GET /v1/motivos` y no envía nada (**v3**). Si faltan el motivo y el formato, se muestran los dos mensajes | Gherkin esc. 4, PLA-03 |
 | PLA-04 | Mientras espera | "Consultando…" con la placa; el botón queda desactivado (no se envía dos veces) | PLA-04 |
 | PLA-05 | `con_requisitoria` | Bloque rojo con la placa y "TIENE REQUISITORIA". "Motivo: …", "Consultado: dd/mm/aaaa hh:mm" (hora local) y "Nueva consulta". Sin bloque de datos adicionales (variante "Solo estado"). Sin botones de acción operativa | Gherkin esc. 1, PLA-05 · DECISIÓN PROPUESTA 4 |
 | PLA-06 | `sin_requisitoria` | Bloque gris neutro con la placa y "Sin requisitoria registrada en la fuente consultada". **Sin verde ni ✓** | Gherkin esc. 5, PLA-06 |
@@ -119,7 +120,7 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 | Caso | Salida esperada | Origen |
 |---|---|---|
 | Formato de placa | `PLACA_FORMATO_REGEX` (por defecto `^[A-Z0-9]{3}-[0-9]{3}$`) y `PLACA_FORMATO_DESCRIPCION` (por defecto `ABC-123 (3 letras o números, guion, 3 números)`) en `infra/.env.example`, marcados como provisionales (PA #20, NO VERIFICADO contra la normativa). Cambiarlos no requiere tocar código | ADR-0011 |
-| La app no fija el formato | El mensaje de PLA-03 usa la descripción que envía la API (en `mensaje` del `422`), y la validación local usa la misma regex que expone la API | ADR-0011, ADR-0007 · DECISIÓN PROPUESTA 9 |
+| La app no fija el formato | El mensaje de PLA-03 usa la descripción que envía la API (`formato_placa.descripcion` de `GET /v1/motivos` en la validación local; `mensaje` del `422` si la API lo rechaza), y la validación local usa `formato_placa.regex` (**v3**) | ADR-0011, ADR-0007 · DECISIÓN PROPUESTA 9 |
 
 ## Nombres que no se negocian
 
@@ -127,7 +128,7 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 |---|---|
 | Rutas | `GET /v1/motivos` · `POST /v1/consultas/placa` |
 | Campos de entrada | `placa`, `motivo_codigo`, `motivo_texto` |
-| Campos de respuesta | `consulta_id`, `placa`, `resultado`, `motivo.codigo`, `motivo.texto`, `consultado_en`, `motivos[].codigo`, `motivos[].descripcion` |
+| Campos de respuesta | `consulta_id`, `placa`, `resultado`, `motivo.codigo`, `motivo.texto`, `consultado_en`, `motivos[].codigo`, `motivos[].descripcion`, `formato_placa.regex`, `formato_placa.descripcion` (v3) |
 | Resultados | `con_requisitoria` · `sin_requisitoria` · `placa_no_registrada` |
 | Motivos iniciales | `control_vehicular` · `intervencion_policial` · `denuncia` · `operativo` · `otro` |
 | Códigos | `422 MOTIVO_REQUERIDO` · `422 PLACA_FORMATO_INVALIDO` · `422 SOLICITUD_INVALIDA` · `503 FUENTE_NO_DISPONIBLE` · `502 FUENTE_RESPUESTA_INVALIDA` · `503 SERVICIO_NO_DISPONIBLE` · `403 SIN_PERMISO` |
@@ -160,14 +161,13 @@ Si el mock no se puede descargar en el equipo, el caso se reporta `NO VERIFICADO
 | 6 | La API normaliza la placa (recorta los espacios y la pasa a mayúsculas) | Si no, `zza-101` sería formato inválido o placa no registrada, y en campo se escribe en minúsculas | Aprobada por el humano (2026-11-19) |
 | 7 | Si faltan el motivo y el formato, la API responde primero `MOTIVO_REQUERIDO`. Los rechazos `422` no dejan evento en la bitácora | La API devuelve un solo código. El motivo es la regla 2 | Aprobada por el humano (2026-11-19) |
 | 8 | Una respuesta fuera de contrato se responde con `502` y sin reintento; una caída o un timeout, con `503` y un reintento | ADR-0014 limita el reintento a fallas momentáneas; una respuesta mal formada se repetiría igual | Aprobada por el humano (2026-11-19) |
-| 9 | La regex vigente llega a la app por la API (por ejemplo, en `GET /v1/motivos` o en un `GET /v1/config`; la forma la decide el DEV, dentro de `/v1`) | ADR-0011 pide cambiar el formato sin tocar código, y la app también valida | Aprobada por el humano (2026-11-19) |
+| 9 | La regex vigente llega a la app por la API en `GET /v1/motivos`, campo `formato_placa` `{regex, descripcion}` (**v3**; antes la forma la decidía el DEV) | ADR-0011 pide cambiar el formato sin tocar código, y la app también valida | Aprobada por el humano (2026-11-19) |
 | 10 | El p95 ≤ 2 s se mide en la prueba de desempeño de la iteración (k6, `pruebas/carga/`), aparte, no en este veredicto | La carga necesita el VPS de referencia (ADR-0011) y no bloquea la funcionalidad | Aprobada por el humano (2026-11-19) |
 
 ## Fuera del contrato (decide el DEV)
 
 - La estructura del adaptador `FuentePlacas`, cómo valida contra el yaml y cómo hace el reintento.
 - Cómo se guardan la consulta y el evento en una misma transacción.
-- La forma exacta de exponer la regex a la app (decisión 9).
 
 ## Preguntas abiertas para el humano
 
@@ -183,3 +183,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | La prueba de la pantalla ERR-01 llega desde HU-02 (§6, fila `403`) | En HU-01/02 ninguna solicitud de la app podía recibir un `403` | Humano, 2026-11-19 |
+| v3 | 2026-11-19 | §1, §6 PLA-03, §7 y decisión 9: `GET /v1/motivos` agrega `formato_placa` `{regex, descripcion}` desde `PLACA_FORMATO_REGEX` y `PLACA_FORMATO_DESCRIPCION`; PLA-03 valida en la app con esa descripción sin enviar nada | Pregunta del TESTER: sin la forma fijada, la prueba de la app tendría que leer el código del DEV | Humano (vía PM), 2026-11-19 |

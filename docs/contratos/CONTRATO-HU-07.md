@@ -1,8 +1,8 @@
 # CONTRATO — HU-07 Registrar cada consulta en una bitácora
 
 **Tipo:** Feature
-**Versión:** v1
-**Estado:** Aprobado (2026-11-19, humano vía PM)
+**Versión:** v2
+**Estado:** Aprobado (v1 y v2: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-07-bitacora-consultas.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 5 de 5
 **Rama de trabajo:** `hu-03`, la misma de HU-03 (CONTRATO-HU-03, decisión 1)
 **Pasa por UX:** Sí. Pantallas BIT-01 y BIT-02 (`docs/ux/wireframes/HU-07-bitacora-consultas.md`), revisadas con capturas de Jest y del emulador.
@@ -44,7 +44,8 @@
 | `DELETE` como `api_app` | `DELETE FROM bitacora WHERE id=…` | Error; el registro sigue | Gherkin esc. 2, TDD |
 | `TRUNCATE` como `api_app` | `TRUNCATE bitacora` | Error; los registros siguen | TDD |
 | Mismo intento como dueño | Las tres operaciones con el rol dueño de la tabla (el que corre las migraciones) | Error por el trigger, con un mensaje que contiene `bitacora es de solo insercion`; los registros quedan iguales | ADR-0005 §1, TDD · DECISIÓN PROPUESTA 2 |
-| Base recién migrada | `alembic upgrade head` sobre una base vacía | Deja la tabla, los permisos y los triggers listos | TDD |
+| Base recién migrada | `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env run --rm api alembic upgrade head`, con `MIGRACION_DATABASE_URL` apuntando a una base vacía | Deja la tabla, los permisos y los triggers listos | TDD · **v2** |
+| Base destino de la migración (**v2**) | `MIGRACION_DATABASE_URL`: URL de la base con el rol dueño, en `infra/.env`, nunca versionada (en `infra/.env.example` sin clave). Si falta, la migración usa la base del proyecto | Pregunta del TESTER · **v2** |
 | Sin ruta de edición | — | La API no tiene ninguna ruta para modificar o borrar registros (`PUT`, `PATCH` o `DELETE` sobre `/v1/bitacora*` → `405 METODO_NO_PERMITIDO`) | Gherkin esc. 2 |
 
 ### 2. Contenido de cada registro (Gherkin esc. 1)
@@ -126,7 +127,7 @@ Las mismas que CONTRATO-HU-03 (AGENTS.md). Las migraciones (`services/api/alembi
 
 ## Fuera del contrato (decide el DEV)
 
-- El índice, el formato del cursor, cómo se crea `api_app` y cómo se conectan las migraciones con el rol dueño (credenciales en `infra/.env`, nunca versionadas).
+- El índice, el formato del cursor, cómo se crea `api_app` y las credenciales del rol dueño (en `infra/.env`, nunca versionadas). El comando y la variable de la migración los fija §1 (v2).
 - Cómo agrupa la app los filtros en pantalla.
 
 ## Preguntas abiertas para el humano
@@ -141,3 +142,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
+| v2 | 2026-11-19 | §1: la migración se corre con `docker compose … run --rm api alembic upgrade head` y la base destino va en `MIGRACION_DATABASE_URL` (rol dueño, en `infra/.env`, nunca versionada; si falta, la base del proyecto) | Pregunta del TESTER: el contrato no decía cómo correr la migración sobre una base vacía | Humano (vía PM), 2026-11-19 |

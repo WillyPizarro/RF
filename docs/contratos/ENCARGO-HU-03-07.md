@@ -79,3 +79,12 @@ Al terminar: `herdr agent prompt lead "ENTREGA <ROL>: <resumen corto> — inform
 ## Instrucciones del ciclo (M-n)
 
 Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dice qué reemplaza. Si recibes "lee M-n del encargo", es esta sección.
+
+### M-1 (2026-11-19) — CONTRATO-HU-03 v3 y CONTRATO-HU-07 v2
+
+**Reemplaza** la versión del encabezado: los documentos de trabajo ahora son CONTRATO-HU-03 **v3** y CONTRATO-HU-07 **v2**, aprobados por el humano (vía PM). Responden a las preguntas (1) y (2) del TESTER:
+
+- **HU-03 v3:** `GET /v1/motivos` agrega `"formato_placa": {"regex": …, "descripcion": …}` con los valores de `PLACA_FORMATO_REGEX` y `PLACA_FORMATO_DESCRIPCION`. PLA-03 valida en la app con esa regex y muestra esa descripción sin enviar nada.
+- **HU-07 v2:** la migración se corre con `docker compose … run --rm api alembic upgrade head`, y la base destino va en `MIGRACION_DATABASE_URL` (rol dueño, en `infra/.env`, nunca versionada; en `.env.example` sin clave). Si falta, usa la base del proyecto.
+- **DEV:** cumple las dos.
+- **TESTER:** ya puedes escribir las pruebas que dependen de esto. Para el conteo de reintentos sigue valiendo mi respuesta a tu pregunta (3).
