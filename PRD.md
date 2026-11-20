@@ -8,6 +8,8 @@ Prototipo de solución móvil para la búsqueda y localización de vehículos y 
 
 **Cronograma comprometido con el cliente (2026-11-19):** inicio el 2026-11-19, entrega final el 2026-12-30 (día 42) y plazo máximo de 45 días calendario (2027-01-02), con hitos el 23-nov, 2-dic, 21-dic, 28-dic y 30-dic. El estimado interno de trabajo sigue siendo de 30 a 40 días; la diferencia es reserva. Supuesto de trabajo vigente: el MININTER acepta el stack y el enfoque del proveedor (PA #8 y #17) hasta recibir la respuesta escrita, pedida para el 2026-11-23. Documentos: "Cronograma de implementación — Móvil Buscador (MVP)" y "Acta de inicio — Móvil Buscador (MVP)".
 
+**Despliegue temprano (decisión del 2026-11-19):** para que el MININTER y el equipo prueben desde sus propios celulares en la demo del 2026-12-10, se despliega en el VPS una versión de prueba con lo construido en la Iteración 1 (inicio de sesión y roles, consulta de placa manual, bitácora y simuladores, solo con datos sintéticos), más un APK instalable por enlace y una guía para probadores (`docs/contratos/CONTRATO-DESPLIEGUE-01.md`). No cambia los hitos comprometidos: el despliegue y la prueba de aceptación siguen del 24 al 28-dic. Depende de que el proveedor contrate el VPS, un dominio y Supabase a más tardar el 2026-12-02. La lista de probadores se define antes del 2026-12-08.
+
 ## Problema
 
 El MININTER necesita que su personal autorizado pueda verificar, desde un dispositivo móvil, si un vehículo (por su placa) o una persona (por su rostro) tiene requisitoria. Según el equipo, hoy no existe una solución hecha. El encargo pide además diagnosticar los procesos actuales de consulta y verificación, sus fuentes, restricciones de acceso y brechas tecnológicas.
