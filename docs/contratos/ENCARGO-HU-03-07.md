@@ -123,3 +123,18 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
   - **Jest de la app.**
   - **Al terminar:** `api` vuelve a `infra/.env`, y mandas `ENTREGA TESTER` con el informe final.
 - **DEV:** no hagas más commits en `hu-03` salvo que el LEAD te los pida.
+
+### M-5 (2026-11-19) — Veredicto, vuelta 1
+
+**No reemplaza nada.** El arbitraje está en `informes/VEREDICTO-HU-03-07.md` §4. Ningún rojo apunta al código.
+
+- **TESTER:** corrige lo que propusiste:
+  - **A1:** agregar las rutas de HU-03 y HU-07 a las rutas vigentes.
+  - **A2:** en `latencia`, el conteo por log queda `NO VERIFICADO` con su motivo, y el reintento se verifica por tiempos.
+  - **A3:** `{255,}`.
+  - **A4:** Prism con `--multiprocess=false`. Se espera §4 en verde.
+  - **A5:** "Consultar placa" y "Bitácora" habilitadas; las demás opciones siguen deshabilitadas.
+  - **A7:** "ID" sin coincidencia exacta, sin confundirlo con "ID de captura".
+
+  **A6 (filtros plegados) espera la respuesta del humano: no la toques todavía.** Corre los archivos que tocaste y manda `ENTREGA TESTER`. La suite completa la repite el LEAD.
+- **DEV:** sin cambios por ahora.
