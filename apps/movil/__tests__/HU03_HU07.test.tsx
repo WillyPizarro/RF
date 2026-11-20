@@ -1,6 +1,6 @@
 /**
- * CONTRATO-HU-03 v4 §6 (PLA-01 a PLA-08, ERR-01, PLA-01 sin catálogo) y CONTRATO-HU-07 v3 §5
- * (BIT-01 con sus filtros, BIT-02).
+ * CONTRATO-HU-03 v4 §6 (PLA-01 a PLA-08, ERR-01, PLA-01 sin catálogo) y CONTRATO-HU-07 v4 §5
+ * (BIT-01 con sus filtros, que pueden ir plegados según la v4; BIT-02).
  * El caso pendiente de HU-01 (retomar la sesión) está en HU01_retomar_*.test.tsx: un archivo por
  * variante, para que cada una arranque con la app recién cargada (la app guarda estado en
  * memoria de módulo y Jest da un registro de módulos limpio por archivo).
@@ -620,6 +620,15 @@ function campoFecha(etiqueta: 'Desde' | 'Hasta') {
   return fechas[etiqueta === 'Desde' ? 0 : 1];
 }
 
+/** HU-07 v4: los filtros pueden ir plegados bajo "Filtros ▾"; se despliegan con un toque. */
+async function desplegarFiltros() {
+  await waitFor(() => screen.getAllByText(/^Filtros/), ESPERA);
+  if (!screen.queryByText(T.aplicar)) {
+    await fireEvent.press(screen.getAllByText(/^Filtros/)[0]);
+  }
+  await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+}
+
 async function abrirBitacora(manejador: Manejador) {
   servidor('supervisor');
   rutas['GET /v1/bitacora'] = manejador;
@@ -698,7 +707,8 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
     await fireEvent.press(screen.getByText(ETIQUETAS_TIPO.ERROR_FUENTE));
     await waitFor(() => screen.getByText(`Registro #${id.slice(0, 8)}`, { exact: false }), ESPERA);
     expect(screen.queryByText(`Registro #${id}`, { exact: false })).toBeNull();
-    expect(screen.getByText(T.idCampo)).toBeTruthy();
+    // "ID" puede venir anidado con ": " en el mismo texto (veredicto HU-03/07, A7).
+    expect(screen.getAllByText(/^ID\b(?! de captura)/).length).toBeGreaterThan(0);
     expect(screen.getByText(id, { exact: false })).toBeTruthy();
     expect(screen.getByText(T.soloLectura)).toBeTruthy();
     expect(screen.getByText(T.origen, { exact: false })).toBeTruthy();
@@ -709,7 +719,7 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
 
   test('BIT-01 (v3): filtros con "Filtros", "Usuario", "Desde", "Hasta", "Tipo", "Resultado", ayuda dd/mm/aaaa y "Aplicar filtros"', async () => {
     await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
-    await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+    await desplegarFiltros();
     for (const t of ['Filtros', 'Usuario', 'Desde', 'Hasta', 'Tipo', 'Resultado']) {
       expect(screen.getAllByText(t).length).toBeGreaterThan(0);
     }
@@ -723,7 +733,7 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
     'BIT-01 (v3): fecha inválida "%s" → "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud',
     async (fecha) => {
       await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
-      await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+      await desplegarFiltros();
       const antes = llamadas.filter((l) => l.ruta === '/v1/bitacora').length;
       await fireEvent.changeText(campoFecha('Desde'), fecha);
       await fireEvent.press(screen.getByText(T.aplicar));
@@ -734,7 +744,7 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
 
   test('BIT-01: "Aplicar filtros" con usuario y una fecha válida pide la bitácora con usuario y desde', async () => {
     await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
-    await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+    await desplegarFiltros();
     const antes = llamadas.filter((l) => l.ruta === '/v1/bitacora').length;
     await fireEvent.changeText(campoTexto('Usuario'), 'agente1');
     await fireEvent.changeText(campoFecha('Desde'), '19/11/2026');

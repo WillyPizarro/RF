@@ -2,7 +2,8 @@
 (matriz de 403 SIN_PERMISO + ACCESO_DENEGADO, ahora que hay rutas por rol: HU-03 y HU-07).
 
 §4: el mock es Prism (`stoplight/prism:5`), generado SOLO desde `contratos/fuentes/placas.yaml`,
-como contenedor en la red interna del compose. La API se recrea con FUENTE_PLACAS_URL apuntando
+como contenedor en la red interna del compose, con `--multiprocess=false` (en modo
+multiproceso la imagen falla al arrancar: `isPrimary` indefinido; veredicto HU-03/07, A4). La API se recrea con FUENTE_PLACAS_URL apuntando
 a él (sin tocar código ni la app) y al final vuelve a infra/.env. Si la imagen no se puede
 descargar, el caso queda NO VERIFICADO con el motivo (lo permite el contrato).
 """
@@ -44,7 +45,8 @@ def mock_placas(sistema):
     yaml_dir = str(sistema.raiz / "contratos" / "fuentes")
     r = _docker("run", "-d", "--rm", "--name", nombre, "--network", red,
                 "-v", f"{yaml_dir}:/contratos:ro", IMAGEN_PRISM,
-                "mock", "-h", "0.0.0.0", "-p", "4010", "/contratos/placas.yaml")
+                "mock", "--multiprocess=false", "-h", "0.0.0.0", "-p", "4010",
+                "/contratos/placas.yaml")
     assert r.returncode == 0, r.stderr
     url = f"http://{nombre}:4010"
     try:

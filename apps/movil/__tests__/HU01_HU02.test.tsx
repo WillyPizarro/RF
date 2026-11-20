@@ -404,14 +404,16 @@ describe('HU-01 AUTH-03 — sesión cerrada por inactividad', () => {
 // =============================================================================================
 
 describe('HU-02 — inicio por rol', () => {
-  test('agente (HOME-01): saludo, rol, Salir, sus tres opciones deshabilitadas y nada de otros roles', async () => {
+  test('agente (HOME-01): saludo, rol, Salir; "Consultar placa" habilitada (HU-03), las otras dos deshabilitadas; nada de otros roles', async () => {
     servidorCon('agente');
     await montar();
     await ingresar('agente1', 'clave');
     await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
     expect(screen.getByText(`Hola, ${PERSONAS.agente.nombre}`, { exact: false })).toBeTruthy();
     expect(screen.getByText(T.salir)).toBeTruthy();
-    for (const t of [T.placa, T.rostro, T.misVerif]) expect(screen.getByText(t)).toBeDisabled();
+    // HU-02 decisión 4: deshabilitadas hasta que su HU construya la pantalla (veredicto HU-03/07, A5).
+    expect(screen.getByText(T.placa)).toBeEnabled();
+    for (const t of [T.rostro, T.misVerif]) expect(screen.getByText(t)).toBeDisabled();
     expect(screen.queryByText(T.pendientes)).toBeNull();
     expect(screen.queryByText(T.bitacora)).toBeNull();
   });
@@ -427,14 +429,14 @@ describe('HU-02 — inicio por rol', () => {
     for (const t of [T.placa, T.rostro, T.misVerif, T.bitacora]) expect(screen.queryByText(t)).toBeNull();
   });
 
-  test('supervisor: "Bitácora" (deshabilitada), nada de consulta ni revisión', async () => {
+  test('supervisor: "Bitácora" habilitada (HU-07), nada de consulta ni revisión', async () => {
     servidorCon('supervisor');
     await montar();
     await ingresar('supervisor1', 'clave');
     await waitFor(() => screen.getByText(T.rolSupervisor), ESPERA);
     expect(screen.getByText(`Hola, ${PERSONAS.supervisor.nombre}`, { exact: false })).toBeTruthy();
     expect(screen.getByText(T.salir)).toBeTruthy();
-    expect(screen.getByText(T.bitacora)).toBeDisabled();
+    expect(screen.getByText(T.bitacora)).toBeEnabled();
     for (const t of [T.placa, T.rostro, T.misVerif, T.pendientes]) expect(screen.queryByText(t)).toBeNull();
   });
 

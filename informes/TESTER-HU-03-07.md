@@ -1,7 +1,28 @@
 # Informe TESTER — HU-03 + HU-07 (consulta de placa y bitácora)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-03.md` **v4** y `docs/contratos/CONTRATO-HU-07.md` **v3** (más HU-08 v4, HU-01 v5 y HU-02 v3, vigentes) · **Encargo:** `docs/contratos/ENCARGO-HU-03-07.md` (M-1 a M-4) · **Rama:** `hu-03`
+**Contratos:** `docs/contratos/CONTRATO-HU-03.md` **v4** y `docs/contratos/CONTRATO-HU-07.md` **v4** (más HU-08 v4, HU-01 v5 y HU-02 v3, vigentes) · **Encargo:** `docs/contratos/ENCARGO-HU-03-07.md` (M-1 a M-6) · **Rama:** `hu-03`
 **Suite completa (M-4), una sola vez:** 2026-11-19/20, sobre la punta de `hu-03` (`c056068`, que incluye el commit definitivo del DEV `b82a63a` y mis pruebas de M-3). Arranque con `up -d --build`, los dos compose y el **proxy en el puerto alterno** (`PROXY_PUERTO_HTTP=8080`, `PROXY_PUERTO_HTTPS=8443`; `https://localhost:8443/v1/salud` → 200). Usuarios cargados con `python -m app.cargar_usuarios` (exit 0).
+
+## Vuelta 1 del veredicto (M-5 y M-6)
+
+Correcciones de las pruebas, según el arbitraje (`informes/VEREDICTO-HU-03-07.md` §4); ningún rojo apuntaba al código:
+
+| # | Corrección | Prueba | Resultado |
+|---|---|---|---|
+| A1 | Rutas vigentes: se agregan `GET /v1/motivos`, `POST /v1/consultas/placa` y `GET /v1/bitacora` | `test_contrato_openapi.py::test_contrato_rutas_vigentes` | VERDE |
+| A2 | En `latencia`, el reintento se verifica por tiempos (de 5 a 7 s dentro del contenedor `api`), y el conteo por log queda **NO VERIFICADO** con su motivo en el docstring | `test_hu03_placa.py::test_fuente_lenta` | VERDE |
+| A3 | `{255,}` en la expresión de Postgres | `test_hu07_bitacora_db.py::test_sin_imagen_ni_clave` | VERDE |
+| A4 | Prism con `--multiprocess=false` | `test_hu03_mock_y_roles.py::test_mock_del_contrato` | **VERDE: §4 verificado** (antes NO VERIFICADO); no quedó ningún contenedor de Prism |
+| A5 | HOME-01: "Consultar placa" habilitada y "Verificar rostro" y "Mis verificaciones" deshabilitadas; "Bitácora" del supervisor habilitada | Jest `HU01_HU02.test.tsx` › `agente`, `supervisor` | VERDE |
+| A6 | HU-07 v4: los filtros se despliegan tocando "Filtros" antes de buscar los campos (`desplegarFiltros`) | Jest `HU03_HU07.test.tsx` › BIT-01 (v3): filtros, fecha inválida (4) y "Aplicar filtros" | VERDE |
+| A7 | "ID" sin coincidencia exacta (`/^ID(?! de captura)/`) | Jest `HU03_HU07.test.tsx` › BIT-02 (v3) | VERDE |
+
+**Corridas de lo tocado:**
+- **Jest** de `HU03_HU07.test.tsx` y `HU01_HU02.test.tsx`: **63 en verde, 0 rojos**.
+- **pytest** (`--integracion`, `PROXY_DISPONIBLE=1`) de `test_contrato_openapi.py`, `test_hu03_placa.py`, `test_hu07_bitacora_db.py` y `test_hu03_mock_y_roles.py`: **64 en verde y 1 rojo esperado**. El rojo es `test_eventos_de_la_iteracion`, que exige que la **sesión** genere los 9 tipos de evento y que por eso solo vale en la suite completa (faltaron `CUENTA_BLOQUEADA`, `LOGIN_FALLIDO` y otros, que generan archivos que no corrí). En la suite completa de M-4 esa prueba pasó, y no la toqué.
+- Al terminar, `api` volvió a `infra/.env` (`FUENTE_PLACAS_URL` vacía, `BLOQUEO_INTENTOS=5`, regex por defecto).
+
+La suite completa la repite el LEAD.
 
 ## Resultado
 
@@ -58,11 +79,11 @@ Estado de la suite completa (M-4). Además del contrato, las pruebas de HU-01/02
 | 2 | Faltan los dos → primero el motivo | `::test_faltan_los_dos` | VERDE |
 | 2 | Cuerpo mal formado → `422 SOLICITUD_INVALIDA` | `::test_cuerpo_mal_formado` (2) | VERDE |
 | 3 | Fuente caída: `503`, `ERROR_FUENTE`, 2 llamadas | `::test_fuente_caida` | VERDE |
-| 3 | Fuente lenta: `503` en ≤ 7 s, ~6 s (reintento), 2 llamadas | `::test_fuente_lenta` | VERDE en código, evento y tiempos; conteo por log **NO VERIFICADO** (R2) |
+| 3 | Fuente lenta: `503` en ≤ 7 s, ~6 s (reintento), 2 llamadas | `::test_fuente_lenta` | VERDE en código, evento y tiempos; conteo por log **NO VERIFICADO** (A2) |
 | 3 | Fuera de contrato: `502` sin reintento (1 llamada) | `::test_respuesta_fuera_de_contrato` | VERDE |
 | 3 | Evento de error completo y fila en `consulta` `error`/`error` | dentro de los tres anteriores | VERDE |
 | 3 | Vuelve la fuente | `::test_vuelve_la_fuente` | VERDE |
-| 4 | Mock del contrato (Prism) | `test_hu03_mock_y_roles.py::test_mock_del_contrato` | **NO VERIFICADO (arnés, R4)** |
+| 4 | Mock del contrato (Prism) | `test_hu03_mock_y_roles.py::test_mock_del_contrato` | VERDE en la vuelta 1 (A4). En la vuelta 0: NO VERIFICADO (arnés, R4) |
 | 5 | Fail-closed de la consulta | `test_hu07_bitacora_db.py::test_fail_closed_consulta` | VERDE |
 | 7 | Formato configurable sin tocar código (regex y descripción nuevas en `/v1/motivos`, en el `422` y en la validación) | `test_hu03_placa.py::test_formato_configurable_sin_tocar_codigo` | VERDE |
 
@@ -96,7 +117,7 @@ Estado de la suite completa (M-4). Además del contrato, las pruebas de HU-01/02
 | 2 | Columnas; `es_sintetico` siempre `true` | `::test_columnas` | VERDE |
 | 2 | `CONSULTA_PLACA` y `ERROR_FUENTE` con su contenido | en `test_hu03_placa.py` | VERDE |
 | 2 | Los 9 tipos de la iteración se generan en la sesión (corre al final) | `::test_eventos_de_la_iteracion` | VERDE |
-| 2 | Sin imagen ni clave | `::test_sin_imagen_ni_clave` | **ROJO (R3, defecto de la prueba)** |
+| 2 | Sin imagen ni clave | `::test_sin_imagen_ni_clave` | VERDE en la vuelta 1 (A3). En la vuelta 0: ROJO (R3) |
 | 3 | Fail-closed en la consulta y en el login (y CONTRATO-HU-01 §5); al restaurar, normal | `::test_fail_closed_consulta`, `::test_fail_closed_login`, `::test_al_restaurar_vuelve_a_la_normalidad` | VERDE |
 | 4 | Lista, forma, orden y límite por defecto; `usuario` como nombre | `test_hu07_consulta_bitacora.py::test_lista_forma_orden_y_limite_por_defecto`, `::test_usuario_es_el_nombre_de_usuario` | VERDE |
 | 4 | Límite 1 y 100; 0, 101 y texto → `422` | `::test_limite`, `::test_parametro_invalido` | VERDE |
@@ -105,8 +126,8 @@ Estado de la suite completa (M-4). Además del contrato, las pruebas de HU-01/02
 | 4 | `CONSULTA_BITACORA` con los filtros | `::test_la_consulta_se_registra` | VERDE |
 | 4 | Agente y revisor → 403 | `test_hu03_mock_y_roles.py::test_matriz_de_roles` | VERDE |
 | 5 | BIT-01 (etiquetas de tipo y de resultado, fecha `dd/mm hh:mm`, "sistema", SINTÉTICO, PA 24, "Cargar más", sin editar ni borrar), errores ≠ lista vacía, lista vacía real | Jest `HU-07 — BIT-01 y BIT-02` | VERDE |
-| 5 | BIT-01 (v3): textos de los filtros, fecha inválida sin enviar, "Aplicar filtros" | Jest `BIT-01 (v3) › …` (6) | **ROJO (R6, se apartó la prueba)** |
-| 5 | BIT-02 (v3): "Registro #<8>", "ID" con el id completo, solo lectura, sin "ID de captura" ni "Score" | Jest `BIT-02 (v3)` | **ROJO (R7, se apartó la prueba)** |
+| 5 | BIT-01 (v3): textos de los filtros, fecha inválida sin enviar, "Aplicar filtros" | Jest `BIT-01 (v3) › …` (6) | VERDE en la vuelta 1 (A6, v4). En la vuelta 0: ROJO (R6) |
+| 5 | BIT-02 (v3): "Registro #<8>", "ID" con el id completo, solo lectura, sin "ID de captura" ni "Score" | Jest `BIT-02 (v3)` | VERDE en la vuelta 1 (A7). En la vuelta 0: ROJO (R7) |
 
 ### Arrastrado de otras HU
 

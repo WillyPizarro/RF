@@ -214,12 +214,15 @@ def test_fuente_caida(api, agente):
 
 def test_fuente_lenta(api, agente):
     """§3 'Fuente lenta': latencia 5000 ms > FUENTE_TIMEOUT_S=3 → 503 FUENTE_NO_DISPONIBLE tras
-    un reintento, en ≤ 7 s. La duración se mide dentro del contenedor api (de la consulta a la
-    solicitud siguiente del mismo lote): ~6 s son dos llamadas; una sola tardaría ~3 s. Además,
-    el conteo por el log del simulador."""
+    un reintento, en ≤ 7 s. El reintento se verifica POR TIEMPOS, midiendo dentro del contenedor
+    api (de la consulta a la solicitud siguiente del mismo lote): ~6 s son dos llamadas; una sola
+    tardaría ~3 s.
+
+    El conteo por el log del simulador queda NO VERIFICADO en este modo (veredicto HU-03/07, A2):
+    la API corta las llamadas a los 3 s y el simulador no deja línea de acceso de una petición
+    que el cliente abandonó (en la suite de M-4 el log dio 0 líneas). En error_500 y malformada
+    el conteo por log sí funciona (test_fuente_caida, test_respuesta_fuera_de_contrato)."""
     api.modo_placas("latencia", 5000)
-    desde = api.ahora_docker()
-    time.sleep(1)
     r, siguiente = api.lote([
         {"metodo": "POST", "ruta": RUTA_PLACA, "json": consulta(PLACA_CON), "token": agente},
         {"metodo": "GET", "ruta": "/v1/salud"},
@@ -229,9 +232,7 @@ def test_fuente_lenta(api, agente):
     assert "sin_requisitoria" not in r.texto
     _evento_error(api, r, "FUENTE_NO_DISPONIBLE")
     assert duracion <= 7.0, f"respondió en {duracion:.2f} s (> 7 s)"
-    assert duracion >= 5.0, f"respondió en {duracion:.2f} s: parece una sola llamada"
-    time.sleep(6)  # que terminen las llamadas lentas en el simulador antes de leer su log
-    _llamadas(api, desde, 2)
+    assert duracion >= 5.0, f"respondió en {duracion:.2f} s: parece una sola llamada (sin reintento)"
 
 
 def test_respuesta_fuera_de_contrato(api, agente):

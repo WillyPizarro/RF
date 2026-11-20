@@ -45,21 +45,25 @@ def test_contrato_declara_salud(contrato_publicado):
     assert "get" in contrato_publicado["paths"][RUTA_SALUD]
 
 
-# Rutas vigentes tras HU-01 (§1, §3) y HU-02 (§1). Reemplaza a la prueba del Sprint 0 "sin
-# rutas de negocio", que quedó obsoleta (veredicto HU-01/02, A3).
+# Rutas vigentes tras HU-01 (§1, §3), HU-02 (§1), HU-03 (§1, §2) y HU-07 (§4). Reemplaza a la
+# prueba del Sprint 0 "sin rutas de negocio" (veredicto HU-01/02, A3); HU-03/07 la amplía
+# (veredicto HU-03/07, A1).
 RUTAS_VIGENTES = {
     RUTA_SALUD: {"get"},
     "/v1/auth/login": {"post"},
     "/v1/auth/refresh": {"post"},
     "/v1/auth/logout": {"post"},
     "/v1/me": {"get"},
+    "/v1/motivos": {"get"},
+    "/v1/consultas/placa": {"post"},
+    "/v1/bitacora": {"get"},
 }
 METODOS_HTTP = {"get", "post", "put", "patch", "delete", "head", "options", "trace"}
 
 
 def test_contrato_rutas_vigentes(contrato_publicado):
     """El contrato publicado declara exactamente las rutas vigentes, con sus métodos: ninguna de
-    menos y ninguna de una HU todavía no construida (consultas, revisiones, bitácora)."""
+    menos y ninguna de una HU todavía no construida (rostro, revisiones)."""
     paths = contrato_publicado.get("paths", {})
     assert set(paths) == set(RUTAS_VIGENTES), sorted(paths)
     for ruta, metodos in RUTAS_VIGENTES.items():

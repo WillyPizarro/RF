@@ -173,12 +173,13 @@ FIRMAS_B64 = ("iVBORw0KGgo", "/9j/", "R0lGOD", "UklGR")  # PNG, JPEG, GIF, WEBP 
 
 def test_sin_imagen_ni_clave(al_final):
     """§2 'Sin imagen ni clave': ningún registro tiene la clave de un login ni datos de imagen
-    (firmas base64 de imagen o tiras base64 largas)."""
+    (firmas base64 de imagen o tiras base64 de 255 o más caracteres; 255 es el máximo de
+    repeticiones de las expresiones de Postgres, veredicto HU-03/07 A3)."""
     s = al_final
     assert s.bitacora_contiene(s.clave_pruebas()) == 0
     for firma in FIRMAS_B64:
         assert s.bitacora_contiene(firma) == 0, f"hay un registro con {firma}"
-    largas = s.sql_json("select id from bitacora where parametros::text ~ '[A-Za-z0-9+/=]{500,}'")
+    largas = s.sql_json("select id from bitacora where parametros::text ~ '[A-Za-z0-9+/=]{255,}'")
     assert largas == [], f"registros con una tira base64 larga: {largas[:5]}"
 
 
