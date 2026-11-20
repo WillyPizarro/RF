@@ -111,3 +111,15 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 - **HU-03 v4 (§6, PLA-01 sin catálogo):** si falla `GET /v1/motivos`, se muestra el error de PLA-07 ("No se pudo completar la consulta; intente nuevamente", con "Reintentar" y "Volver") y no se puede consultar.
 - **DEV:** cumple las dos versiones, junto con la M-2. Al terminar: `ENTREGA DEV` con el commit, el informe actualizado y capturas nuevas de BIT-01 (filtros, error de fecha y error de carga), BIT-02 y PLA-01 sin catálogo.
 - **TESTER:** agrega las pruebas de las dos versiones. La suite completa espera su M-n.
+
+### M-4 (2026-11-19) — Suite completa
+
+**No reemplaza nada.** El UX dio su aprobación final (`docs/ux/revisiones/HU-03-07.md`, commit `1e9facd`). El commit definitivo del DEV es `b82a63a`, sobre CONTRATO-HU-03 v4 y CONTRATO-HU-07 v3 (siguen vigentes HU-08 v4, HU-01 v5 y HU-02 v3).
+
+- **TESTER:** antes de correr, agrega las pruebas de HU-03 v4 y HU-07 v3 si todavía no están (M-3). Después corre la suite completa **una sola vez** sobre la punta de `hu-03`:
+  - **Arranque:** con `--build` y los dos archivos de compose, **con el proxy en el puerto alterno** (`PROXY_PUERTO_HTTP` y `PROXY_PUERTO_HTTPS` en `infra/.env`).
+  - **pytest de la API** con `PROXY_DISPONIBLE=1`. Las 34 pruebas del proxy tienen que correr, no omitirse.
+  - **pytest de los simuladores**, en el contenedor y en el anfitrión, para la regresión de HU-08.
+  - **Jest de la app.**
+  - **Al terminar:** `api` vuelve a `infra/.env`, y mandas `ENTREGA TESTER` con el informe final.
+- **DEV:** no hagas más commits en `hu-03` salvo que el LEAD te los pida.
