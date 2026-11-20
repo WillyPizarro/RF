@@ -2,6 +2,7 @@
   "expo": {
     "name": "Movil Buscador",
     "slug": "movil-buscador",
+    "owner": "willypizarros-team",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,6 +23,9 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "permissions": [
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -40,6 +44,11 @@
         }
       ],
       "./plugins/redDepuracion"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "bdd4c275-f367-433d-b472-2b127665a1a7"
+      }
+    }
   }
 }
