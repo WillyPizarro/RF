@@ -1,7 +1,7 @@
 # CONTRATO — HU-04 Capturar la placa con la cámara
 
 **Tipo:** Feature
-**Versión:** v4
+**Versión:** v5 (pendiente de aprobación; v4 aprobada)
 **Estado:** Aprobado (v1 a v3: 2026-11-19 · v4: 2026-11-20, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
 **Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
@@ -64,6 +64,11 @@ Nada fuera de este módulo importa directamente la librería de cámara ni la de
 | Caso | Entrada | Resultado visible | Origen |
 |---|---|---|---|
 | Visor | Se abre OCR-01 | "Leer placa", el visor (`VisorCamara` con `activo` en `true`), "Encuadre la placa y toque Capturar", "Capturar", "Ingresar manualmente" y "✕". **`capturarYLeer` no se llama** mientras no se toque "Capturar", por más tiempo que pase | OCR-01, regla 6 |
+| Aviso de telemetría (**v5**) | La **primera vez que se abre OCR-01 en cada sesión** | Sobre el visor aparece una tarjeta con "Antes de leer la placa", el texto "Para leer la placa, la app usa ML Kit, una herramienta de Google que funciona en este teléfono. Según Google, ML Kit no le envía la foto ni la placa leída, pero sí le envía datos técnicos de uso y un código de esta instalación." y el botón "Entendido". Mientras se ve, "Capturar" está **desactivado** (`capturarYLeer` no se llama) e "Ingresar manualmente" sigue activo. Tocar fuera de la tarjeta no hace nada | Decisión del humano sobre la telemetría de ML Kit (opción A); texto del UX y el BA (`docs/ux/revisiones/HU-04.md`) · **v5** |
+| Cerrar el aviso (**v5**) | "Entendido" | La tarjeta desaparece y "Capturar" se activa. **En esa sesión no vuelve a aparecer**, aunque se salga y se vuelva a entrar a OCR-01 | **v5** |
+| Salir sin verlo (**v5**) | "✕", "atrás" (`hardwareBackPress`) o "Ingresar manualmente" con la tarjeta a la vista | Sale de OCR-01 como siempre (§3) **sin darlo por visto**: la próxima vez que se abra OCR-01 en esa sesión, aparece de nuevo | **v5** |
+| Solo en memoria (**v5**) | Cerrar la sesión (por "Salir" o por inactividad) y volver a entrar | El aviso aparece otra vez la primera vez que se abre OCR-01. Nada se guarda en el teléfono por el aviso: SecureStore no tiene ninguna clave nueva, y HU-01 AUTH-03 sigue igual | ADR-0013, CONTRATO-HU-01 AUTH-03 · **v5** |
+| Sin permiso (**v5**) | Permiso denegado → OCR-04 | El aviso no aparece en OCR-04 | **v5** |
 | Una sola foto | Tocar "Capturar" | `capturarYLeer` se llama **exactamente una vez** por toque. Mientras espera, "Capturar" queda desactivado (un segundo toque no dispara otra lectura) | OCR-01, regla 6 |
 | Lectura con placa | `texto` contiene un candidato que cumple `formato_placa.regex` (§4) | OCR-02 con ese candidato en el campo editable | Gherkin esc. 1 |
 | Lectura sin placa | `texto` es `null`, vacío o no tiene ningún candidato que cumpla la regex | OCR-03 | Gherkin esc. 2 · DECISIÓN PROPUESTA 2 |
@@ -102,7 +107,10 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | Abrir ajustes | "Abrir ajustes" en OCR-04 | Se llama `abrirAjustes()` | OCR-04 |
 | Volver con permiso | Después de OCR-04, el usuario da el permiso en Ajustes y vuelve a tocar 📷 | `asegurarPermisoCamara()` → `concedido` → OCR-01 | Gherkin esc. 3 |
 
-### 6. Nada se guarda ni sale del dispositivo
+### 6. La foto y el texto leído no se guardan ni salen del dispositivo (título v5)
+
+**Excepción conocida (v5):** ML Kit guarda en el almacenamiento privado de la app una cola de telemetría (`databases/com.google.android.datatransport.events`) y envía a Google métricas técnicas de uso y un código de esta instalación. Según Google, no envía la imagen ni el texto leído. Lo decidió el humano (opción A, 2026-11-20; `docs/arch/evaluaciones/HU-04-telemetria-mlkit.md`). La verificación de la cola en el teléfono está en la fila "Cola de telemetría".
+
 
 | Caso | Cómo se observa | Dónde | Origen |
 |---|---|---|---|
@@ -111,6 +119,7 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 | Sin caché HTTP: la API (**v4**) | Toda respuesta de `/v1/*` (éxito o error, autenticada o no) lleva la cabecera `Cache-Control: no-store` | pytest (red interna y proxy) | ADR-0013, hallazgo B de la prueba física · **v4** |
 | Sin caché HTTP: la app (**v4**) | Toda llamada de la app a la API usa el `fetch` global con `cache: 'no-store'` en sus opciones | Jest (inspecciona las opciones del `fetch` simulado) | ADR-0013 · **v4** |
 | Sin caché HTTP en disco (**v4**) | En el dev build, después de iniciar sesión, abrir PLA-01 y consultar una placa, `adb shell run-as pe.prototipo.movilbuscador ls -R cache/http-cache` no muestra ninguna entrada de `/v1/` (las de Metro en `:8081` no cuentan) | Dispositivo (mini sesión) | Hallazgo B · **v4** |
+| Cola de telemetría (**v5**) | En el dev build, después de leer al menos una placa, la copia de `databases/com.google.android.datatransport.events` (fuera del repositorio, borrada al terminar) **no contiene** ninguna imagen (cabeceras JPEG o PNG, crudas o en base64) ni el texto de la placa leída (`ZZ…`). Si aparece alguna de las dos, la decisión se reabre | Dispositivo (mini sesión, `pruebas/datos/revisar_datatransport.py`) | Decisión del humano (5) · **v5** |
 | La foto se borra | En el dev build, después de 10 capturas seguidas, `adb shell run-as pe.prototipo.movilbuscador find . -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png"` no devuelve ningún archivo de captura (en `files/` ni en `cache/`). La galería del teléfono no tiene fotos nuevas | Dispositivo | ADR-0002, HU-04 supuestos, TECH-DESIGN (matriz de tratamiento) |
 | Sin lectura continua | En el dev build, con la cámara apuntando a una placa impresa durante 30 s sin tocar "Capturar", no aparece OCR-02 | Dispositivo | Regla 6 |
 | La placa se lee | En el dev build, una placa sintética impresa (§7) se lee y aparece en OCR-02 | Dispositivo | Gherkin esc. 1 |
@@ -144,6 +153,7 @@ El dev build en el S23 Ultra llega a la API local por HTTPS, con la CA local de 
 | Módulo de borde | `apps/movil/src/camara/lectorPlaca.ts` · `asegurarPermisoCamara` · `VisorCamara` · `capturarYLeer` · `abrirAjustes` · `'concedido'` · `'denegado'` |
 | Botón de PLA-01 | `accessibilityLabel="Leer con cámara"` (📷) |
 | OCR-01 | "Leer placa" · "Encuadre la placa y toque Capturar" · "Capturar" · "Ingresar manualmente" |
+| Aviso de OCR-01 (v5) | "Antes de leer la placa" · "Para leer la placa, la app usa ML Kit, una herramienta de Google que funciona en este teléfono. Según Google, ML Kit no le envía la foto ni la placa leída, pero sí le envía datos técnicos de uso y un código de esta instalación." · "Entendido" |
 | OCR-02 | "Placa leída" · "Confirme o corrija la placa antes de consultar." · "Usar esta placa" · "Volver a capturar" |
 | OCR-03 | "No se pudo leer la placa. Pruebe de frente y con más luz." · "Volver a intentar" · "Ingresar manualmente" |
 | OCR-04 | "La app no tiene permiso para usar la cámara." · "Para darlo: Ajustes › Aplicaciones › Movil Buscador › Permisos › Cámara." · "Abrir ajustes" · "Ingresar manualmente" |
@@ -159,6 +169,8 @@ El dev build en el S23 Ultra llega a la API local por HTTPS, con la CA local de 
 | Texto → placa propuesta (§4) | Sí, la tabla completa | — |
 | Confirmar, corregir, volver; nunca consulta sola (§5) | Sí, contando las llamadas a `fetch` | Paso a paso, una vez |
 | Nada en SecureStore ni a la API (§6) | Sí | — |
+| Aviso de telemetría (§3, v5) | Sí: primera vez por sesión, "Capturar" desactivado, salir sin verlo, después de cerrar la sesión, sin permiso | Una vez, en la mini sesión (capturas para el UX) |
+| Cola de telemetría (§6, v5) | No | Sí, en la mini sesión |
 | Sin caché HTTP (§6, v4) | Sí: la cabecera en pytest y el `fetch` con `no-store` en Jest | `cache/http-cache` sin `/v1/` (mini sesión) |
 | La foto se borra del disco (§6) | No (no hay disco) | Sí, con `adb` |
 | La placa impresa se lee de verdad (§6) | No | Sí |
@@ -219,3 +231,4 @@ Respuestas del humano (vía PM, 2026-11-19):
 | v2 | 2026-11-19 | §7, "Qué se prueba dónde" y decisión 5: la precisión del OCR va aparte, en la fase de pruebas del 16 al 26-dic; en el veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16), con las fotos tomadas por el humano | Respuesta del humano a la pregunta 3 | Humano (vía PM), 2026-11-19 |
 | v3 | 2026-11-19 | §8 nuevo: el dev build llega a la API local por HTTPS con la CA de Caddy instalada en el teléfono, `network_security_config` con `debug-overrides` solo para depuración, `adb reverse tcp:8443`; el build de release no incluye el override; la CA y su llave nunca se versionan; pasos para el humano, incluido el borrado al cierre | Respuesta del humano a la ESCALA de la etapa 2 (opción B y sus 3 condiciones) | Humano (vía PM), 2026-11-19 |
 | v4 | 2026-11-20 | §6: sin caché HTTP (`Cache-Control: no-store` en toda respuesta de `/v1`, la app con `fetch` y `cache: 'no-store'`, y `cache/http-cache` sin `/v1/` en el dispositivo); "Abrir ajustes" puede abrir la pantalla de permisos de la app | Hallazgos B y D de la prueba física en el S23 Ultra | Humano (vía PM), 2026-11-20 |
+| v5 | 2026-11-20 | §3: aviso de telemetría de ML Kit en OCR-01 (la primera vez por sesión, solo en memoria; textos del UX y el BA); §6: título precisado (la foto y el texto leído) con la telemetría como excepción conocida, y la revisión de la cola en el dispositivo | Decisión del humano sobre el hallazgo C (opción A, puntos 3 y 5) | Pendiente |
