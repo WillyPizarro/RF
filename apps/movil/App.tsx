@@ -5,8 +5,10 @@ import { ActivityIndicator, AppState, BackHandler, StyleSheet, View } from 'reac
 
 import { crearClienteConsultas } from './src/estado/clienteConsultas';
 import { usarSesion } from './src/estado/sesion';
+import PantallaBitacora from './src/pantallas/PantallaBitacora';
 import PantallaInicio from './src/pantallas/PantallaInicio';
 import PantallaLogin from './src/pantallas/PantallaLogin';
+import PantallaPlaca from './src/pantallas/PantallaPlaca';
 import PantallaSinPermiso from './src/pantallas/PantallaSinPermiso';
 import {
   registrarInteraccion,
@@ -47,8 +49,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Atras desde ERR-01 vuelve al inicio del rol; en el resto, lo maneja el sistema
-    // (no hay pantalla anterior a la que volver).
+    // Atras desde ERR-01 vuelve al inicio del rol. Placa y bitacora manejan su propio "atras"
+    // (registran su escucha despues, asi que la reciben primero). En el resto, lo maneja el
+    // sistema (no hay pantalla anterior a la que volver).
     const suscripcion = BackHandler.addEventListener('hardwareBackPress', () => {
       if (usarSesion.getState().pantalla === 'sin_permiso') {
         usarSesion.getState().mostrar('inicio');
@@ -62,6 +65,10 @@ export default function App() {
   let contenido;
   if (pantalla === 'inicio' && perfil) {
     contenido = <PantallaInicio perfil={perfil} />;
+  } else if (pantalla === 'placa' && perfil) {
+    contenido = <PantallaPlaca />;
+  } else if (pantalla === 'bitacora' && perfil) {
+    contenido = <PantallaBitacora />;
   } else if (pantalla === 'sin_permiso' && perfil) {
     contenido = <PantallaSinPermiso alVolver={() => mostrar('inicio')} />;
   } else if (pantalla === 'cargando') {

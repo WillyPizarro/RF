@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Perfil, Rol } from '../api/sesion';
+import { Pantalla, usarSesion } from '../estado/sesion';
 import { salir } from '../sesion/controlador';
 import { Boton, colores, FranjaPrototipo } from './comunes';
 
@@ -10,19 +11,30 @@ const NOMBRE_ROL: Record<Rol, string> = {
   supervisor: 'Supervisor',
 };
 
+type Opcion = {
+  texto: string;
+  /** Pantalla que abre; sin pantalla, la opcion se muestra deshabilitada (CONTRATO-HU-02 decision 4). */
+  abre?: Pantalla;
+  icono?: string;
+};
+
 /**
- * Opciones de cada rol (CONTRATO-HU-02 §3). Todas deshabilitadas hasta que su HU construya la
- * pantalla (decision 4): placa en HU-03, rostro y "Mis verificaciones" en HU-05/HU-06,
- * revision en HU-06 y bitacora en HU-07.
+ * Opciones de cada rol (CONTRATO-HU-02 §3). Habilitadas las que ya tienen pantalla: placa (HU-03)
+ * y bitacora (HU-07). Rostro y "Mis verificaciones" llegan con HU-05/HU-06 y la revision con HU-06.
  */
-const OPCIONES: Record<Rol, { principales: string[]; enlace?: string }> = {
-  agente: { principales: ['Consultar placa', 'Verificar rostro'], enlace: 'Mis verificaciones' },
-  revisor: { principales: ['Pendientes de revisión'] },
-  supervisor: { principales: ['Bitácora'] },
+const OPCIONES: Record<Rol, { principales: Opcion[]; enlace?: Opcion }> = {
+  agente: {
+    // Icono 🚗: revision UX de HU-01/02, observacion 2. El 👤 de "Verificar rostro" llega con HU-05.
+    principales: [{ texto: 'Consultar placa', abre: 'placa', icono: '🚗' }, { texto: 'Verificar rostro' }],
+    enlace: { texto: 'Mis verificaciones' },
+  },
+  revisor: { principales: [{ texto: 'Pendientes de revisión' }] },
+  supervisor: { principales: [{ texto: 'Bitácora', abre: 'bitacora' }] },
 };
 
 /** HOME-01 (agente) y los inicios del revisor y del supervisor. El rol sale de GET /v1/me. */
 export default function PantallaInicio({ perfil }: { perfil: Perfil }) {
+  const mostrar = usarSesion((estado) => estado.mostrar);
   const opciones = OPCIONES[perfil.rol];
   return (
     <View style={estilos.contenedor}>
@@ -37,10 +49,24 @@ export default function PantallaInicio({ perfil }: { perfil: Perfil }) {
         </View>
       </View>
       <View style={estilos.cuerpo}>
-        {opciones?.principales.map((texto) => (
-          <Boton key={texto} texto={texto} variante="opcion" deshabilitado />
+        {opciones?.principales.map(({ texto, abre, icono }) => (
+          <Boton
+            key={texto}
+            texto={texto}
+            icono={icono}
+            variante="opcion"
+            deshabilitado={!abre}
+            onPress={abre ? () => mostrar(abre) : undefined}
+          />
         ))}
-        {opciones?.enlace ? <Boton texto={opciones.enlace} variante="secundario" deshabilitado /> : null}
+        {opciones?.enlace ? (
+          <Boton
+            texto={opciones.enlace.texto}
+            variante="secundario"
+            deshabilitado={!opciones.enlace.abre}
+            onPress={opciones.enlace.abre ? () => mostrar(opciones.enlace!.abre!) : undefined}
+          />
+        ) : null}
       </View>
     </View>
   );

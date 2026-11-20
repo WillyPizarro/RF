@@ -10,7 +10,8 @@ export type Aviso =
   | { tipo: 'bloqueo'; hasta: string }
   | { tipo: 'error' };
 
-export type Pantalla = 'cargando' | 'login' | 'inicio' | 'sin_permiso';
+/** 'placa' = PLA-01 a PLA-08 (HU-03); 'bitacora' = BIT-01 y BIT-02 (HU-07). */
+export type Pantalla = 'cargando' | 'login' | 'inicio' | 'sin_permiso' | 'placa' | 'bitacora';
 
 type EstadoSesion = {
   pantalla: Pantalla;
