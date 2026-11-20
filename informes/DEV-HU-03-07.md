@@ -1,9 +1,38 @@
 # Informe DEV — HU-03 + HU-07 (consulta de placa y bitácora)
 
-**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-03.md` **v3** y `docs/contratos/CONTRATO-HU-07.md` **v2** · **Encargo:** `docs/contratos/ENCARGO-HU-03-07.md` con M-1 · **Rama:** `hu-03` · **Fecha:** 2026-11-19
+**Documentos de trabajo:** `docs/contratos/CONTRATO-HU-03.md` **v4** y `docs/contratos/CONTRATO-HU-07.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-03-07.md` con M-1 a M-3 · **Rama:** `hu-03` · **Fecha:** 2026-11-19
 **Commits:** `27d0b30` (API, infra, OpenAPI y tipos) y `95073db` (app).
 
 No leí ni ejecuté las pruebas del TESTER.
+
+## Cambios por M-2 y M-3 (revisión del UX, HU-03 v4 y HU-07 v3)
+
+Solo cambió `apps/movil/src/pantallas/PantallaBitacora.tsx`. La API no cambió.
+
+- **M-2, observación 2:** el aviso de error de BIT-01 lleva ⚠, oculto para el lector de pantalla, como PLA-07.
+- **M-2, observación 4:** "Desde" y "Hasta" usan `keyboardType="numbers-and-punctuation"`.
+- **M-2, capturas:** el `ERROR_FUENTE` de BIT-01 y BIT-02 lleva un usuario real (`agente1`, rol agente), como pide el §2.
+- **HU-07 v3:**
+  - **BIT-02:** el título es "Registro #<primeros 8 caracteres>" y el id completo va en el campo "ID".
+  - **Título de los filtros:** "Filtros" queda en su propio texto. La flecha ▾/▴ va aparte, oculta para el lector. Quité el contador de filtros activos, porque era un texto que el contrato no fija.
+  - **Ayuda de las fechas:** "dd/mm/aaaa" en "Desde" y "Hasta".
+  - **Fecha inválida:** muestra "Use fechas con el formato dd/mm/aaaa." y no envía nada.
+- **HU-03 v4 (PLA-01 sin catálogo):** ya estaba así desde la primera entrega, sin cambios. El error de PLA-07 lleva "Reintentar", que vuelve a pedir `GET /v1/motivos`, y "Volver"; no hay botón "Consultar".
+
+**Verificación:** con un Jest temporal mío, ya borrado. Pasaron 3 casos, que cubren todo lo anterior:
+
+- **BIT-01:** el ⚠ oculto para el lector, el `keyboardType` y la ayuda de "Desde" y "Hasta", y los textos de los filtros.
+- **Fecha inválida:** `31/02/2026` muestra el error y no hace ninguna llamada.
+- **BIT-02:** el título "Registro #b0000001" y el campo "ID" con el id completo.
+- **PLA-01 sin catálogo:** primero con `503` y después con falla de red. "Reintentar" hace una segunda llamada a `/v1/motivos` y "Volver" lleva al inicio.
+
+`tsc` no da errores.
+
+**Capturas nuevas o rehechas** en la misma carpeta:
+
+- `BIT-01`, `BIT-01-filtros`, `BIT-01-fecha-invalida` y `BIT-01-error`.
+- `BIT-02`.
+- `PLA-01-sin-catalogo`.
 
 ## Cómo se arranca
 
@@ -193,8 +222,10 @@ Están en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\HU-03-07\`, fuera d
 | `BIT-01` | Lista, con los filtros plegados |
 | `BIT-01-filtros` | Lista con los filtros desplegados |
 | `BIT-01-vacio` | Lista vacía |
-| `BIT-01-error` | Error al cargar |
-| `BIT-02` | Detalle de un `ERROR_FUENTE` |
+| `BIT-01-error` | Error al cargar, con ⚠ (M-2) |
+| `BIT-01-fecha-invalida` | Error de fecha en los filtros (HU-07 v3) |
+| `PLA-01-sin-catalogo` | Falla `GET /v1/motivos` (HU-03 v4) |
+| `BIT-02` | Detalle de un `ERROR_FUENTE` de `agente1`, con el título corto y el campo "ID" (v3) |
 
 ## Avisos para el LEAD
 

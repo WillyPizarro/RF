@@ -161,8 +161,6 @@ export default function PantallaBitacora() {
     return () => suscripcion.remove();
   }, [detalle, mostrar]);
 
-  const activos = Object.values(filtros).filter(Boolean).length;
-
   if (detalle) {
     return <DetalleRegistro registro={detalle} alVolver={() => setDetalle(null)} />;
   }
@@ -179,8 +177,9 @@ export default function PantallaBitacora() {
             onPress={() => setVerFiltros((v) => !v)}
             style={estilos.filaTitulo}
           >
-            <Text style={estilos.tituloFiltros}>
-              Filtros{activos ? ` (${activos})` : ''} {verFiltros ? '▴' : '▾'}
+            <Text style={estilos.tituloFiltros}>Filtros</Text>
+            <Text style={estilos.flechaFiltros} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              {verFiltros ? '▴' : '▾'}
             </Text>
             <Text style={estilos.marcaPa}>PA 24</Text>
           </Pressable>
@@ -200,6 +199,7 @@ export default function PantallaBitacora() {
                   <Text style={estilos.etiqueta}>Desde</Text>
                   <TextInput
                     accessibilityLabel="Desde"
+                    keyboardType="numbers-and-punctuation"
                     placeholder="dd/mm/aaaa"
                     value={desde}
                     onChangeText={setDesde}
@@ -211,6 +211,7 @@ export default function PantallaBitacora() {
                   <Text style={estilos.etiqueta}>Hasta</Text>
                   <TextInput
                     accessibilityLabel="Hasta"
+                    keyboardType="numbers-and-punctuation"
                     placeholder="dd/mm/aaaa"
                     value={hasta}
                     onChangeText={setHasta}
@@ -218,7 +219,7 @@ export default function PantallaBitacora() {
                   />
                 </View>
               </View>
-              {errorFecha ? <Text style={estilos.errorFecha}>Use fechas dd/mm/aaaa.</Text> : null}
+              {errorFecha ? <Text style={estilos.errorFecha}>Use fechas con el formato dd/mm/aaaa.</Text> : null}
               <Text style={estilos.etiqueta}>Tipo</Text>
               <Chips opciones={ETIQUETA_TIPO} elegido={tipo} alElegir={setTipo} />
               <Text style={estilos.etiqueta}>Resultado</Text>
@@ -284,6 +285,10 @@ function Chips({
 function ErrorCarga({ alReintentar }: { alReintentar: () => void }) {
   return (
     <View style={estilos.error} accessibilityRole="alert">
+      {/* Icono como en PLA-07 (revision UX HU-03/07, obs. 2), oculto para el lector. */}
+      <Text style={estilos.iconoError} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        ⚠
+      </Text>
       <Text style={estilos.textoError}>{MENSAJE_ERROR}</Text>
       <View style={estilos.separador} />
       <Boton texto="Reintentar" onPress={alReintentar} />
@@ -315,7 +320,8 @@ function DetalleRegistro({ registro, alVolver }: { registro: RegistroBitacora; a
   return (
     <View style={estilos.contenedor}>
       <FranjaPrototipo />
-      <Encabezado titulo={`Registro #${registro.id}`} alVolver={alVolver} />
+      {/* Titulo corto; el id completo va en el campo "ID" (CONTRATO-HU-07 v3). */}
+      <Encabezado titulo={`Registro #${registro.id.slice(0, 8)}`} alVolver={alVolver} />
       <ScrollView contentContainerStyle={estilos.cuerpo}>
         <View style={estilos.soloLectura}>
           <Text style={estilos.candado} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -323,6 +329,7 @@ function DetalleRegistro({ registro, alVolver }: { registro: RegistroBitacora; a
           </Text>
           <Text style={estilos.textoSoloLectura}>Registro de solo lectura</Text>
         </View>
+        <Campo nombre="ID" valor={registro.id} />
         <Campo nombre="Usuario" valor={registro.usuario ?? 'sistema'} />
         <Campo nombre="Fecha y hora" valor={fechaHoraCompleta(registro.ocurrido_en)} />
         <Campo nombre="Tipo" valor={etiquetaTipo(registro.tipo_evento)} />
@@ -362,7 +369,8 @@ const estilos = StyleSheet.create({
     marginBottom: 16,
   },
   filaTitulo: { flexDirection: 'row', alignItems: 'center', minHeight: 44 },
-  tituloFiltros: { fontSize: 16, fontWeight: '700', color: colores.texto, flex: 1 },
+  tituloFiltros: { fontSize: 16, fontWeight: '700', color: colores.texto },
+  flechaFiltros: { fontSize: 14, color: colores.texto, marginLeft: 6, flex: 1 },
   marcaPa: {
     fontSize: 12,
     fontWeight: '700',
@@ -412,6 +420,7 @@ const estilos = StyleSheet.create({
     padding: 16,
     marginVertical: 12,
   },
+  iconoError: { fontSize: 32, textAlign: 'center', marginBottom: 6 },
   textoError: { fontSize: 16, color: colores.texto, textAlign: 'center' },
   tarjeta: {
     borderWidth: 1,
