@@ -125,6 +125,15 @@ La corrida completa de la API (52 min) la hace el LEAD en la vuelta 1, sobre los
 - **Condición nueva: se arregla el puerto 80.** El proxy tendrá un puerto local alterno configurable (por ejemplo `PROXY_PUERTO_HTTP=8080`; en el VPS sigue el 80/443). Las 33 pruebas de `sistema_sano` y la de la clave en los logs del proxy lo usarán. Entra en la rama `hu-03` (`docs/contratos/ENCARGO-HU-03-07.md`). **Desde el veredicto de HU-03/07 esas pruebas tienen que correr en verde**, no como `NO VERIFICADO`. La M-8 (omitirlas si el proxy no responde) queda solo como respaldo.
 - **Despliegue:** se agrega como chequeo **obligatorio** que la clave no quede en los logs del proxy en el VPS (`docs/contratos/PENDIENTES.md`).
 
+## 7 quater. Cierre de los `NO VERIFICADO` en HU-03/07 (2026-11-19)
+
+Según el veredicto de HU-03/07 (`informes/VEREDICTO-HU-03-07.md` §6 y §7 bis), aceptado por el humano y mergeado en `main` `05e38c1`:
+
+- **2 (lo que pasa por el proxy):** 🟢. Con el puerto alterno (`PROXY_PUERTO_HTTP`/`HTTPS`) y `PROXY_DISPONIBLE=1`, las 34 pruebas del proxy pasaron, incluida `test_la_clave_no_queda_en_los_logs_del_proxy`. En el VPS sigue el chequeo obligatorio de despliegue (`PENDIENTES.md`).
+- **3 (sin registro en la bitácora no hay sesión, `503`):** 🟢. `test_hu07_bitacora_db.py::test_fail_closed_login`.
+- **4 (matriz de `403 SIN_PERMISO` y ERR-01):** 🟢. `test_hu03_mock_y_roles.py::test_matriz_de_roles` y las demás pruebas de ese archivo, más el Jest de ERR-01.
+- **1 (capturas del emulador):** sigue `NO VERIFICADO`, aceptado.
+
 ## 8. Siguiente paso
 
 Cerrado. Lo que sigue va en `hu-03` (HU-03 + HU-07).

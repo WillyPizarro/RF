@@ -111,10 +111,16 @@ Contratos: HU-03 **v4** y HU-07 **v4**.
 2. **Capturas del emulador:** el UX revisó las de Jest, igual que en HU-01.
 3. **El rol `api_app` en el Supabase del VPS:** queda fuera de este veredicto, como tarea obligatoria del despliegue (`PENDIENTES.md`).
 
+## 7 ter. Aceptación del humano (vía PM, 2026-11-19)
+
+- Los 3 `NO VERIFICADO` del §7 bis quedan **aceptados**: el conteo por log en `latencia`, las capturas del emulador y `api_app` en el VPS (tarea obligatoria del despliegue, `PENDIENTES.md`).
+- **Merge:** lo hizo el PM. `hu-03` y `main` quedaron en origin, con `main` = `05e38c1` (fast-forward).
+- **Iteración 1 completa en `main`:** HU-08, HU-01, HU-02, HU-03 y HU-07.
+
 ## 7. Pregunta para el humano
 
 **R6:** ¿los filtros de BIT-01 pueden ir plegados en una sección "Filtros ▾" que se despliega con un toque, o tienen que estar siempre a la vista, como en el wireframe? **Respuesta del humano (vía PM, 2026-11-19): pueden ir plegados (opción A)** → CONTRATO-HU-07 **v4**. A6 pasa al TESTER: la prueba despliega los filtros antes de usarlos.
 
 ## 8. Siguiente paso
 
-Escalar los `NO VERIFICADO` del §7 bis al humano, vía el PM. Con su aceptación, el merge `hu-03 → main` lo decide el humano.
+Cerrado. La Iteración 2 la planifica el PM con el humano.
