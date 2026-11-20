@@ -66,3 +66,9 @@ Se abre con una M-n cuando el humano tenga el VPS, el dominio y Supabase. La ver
 
   Al terminar: `ENTREGA TESTER`, con el informe en `informes/TESTER-DESPLIEGUE-01.md`.
 - **DEV:** sin cambios. Los pasos del §8 para el acta ya están en `PENDIENTES.md` (los agregó el LEAD).
+
+### M-2 (2026-11-20) — Aviso de telemetría en la guía para probadores
+
+**No reemplaza nada.** El humano aprobó el anexo del BA, `docs/hus/anexos/HU-04-aviso-telemetria-mlkit.md` (commit `6eafcd1`, rama `hu-04`). Ese anexo no está en esta rama: léelo con `git show 6eafcd1:docs/hus/anexos/HU-04-aviso-telemetria-mlkit.md`.
+
+- **DEV:** **después** de entregar la M-9 a la M-12 de HU-04, que tienen prioridad, copia **tal cual** el §2 del anexo en `docs/despliegue/GUIA-PROBADORES.md`. Ponlo como una sección sobre la lectura de la placa con la cámara y aclara que **se aplica desde el despliegue que incluya HU-04**: el APK de la Iteración 1 no tiene cámara. No cambies el texto. Commit `[DEV]` en `despliegue-01` y avisa con `ENTREGA DEV`.
