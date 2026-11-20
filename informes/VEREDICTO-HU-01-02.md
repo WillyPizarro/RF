@@ -119,6 +119,12 @@ La corrida completa de la API (52 min) la hace el LEAD en la vuelta 1, sobre los
 
 **La matriz del §5 queda toda en 🟢**, salvo los `NO VERIFICADO` y los casos diferidos del §7.
 
+## 7 ter. Aceptación del humano (vía PM, 2026-11-19)
+
+- Los 4 `NO VERIFICADO` del §7 quedan **aceptados**. El PM hizo el merge: `main` = `b8e3210` (fast-forward) y quedó subida a origin. No hizo falta descripción de PR.
+- **Condición nueva: se arregla el puerto 80.** El proxy tendrá un puerto local alterno configurable (por ejemplo `PROXY_PUERTO_HTTP=8080`; en el VPS sigue el 80/443). Las 33 pruebas de `sistema_sano` y la de la clave en los logs del proxy lo usarán. Entra en la rama `hu-03` (`docs/contratos/ENCARGO-HU-03-07.md`). **Desde el veredicto de HU-03/07 esas pruebas tienen que correr en verde**, no como `NO VERIFICADO`. La M-8 (omitirlas si el proxy no responde) queda solo como respaldo.
+- **Despliegue:** se agrega como chequeo **obligatorio** que la clave no quede en los logs del proxy en el VPS (`docs/contratos/PENDIENTES.md`).
+
 ## 8. Siguiente paso
 
-Escalar los `NO VERIFICADO` del §7 al humano, vía el PM. Con su aceptación, el LEAD prepara la descripción del PR `hu-01 → main`. El merge lo hace el humano.
+Cerrado. Lo que sigue va en `hu-03` (HU-03 + HU-07).
