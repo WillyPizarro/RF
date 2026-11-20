@@ -1,4 +1,4 @@
-"""CONTRATO-HU-01 v2 §2 — Bloqueo por intentos (provisional, PA #19), y §1 "Éxito reinicia el
+"""CONTRATO-HU-01 v5 §2 — Bloqueo por intentos (provisional, PA #19), y §1 "Éxito reinicia el
 contador" / "Cuerpo inválido no cuenta como intento".
 
 Con usuarios reales se usa la configuración corta (BLOQUEO_DURACION_S=12): cambiarla sin tocar
@@ -136,3 +136,45 @@ def test_valores_por_defecto_5_intentos_15_min(config_defecto):
     assert problemas_error(rs[4], "CUENTA_BLOQUEADA") == []
     hasta = iso_utc(rs[4].json()["bloqueado_hasta"])
     assert abs((hasta - (ahora_utc() + timedelta(seconds=900))).total_seconds()) < 30, hasta
+
+
+def _bloquear(s, usuario, clave_intento):
+    """Lleva la cuenta a un bloqueo por un camino que fija el contrato (§2): intentos fallidos
+    hasta recibir 423 (a lo sumo BLOQUEO_INTENTOS=5; si ya había uno vigente, el primero)."""
+    for _ in range(5):
+        r = s.login(usuario, clave_intento())
+        if r.estado == 423:
+            return r
+        assert problemas_error(r, "CREDENCIALES_INVALIDAS") == [], r
+    pytest.fail(f"{usuario}: 5 fallos seguidos no bloquearon")
+
+
+@pytest.mark.parametrize("caso", ["clave-incorrecta", "inexistente", "inactivo"])
+def test_fallo_despues_del_bloqueo_empieza_de_nuevo(config_corta, clave, caso):
+    """§2 'Fallo después del bloqueo' (v5): un fallo después de bloqueado_hasta → 401
+    CREDENCIALES_INVALIDAS (no 423) con LOGIN_FALLIDO; es el fallo 1, así que hacen falta otros
+    5 seguidos para volver a bloquear."""
+    s = config_corta
+    if caso == "clave-incorrecta":
+        usuario, intento = USUARIO, clave_mala
+        _desbloqueado(s, USUARIO, clave)
+    elif caso == "inexistente":
+        usuario, intento = usuario_falso(), clave_mala
+    else:
+        usuario, intento = "inactivo1", (lambda: clave)
+
+    bloqueo = _bloquear(s, usuario, intento)
+    falta = (iso_utc(bloqueo.json()["bloqueado_hasta"]) - ahora_utc()).total_seconds()
+    time.sleep(max(0.0, falta) + 2)
+
+    rs = s.lote([_login(usuario, intento()) for _ in range(5)])
+    assert problemas_error(rs[0], "CREDENCIALES_INVALIDAS") == [], rs[0]
+    assert tipos(s.eventos(rs[0].traza)) == ["LOGIN_FALLIDO"]
+    for r in rs[1:4]:
+        assert problemas_error(r, "CREDENCIALES_INVALIDAS") == [], r
+    assert problemas_error(rs[4], "CUENTA_BLOQUEADA") == [], "el 5.º fallo nuevo no volvió a bloquear"
+
+    if caso == "clave-incorrecta":
+        falta = (iso_utc(rs[4].json()["bloqueado_hasta"]) - ahora_utc()).total_seconds()
+        time.sleep(max(0.0, falta) + 2)
+        _desbloqueado(s, USUARIO, clave)

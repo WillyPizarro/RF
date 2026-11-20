@@ -1,6 +1,6 @@
 # Informe TESTER — HU-01 + HU-02 (iniciar sesión y acceso por rol)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-6) · **Rama:** `hu-01`
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v5** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-7) · **Rama:** `hu-01`
 **Suite completa (M-5), una sola vez:** 2026-11-19/20, sobre la punta de `hu-01` (`7053c9c`, que incluye el commit definitivo del DEV `c1b432f` y mis pruebas `af516e4`). Arranque con `up -d --build` y los dos archivos de compose; usuarios cargados con `python -m app.cargar_usuarios` (exit 0). El proxy no arrancó: el puerto 80 lo ocupa `http.sys` (encargo, regla 8).
 
 ## Vuelta 1 del veredicto (M-6)
@@ -8,7 +8,8 @@
 - **A2 (se apartó la prueba):** `test_hu01_login.py::test_usuario_inactivo_identico` y `test_hu01_bitacora_config.py::test_carga_de_usuarios_idempotente` corren ahora con la configuración **intentos alto** (`BLOQUEO_INTENTOS=1000`, el resto por defecto; §6: cambiar parámetros sin tocar código). Así ningún fallo de `inactivo1` alcanza el umbral, sea cual sea su contador previo. No se apoyan en lo que pasa con el contador al terminar un bloqueo (está en pregunta al humano). Si hubiera un bloqueo **vigente** de antes de la prueba, fallan como `PRECONDICIÓN (no es un resultado del código)`, con su `bloqueado_hasta`.
 - **A3 (prueba obsoleta):** `test_contrato_sin_rutas_de_negocio` se cambió por `test_contrato_openapi.py::test_contrato_rutas_vigentes`. El contrato publicado declara exactamente `/v1/salud` (GET), `/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/logout` (POST) y `/v1/me` (GET).
 - **Corrida de lo tocado** (`test_contrato_openapi.py`, `test_hu01_login.py`, `test_hu01_bitacora_config.py`, `--integracion`): **29 en verde, 0 rojos, 2 omitidas** (NO VERIFICADO ya registrados) y **2 errores de entorno** (`test_contrato_publicado_identico_al_servido` y `test_proxy_no_expone_openapi` pasan por el proxy, igual que R4). En verde: `test_contrato_rutas_vigentes`, `test_usuario_inactivo_identico` y `test_carga_de_usuarios_idempotente`. Al terminar, `api` volvió a `infra/.env` (`BLOQUEO_INTENTOS=5`).
-- **A1 (DEV):** el Jest de AUTH-03 por `401 SESION_VENCIDA` se repite cuando llegue la entrega del DEV.
+- **v5 (M-7), fallo después del bloqueo:** `test_hu01_bloqueo.py::test_fallo_despues_del_bloqueo_empieza_de_nuevo`, en tres variantes (clave incorrecta de `agente2`, usuario inexistente, `inactivo1`) y con la configuración corta. Primero lleva la cuenta a un bloqueo por el camino del §2 (fallos hasta el `423`) y espera `bloqueado_hasta`. Después comprueba que el fallo siguiente es `401 CREDENCIALES_INVALIDAS` con `LOGIN_FALLIDO` (no `423`), que los fallos 2 a 4 siguen en `401` y que el 5.º vuelve a bloquear. **3 en verde.** La API volvió a `infra/.env` (`BLOQUEO_DURACION_S=900`, `SESION_INACTIVIDAD_S=600`).
+- **A1 (DEV, `1e6dd71`):** Jest completo de la app (`npx jest --ci`): **33 en verde, 0 rojos** (2 suites). `AUTH-03 › un 401 SESION_VENCIDA de la API también cierra la sesión con el aviso` pasó a **VERDE**.
 
 ## Resultado
 
@@ -34,7 +35,7 @@ Al terminar, `api` volvió a `infra/.env` (comprobado: `SESION_INACTIVIDAD_S=600
 
 ## Caso del contrato → prueba → estado
 
-### HU-01 (v4) — API (`services/api/tests/`)
+### HU-01 (v5) — API (`services/api/tests/`)
 
 | § | Caso | Prueba | Estado |
 |---|---|---|---|
@@ -42,7 +43,7 @@ Al terminar, `api` volvió a `infra/.env` (comprobado: `SESION_INACTIVIDAD_S=600
 | 1 | `LOGIN_OK` con `usuario_id`, `rol`, `ocurrido_en` del servidor, `id_traza`, `es_sintetico` | `::test_camino_feliz_deja_login_ok` | VERDE |
 | 1 | Clave incorrecta → 401 `CREDENCIALES_INVALIDAS` + `LOGIN_FALLIDO` | `::test_clave_incorrecta` | VERDE |
 | 1 | Usuario inexistente idéntico; `usuario_id` nulo y el texto en `parametros` | `::test_usuario_inexistente_identico` | VERDE |
-| 1 | Usuario inactivo idéntico (decisión 3) | `::test_usuario_inactivo_identico` | **ROJO (R2, se apartó la prueba)** |
+| 1 | Usuario inactivo idéntico (decisión 3) | `::test_usuario_inactivo_identico` | VERDE en la vuelta 1 (A2). En la vuelta 0: ROJO (R2, se apartó la prueba) |
 | 1 | Cuerpo inválido → 422 `SOLICITUD_INVALIDA`, formato estándar, sin evento (**pendiente del Sprint 0**) | `::test_cuerpo_invalido_422` (6 cuerpos) | VERDE |
 | 1 | Cuerpo inválido no cuenta como intento (decisión 4) | `test_hu01_bloqueo.py::test_cuerpo_invalido_no_cuenta_como_intento` | VERDE |
 | 1 | Éxito reinicia el contador | `::test_exito_reinicia_el_contador` | VERDE |
@@ -50,6 +51,7 @@ Al terminar, `api` volvió a `infra/.env` (comprobado: `SESION_INACTIVIDAD_S=600
 | 2 | Clave correcta o incorrecta durante el bloqueo: mismo 423 y mismo `bloqueado_hasta`; `LOGIN_FALLIDO` con `codigo_error` `CUENTA_BLOQUEADA` | `::test_durante_el_bloqueo_clave_correcta_o_incorrecta_identicas` | VERDE |
 | 2 | Fin del bloqueo → 200 y contador en 0 | `::test_fin_del_bloqueo` | VERDE |
 | 2 | Usuario inexistente también se bloquea (decisión 5) | `::test_usuario_inexistente_tambien_se_bloquea` | VERDE |
+| 2 | Fallo después del bloqueo → `401 CREDENCIALES_INVALIDAS` con `LOGIN_FALLIDO`; el contador empieza de nuevo (v5) | `::test_fallo_despues_del_bloqueo_empieza_de_nuevo` (3 variantes) | VERDE (vuelta 1) |
 | 2 | Valores por defecto: 5 intentos, 900 s | `::test_valores_por_defecto_5_intentos_15_min` | VERDE |
 | 3 | Renovar → 200 con la forma del login | `test_hu01_sesion.py::test_renovar` | VERDE |
 | 3 | Sin token / token basura / firma inválida / logout sin token → 401 `NO_AUTENTICADO` | `::test_sin_token`, `::test_token_basura` (2), `::test_firma_invalida`, `::test_logout_sin_token` | VERDE |
@@ -64,10 +66,10 @@ Al terminar, `api` volvió a `infra/.env` (comprobado: `SESION_INACTIVIDAD_S=600
 | 5 | Ni en los logs del proxy | `::test_la_clave_no_queda_en_los_logs_del_proxy` | **NO VERIFICADO (entorno)**: el proxy no corre |
 | 6 | Parámetros en `.env.example`, con sus valores y marcados como provisionales | `::test_parametros_en_env_example` (4) | VERDE |
 | 6 | Cambiarlos no requiere tocar código | `::test_cambiar_parametros_no_toca_codigo` y todas las pruebas con configuración corta | VERDE |
-| 6 | Carga de usuarios idempotente, usuarios fijos, sin imprimir la clave | `::test_carga_de_usuarios_idempotente` | VERDE hasta el último paso; el `401` de `inactivo1` es **R2** |
+| 6 | Carga de usuarios idempotente, usuarios fijos, sin imprimir la clave | `::test_carga_de_usuarios_idempotente` | VERDE en la vuelta 1 (A2) |
 | 6 | `CLAVE_USUARIOS_PRUEBA` en `infra/.env` y no versionada | `::test_clave_de_usuarios_desde_el_entorno` | VERDE |
 
-### HU-01 (v4) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
+### HU-01 (v5) — App (`apps/movil/__tests__/HU01_HU02.test.tsx`)
 
 | Caso | Prueba | Estado |
 |---|---|---|
@@ -80,7 +82,7 @@ Al terminar, `api` volvió a `infra/.env` (comprobado: `SESION_INACTIVIDAD_S=600
 | Otro error (red, 500, 503) → mensaje genérico, nunca el de credenciales | `otro error › …` (3) | VERDE |
 | AUTH-03 por inactividad, con el tiempo de `inactividad_s` del login | `AUTH-03 › sin tocar la pantalla…` | VERDE |
 | AUTH-03: SecureStore sin claves, "atrás" no vuelve, otro usuario no ve datos del anterior, no se reenvía el token viejo (v2) | `AUTH-03 › tras el cierre…` | VERDE |
-| AUTH-03 por `401 SESION_VENCIDA` | `AUTH-03 › un 401 SESION_VENCIDA…` | **ROJO (R1)** |
+| AUTH-03 por `401 SESION_VENCIDA` | `AUTH-03 › un 401 SESION_VENCIDA…` | VERDE en la vuelta 1 (A1, `1e6dd71`). En la vuelta 0: ROJO (R1) |
 | Sesión activa con `touchStart` sobre `app-raiz` (v2) | `AUTH-03 › sesión activa…` | VERDE |
 | Capturas del emulador | — | **NO VERIFICADO** (M-3: el UX revisó solo las de Jest) |
 
