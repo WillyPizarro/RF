@@ -115,3 +115,10 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   - comprueba con `git ls-files` que no hay certificados ni llaves versionados.
 
   La conexión real queda para el guion de la etapa 2.
+
+### M-4 (2026-11-19) — Revisión del UX
+
+**No reemplaza nada.** El UX aprobó la etapa 1 con 1 observación MEJORA (`docs/ux/revisiones/HU-04.md`, commit `dcd0445`).
+
+- **DEV:** en OCR-01, mientras `capturarYLeer` está en curso, muestra el indicador de carga que ya usa la app (`ActivityIndicator` con `accessibilityLabel="Cargando"`), junto al botón o sobre el visor. No agrega ningún texto visible. Entrégalo junto con la M-3, en una sola `ENTREGA DEV`, con una captura nueva de OCR-01 en espera.
+- **TESTER:** sin cambios. La suite completa de la etapa 1 espera su M-n.
