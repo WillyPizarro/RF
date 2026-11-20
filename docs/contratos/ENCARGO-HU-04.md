@@ -201,3 +201,19 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   - **pytest:** la cabecera en las respuestas de `/v1`, en éxito y en error, por la red interna y por el proxy.
   - **Jest:** que cada llamada a la API lleve `cache: 'no-store'`.
   - **Guion:** agrega el paso del dispositivo (`run-as … ls -R cache/http-cache` sin entradas de `/v1/`) para la **mini sesión física**, que el LEAD coordina con el PM.
+
+### M-11 (2026-11-20) — Telemetría de ML Kit: opción A y verificación práctica
+
+**No reemplaza nada.** Decisión del humano (vía PM, 2026-11-20) sobre el hallazgo C (`docs/arch/evaluaciones/HU-04-telemetria-mlkit.md`): **opción A**. Se mantiene ML Kit, se documenta y se avisa al usuario. El texto exacto del aviso lo redactan el UX y el BA, y entra en CONTRATO-HU-04 **v5**, que llega en una M-n siguiente. **Si en la verificación aparece la imagen o el texto leído, la decisión se reabre.**
+
+- **DEV:**
+  - Confirma de dónde viene `com.google.android.datatransport` con `./gradlew :app:dependencies`, en una copia fuera del repositorio.
+  - Si el prebuild se cuelga, usa otra forma: el log del build de EAS, o los `build.gradle` de las dependencias en `node_modules`. Documéntala.
+  - Va en tu informe, junto con la M-9 y la M-10.
+  - **No implementes el aviso todavía:** espera la v5.
+- **TESTER:** agrega al guion de la mini sesión la revisión de la cola. La corre el PM con `adb`; tú das los comandos exactos.
+  - **Copia:** `adb exec-out run-as pe.prototipo.movilbuscador cat databases/com.google.android.datatransport.events`, a un archivo **fuera del repositorio**.
+  - **Lectura:** las tablas y los eventos, con `sqlite3` si está disponible o con un script de Python con `-I`.
+  - **Qué se busca:** ninguna imagen (cabeceras JPEG o PNG), ningún texto de placa leído (`ZZ…`) y ningún dato que no esté en la divulgación de Google.
+
+  El resultado va a tu informe. La copia de la base **no se versiona** y se borra al terminar.
