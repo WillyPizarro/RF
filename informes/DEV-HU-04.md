@@ -1,8 +1,28 @@
 # Informe DEV — HU-04 (capturar la placa con la cámara), etapa 1
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-4 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-7 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` ni drivers ni SDK de Android. Solo agregué dependencias npm al proyecto.
+
+## M-7: proyecto EAS y dev build (etapa 2)
+
+- **`apps/movil/app.json`:**
+  - `"owner": "willypizarros-team"`.
+  - `npx eas-cli@27.11.0 init` creó el proyecto `@willypizarros-team/movil-buscador` y escribió `extra.eas.projectId` (`bdd4c275-f367-433d-b472-2b127665a1a7`, público).
+  - `init` agregó también `android.permissions: ["android.permission.CAMERA"]`, el mismo permiso que ya declara el plugin de `expo-camera`. Los permisos finales no cambian.
+  - Commit `977fb18`.
+- **Build:** `npx eas-cli@27.11.0 build --profile development --platform android --non-interactive`.
+  - **Llave de firma:** EAS la generó **en su servidor**. No hay ningún keystore en la PC ni en el repositorio.
+  - **Sesión:** la del humano, en su perfil de Windows (`eas whoami`: `willypizarro`, con acceso Owner a `willypizarros-team`). No se escribió ningún token.
+  - **Resultado:** **FINISHED** en unos 7 minutos, sin errores de compilación.
+    - Página del build: https://expo.dev/accounts/willypizarros-team/projects/movil-buscador/builds/1d3991b8-e5ed-446d-add7-0c6f30b66d75
+    - APK: https://expo.dev/artifacts/eas/Odl1p_ULBybO8tgWRkuzfmxzQgCO5t2aUrLS5szu5Zo.apk
+- **ML Kit:** el build pasó con `@react-native-ml-kit/text-recognition`, así que **no** hizo falta la alternativa `expo-text-extractor`. El aviso "not linked" solo aparecería al usar el módulo en el teléfono: queda por verificar en la etapa 2, al tocar "Capturar".
+- **Para instalarlo:**
+  - Abrir el enlace del APK (o el QR de la página del build) en el S23 Ultra, o
+  - `adb install <archivo>.apk` desde la PC.
+
+  Después siguen los pasos C del §7: `adb reverse` de 8443 y 8081, `apps/movil/.env` y `npx expo start --dev-client`.
 
 ## Cambios por M-3 y M-4 (HU-04 v3 §8 y revisión del UX)
 
