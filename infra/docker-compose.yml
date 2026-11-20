@@ -6,11 +6,13 @@ name: movil-buscador
 services:
   db:
     # Postgres oficial SOLO para desarrollo y pruebas (SPRINT0 M-1 C). En el VPS se usa Supabase.
+    # Sus variables (POSTGRES_*, AUTH_DB_CLAVE, AUTH_JWT_SECRETO) no se exigen al interpolar: el
+    # VPS no las tiene (docker-compose.vps.yml deja db, auth-preparar y auth fuera).
     image: postgres:17
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:?falta POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-}
     volumes:
       - datos-bd:/var/lib/postgresql/data
     healthcheck:
@@ -25,7 +27,7 @@ services:
     # Prepara el esquema auth y el usuario de GoTrue en el db local (idempotente, termina y sale).
     image: postgres:17
     environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
     command:
       - psql
       - -v
@@ -33,13 +35,13 @@ services:
       - -h
       - db
       - -U
-      - ${POSTGRES_USER:?falta POSTGRES_USER}
+      - ${POSTGRES_USER:-}
       - -d
-      - ${POSTGRES_DB:?falta POSTGRES_DB}
+      - ${POSTGRES_DB:-}
       - -v
-      - clave_auth=${AUTH_DB_CLAVE:?falta AUTH_DB_CLAVE}
+      - clave_auth=${AUTH_DB_CLAVE:-}
       - -v
-      - base=${POSTGRES_DB:?falta POSTGRES_DB}
+      - base=${POSTGRES_DB:-}
       - -f
       - /preparar.sql
     volumes:
@@ -60,8 +62,8 @@ services:
       API_EXTERNAL_URL: http://auth:9999
       GOTRUE_SITE_URL: http://localhost
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${AUTH_DB_CLAVE:?falta AUTH_DB_CLAVE}@db:5432/${POSTGRES_DB:?falta POSTGRES_DB}?search_path=auth&sslmode=disable
-      GOTRUE_JWT_SECRET: ${AUTH_JWT_SECRETO:?falta AUTH_JWT_SECRETO}
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${AUTH_DB_CLAVE:-}@db:5432/${POSTGRES_DB:-}?search_path=auth&sslmode=disable
+      GOTRUE_JWT_SECRET: ${AUTH_JWT_SECRETO:-}
       GOTRUE_JWT_EXP: "3600"
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_ADMIN_ROLES: service_role
@@ -122,7 +124,9 @@ services:
       # Sesion y acceso (HU-01, HU-02, ADR-0003, ADR-0011). Valores provisionales (PA #18, #19).
       AUTH_URL: ${AUTH_URL:-http://auth:9999}
       AUTH_APIKEY: ${AUTH_APIKEY:-}
-      AUTH_JWT_SECRETO: ${AUTH_JWT_SECRETO:?falta AUTH_JWT_SECRETO}
+      # Solo para la carga de usuarios contra el Auth local. En el VPS no llega a la API en marcha
+      # (docker-compose.vps.yml), y la carga usa AUTH_ADMIN_CLAVE (DESPLIEGUE-01, decision 1).
+      AUTH_JWT_SECRETO: ${AUTH_JWT_SECRETO:-}
       JWT_SECRETO: ${JWT_SECRETO:?falta JWT_SECRETO}
       SESION_INACTIVIDAD_S: ${SESION_INACTIVIDAD_S:-600}
       TOKEN_ACCESO_VIGENCIA_S: ${TOKEN_ACCESO_VIGENCIA_S:-900}
