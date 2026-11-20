@@ -152,3 +152,25 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
   4. `npx eas-cli@27.11.0 build --profile development --platform android --non-interactive`. Pásale al LEAD **el enlace o el QR del APK**, nunca un token ni una credencial.
   - **Si el build falla por ML Kit** (`not linked` u otro error): aplica tu alternativa `expo-text-extractor` **dentro de `src/camara/lectorPlaca.ts`**, sin cambiar la forma del §1 del contrato. Infórmame del cambio antes de seguir, porque obliga a repetir el Jest de la etapa 1.
   - **Al terminar:** `ENTREGA DEV` con el commit, el enlace del APK y el informe actualizado.
+
+### M-8 (2026-11-19) — Etapa 2: paso a paso en el S23 Ultra
+
+**No reemplaza nada.** La etapa 1 está en verde (`informes/VEREDICTO-HU-04.md`). El dev build de EAS está listo (`977fb18`; el enlace está en el informe del DEV). La etapa 2 sigue `pruebas/datos/GUION-HU-04-dispositivo.md` y **necesita al humano frente al teléfono**: el PM coordina el momento.
+
+- **Orden:**
+  1. **Docker:** el TESTER termina la regresión local de DESPLIEGUE-01, porque el proyecto de compose es el mismo en las dos carpetas.
+  2. **Preparación del DEV, en la carpeta principal (rama `hu-04`):**
+     - levanta el sistema con los dos archivos de compose y el proxy en 8443;
+     - exporta la CA de Caddy a una carpeta **fuera del repositorio**;
+     - deja `apps/movil/.env` (no se versiona) con `https://localhost:8443`;
+     - corre `adb reverse` de 8443 y 8081 y arranca `npx expo start --dev-client`.
+
+     Avisa al PM cuando esté listo.
+  3. **Humano:** instala el APK del enlace y la CA, siguiendo los pasos del DEV, y opera el teléfono según el guion. Toma las fotos de las placas impresas `ZZ`.
+  4. **TESTER:**
+     - corre los comandos `adb` del guion: la galería antes y después, la búsqueda de `*.jpg` con `run-as`, `aapt` sobre el APK;
+     - anota cada paso en verde, rojo o `NO VERIFICADO`;
+     - deja las capturas **fuera del repositorio**;
+     - termina con `ENTREGA TESTER` y el informe actualizado.
+- **La clave de los usuarios** la dicta el humano. No se escribe en ningún archivo.
+- **Al terminar,** el DEV deja el sistema con `infra/.env` y quita `adb reverse`. **La CA queda instalada** hasta el cierre del proyecto, como dice el acta.
