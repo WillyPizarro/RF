@@ -53,7 +53,7 @@ export function reiniciarLocal(): void {
   cancelarTemporizador();
   sesion = null;
   renovando = false;
-  usarSesion.setState({ pantalla: 'cargando', perfil: null, aviso: null });
+  usarSesion.setState({ pantalla: 'cargando', perfil: null, aviso: null, avisoMlkitVisto: false });
 }
 
 function cancelarTemporizador(): void {

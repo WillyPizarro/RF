@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 
 import { abrirAjustes, capturarYLeer, VisorCamara } from '../camara/lectorPlaca';
 import { proponerPlaca } from '../camara/placaLeida';
+import { usarSesion } from '../estado/sesion';
 import { Boton, colores, FranjaPrototipo } from './comunes';
 
 /**
@@ -31,6 +32,9 @@ export default function PantallaOcr({ inicio, regex, alUsar, alSalir }: Props) {
   const [paso, setPaso] = useState<PasoOcr>(inicio);
   const [leida, setLeida] = useState('');
   const [leyendo, setLeyendo] = useState(false);
+  // Aviso de ML Kit (CONTRATO-HU-04 v5): la primera vez por sesion, solo en memoria.
+  const avisoVisto = usarSesion((estado) => estado.avisoMlkitVisto);
+  const marcarAvisoVisto = usarSesion((estado) => estado.marcarAvisoMlkitVisto);
   const montada = useRef(true);
   const intento = useRef(0);
 
@@ -45,7 +49,7 @@ export default function PantallaOcr({ inicio, regex, alUsar, alSalir }: Props) {
   // El "atras" del sistema lo maneja PantallaPlaca: es igual que "✕" (PLA-01 sin cambios).
 
   async function capturar() {
-    if (leyendo) return; // un segundo toque no dispara otra lectura
+    if (leyendo || !avisoVisto) return; // un segundo toque no dispara otra lectura
     const actual = ++intento.current;
     setLeyendo(true);
     let propuesta: string | null = null;
@@ -83,6 +87,21 @@ export default function PantallaOcr({ inicio, regex, alUsar, alSalir }: Props) {
           <View style={estilos.capaMarco} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <View style={estilos.marco} />
           </View>
+          {!avisoVisto ? (
+            // Sobre el visor; tocar fuera de la tarjeta no hace nada (v5).
+            <View style={estilos.capaAviso}>
+              <View style={estilos.tarjetaAviso} accessibilityRole="alert">
+                <Text style={estilos.tituloAviso}>Antes de leer la placa</Text>
+                <Text style={estilos.textoAvisoMlkit}>
+                  Para leer la placa, la app usa ML Kit, una herramienta de Google que funciona en este teléfono.
+                  Según Google, ML Kit no le envía la foto ni la placa leída, pero sí le envía datos técnicos de uso y
+                  un código de esta instalación.
+                </Text>
+                <View style={estilos.separador} />
+                <Boton texto="Entendido" onPress={marcarAvisoVisto} />
+              </View>
+            </View>
+          ) : null}
           {/* Mientras se lee la foto (revision UX HU-04, obs. 1): sin texto nuevo. */}
           {leyendo ? (
             <View style={estilos.capaMarco} pointerEvents="none">
@@ -94,7 +113,7 @@ export default function PantallaOcr({ inicio, regex, alUsar, alSalir }: Props) {
         </View>
         <View style={estilos.pie}>
           <Text style={estilos.indicacion}>Encuadre la placa y toque Capturar</Text>
-          <Boton texto="Capturar" icono="◉" onPress={() => void capturar()} deshabilitado={leyendo} />
+          <Boton texto="Capturar" icono="◉" onPress={() => void capturar()} deshabilitado={leyendo || !avisoVisto} />
           <View style={estilos.separador} />
           {manual}
         </View>
@@ -201,6 +220,19 @@ const estilos = StyleSheet.create({
   tituloCabecera: { flex: 1, fontSize: 19, fontWeight: '700', color: colores.texto },
   visor: { flex: 1, backgroundColor: '#000000', alignItems: 'center', justifyContent: 'center' },
   capaMarco: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
+  capaAviso: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  tarjetaAviso: { backgroundColor: colores.fondo, borderRadius: 12, padding: 20 },
+  tituloAviso: { fontSize: 19, fontWeight: '700', color: colores.texto, marginBottom: 10 },
+  textoAvisoMlkit: { fontSize: 16, lineHeight: 23, color: colores.texto },
   leyendo: { backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 40, padding: 18 },
   marco: {
     width: '80%',

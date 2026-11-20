@@ -19,6 +19,9 @@ type EstadoSesion = {
   aviso: Aviso | null;
   /** Cambia en cada cierre de sesion: el login se vuelve a montar vacio. */
   generacion: number;
+  /** El agente ya toco "Entendido" en el aviso de ML Kit en esta sesion (CONTRATO-HU-04 v5). */
+  avisoMlkitVisto: boolean;
+  marcarAvisoMlkitVisto: () => void;
   mostrar: (pantalla: Pantalla) => void;
   entrar: (perfil: Perfil) => void;
   salir: (aviso: Aviso | null) => void;
@@ -31,9 +34,17 @@ export const usarSesion = create<EstadoSesion>((set) => ({
   perfil: null,
   aviso: null,
   generacion: 0,
+  avisoMlkitVisto: false,
+  marcarAvisoMlkitVisto: () => set({ avisoMlkitVisto: true }),
   mostrar: (pantalla) => set({ pantalla }),
   entrar: (perfil) => set({ perfil, aviso: null, pantalla: 'inicio' }),
   salir: (aviso) =>
-    set((estado) => ({ perfil: null, aviso, pantalla: 'login', generacion: estado.generacion + 1 })),
+    set((estado) => ({
+      perfil: null,
+      aviso,
+      pantalla: 'login',
+      generacion: estado.generacion + 1,
+      avisoMlkitVisto: false, // el aviso vuelve a aparecer en la sesion siguiente
+    })),
   avisar: (aviso) => set({ aviso }),
 }));
