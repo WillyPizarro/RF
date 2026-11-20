@@ -122,3 +122,15 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
 
 - **DEV:** en OCR-01, mientras `capturarYLeer` está en curso, muestra el indicador de carga que ya usa la app (`ActivityIndicator` con `accessibilityLabel="Cargando"`), junto al botón o sobre el visor. No agrega ningún texto visible. Entrégalo junto con la M-3, en una sola `ENTREGA DEV`, con una captura nueva de OCR-01 en espera.
 - **TESTER:** sin cambios. La suite completa de la etapa 1 espera su M-n.
+
+### M-5 (2026-11-19) — Suite completa de la etapa 1
+
+**No reemplaza nada.** El UX dio su aprobación final de la etapa 1 (`docs/ux/revisiones/HU-04.md`, commit `af8ea94`). El commit definitivo del DEV para la etapa 1 es `3367787`, sobre CONTRATO-HU-04 **v3**.
+
+- **TESTER:** antes de correr, termina la verificación del §8 que no necesita el teléfono (M-3): `debug-overrides`, el `base-config` sin texto plano, `release` no depurable y `git ls-files` sin certificados. Si el prebuild se cuelga, usa otra forma observable y documéntala; si no hay ninguna, queda `NO VERIFICADO` con el motivo. Después corre la suite completa **una sola vez** sobre la punta de `hu-04`:
+  - **Arranque:** con `--build`, los dos archivos de compose, el proxy en el puerto alterno y `PROXY_DISPONIBLE=1`.
+  - **Jest** completo de la app.
+  - **pytest de la API**, como regresión.
+  - **pytest de los simuladores**, en el contenedor y en el anfitrión.
+  - **Al terminar:** `api` vuelve a `infra/.env`, y mandas `ENTREGA TESTER` con el informe. Los casos "Dispositivo" quedan como pendientes de la etapa 2, no como `NO VERIFICADO`.
+- **DEV:** no hagas más commits en `hu-04` salvo que el LEAD te los pida.
