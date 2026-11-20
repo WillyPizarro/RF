@@ -186,9 +186,9 @@ Las placas impresas y las capturas de pantalla del dispositivo quedan **fuera de
 
 Respuestas del humano (vía PM, 2026-11-19):
 
-1. **Dispositivo (PA #12):** un **Samsung Galaxy S23 Ultra**, que se puede conectar por USB. La versión de Android la confirma el humano. Faltan en esta PC `adb` (Android platform-tools) y quizá el driver USB de Samsung; las instrucciones van en el encargo.
+1. **Dispositivo (PA #12):** un **Samsung Galaxy S23 Ultra**, que se puede conectar por USB, con **Android 16** (confirmado por el humano vía PM, 2026-11-19). Faltan en esta PC `adb` (Android platform-tools) y quizá el driver USB de Samsung; las instrucciones van en el encargo.
 2. **Dev build:** **A, con EAS** (el humano tiene cuenta de Expo). Si se complica, B en local. El login lo hace el humano con `! npx eas login`; **nadie guarda el token en el repositorio**.
-3. **Quién hace las capturas físicas y si la precisión entra en este veredicto:** **PENDIENTE.** La parte física espera esta respuesta.
+3. **Quién hace las capturas físicas:** **el humano** (vía PM, 2026-11-19). **Si la precisión (≥ 100 capturas) entra en este veredicto o va aparte:** sigue **PENDIENTE** (decisión 5).
 4. **PA #4 y PA #16:** se confirman los provisionales (≥ 90 % de día; la foto no se guarda).
 5. **Decisiones 1 a 4:** aprobadas tal cual.
 

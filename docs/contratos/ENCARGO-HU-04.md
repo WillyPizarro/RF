@@ -72,3 +72,17 @@ La etapa 2 se agrega con su propia M-n cuando llegue la respuesta del humano.
 ## Instrucciones del ciclo (M-n)
 
 Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza.
+
+### M-1 (2026-11-19) — Hoja de placas para imprimir
+
+**No reemplaza nada.** Respuestas del humano (vía PM): el S23 Ultra tiene **Android 16**, y las fotos físicas **las toma el humano**. Sigue pendiente si la precisión entra en este veredicto.
+
+- **TESTER**, en `pruebas/datos/` (es parte del material de la etapa 2, sin ejecutarla):
+  - **La hoja:** una hoja **A4 imprimible**, en HTML o en un PDF generado por un script, **sin imágenes de placas reales**.
+  - **Las placas:** de **6 a 8 placas sintéticas de la semilla `ZZ`** de HU-08 (por ejemplo `ZZA-101`, `ZZB-201`, `ZZZ-999` y otras de la semilla). Las de `semilla.json` se leen, no se copian a mano.
+  - **Tamaño:** cercano al real, unos **30 × 15 cm**. Si no cabe en A4, escalada (por ejemplo, una o dos por página en horizontal). Indica la escala en la hoja.
+  - **Aspecto:** **fondo blanco**, **texto negro grueso** y la placa con el formato `ZZA-101`.
+  - **Leyenda:** **"PRUEBA — NO VÁLIDA"**, **fuera del recuadro de los caracteres**, para que el OCR no la lea como placa.
+  - **Para imprimir:** una **instrucción de una línea** (por ejemplo, abrir el HTML en el navegador e imprimir en A4 al 100 %, sin ajustar a la página).
+
+  Al terminar: `ENTREGA TESTER: hoja de placas — <ruta>` con el commit. Lo demás de la etapa 1 sigue igual.
