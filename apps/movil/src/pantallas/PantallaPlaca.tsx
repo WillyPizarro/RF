@@ -19,8 +19,10 @@ import {
   RespuestaConsultaPlaca,
   RespuestaMotivos,
 } from '../api/placas';
+import { asegurarPermisoCamara } from '../camara/lectorPlaca';
 import { usarSesion } from '../estado/sesion';
 import { Boton, colores, Encabezado, fechaHora, FranjaPrototipo } from './comunes';
+import PantallaOcr, { PasoOcr } from './PantallaOcr';
 
 /**
  * Consulta de placa, PLA-01 a PLA-08 (CONTRATO-HU-03 v3 §6).
@@ -42,6 +44,7 @@ type Catalogo = { motivos: Motivo[]; formato: FormatoPlaca };
 type Vista =
   | { tipo: 'cargando' }
   | { tipo: 'sin_catalogo' }
+  | { tipo: 'ocr'; inicio: PasoOcr }
   | { tipo: 'formulario' }
   | { tipo: 'consultando'; placa: string }
   | { tipo: 'resultado'; respuesta: RespuestaConsultaPlaca }
@@ -72,6 +75,8 @@ export default function PantallaPlaca() {
   const montada = useRef(true);
   const refMotivo = useRef<ComponentRef<typeof Text>>(null);
   const refOtro = useRef<ComponentRef<typeof TextInput>>(null);
+  const refPlaca = useRef<ComponentRef<typeof TextInput>>(null);
+  const [pidiendoPermiso, setPidiendoPermiso] = useState(false);
 
   const cargarCatalogo = useCallback(async () => {
     setVista({ tipo: 'cargando' });
@@ -113,7 +118,8 @@ export default function PantallaPlaca() {
   useEffect(() => {
     const suscripcion = BackHandler.addEventListener('hardwareBackPress', () => {
       if (vista.tipo === 'consultando') return true;
-      if (vista.tipo === 'resultado' || vista.tipo === 'error') {
+      // En OCR-01 a OCR-04, atras es como "✕": PLA-01 sin cambios.
+      if (vista.tipo === 'resultado' || vista.tipo === 'error' || vista.tipo === 'ocr') {
         volverAlFormulario();
       } else {
         mostrar('inicio');
@@ -122,6 +128,33 @@ export default function PantallaPlaca() {
     });
     return () => suscripcion.remove();
   }, [vista.tipo, mostrar, volverAlFormulario]);
+
+  /** 📷 de PLA-01 (CONTRATO-HU-04 §2): con permiso, OCR-01; sin permiso, OCR-04. */
+  async function abrirCamara() {
+    if (pidiendoPermiso) return;
+    setPidiendoPermiso(true);
+    let inicio: PasoOcr;
+    try {
+      inicio = (await asegurarPermisoCamara()) === 'concedido' ? 'visor' : 'sin_permiso';
+    } catch {
+      inicio = 'fallo'; // no se pudo consultar el permiso: OCR-03, nunca una pantalla en blanco
+    }
+    if (!montada.current) return;
+    setPidiendoPermiso(false);
+    setVista({ tipo: 'ocr', inicio });
+  }
+
+  /** Vuelta de OCR a PLA-01. "Usar esta placa" solo cambia la placa: el motivo queda igual. */
+  function usarPlacaLeida(leida: string) {
+    setPlaca(leida);
+    setErrorPlaca(null);
+    setVista({ tipo: 'formulario' });
+  }
+
+  function salirDeOcr(manual: boolean) {
+    setVista({ tipo: 'formulario' });
+    if (manual) setTimeout(() => refPlaca.current?.focus(), 0);
+  }
 
   /** Lleva el foco (y el del lector de pantalla) al campo del motivo (PLA-02). */
   function enfocarMotivo() {
@@ -199,6 +232,17 @@ export default function PantallaPlaca() {
   }
 
   // --- vistas -------------------------------------------------------------------------------------
+
+  if (vista.tipo === 'ocr' && catalogo) {
+    return (
+      <PantallaOcr
+        inicio={vista.inicio}
+        regex={catalogo.formato.regex}
+        alUsar={usarPlacaLeida}
+        alSalir={salirDeOcr}
+      />
+    );
+  }
 
   if (vista.tipo === 'resultado') {
     const r = vista.respuesta;
@@ -302,6 +346,7 @@ export default function PantallaPlaca() {
         </Text>
         <View style={estilos.filaPlaca}>
           <TextInput
+            ref={refPlaca}
             accessibilityLabel="Placa"
             accessibilityLabelledBy="etiqueta-placa"
             autoCapitalize="characters"
@@ -312,13 +357,14 @@ export default function PantallaPlaca() {
             editable={!consultando}
             placeholder="ABC-123"
           />
-          {/* Lectura con camara: llega con HU-04 (CONTRATO-HU-02 decision 4). */}
+          {/* Lectura con camara (HU-04): solo lee al tocar "Capturar" en OCR-01. */}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Leer con cámara"
-            accessibilityState={{ disabled: true }}
-            disabled
-            style={estilos.camara}
+            accessibilityState={{ disabled: consultando || pidiendoPermiso }}
+            disabled={consultando || pidiendoPermiso}
+            onPress={() => void abrirCamara()}
+            style={({ pressed }) => [estilos.camara, pressed && estilos.camaraPresionada]}
           >
             <Text style={estilos.textoCamara}>📷</Text>
           </Pressable>
@@ -422,11 +468,13 @@ const estilos = StyleSheet.create({
     minWidth: 52,
     minHeight: 52,
     borderRadius: 6,
-    backgroundColor: '#E3E7EC',
+    backgroundColor: colores.info,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0.6,
+    borderWidth: 1,
+    borderColor: colores.primario,
   },
+  camaraPresionada: { opacity: 0.7 },
   textoCamara: { fontSize: 22 },
   grupoMotivo: { borderWidth: 1, borderColor: colores.borde, borderRadius: 6 },
   opcionMotivo: {

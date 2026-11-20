@@ -1,0 +1,171 @@
+# Informe DEV — HU-04 (capturar la placa con la cámara), etapa 1
+
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v2** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 y M-2 (ninguna cambia lo que hace el DEV) · **Rama:** `hu-04` · **Fecha:** 2026-11-19
+
+No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` ni drivers ni SDK de Android. Solo agregué dependencias npm al proyecto.
+
+## Librerías elegidas
+
+| Para qué | Librería | Por qué |
+|---|---|---|
+| Cámara | `expo-camera` ~58.0.14 | Viene con Expo SDK 58: su versión sigue a la del SDK y trae un config plugin para el permiso. Toma **una foto por llamada** (`takePictureAsync`) y el visor no lee nada por su cuenta. La referencia del ADR-0002 es `react-native-vision-camera`, pero la v5 exige `react-native-nitro-modules` y `react-native-nitro-image`, un riesgo nativo mayor sobre RN 0.88 que esta HU no necesita (no hay procesamiento de cuadros). El contrato deja la elección al DEV dentro del ADR-0002 |
+| OCR | `@react-native-ml-kit/text-recognition` 2.0.0 | ML Kit Text Recognition **en el dispositivo**, con el modelo incluido en el APK (`com.google.mlkit:text-recognition:16.0.1`, no la variante de Play Services): funciona **sin red** (ADR-0010). Lee una imagen por URI |
+| Borrar la foto | `expo-file-system` ~58.0.14 | `new File(uri).delete()` |
+| Abrir los ajustes | `Linking.openSettings()` de React Native | Sin dependencias nuevas |
+
+**Riesgos a verificar en la etapa 2** (con dev build, no se ven en Jest):
+
+- **Interoperabilidad de ML Kit:** el wrapper es un módulo nativo "clásico" (`NativeModules`). Funciona en la nueva arquitectura a través de la capa de interoperabilidad de React Native.
+  - Si en el dev build aparece el error de "not linked", la alternativa es `expo-text-extractor` 2.0.0, un módulo Expo que también usa ML Kit en Android.
+  - El cambio quedaría dentro de `src/camara/lectorPlaca.ts`, sin tocar nada más.
+- **Tamaño del APK:** el wrapper incluye también los modelos chino, devanagari, japonés y coreano, lo que agrega varios MB al APK. Es aceptable en el prototipo.
+
+## Qué construí (`apps/movil/`)
+
+- **`src/camara/lectorPlaca.ts`:** el módulo de borde, con la forma exacta del §1. Es el **único** archivo que importa `expo-camera`, `@react-native-ml-kit/text-recognition` y `expo-file-system`; lo comprobé con `grep` en `src` y `App.tsx`.
+  - **`asegurarPermisoCamara()`:** si el permiso ya está dado, `'concedido'`. Si se puede pedir, lo pide. Si el usuario lo negó para siempre, `'denegado'`.
+  - **`VisorCamara({activo})`:** un `CameraView` trasero a pantalla completa, sin animación del disparador. No lee nada.
+  - **`capturarYLeer()`:** toma una foto con `takePictureAsync`, sin base64 ni EXIF, y la lee con ML Kit.
+    - La foto queda en el **cache privado de la app** y se borra en un `finally`, salga bien o mal.
+    - Devuelve solo `{texto}`, o `null` si no se reconoció ningún texto.
+    - Si la cámara no está lista o falla, rechaza.
+    - No devuelve ninguna ruta ni imagen.
+  - **`abrirAjustes()`:** llama a `Linking.openSettings()`.
+- **`src/camara/placaLeida.ts`:** `proponerPlaca(texto, regex)`, la regla del §4, en un módulo puro sin dependencias nativas.
+  - Pasa el texto a mayúsculas y lo separa en líneas.
+  - En cada línea prueba primero tal cual (la línea entera y cada palabra) y después con el espacio o el punto entre dos grupos cambiado por un guion.
+  - Devuelve el primer candidato que cumpla la regex de `GET /v1/motivos`, o `null`. No adivina caracteres.
+- **`src/pantallas/PantallaOcr.tsx`:** OCR-01 a OCR-04, con los textos exactos del contrato.
+  - **OCR-01:** "✕" (`accessibilityLabel="Cerrar"`), "Leer placa", el visor con el marco de la placa como guía (no recorta) y "Encuadre la placa y toque Capturar". Abajo, "Capturar", que se desactiva mientras lee, e "Ingresar manualmente".
+  - **OCR-02:** "Placa leída" con un campo editable, "Confirme o corrija la placa antes de consultar.", "Usar esta placa" y "Volver a capturar". **No muestra ninguna imagen.**
+  - **OCR-03:** ⚠ (oculto para el lector), el mensaje, "Volver a intentar" e "Ingresar manualmente".
+  - **OCR-04:** 📷✕ (oculto para el lector), los dos textos, "Abrir ajustes" e "Ingresar manualmente".
+- **`src/pantallas/PantallaPlaca.tsx`:**
+  - El botón 📷 (`accessibilityLabel="Leer con cámara"`) queda habilitado. Pide el permiso y abre OCR-01 o OCR-04.
+  - "Usar esta placa" solo cambia la placa. **El motivo queda como estaba** y **no se envía nada**; la consulta sigue igual que en HU-03 v4.
+  - "Ingresar manualmente" vuelve con el foco en "Placa". "✕" y el "atrás" del sistema vuelven sin cambios.
+  - Si falla la consulta del permiso, se muestra OCR-03 (nunca una pantalla en blanco). El contrato no define ese caso.
+- **`app.json`:**
+  - Plugin `expo-camera` con el texto del permiso: "Movil Buscador usa la cámara solo para leer una placa cuando usted toca Capturar. La foto no se guarda.".
+  - Sin micrófono ni escáner de códigos.
+  - `android.blockedPermissions` bloquea `RECORD_AUDIO`, `READ_EXTERNAL_STORAGE` y `WRITE_EXTERNAL_STORAGE`, que agregaba el prebuild. La app no necesita escribir fuera de su cache privado.
+  - Comprobado con `expo config --type prebuild`: los permisos finales son solo `CAMERA` e `INTERNET`.
+- **`eas.json`:** el perfil `development`, con `developmentClient`, distribución `internal` y un APK (`assembleDebug`). No tiene secretos ni URL.
+- **`package.json` y `package-lock.json`:** las tres dependencias nuevas, instaladas con `expo install`.
+
+## Lo que verifiqué (etapa 1)
+
+Con un Jest temporal mío, ya borrado, que monta `App.tsx` con el módulo de borde simulado (`jest.mock`). Pasaron **18 casos**:
+
+- **§4:** la tabla completa de `proponerPlaca`, con sus 10 filas.
+- **§2:**
+  - 📷 queda habilitado.
+  - `concedido` abre OCR-01; `denegado` abre OCR-04, y `capturarYLeer` nunca se llama.
+  - "Abrir ajustes" llama a `abrirAjustes` una vez.
+  - Si después se da el permiso, 📷 lleva a OCR-01.
+- **§3:**
+  - OCR-01 muestra todos sus textos y el visor con `activo=true`, sin ninguna llamada a `capturarYLeer` hasta tocar.
+  - **Dos toques seguidos en "Capturar" hacen una sola llamada.**
+  - `"PERU\nzzb 201"` lleva a OCR-02 con `ZZB-201`.
+  - `"ZZA-1O1"`, `null` y una falla de la cámara llevan a OCR-03. Desde ahí, "Volver a intentar" lleva a OCR-01 e "Ingresar manualmente" vuelve con la placa anterior intacta.
+- **§5:**
+  - Si se corrige a `zza-101` y se toca "Usar esta placa", PLA-01 queda con `ZZA-101` y el motivo elegido antes.
+  - **Ninguna llamada a `fetch` entre 📷 y "Consultar".**
+  - La consulta posterior lleva exactamente `{placa, motivo_codigo, motivo_texto}`.
+  - Sin motivo, "Usar esta placa" deja el motivo vacío y "Consultar" muestra PLA-02 sin enviar nada.
+  - "Volver a capturar" descarta lo leído, y "✕" vuelve sin cambios.
+- **§6:** después de leer, SecureStore solo tiene los dos tokens de la sesión.
+- **Sin simular `lectorPlaca`:** la app monta y llega a PLA-01. Las pruebas que no usan la cámara no necesitan el mock.
+
+`tsc` no da errores.
+
+**NO VERIFICADO (etapa 2, espera dispositivo y dev build):** todo lo que el contrato marca como "Dispositivo":
+
+- que la foto se borre, comprobado con `adb`;
+- 30 s sin tocar "Capturar";
+- que la placa impresa se lea de verdad;
+- el permiso real del sistema;
+- el modo avión.
+
+La precisión va aparte (v2).
+
+## Capturas para el UX
+
+Están en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\HU-04\`, en PNG y HTML a 390 px, con el método de Jest de siempre. En OCR-01 el visor aparece en gris oscuro porque en Jest la cámara está simulada.
+
+| Archivo | Pantalla |
+|---|---|
+| `PLA-01-camara` | PLA-01 con 📷 habilitado |
+| `OCR-01` | Visor con el marco, "Capturar" e "Ingresar manualmente" |
+| `OCR-02` | Placa leída, editable |
+| `OCR-03` | No se pudo leer |
+| `OCR-04` | Sin permiso de cámara |
+
+## Instrucciones para esta PC y el S23 Ultra (las ejecuta el humano)
+
+### 1. Android platform-tools (`adb`)
+
+1. Descargar el ZIP de **SDK Platform-Tools for Windows** desde la página oficial de Android Developers (`developer.android.com/tools/releases/platform-tools`).
+2. Descomprimirlo en `C:\Android\platform-tools`.
+3. Agregar `C:\Android\platform-tools` al `PATH` del usuario: Configuración › Sistema › Información › Configuración avanzada del sistema › Variables de entorno › `Path` (usuario) › Nuevo.
+4. Abrir una terminal nueva y comprobar: `adb version`.
+
+### 2. Driver USB de Samsung (solo si Windows no reconoce el teléfono)
+
+1. Conectar el S23 Ultra por USB. Si en el Administrador de dispositivos aparece con un signo de advertencia, o si `adb devices` no lo lista (con la depuración USB ya activada), instalar el **Samsung Android USB Driver for Windows** desde la página oficial de desarrolladores de Samsung (`developer.samsung.com/android-usb-driver`).
+2. Desconectar y volver a conectar el teléfono.
+
+### 3. Depuración USB en el S23 Ultra (Android 16, One UI)
+
+1. Ajustes › Acerca del teléfono › Información de software › tocar **Número de compilación** 7 veces y poner el PIN. Se activan las Opciones de desarrollador.
+2. Ajustes › **Opciones de desarrollador** › activar **Depuración USB**.
+3. Conectar el cable USB. En el teléfono aparece "¿Permitir depuración USB?": marcar "Permitir siempre desde este equipo" y aceptar.
+4. Si el modo USB está en "Solo carga", no hace falta cambiarlo para `adb`.
+
+### 4. Comprobación
+
+```
+adb devices
+```
+
+Tiene que listar el teléfono con el estado `device`. Si dice `unauthorized`, falta aceptar el diálogo del paso 3.3.
+
+### 5. Dev build con EAS (A, aprobado)
+
+Desde `apps/movil/`:
+
+```
+! npx eas login
+npx eas init          # una vez: vincula el proyecto y agrega extra.eas.projectId a app.json
+npx eas build --profile development --platform android
+```
+
+- **Login:** `! npx eas login` lo hace el humano en la terminal. El token queda en su perfil de usuario, **nunca en el repositorio**.
+- **`eas init`:** escribe `extra.eas.projectId` en `app.json`. Es un identificador público, no un secreto. Ese cambio lo commitea el DEV cuando el LEAD lo pida.
+- **Resultado:** EAS compila en la nube y da un enlace o QR al **APK**. Para instalarlo:
+  - abrir el enlace en el teléfono, o
+  - descargarlo y correr `adb install <archivo>.apk`.
+- **Arranque:** en la PC, `npx expo start --dev-client` (o `npm start`). La app instalada se conecta a Metro por Wi-Fi o por USB con `adb reverse tcp:8081 tcp:8081`.
+
+### 6. Respaldo: build local (B)
+
+Requiere **Android Studio** (SDK y JDK 17) en la PC, que hoy no está instalado. Con eso:
+
+```
+npx expo prebuild --platform android
+npx expo run:android --device
+```
+
+`prebuild` genera `android/`, que no se versiona. Usa la misma configuración de `app.json`.
+
+### 7. Antes de la etapa 2: cómo llega el teléfono a la API
+
+**Esto queda abierto para el LEAD.**
+
+- **Por qué no sirve la URL de la PC:** la app lee `EXPO_PUBLIC_API_URL` al empaquetar el JS (Metro), y `https://localhost:8443` es la PC, no el teléfono.
+- **Por qué no basta `adb reverse tcp:8443 tcp:8443`:** el certificado es de la CA interna de Caddy, y Android no confía en él.
+- **Opciones, a decidir antes de la etapa 2:**
+  - **(a)** Un sitio HTTP solo para desarrollo en el proxy, más `adb reverse` y permitir texto plano en el dev build.
+  - **(b)** Instalar la CA de Caddy en el teléfono y agregar una `network_security_config` solo para el dev build.
+  - **(c)** Apuntar a la API del VPS cuando exista.
+- **Qué depende de esto:** la cámara y el OCR funcionan sin la API, pero para llegar a PLA-01 hay que iniciar sesión y cargar `GET /v1/motivos`.
