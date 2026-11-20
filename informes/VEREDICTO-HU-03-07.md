@@ -59,7 +59,7 @@ Se completa al cerrar la vuelta 1, con la corrida del LEAD.
 
 ## 7. Pregunta para el humano
 
-**R6:** ¿los filtros de BIT-01 pueden ir plegados en una sección "Filtros ▾" que se despliega con un toque, o tienen que estar siempre a la vista, como en el wireframe?
+**R6:** ¿los filtros de BIT-01 pueden ir plegados en una sección "Filtros ▾" que se despliega con un toque, o tienen que estar siempre a la vista, como en el wireframe? **Respuesta del humano (vía PM, 2026-11-19): pueden ir plegados (opción A)** → CONTRATO-HU-07 **v4**. A6 pasa al TESTER: la prueba despliega los filtros antes de usarlos.
 
 ## 8. Siguiente paso
 

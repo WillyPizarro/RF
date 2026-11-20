@@ -1,8 +1,8 @@
 # CONTRATO — HU-07 Registrar cada consulta en una bitácora
 
 **Tipo:** Feature
-**Versión:** v3
-**Estado:** Aprobado (v1 a v3: 2026-11-19, humano vía PM)
+**Versión:** v4
+**Estado:** Aprobado (v1 a v4: 2026-11-19, humano vía PM)
 **Origen:** `docs/hus/HU-07-bitacora-consultas.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 5 de 5
 **Rama de trabajo:** `hu-03`, la misma de HU-03 (CONTRATO-HU-03, decisión 1)
 **Pasa por UX:** Sí. Pantallas BIT-01 y BIT-02 (`docs/ux/wireframes/HU-07-bitacora-consultas.md`), revisadas con capturas de Jest y del emulador.
@@ -90,7 +90,7 @@ GET /v1/bitacora?usuario=<usuario>&desde=<ISO 8601>&hasta=<ISO 8601>&tipo=<TIPO_
 | Pantalla | Resultado visible | Origen |
 |---|---|---|
 | Acceso | "Bitácora" en el inicio del supervisor se habilita y abre BIT-01 | CONTRATO-HU-02 decisión 4 |
-| BIT-01 | Lista del más reciente al más antiguo. Cada tarjeta muestra fecha y hora local (`dd/mm hh:mm`), el usuario (o "sistema" si es nulo), la etiqueta del tipo de evento, el resultado si existe y la marca "SINTÉTICO". Filtros de fecha, usuario, tipo y resultado con la marca "PA 24": título "Filtros", etiquetas "Usuario", "Desde", "Hasta", "Tipo" y "Resultado", ayuda "dd/mm/aaaa" en "Desde" y "Hasta", y botón "Aplicar filtros". Una fecha que no cumple `dd/mm/aaaa` muestra "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud (**v3**). "Cargar más" al final mientras haya `siguiente_cursor`. **Sin** botones de editar, borrar ni exportar | BIT-01 · DECISIÓN PROPUESTA 5 |
+| BIT-01 | Lista del más reciente al más antiguo. Cada tarjeta muestra fecha y hora local (`dd/mm hh:mm`), el usuario (o "sistema" si es nulo), la etiqueta del tipo de evento, el resultado si existe y la marca "SINTÉTICO". Filtros de fecha, usuario, tipo y resultado con la marca "PA 24": título "Filtros", etiquetas "Usuario", "Desde", "Hasta", "Tipo" y "Resultado", ayuda "dd/mm/aaaa" en "Desde" y "Hasta", y botón "Aplicar filtros". Los filtros pueden ir plegados bajo "Filtros ▾" y se despliegan con un toque (**v4**). Una fecha que no cumple `dd/mm/aaaa` muestra "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud (**v3**). "Cargar más" al final mientras haya `siguiente_cursor`. **Sin** botones de editar, borrar ni exportar | BIT-01 · DECISIÓN PROPUESTA 5 |
 | BIT-02 | Al tocar un registro: "Registro #<primeros 8 caracteres del id>" (**v3**), "Registro de solo lectura", "ID" con el id completo (**v3**), usuario, fecha y hora completas, tipo, motivo, resultado, código de error si existe, y "Origen: datos sintéticos". En un registro de placa no hay "ID de captura" ni "Score" | BIT-02 |
 | Etiquetas de tipo | `LOGIN_OK` "Inicio de sesión" · `LOGIN_FALLIDO` "Intento fallido" · `CUENTA_BLOQUEADA` "Cuenta bloqueada" · `LOGOUT` "Cierre de sesión" · `SESION_VENCIDA` "Sesión vencida" · `ACCESO_DENEGADO` "Acceso denegado" · `CONSULTA_PLACA` "Consulta de placa" · `ERROR_FUENTE` "Error de fuente" · `CONSULTA_BITACORA` "Consulta de bitácora" | BIT-01 · DECISIÓN PROPUESTA 5 |
 | Etiquetas de resultado | `con_requisitoria` "Tiene requisitoria" · `sin_requisitoria` "Sin requisitoria registrada" · `placa_no_registrada` "Placa no registrada" · `error` "Error" | CONTRATO-HU-03 · DECISIÓN PROPUESTA 5 |
@@ -144,3 +144,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | §1: la migración se corre con `docker compose … run --rm api alembic upgrade head` y la base destino va en `MIGRACION_DATABASE_URL` (rol dueño, en `infra/.env`, nunca versionada; si falta, la base del proyecto) | Pregunta del TESTER: el contrato no decía cómo correr la migración sobre una base vacía | Humano (vía PM), 2026-11-19 |
 | v3 | 2026-11-19 | §5: BIT-02 con título "Registro #<primeros 8 caracteres del id>" y el id completo en el campo "ID"; BIT-01 con los textos de los filtros ("Filtros", "Usuario", "Desde", "Hasta", "Tipo", "Resultado", "dd/mm/aaaa", "Aplicar filtros") y el error "Use fechas con el formato dd/mm/aaaa." | Revisión UX de HU-03/07, observaciones 1 y 3 (`docs/ux/revisiones/HU-03-07.md`) | Humano (vía PM), 2026-11-19 |
+| v4 | 2026-11-19 | §5: los filtros de BIT-01 pueden ir plegados bajo "Filtros ▾" y se despliegan con un toque | Veredicto de la vuelta 0, A6 (R6): el contrato no decía si iban a la vista o plegados | Humano (vía PM), 2026-11-19 |

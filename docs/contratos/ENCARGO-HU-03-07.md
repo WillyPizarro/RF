@@ -138,3 +138,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
   **A6 (filtros plegados) espera la respuesta del humano: no la toques todavía.** Corre los archivos que tocaste y manda `ENTREGA TESTER`. La suite completa la repite el LEAD.
 - **DEV:** sin cambios por ahora.
+
+### M-6 (2026-11-19) — CONTRATO-HU-07 v4
+
+**Reemplaza** a M-3 en la versión de HU-07: el documento de trabajo ahora es CONTRATO-HU-07 **v4**. HU-03 sigue en v4. El humano respondió A6: los filtros de BIT-01 **pueden ir plegados** bajo "Filtros ▾" y se despliegan con un toque.
+
+- **TESTER — A6 (ahora se apartó la prueba):** despliega los filtros tocando "Filtros" antes de buscar los campos, como propusiste. Va en la misma vuelta 1 que la M-5.
+- **DEV:** sin cambios: es lo que ya hace la app.
