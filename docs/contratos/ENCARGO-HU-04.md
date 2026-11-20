@@ -187,3 +187,17 @@ Aquí se agregan las aclaraciones durante el ciclo. Cada una dice qué reemplaza
 
   Al terminar: `ENTREGA DEV` con el commit y las capturas.
 - **TESTER:** cuando llegue la entrega, corre el Jest completo. Si hace falta simular `react-native-safe-area-context`, la simulación va en `apps/movil/__tests__/` o en el `setup` de Jest que esté en tus rutas.
+
+### M-10 (2026-11-20) — CONTRATO-HU-04 v4: sin caché HTTP
+
+**Reemplaza** a M-3 en la versión: el documento de trabajo ahora es CONTRATO-HU-04 **v4**, aprobado por el humano (vía PM). En la prueba física apareció la caché HTTP de Android guardando en disco `/v1/me` y `/v1/motivos` (hallazgo B). Además, "Abrir ajustes" puede abrir la pantalla de permisos de la app (hallazgo D, ya cumplido).
+
+- **DEV:** junto con la M-9, y **después de la sesión física**:
+  - **API:** `Cache-Control: no-store` en **todas** las respuestas de `/v1/*`, incluidas las de error y las `401`, `403`, `404` y `422`.
+  - **App:** `cache: 'no-store'` en las opciones de cada `fetch` a la API.
+
+  Al terminar: una sola `ENTREGA DEV` con la M-9 y la M-10.
+- **TESTER:**
+  - **pytest:** la cabecera en las respuestas de `/v1`, en éxito y en error, por la red interna y por el proxy.
+  - **Jest:** que cada llamada a la API lleve `cache: 'no-store'`.
+  - **Guion:** agrega el paso del dispositivo (`run-as … ls -R cache/http-cache` sin entradas de `/v1/`) para la **mini sesión física**, que el LEAD coordina con el PM.

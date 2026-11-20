@@ -1,8 +1,8 @@
 # CONTRATO — HU-04 Capturar la placa con la cámara
 
 **Tipo:** Feature
-**Versión:** v3
-**Estado:** Aprobado (v1 a v3: 2026-11-19, humano vía PM)
+**Versión:** v4
+**Estado:** Aprobado (v1 a v3: 2026-11-19 · v4: 2026-11-20, humano vía PM)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
 **Rama de trabajo:** `hu-04`, desde `main` `fa75945` (humano vía PM, 2026-11-19)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. El UX revisa con capturas de Jest y, si hay dispositivo, con capturas del dev build.
@@ -108,10 +108,13 @@ Si la API cambia `formato_placa.regex`, cambia lo que se acepta, sin tocar el c�
 |---|---|---|---|
 | La foto no llega a la API | En todo el flujo de OCR-01 a OCR-03, el `fetch` simulado no recibe ninguna llamada; y en la consulta posterior, el cuerpo de `POST /v1/consultas/placa` es el de HU-03 (sin imagen ni campos nuevos) | Jest | HU-04 supuestos, ADR-0002 |
 | Nada en el almacenamiento | Después de leer, el `expo-secure-store` simulado no tiene ninguna clave nueva | Jest | ADR-0013 |
+| Sin caché HTTP: la API (**v4**) | Toda respuesta de `/v1/*` (éxito o error, autenticada o no) lleva la cabecera `Cache-Control: no-store` | pytest (red interna y proxy) | ADR-0013, hallazgo B de la prueba física · **v4** |
+| Sin caché HTTP: la app (**v4**) | Toda llamada de la app a la API usa el `fetch` global con `cache: 'no-store'` en sus opciones | Jest (inspecciona las opciones del `fetch` simulado) | ADR-0013 · **v4** |
+| Sin caché HTTP en disco (**v4**) | En el dev build, después de iniciar sesión, abrir PLA-01 y consultar una placa, `adb shell run-as pe.prototipo.movilbuscador ls -R cache/http-cache` no muestra ninguna entrada de `/v1/` (las de Metro en `:8081` no cuentan) | Dispositivo (mini sesión) | Hallazgo B · **v4** |
 | La foto se borra | En el dev build, después de 10 capturas seguidas, `adb shell run-as pe.prototipo.movilbuscador find . -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png"` no devuelve ningún archivo de captura (en `files/` ni en `cache/`). La galería del teléfono no tiene fotos nuevas | Dispositivo | ADR-0002, HU-04 supuestos, TECH-DESIGN (matriz de tratamiento) |
 | Sin lectura continua | En el dev build, con la cámara apuntando a una placa impresa durante 30 s sin tocar "Capturar", no aparece OCR-02 | Dispositivo | Regla 6 |
 | La placa se lee | En el dev build, una placa sintética impresa (§7) se lee y aparece en OCR-02 | Dispositivo | Gherkin esc. 1 |
-| Permiso real | En el dev build, negar el permiso de cámara en el diálogo del sistema muestra OCR-04, y "Abrir ajustes" abre la pantalla de la app en Ajustes | Dispositivo | Gherkin esc. 3 |
+| Permiso real | En el dev build, negar el permiso de cámara en el diálogo del sistema muestra OCR-04, y "Abrir ajustes" abre la pantalla de la app en Ajustes **o su pantalla de permisos** (en Samsung con Android 16, `com.google.android.permissioncontroller`; **v4**) | Dispositivo | Gherkin esc. 3 · **v4** |
 
 ### 7. Precisión del OCR y placas de prueba (provisional, PA #4)
 
@@ -156,6 +159,7 @@ El dev build en el S23 Ultra llega a la API local por HTTPS, con la CA local de 
 | Texto → placa propuesta (§4) | Sí, la tabla completa | — |
 | Confirmar, corregir, volver; nunca consulta sola (§5) | Sí, contando las llamadas a `fetch` | Paso a paso, una vez |
 | Nada en SecureStore ni a la API (§6) | Sí | — |
+| Sin caché HTTP (§6, v4) | Sí: la cabecera en pytest y el `fetch` con `no-store` en Jest | `cache/http-cache` sin `/v1/` (mini sesión) |
 | La foto se borra del disco (§6) | No (no hay disco) | Sí, con `adb` |
 | La placa impresa se lee de verdad (§6) | No | Sí |
 | Precisión (§7) | No | **Aparte**, en la fase de pruebas (v2) |
@@ -214,3 +218,4 @@ Respuestas del humano (vía PM, 2026-11-19):
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 2, contrato 1 | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-19 | §7, "Qué se prueba dónde" y decisión 5: la precisión del OCR va aparte, en la fase de pruebas del 16 al 26-dic; en el veredicto entra solo el paso a paso físico en el S23 Ultra (Android 16), con las fotos tomadas por el humano | Respuesta del humano a la pregunta 3 | Humano (vía PM), 2026-11-19 |
 | v3 | 2026-11-19 | §8 nuevo: el dev build llega a la API local por HTTPS con la CA de Caddy instalada en el teléfono, `network_security_config` con `debug-overrides` solo para depuración, `adb reverse tcp:8443`; el build de release no incluye el override; la CA y su llave nunca se versionan; pasos para el humano, incluido el borrado al cierre | Respuesta del humano a la ESCALA de la etapa 2 (opción B y sus 3 condiciones) | Humano (vía PM), 2026-11-19 |
+| v4 | 2026-11-20 | §6: sin caché HTTP (`Cache-Control: no-store` en toda respuesta de `/v1`, la app con `fetch` y `cache: 'no-store'`, y `cache/http-cache` sin `/v1/` en el dispositivo); "Abrir ajustes" puede abrir la pantalla de permisos de la app | Hallazgos B y D de la prueba física en el S23 Ultra | Humano (vía PM), 2026-11-20 |
