@@ -3,7 +3,7 @@
 Uso (en el contenedor api):
   docker compose -f infra/docker-compose.yml run --rm api python -m app.cargar_usuarios
 
-Aplica las migraciones pendientes, crea o actualiza cada usuario en Supabase Auth con la clave de
+Aplica las migraciones pendientes (como dueño de las tablas, MIGRACION_DATABASE_URL), crea o actualiza cada usuario en Supabase Auth con la clave de
 CLAVE_USUARIOS_PRUEBA y crea o actualiza su perfil (nombre, rol y si esta activo). Nunca imprime
 la clave.
 """
@@ -11,13 +11,12 @@ la clave.
 import asyncio
 import os
 import sys
-from pathlib import Path
 
-from alembic import command
-from alembic.config import Config as ConfigAlembic
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from app.bd import obtener_motor
+from app.config import url_migraciones
+from app.migrar import aplicar_migraciones
 from app.supabase_auth import asegurar_usuario_auth
 
 # usuario, nombre, rol, activo
@@ -39,15 +38,9 @@ _UPSERT = text(
 )
 
 
-def _migrar() -> None:
-    raiz = Path(__file__).resolve().parent.parent
-    configuracion = ConfigAlembic(str(raiz / "alembic.ini"))
-    configuracion.set_main_option("script_location", str(raiz / "alembic"))
-    command.upgrade(configuracion, "head")
-
-
 async def _guardar_perfiles(ids: dict[str, str]) -> None:
-    motor = obtener_motor()
+    # Los perfiles los escribe el dueño de las tablas: api_app solo los lee (ADR-0005 §1).
+    motor = create_async_engine(url_migraciones())
     async with motor.begin() as cx:
         for usuario, nombre, rol, activo in USUARIOS:
             await cx.execute(
@@ -61,7 +54,7 @@ def main() -> int:
     if len(clave) < 8:
         print("Falta CLAVE_USUARIOS_PRUEBA (minimo 8 caracteres) en infra/.env", file=sys.stderr)
         return 1
-    _migrar()
+    aplicar_migraciones()
     ids = {usuario: asegurar_usuario_auth(usuario, clave) for usuario, *_ in USUARIOS}
     asyncio.run(_guardar_perfiles(ids))
     for usuario, _, rol, activo in USUARIOS:

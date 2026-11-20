@@ -95,7 +95,7 @@
             }
           },
           "503": {
-            "description": "No se pudo completar la operacion",
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
             "content": {
               "application/json": {
                 "schema": {
@@ -156,7 +156,7 @@
             }
           },
           "503": {
-            "description": "No se pudo completar la operacion",
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
             "content": {
               "application/json": {
                 "schema": {
@@ -190,7 +190,7 @@
             }
           },
           "503": {
-            "description": "No se pudo completar la operacion",
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
             "content": {
               "application/json": {
                 "schema": {
@@ -236,7 +236,7 @@
             }
           },
           "503": {
-            "description": "No se pudo completar la operacion",
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
             "content": {
               "application/json": {
                 "schema": {
@@ -251,6 +251,342 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/v1/motivos": {
+      "get": {
+        "tags": [
+          "placas"
+        ],
+        "summary": "Listar Motivos",
+        "operationId": "listar_motivos_v1_motivos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaMotivos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol del usuario no tiene permiso para esta funcion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/consultas/placa": {
+      "post": {
+        "tags": [
+          "placas"
+        ],
+        "summary": "Consultar Placa",
+        "operationId": "consultar_placa_v1_consultas_placa_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolicitudConsultaPlaca"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaConsultaPlaca"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol del usuario no tiene permiso para esta funcion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "La fuente respondio fuera de su contrato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/bitacora": {
+      "get": {
+        "tags": [
+          "bitacora"
+        ],
+        "summary": "Consultar Bitacora",
+        "operationId": "consultar_bitacora_v1_bitacora_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "usuario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Usuario"
+            }
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Desde"
+            }
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hasta"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "LOGIN_OK",
+                    "LOGIN_FALLIDO",
+                    "CUENTA_BLOQUEADA",
+                    "LOGOUT",
+                    "SESION_VENCIDA",
+                    "ACCESO_DENEGADO",
+                    "CONSULTA_PLACA",
+                    "CONSULTA_ROSTRO",
+                    "CAPTURA_RECHAZADA",
+                    "DECISION_REVISION",
+                    "REVISION_VENCIDA",
+                    "CAPTURA_ELIMINADA",
+                    "ERROR_FUENTE",
+                    "CONSULTA_BITACORA"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tipo"
+            }
+          },
+          {
+            "name": "resultado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resultado"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaBitacora"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado, credenciales invalidas o sesion vencida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol del usuario no tiene permiso para esta funcion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo completar la operacion o la fuente no esta disponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespuesta"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -307,6 +643,67 @@
         ],
         "title": "ErrorRespuesta"
       },
+      "FormatoPlaca": {
+        "properties": {
+          "regex": {
+            "type": "string",
+            "title": "Regex"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "regex",
+          "descripcion"
+        ],
+        "title": "FormatoPlaca"
+      },
+      "Motivo": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "descripcion"
+        ],
+        "title": "Motivo"
+      },
+      "MotivoConsulta": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "texto"
+        ],
+        "title": "MotivoConsulta"
+      },
       "Perfil": {
         "properties": {
           "id": {
@@ -345,6 +742,228 @@
           "rol": "agente",
           "usuario": "agente1"
         }
+      },
+      "Registro": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "ocurrido_en": {
+            "type": "string",
+            "title": "Ocurrido En"
+          },
+          "usuario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usuario"
+          },
+          "rol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rol"
+          },
+          "tipo_evento": {
+            "type": "string",
+            "title": "Tipo Evento"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "parametros": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parametros"
+          },
+          "resultado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resultado"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "captura_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captura Id"
+          },
+          "consulta_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consulta Id"
+          },
+          "codigo_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo Error"
+          },
+          "es_sintetico": {
+            "type": "boolean",
+            "title": "Es Sintetico"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ocurrido_en",
+          "usuario",
+          "rol",
+          "tipo_evento",
+          "motivo",
+          "parametros",
+          "resultado",
+          "score",
+          "captura_id",
+          "consulta_id",
+          "codigo_error",
+          "es_sintetico"
+        ],
+        "title": "Registro"
+      },
+      "RespuestaBitacora": {
+        "properties": {
+          "registros": {
+            "items": {
+              "$ref": "#/components/schemas/Registro"
+            },
+            "type": "array",
+            "title": "Registros"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "registros",
+          "siguiente_cursor"
+        ],
+        "title": "RespuestaBitacora"
+      },
+      "RespuestaConsultaPlaca": {
+        "properties": {
+          "consulta_id": {
+            "type": "string",
+            "title": "Consulta Id"
+          },
+          "placa": {
+            "type": "string",
+            "title": "Placa"
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "con_requisitoria",
+              "sin_requisitoria",
+              "placa_no_registrada"
+            ],
+            "title": "Resultado"
+          },
+          "motivo": {
+            "$ref": "#/components/schemas/MotivoConsulta"
+          },
+          "consultado_en": {
+            "type": "string",
+            "title": "Consultado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consulta_id",
+          "placa",
+          "resultado",
+          "motivo",
+          "consultado_en"
+        ],
+        "title": "RespuestaConsultaPlaca"
+      },
+      "RespuestaMotivos": {
+        "properties": {
+          "motivos": {
+            "items": {
+              "$ref": "#/components/schemas/Motivo"
+            },
+            "type": "array",
+            "title": "Motivos"
+          },
+          "formato_placa": {
+            "$ref": "#/components/schemas/FormatoPlaca"
+          }
+        },
+        "type": "object",
+        "required": [
+          "motivos",
+          "formato_placa"
+        ],
+        "title": "RespuestaMotivos"
       },
       "RespuestaSesion": {
         "properties": {
@@ -417,6 +1036,41 @@
           "version"
         ],
         "title": "SaludRespuesta"
+      },
+      "SolicitudConsultaPlaca": {
+        "properties": {
+          "placa": {
+            "type": "string",
+            "title": "Placa"
+          },
+          "motivo_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo Codigo"
+          },
+          "motivo_texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo Texto"
+          }
+        },
+        "type": "object",
+        "required": [
+          "placa"
+        ],
+        "title": "SolicitudConsultaPlaca"
       },
       "SolicitudLogin": {
         "properties": {

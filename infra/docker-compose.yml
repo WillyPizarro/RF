@@ -1,6 +1,6 @@
 # Movil Buscador — esqueleto (SPRINT0, ADR-0009).
 # Arranque: docker compose -f infra/docker-compose.yml --env-file infra/.env up -d --build
-# Solo el proxy publica puertos (80 y 443). api, simuladores y db viven en redes internas.
+# Solo el proxy publica puertos (80 y 443, o PROXY_PUERTO_HTTP y PROXY_PUERTO_HTTPS). api, simuladores y db viven en redes internas.
 name: movil-buscador
 
 services:
@@ -106,7 +106,13 @@ services:
   api:
     build: ../services/api
     environment:
+      # La API en marcha se conecta con el rol api_app (ADR-0005 §1, CONTRATO-HU-07 §1).
       DATABASE_URL: ${DATABASE_URL:?falta DATABASE_URL}
+      # Rol dueño de las tablas: solo para migraciones (app.migrar al arrancar, alembic) y la carga
+      # de usuarios (CONTRATO-HU-07 v2). Si falta, se usa DATABASE_URL.
+      MIGRACION_DATABASE_URL: ${MIGRACION_DATABASE_URL:-}
+      # Clave con la que app.migrar le da login a api_app. NUNCA se versiona.
+      API_APP_CLAVE: ${API_APP_CLAVE:-}
       SIMULADORES_URL: ${SIMULADORES_URL:-http://simuladores:8001}
       # URL por fuente (HU-08, ADR-0006 §2). Vacia = usa SIMULADORES_URL.
       FUENTE_PLACAS_URL: ${FUENTE_PLACAS_URL:-}
@@ -123,6 +129,9 @@ services:
       BLOQUEO_INTENTOS: ${BLOQUEO_INTENTOS:-5}
       BLOQUEO_DURACION_S: ${BLOQUEO_DURACION_S:-900}
       CLAVE_USUARIOS_PRUEBA: ${CLAVE_USUARIOS_PRUEBA:-}
+      # Formato de placa (HU-03, ADR-0011). Vacios = valores por defecto de la API (PA #20).
+      PLACA_FORMATO_REGEX: ${PLACA_FORMATO_REGEX:-}
+      PLACA_FORMATO_DESCRIPCION: ${PLACA_FORMATO_DESCRIPCION:-}
     volumes:
       - ../services/api/tests:/app/tests:ro
     depends_on:
@@ -139,9 +148,11 @@ services:
     image: caddy:2.10
     environment:
       DOMINIO: ${DOMINIO:-localhost}
+    # Puertos publicados: 80 y 443 por defecto (VPS). En un equipo donde 80 esta ocupado (por
+    # ejemplo por http.sys de Windows) se usan PROXY_PUERTO_HTTP y PROXY_PUERTO_HTTPS.
     ports:
-      - "80:80"
-      - "443:443"
+      - "${PROXY_PUERTO_HTTP:-80}:80"
+      - "${PROXY_PUERTO_HTTPS:-443}:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-datos:/data

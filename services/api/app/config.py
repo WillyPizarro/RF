@@ -13,6 +13,16 @@ def _version() -> str:
         return "0.0.0"
 
 
+PLACA_REGEX_POR_DEFECTO = r"^[A-Z0-9]{3}-[0-9]{3}$"
+PLACA_DESCRIPCION_POR_DEFECTO = "ABC-123 (3 letras o números, guion, 3 números)"
+
+
+def url_migraciones() -> str:
+    """Conexion del dueño de las tablas, solo para migraciones y la carga de usuarios (ADR-0005 §1).
+    La API en marcha usa DATABASE_URL (rol api_app)."""
+    return os.environ.get("MIGRACION_DATABASE_URL", "").strip() or os.environ.get("DATABASE_URL", "")
+
+
 @dataclass(frozen=True)
 class Config:
     database_url: str
@@ -33,6 +43,9 @@ class Config:
     bloqueo_intentos: int
     bloqueo_duracion_s: int
     timeout_auth_s: float
+    # Consulta de placa (HU-03, ADR-0011). Valores provisionales (PA #20).
+    placa_formato_regex: str
+    placa_formato_descripcion: str
     version: str
 
 
@@ -65,5 +78,8 @@ def obtener_config() -> Config:
         bloqueo_intentos=_entero("BLOQUEO_INTENTOS", 5),
         bloqueo_duracion_s=_entero("BLOQUEO_DURACION_S", 900),
         timeout_auth_s=float(os.environ.get("TIMEOUT_AUTH_S", "").strip() or "5"),
+        placa_formato_regex=os.environ.get("PLACA_FORMATO_REGEX", "").strip() or PLACA_REGEX_POR_DEFECTO,
+        placa_formato_descripcion=os.environ.get("PLACA_FORMATO_DESCRIPCION", "").strip()
+        or PLACA_DESCRIPCION_POR_DEFECTO,
         version=_version(),
     )

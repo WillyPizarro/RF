@@ -15,9 +15,10 @@ target_metadata = None
 
 
 def _url() -> str:
-    url = os.environ.get("DATABASE_URL")
+    # Las migraciones las corre el dueño de las tablas, no api_app (ADR-0005 §1).
+    url = os.environ.get("MIGRACION_DATABASE_URL", "").strip() or os.environ.get("DATABASE_URL")
     if not url:
-        raise RuntimeError("Falta la variable de entorno DATABASE_URL")
+        raise RuntimeError("Falta la variable de entorno MIGRACION_DATABASE_URL o DATABASE_URL")
     return url
 
 

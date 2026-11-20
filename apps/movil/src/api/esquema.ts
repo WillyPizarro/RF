@@ -89,6 +89,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/motivos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Motivos */
+        get: operations["listar_motivos_v1_motivos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/consultas/placa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Consultar Placa */
+        post: operations["consultar_placa_v1_consultas_placa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/bitacora": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar Bitacora */
+        get: operations["consultar_bitacora_v1_bitacora_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -113,6 +164,27 @@ export interface components {
             /** Id Traza */
             id_traza: string;
         };
+        /** FormatoPlaca */
+        FormatoPlaca: {
+            /** Regex */
+            regex: string;
+            /** Descripcion */
+            descripcion: string;
+        };
+        /** Motivo */
+        Motivo: {
+            /** Codigo */
+            codigo: string;
+            /** Descripcion */
+            descripcion: string;
+        };
+        /** MotivoConsulta */
+        MotivoConsulta: {
+            /** Codigo */
+            codigo: string;
+            /** Texto */
+            texto: string | null;
+        };
         /**
          * Perfil
          * @example {
@@ -134,6 +206,65 @@ export interface components {
              * @enum {string}
              */
             rol: "agente" | "revisor" | "supervisor";
+        };
+        /** Registro */
+        Registro: {
+            /** Id */
+            id: string;
+            /** Ocurrido En */
+            ocurrido_en: string;
+            /** Usuario */
+            usuario: string | null;
+            /** Rol */
+            rol: string | null;
+            /** Tipo Evento */
+            tipo_evento: string;
+            /** Motivo */
+            motivo: string | null;
+            /** Parametros */
+            parametros: {
+                [key: string]: unknown;
+            } | null;
+            /** Resultado */
+            resultado: string | null;
+            /** Score */
+            score: number | null;
+            /** Captura Id */
+            captura_id: string | null;
+            /** Consulta Id */
+            consulta_id: string | null;
+            /** Codigo Error */
+            codigo_error: string | null;
+            /** Es Sintetico */
+            es_sintetico: boolean;
+        };
+        /** RespuestaBitacora */
+        RespuestaBitacora: {
+            /** Registros */
+            registros: components["schemas"]["Registro"][];
+            /** Siguiente Cursor */
+            siguiente_cursor: string | null;
+        };
+        /** RespuestaConsultaPlaca */
+        RespuestaConsultaPlaca: {
+            /** Consulta Id */
+            consulta_id: string;
+            /** Placa */
+            placa: string;
+            /**
+             * Resultado
+             * @enum {string}
+             */
+            resultado: "con_requisitoria" | "sin_requisitoria" | "placa_no_registrada";
+            motivo: components["schemas"]["MotivoConsulta"];
+            /** Consultado En */
+            consultado_en: string;
+        };
+        /** RespuestaMotivos */
+        RespuestaMotivos: {
+            /** Motivos */
+            motivos: components["schemas"]["Motivo"][];
+            formato_placa: components["schemas"]["FormatoPlaca"];
         };
         /** RespuestaSesion */
         RespuestaSesion: {
@@ -166,6 +297,15 @@ export interface components {
             simuladores: "ok" | "error";
             /** Version */
             version: string;
+        };
+        /** SolicitudConsultaPlaca */
+        SolicitudConsultaPlaca: {
+            /** Placa */
+            placa: string;
+            /** Motivo Codigo */
+            motivo_codigo?: string | null;
+            /** Motivo Texto */
+            motivo_texto?: string | null;
         };
         /** SolicitudLogin */
         SolicitudLogin: {
@@ -266,7 +406,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorBloqueo"];
                 };
             };
-            /** @description No se pudo completar la operacion */
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -317,7 +457,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No se pudo completar la operacion */
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -353,7 +493,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No se pudo completar la operacion */
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -391,7 +531,187 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No se pudo completar la operacion */
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_motivos_v1_motivos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaMotivos"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El rol del usuario no tiene permiso para esta funcion */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar_placa_v1_consultas_placa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudConsultaPlaca"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaConsultaPlaca"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El rol del usuario no tiene permiso para esta funcion */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Solicitud invalida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La fuente respondio fuera de su contrato */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar_bitacora_v1_bitacora_get: {
+        parameters: {
+            query?: {
+                usuario?: string | null;
+                desde?: string | null;
+                hasta?: string | null;
+                tipo?: ("LOGIN_OK" | "LOGIN_FALLIDO" | "CUENTA_BLOQUEADA" | "LOGOUT" | "SESION_VENCIDA" | "ACCESO_DENEGADO" | "CONSULTA_PLACA" | "CONSULTA_ROSTRO" | "CAPTURA_RECHAZADA" | "DECISION_REVISION" | "REVISION_VENCIDA" | "CAPTURA_ELIMINADA" | "ERROR_FUENTE" | "CONSULTA_BITACORA") | null;
+                resultado?: string | null;
+                limite?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaBitacora"];
+                };
+            };
+            /** @description No autenticado, credenciales invalidas o sesion vencida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El rol del usuario no tiene permiso para esta funcion */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Solicitud invalida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No se pudo completar la operacion o la fuente no esta disponible */
             503: {
                 headers: {
                     [name: string]: unknown;

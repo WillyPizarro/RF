@@ -96,7 +96,8 @@ def respuestas_error(*estados: int) -> dict[int | str, dict[str, Any]]:
         403: "El rol del usuario no tiene permiso para esta funcion",
         422: "Solicitud invalida",
         423: "Cuenta bloqueada temporalmente",
-        503: "No se pudo completar la operacion",
+        502: "La fuente respondio fuera de su contrato",
+        503: "No se pudo completar la operacion o la fuente no esta disponible",
     }
     return {
         estado: {"model": ErrorBloqueo if estado == 423 else ErrorRespuesta, "description": descripciones[estado]}
