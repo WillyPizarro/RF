@@ -1,9 +1,10 @@
 # VEREDICTO — HU-01 Iniciar sesión + HU-02 Acceso por rol
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** (aprobados por el humano el 2026-11-19)
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v5** (v4 en la vuelta 0) y `docs/contratos/CONTRATO-HU-02.md` **v3** (aprobados por el humano el 2026-11-19)
 **Rama:** `hu-01` (base `main` `befd3d7`) · **Código del DEV:** `c1b432f` · **Pruebas del TESTER:** `af516e4`, informe `52649d7`
 **Fecha:** 2026-11-19 · **LEAD**, skill `veredicto`
-**Resultado (vuelta 0):** **ROJO, vuelve en la vuelta 1.** Un rojo del código (R1, va al DEV) y dos de las pruebas (R2 y R3, van al TESTER). R4 y los 32 errores del Sprint 0 son de entorno.
+**Resultado:** **VERDE tras la vuelta 1** (A1, A2 y A3 cerrados; contrato HU-01 llevado a **v5**). Ningún rojo. Quedan `NO VERIFICADO` de entorno y casos diferidos por contrato (§7), para aceptación del humano.
+*Vuelta 0:* **ROJO, vuelve en la vuelta 1.** Un rojo del código (R1, va al DEV) y dos de las pruebas (R2 y R3, van al TESTER). R4 y los 32 errores del Sprint 0 son de entorno.
 
 ---
 
@@ -94,6 +95,30 @@ La corrida completa de la API (52 min) la hace el LEAD en la vuelta 1, sobre los
 3. Sin registro en la bitácora no hay sesión (`503`): pasa a HU-07 (decisión 2).
 4. Matriz de `403 SIN_PERMISO` y ERR-01: pasan a HU-03 y HU-07 (HU-02, decisión 3 y v3).
 
+## 7 bis. Vuelta 1 (2026-11-19)
+
+**Commits:** `1e6dd71 [DEV]` (A1: `apps/movil/src/sesion/controlador.ts`, `informes/DEV-HU-01-02.md`); `00f273a [TESTER]` (A2 y A3), `f750578 [TESTER]` (prueba de la v5), `354edfc [TESTER]` (M-8: las pruebas del proxy se omiten en 2 s como `NO VERIFICADO`). Todos dentro de sus rutas. Contratos: HU-01 **v5**, HU-02 **v3**.
+
+**Corrida del LEAD sobre la punta `354edfc`**, con `up -d --build` y los dos archivos de compose, y los usuarios cargados (exit 0):
+
+| Corrida | Comando | Resultado |
+|---|---|---|
+| API | `pytest services/api/tests --integracion -rA` (5 min 20 s) | **67 en verde, 0 rojos, 36 omitidas**: 33 del proxy ("NO VERIFICADO: puerto 80 ocupado por http.sys") y 3 de HU-01/02 (la clave en los logs del proxy, el `503` que pasa a HU-07 y la matriz de `403` que pasa a HU-03 y HU-07) |
+| App | `npx jest --ci` | **33 de 33 en verde** |
+| Simuladores, contenedor | `run --rm -T --no-deps simuladores pytest` | **115 en verde, 27 omitidas** (las del anfitrión) |
+| Simuladores, anfitrión | `pytest services/simuladores/tests --integracion` | **136 en verde, 6 omitidas** |
+| Configuración final de `api` | `printenv` | 600 / 900 / 5 / 900 (`infra/.env`) |
+
+**Cierres:**
+
+- **A1 🟢:** `cargarPerfil` informa si el `401` fue `SESION_VENCIDA`, e `ingresar` y `restaurar` cierran con el aviso de inactividad. El arreglo es general, sin casos especiales. **Observación (no es rojo):** la suite del TESTER no prueba el camino de retomar la sesión (`restaurar`); el DEV lo comprobó con un Jest temporal. Queda anotado para HU-03, que vuelve a tocar la app.
+- **A2 🟢:** `test_usuario_inactivo_identico` y `test_carga_de_usuarios_idempotente` corren con `BLOQUEO_INTENTOS=1000` (§6).
+- **A3 🟢:** `test_contrato_rutas_vigentes` exige exactamente `/v1/salud`, `/v1/auth/{login,refresh,logout}` y `/v1/me`.
+- **v5 🟢:** `test_fallo_despues_del_bloqueo_empieza_de_nuevo` pasa en sus 3 variantes (clave incorrecta, usuario inexistente, usuario inactivo).
+- **Trampas:** ninguna. Los cambios de las pruebas responden a M-6, M-7 y M-8, y la M-8 omite sin dar verde (`PROXY_DISPONIBLE=1` las fuerza a correr).
+
+**La matriz del §5 queda toda en 🟢**, salvo los `NO VERIFICADO` y los casos diferidos del §7.
+
 ## 8. Siguiente paso
 
-Vuelta 1: el DEV corrige A1 y el TESTER corrige A2 y A3 (M-6 del encargo). Después el LEAD repite su corrida completa (API, simuladores y Jest) y cierra el veredicto.
+Escalar los `NO VERIFICADO` del §7 al humano, vía el PM. Con su aceptación, el LEAD prepara la descripción del PR `hu-01 → main`. El merge lo hace el humano.
