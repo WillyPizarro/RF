@@ -74,3 +74,12 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 
 - **TESTER:** corre la suite completa **una sola vez** sobre la punta de `hu-01`: pytest de la API (en la red interna, con tus recreaciones de `api` para los tiempos cortos y luego de vuelta a `infra/.env`), pytest de los simuladores (para comprobar que HU-08 no se rompió) y Jest de la app. Arranca con `--build` y con los dos archivos de compose. Al terminar: `ENTREGA TESTER` con el informe final.
 - **DEV:** no hagas más commits en `hu-01` salvo que el LEAD te los pida.
+
+### M-6 (2026-11-19) — Veredicto, vuelta 1
+
+**No reemplaza nada.** Los contratos siguen en HU-01 **v4** y HU-02 **v3**. El arbitraje está en `informes/VEREDICTO-HU-01-02.md` §4.
+
+- **DEV — A1 (se apartó el código):** HU-01 §4, AUTH-03: un `401 SESION_VENCIDA` muestra "Su sesión se cerró por inactividad. Ingrese de nuevo.", **venga de la solicitud que venga**. Eso incluye el primer `GET /v1/me` después del login y el que sigue a retomar la sesión al abrir la app. Hoy los dos caminos muestran el mensaje genérico o ningún mensaje. No toques ningún texto. Al terminar: `ENTREGA DEV` con el commit y el informe actualizado.
+- **TESTER — A2 (se apartó la prueba):** `test_usuario_inactivo_identico` y el último paso de `test_carga_de_usuarios_idempotente` suponen que el contador de `inactivo1` está en 0 y no lo aseguran. Haz que lo aseguren **por un camino que el contrato fija**, por ejemplo con una configuración de la API con `BLOQUEO_INTENTOS` alto (§6). No te apoyes en lo que pasa con el contador después de que termina un bloqueo: el contrato no lo dice y está en pregunta al humano.
+- **TESTER — A3 (se apartó la prueba):** `test_contrato_sin_rutas_de_negocio` quedó obsoleta desde HU-01. Cámbiala por la lista de rutas vigente (`/v1/salud`, `/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/logout` y `/v1/me`), o retírala si eso ya lo cubre otra prueba.
+- **TESTER, después de A2 y A3:** corre los archivos que tocaste, y el Jest de AUTH-03 cuando llegue la entrega del DEV (el LEAD te avisa). Al terminar: `ENTREGA TESTER` con el informe actualizado. La suite completa la repite el LEAD.
