@@ -143,3 +143,16 @@ def jwt_con_rol(token: str, rol: str) -> str:
     carga.setdefault("rol", rol)
     carga.setdefault("role", rol)
     return ".".join([partes[0], enc(carga), partes[2]])
+
+
+def precondicion_sin_bloqueo_vigente(r, usuario: str) -> None:
+    """Veredicto HU-01/02, A2. Con BLOQUEO_INTENTOS alto (§6) ningún fallo nuevo alcanza el
+    umbral; solo un bloqueo empezado ANTES de la prueba podría estar vigente. El contrato no dice
+    qué pasa con el contador al terminar un bloqueo si el siguiente intento falla, así que no se
+    espera ese fin: si hay un bloqueo vigente, la precondición no se cumple y se dice."""
+    import pytest
+
+    if r.estado == 423:
+        pytest.fail(f"PRECONDICIÓN (no es un resultado del código): {usuario} tiene un bloqueo "
+                    f"vigente de antes de la prueba, hasta {r.json().get('bloqueado_hasta')}. "
+                    "Repetir cuando termine, o con una base limpia.")

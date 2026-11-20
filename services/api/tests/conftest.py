@@ -79,7 +79,8 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
-_ORDEN_CONFIG = {"config_defecto": 0, "config_corta": 1, "config_token_corto": 2}
+_ORDEN_CONFIG = {"config_defecto": 0, "config_corta": 1, "config_token_corto": 2,
+                 "config_intentos_alto": 3}
 
 
 def _orden_config(item: pytest.Item) -> int:
@@ -315,6 +316,14 @@ CONFIG_TOKEN_CORTO = {  # el token de acceso vence antes que la inactividad
 }
 
 
+CONFIG_INTENTOS_ALTO = {  # el bloqueo no se alcanza: fija el estado de inactivo1 (veredicto A2)
+    "SESION_INACTIVIDAD_S": "600",
+    "TOKEN_ACCESO_VIGENCIA_S": "900",
+    "BLOQUEO_INTENTOS": "1000",
+    "BLOQUEO_DURACION_S": "900",
+}
+
+
 @pytest.fixture(scope="session")
 def sistema(pytestconfig: pytest.Config):
     """API por la red interna + bitácora + configuración. Al final vuelve a infra/.env."""
@@ -344,6 +353,12 @@ def config_corta(sistema):
 @pytest.fixture
 def config_token_corto(sistema):
     sistema.configurar(CONFIG_TOKEN_CORTO)
+    return sistema
+
+
+@pytest.fixture
+def config_intentos_alto(sistema):
+    sistema.configurar(CONFIG_INTENTOS_ALTO)
     return sistema
 
 

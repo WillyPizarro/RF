@@ -1,7 +1,14 @@
 # Informe TESTER — HU-01 + HU-02 (iniciar sesión y acceso por rol)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-5) · **Rama:** `hu-01`
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v4** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-6) · **Rama:** `hu-01`
 **Suite completa (M-5), una sola vez:** 2026-11-19/20, sobre la punta de `hu-01` (`7053c9c`, que incluye el commit definitivo del DEV `c1b432f` y mis pruebas `af516e4`). Arranque con `up -d --build` y los dos archivos de compose; usuarios cargados con `python -m app.cargar_usuarios` (exit 0). El proxy no arrancó: el puerto 80 lo ocupa `http.sys` (encargo, regla 8).
+
+## Vuelta 1 del veredicto (M-6)
+
+- **A2 (se apartó la prueba):** `test_hu01_login.py::test_usuario_inactivo_identico` y `test_hu01_bitacora_config.py::test_carga_de_usuarios_idempotente` corren ahora con la configuración **intentos alto** (`BLOQUEO_INTENTOS=1000`, el resto por defecto; §6: cambiar parámetros sin tocar código). Así ningún fallo de `inactivo1` alcanza el umbral, sea cual sea su contador previo. No se apoyan en lo que pasa con el contador al terminar un bloqueo (está en pregunta al humano). Si hubiera un bloqueo **vigente** de antes de la prueba, fallan como `PRECONDICIÓN (no es un resultado del código)`, con su `bloqueado_hasta`.
+- **A3 (prueba obsoleta):** `test_contrato_sin_rutas_de_negocio` se cambió por `test_contrato_openapi.py::test_contrato_rutas_vigentes`. El contrato publicado declara exactamente `/v1/salud` (GET), `/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/logout` (POST) y `/v1/me` (GET).
+- **Corrida de lo tocado** (`test_contrato_openapi.py`, `test_hu01_login.py`, `test_hu01_bitacora_config.py`, `--integracion`): **29 en verde, 0 rojos, 2 omitidas** (NO VERIFICADO ya registrados) y **2 errores de entorno** (`test_contrato_publicado_identico_al_servido` y `test_proxy_no_expone_openapi` pasan por el proxy, igual que R4). En verde: `test_contrato_rutas_vigentes`, `test_usuario_inactivo_identico` y `test_carga_de_usuarios_idempotente`. Al terminar, `api` volvió a `infra/.env` (`BLOQUEO_INTENTOS=5`).
+- **A1 (DEV):** el Jest de AUTH-03 por `401 SESION_VENCIDA` se repite cuando llegue la entrega del DEV.
 
 ## Resultado
 

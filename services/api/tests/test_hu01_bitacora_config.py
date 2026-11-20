@@ -13,7 +13,7 @@ import pytest
 
 from ayudas_hu01 import (
     CAMPOS_EVENTO, RUTA_LOGOUT, USUARIO_INACTIVO, USUARIOS_ACTIVOS, clave_mala,
-    problemas_error, problemas_login_ok,
+    precondicion_sin_bloqueo_vigente, problemas_error, problemas_login_ok,
 )
 from red_interna import leer_env
 
@@ -135,10 +135,14 @@ def _ids(s, clave):
     return ids
 
 
-def test_carga_de_usuarios_idempotente(config_defecto, clave):
+def test_carga_de_usuarios_idempotente(config_intentos_alto, clave):
     """§6 'Carga de usuarios' y 'Usuarios fijos': `python -m app.cargar_usuarios` en el
     contenedor api corre dos veces sin error; después siguen los mismos usuarios (mismos id),
-    con su rol, e inactivo1 sigue inactivo."""
+    con su rol, e inactivo1 sigue inactivo. Veredicto A2: con BLOQUEO_INTENTOS=1000 (§6) el
+    contador de inactivo1 no llega al bloqueo, sea cual sea su valor previo."""
+    config_defecto = config_intentos_alto
+    precondicion_sin_bloqueo_vigente(config_defecto.login(USUARIO_INACTIVO, clave),
+                                     USUARIO_INACTIVO)
     antes = _ids(config_defecto, clave)
     for _ in range(2):
         r = config_defecto.compose("run", "--rm", "--no-deps", "-T", "api",

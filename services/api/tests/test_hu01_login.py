@@ -9,7 +9,8 @@ import pytest
 
 from ayudas_hu01 import (
     RUTA_LOGIN, USUARIO_INACTIVO, USUARIOS_ACTIVOS, ahora_utc, clave_mala, firma_error,
-    instante, problemas_error, problemas_login_ok, tipos, usuario_falso,
+    instante, precondicion_sin_bloqueo_vigente, problemas_error, problemas_login_ok, tipos,
+    usuario_falso,
 )
 
 
@@ -63,13 +64,17 @@ def test_usuario_inexistente_identico(config_defecto):
     assert falso in str(ev[0]["parametros"])
 
 
-def test_usuario_inactivo_identico(config_defecto, clave):
-    """§1 'Usuario inactivo' (decisión 3): idéntico a clave incorrecta, con clave correcta."""
-    mala = config_defecto.login("revisor1", clave_mala())
-    r = config_defecto.login(USUARIO_INACTIVO, clave)
+def test_usuario_inactivo_identico(config_intentos_alto, clave):
+    """§1 'Usuario inactivo' (decisión 3): idéntico a clave incorrecta, con clave correcta.
+    Veredicto A2: con BLOQUEO_INTENTOS=1000 (§6) el contador de inactivo1 no puede llegar al
+    bloqueo, sea cual sea su valor previo."""
+    s = config_intentos_alto
+    precondicion_sin_bloqueo_vigente(s.login(USUARIO_INACTIVO, clave), USUARIO_INACTIVO)
+    mala = s.login("revisor1", clave_mala())
+    r = s.login(USUARIO_INACTIVO, clave)
     assert problemas_error(r, "CREDENCIALES_INVALIDAS") == []
     assert firma_error(r) == firma_error(mala)
-    assert tipos(config_defecto.eventos(r.traza)) == ["LOGIN_FALLIDO"]
+    assert tipos(s.eventos(r.traza)) == ["LOGIN_FALLIDO"]
 
 
 CUERPOS_INVALIDOS = [
