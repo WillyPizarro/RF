@@ -150,8 +150,43 @@ class ClienteHttp:
             return Respuesta(e.code, dict(e.headers.items()), e.read().decode("utf-8"))
 
 
+MOTIVO_PROXY = "NO VERIFICADO: puerto 80 ocupado por http.sys"  # ENCARGO-HU-01-02 M-8
+
+
+def _proxy_responde(url_base: str, timeout: float = 2.0) -> bool:
+    """Chequeo rápido (M-8): ¿el proxy contesta algo en `url_base`? Cualquier respuesta HTTP,
+    aunque sea un error, cuenta como "arriba"; una conexión rechazada o sin respuesta, no."""
+    contexto = ssl.create_default_context()
+    contexto.check_hostname = False
+    contexto.verify_mode = ssl.CERT_NONE
+    try:
+        urllib.request.urlopen(url_base.rstrip("/") + RUTA_SALUD, timeout=timeout, context=contexto)
+        return True
+    except urllib.error.HTTPError:
+        return True
+    except (OSError, ValueError):
+        return False
+
+
 @pytest.fixture(scope="session")
-def cliente(pytestconfig: pytest.Config) -> ClienteHttp:
+def proxy_disponible(pytestconfig: pytest.Config) -> bool:
+    """M-8. `PROXY_DISPONIBLE=0` lo da por caído sin probar; `PROXY_DISPONIBLE=1` lo da por
+    arriba (las pruebas corren y fallan si no lo está); sin la variable, chequeo de 2 s una vez
+    por sesión."""
+    valor = os.environ.get("PROXY_DISPONIBLE", "").strip()
+    if valor == "0":
+        return False
+    if valor == "1":
+        return True
+    return _proxy_responde(pytestconfig.getoption("--url-base"))
+
+
+@pytest.fixture(scope="session")
+def cliente(pytestconfig: pytest.Config, proxy_disponible: bool) -> ClienteHttp:
+    """Cliente del proxy. Si el proxy no está, toda prueba que lo use (directamente o vía
+    `sistema_sano`) se omite con MOTIVO_PROXY: nunca queda en verde sin haber corrido."""
+    if not proxy_disponible:
+        pytest.skip(MOTIVO_PROXY)
     return ClienteHttp(pytestconfig.getoption("--url-base"))
 
 

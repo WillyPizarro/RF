@@ -1,7 +1,17 @@
 # Informe TESTER — HU-01 + HU-02 (iniciar sesión y acceso por rol)
 
-**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v5** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-7) · **Rama:** `hu-01`
+**Contratos:** `docs/contratos/CONTRATO-HU-01.md` **v5** y `docs/contratos/CONTRATO-HU-02.md` **v3** · **Encargo:** `docs/contratos/ENCARGO-HU-01-02.md` (M-1 a M-8) · **Rama:** `hu-01`
 **Suite completa (M-5), una sola vez:** 2026-11-19/20, sobre la punta de `hu-01` (`7053c9c`, que incluye el commit definitivo del DEV `c1b432f` y mis pruebas `af516e4`). Arranque con `up -d --build` y los dos archivos de compose; usuarios cargados con `python -m app.cargar_usuarios` (exit 0). El proxy no arrancó: el puerto 80 lo ocupa `http.sys` (encargo, regla 8).
+
+## Pruebas que pasan por el proxy (M-8)
+
+Las pruebas que usan el proxy (`https://localhost`: la fixture `cliente`, directamente o vía `sistema_sano`; son `test_salud.py`, `test_errores.py`, `test_logs.py`, `test_dependencias.py`, 2 de `test_contrato_openapi.py` y `test_red.py::test_simuladores_no_responde_desde_el_anfitrion`) ya no esperan 90 s cada una:
+
+- **Sin variable (por defecto):** una sola vez por sesión, un `GET <url-base>/v1/salud` con 2 s de espera. Cualquier respuesta HTTP, aunque sea un error, cuenta como proxy arriba y las pruebas corren como antes. Una conexión rechazada o sin respuesta omite todas esas pruebas con el motivo **"NO VERIFICADO: puerto 80 ocupado por http.sys"**.
+- **`PROXY_DISPONIBLE=0`:** las omite sin probar.
+- **`PROXY_DISPONIBLE=1`:** las fuerza a correr (si el proxy no está, fallan: nunca quedan en verde sin haber corrido).
+
+Comprobado (sin correr la suite completa, como pide M-8): los seis archivos de esas pruebas, con `--integracion` → **33 omitidas con ese motivo y 10 en verde (las que no usan el proxy), en 4,7 s** (antes, unos 48 min). Con `PROXY_DISPONIBLE=1`, `test_simuladores_no_responde_desde_el_anfitrion` corre y falla, porque el proxy está caído. Con `=0`, se omite en 0,01 s. El chequeo vive en `services/api/tests/conftest.py` (`proxy_disponible`, `MOTIVO_PROXY`); no cambia ningún contrato.
 
 ## Vuelta 1 del veredicto (M-6)
 
