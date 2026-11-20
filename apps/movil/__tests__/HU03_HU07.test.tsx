@@ -1,5 +1,6 @@
 /**
- * CONTRATO-HU-03 v3 §6 (PLA-01 a PLA-08, ERR-01) y CONTRATO-HU-07 v2 §5 (BIT-01, BIT-02).
+ * CONTRATO-HU-03 v4 §6 (PLA-01 a PLA-08, ERR-01, PLA-01 sin catálogo) y CONTRATO-HU-07 v3 §5
+ * (BIT-01 con sus filtros, BIT-02).
  * El caso pendiente de HU-01 (retomar la sesión) está en HU01_retomar_*.test.tsx: un archivo por
  * variante, para que cada una arranque con la app recién cargada (la app guarda estado en
  * memoria de módulo y Jest da un registro de módulos limpio por archivo).
@@ -76,6 +77,10 @@ const T = {
   origen: 'Origen: datos sintéticos',
   errorBitacora: 'No se pudo cargar la bitácora; intente nuevamente',
   vacia: 'No hay registros para estos filtros.',
+  idCampo: 'ID',
+  aplicar: 'Aplicar filtros',
+  ayudaFecha: 'dd/mm/aaaa',
+  fechaInvalida: 'Use fechas con el formato dd/mm/aaaa.',
 };
 
 // --- Servidor falso --------------------------------------------------------------------------
@@ -306,6 +311,36 @@ describe('HU-03 — acceso y PLA-01', () => {
   });
 });
 
+describe('HU-03 v4 — PLA-01 sin catálogo', () => {
+  test.each([
+    ['503', () => err(503, 'SERVICIO_NO_DISPONIBLE', 'No se pudo completar la operación; intente nuevamente')],
+    ['error de red', () => 'red' as const],
+    ['respuesta inesperada', () => ({ estado: 200, cuerpo: { otra: 'cosa' } })],
+  ])('GET /v1/motivos con %s → error de PLA-07, no se puede consultar; "Reintentar" vuelve a pedir el catálogo', async (_n, falla) => {
+    servidor('agente');
+    let veces = 0;
+    rutas['GET /v1/motivos'] = (ll) =>
+      ++veces === 1 ? (falla as Manejador)(ll) : { estado: 200, cuerpo: { motivos: MOTIVOS, formato_placa: FORMATO } };
+    await entrar('agente');
+    await waitFor(() => screen.getByText(T.rolAgente), ESPERA);
+    await fireEvent.press(screen.getByText(T.consultarPlaca));
+    await waitFor(() => screen.getByText(T.errorConsulta), ESPERA);
+    expect(screen.getByText(T.reintentar)).toBeTruthy();
+    expect(screen.getByText(T.volver)).toBeTruthy();
+    const boton = screen.queryByText(T.consultar);
+    if (boton) {
+      expect(boton).toBeDisabled();
+      await fireEvent.press(boton);
+    }
+    expect(posts()).toEqual([]);
+    expect(arbol()).not.toMatch(/sin requisitoria/i);
+    await fireEvent.press(screen.getByText(T.reintentar));
+    await waitFor(() => screen.getByText(T.motivo), ESPERA);
+    expect(veces).toBe(2);
+    expect(screen.queryByText(T.errorConsulta)).toBeNull();
+  });
+});
+
 describe('HU-03 — validación local (no se envía nada)', () => {
   test('PLA-02: sin motivo → "Indique el motivo de la consulta." y ningún POST', async () => {
     servidor('agente');
@@ -521,9 +556,15 @@ describe('HU-03 — consulta y resultados', () => {
 // HU-07 §5
 // =============================================================================================
 
-function registro(id: number, tipo: string, extra: Record<string, unknown> = {}) {
+/** UUID determinista a partir de un número (la columna `id` de `bitacora` es uuid). */
+function uuid(n: number) {
+  const h = n.toString(16).padStart(8, '0');
+  return `${h}-0000-4000-8000-${h.padStart(12, '0')}`;
+}
+
+function registro(n: number, tipo: string, extra: Record<string, unknown> = {}) {
   return {
-    id,
+    id: uuid(n),
     ocurrido_en: '2026-11-19T15:04:00Z',
     usuario: 'agente1',
     rol: 'agente',
@@ -557,6 +598,27 @@ const ETIQUETAS_RESULTADO: Record<string, string> = {
   placa_no_registrada: 'Placa no registrada',
   error: 'Error',
 };
+
+function campoTexto(etiqueta: string) {
+  const c = inputs().find(
+    (i) =>
+      i.props.accessibilityLabel === etiqueta ||
+      i.props['aria-label'] === etiqueta ||
+      i.props.placeholder === etiqueta,
+  );
+  if (!c) throw new Error(`No se encuentra el campo "${etiqueta}" (sin etiqueta accesible ni ayuda con ese texto)`);
+  return c;
+}
+
+/** "Desde" y "Hasta": por etiqueta accesible; si no la tienen, por orden entre los campos con la ayuda dd/mm/aaaa. */
+function campoFecha(etiqueta: 'Desde' | 'Hasta') {
+  const ins = inputs();
+  const porEtiqueta = ins.find((i) => i.props.accessibilityLabel === etiqueta || i.props['aria-label'] === etiqueta);
+  if (porEtiqueta) return porEtiqueta;
+  const fechas = ins.filter((i) => i.props.placeholder === T.ayudaFecha);
+  if (fechas.length < 2) throw new Error('No se encuentran los campos de fecha');
+  return fechas[etiqueta === 'Desde' ? 0 : 1];
+}
 
 async function abrirBitacora(manejador: Manejador) {
   servidor('supervisor');
@@ -622,22 +684,66 @@ describe('HU-07 — BIT-01 y BIT-02', () => {
     expect(screen.queryByText(T.cargarMas)).toBeNull();
   });
 
-  test('BIT-02: detalle de solo lectura de un registro de placa, sin "ID de captura" ni "Score"', async () => {
-    const r = registro(77, 'ERROR_FUENTE', {
+  test('BIT-02 (v3): "Registro #<8 primeros del id>", "ID" con el id completo, solo lectura; sin "ID de captura" ni "Score"', async () => {
+    const r = registro(0x77abcdef, 'ERROR_FUENTE', {
       motivo: 'control_vehicular',
       resultado: 'error',
       codigo_error: 'FUENTE_NO_DISPONIBLE',
       parametros: { placa: 'ZZA-101', fuente: 'placas' },
+      consulta_id: 'c-77',
     });
+    const id = String(r.id);
     await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [r], siguiente_cursor: null } }));
     await waitFor(() => screen.getByText(ETIQUETAS_TIPO.ERROR_FUENTE), ESPERA);
     await fireEvent.press(screen.getByText(ETIQUETAS_TIPO.ERROR_FUENTE));
-    await waitFor(() => screen.getByText('Registro #77', { exact: false }), ESPERA);
+    await waitFor(() => screen.getByText(`Registro #${id.slice(0, 8)}`, { exact: false }), ESPERA);
+    expect(screen.queryByText(`Registro #${id}`, { exact: false })).toBeNull();
+    expect(screen.getByText(T.idCampo)).toBeTruthy();
+    expect(screen.getByText(id, { exact: false })).toBeTruthy();
     expect(screen.getByText(T.soloLectura)).toBeTruthy();
     expect(screen.getByText(T.origen, { exact: false })).toBeTruthy();
     expect(arbol()).toContain('FUENTE_NO_DISPONIBLE');
     expect(arbol()).toContain('agente1');
     expect(arbol()).not.toMatch(/ID de captura|Score/);
+  });
+
+  test('BIT-01 (v3): filtros con "Filtros", "Usuario", "Desde", "Hasta", "Tipo", "Resultado", ayuda dd/mm/aaaa y "Aplicar filtros"', async () => {
+    await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
+    await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+    for (const t of ['Filtros', 'Usuario', 'Desde', 'Hasta', 'Tipo', 'Resultado']) {
+      expect(screen.getAllByText(t).length).toBeGreaterThan(0);
+    }
+    const ayudas =
+      screen.queryAllByText(T.ayudaFecha, { exact: false }).length +
+      inputs().filter((i) => i.props.placeholder === T.ayudaFecha).length;
+    expect(ayudas).toBeGreaterThanOrEqual(2); // en "Desde" y en "Hasta"
+  });
+
+  test.each(['2026-11-19', '19-11-2026', '32/13/2026', 'ayer'])(
+    'BIT-01 (v3): fecha inválida "%s" → "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud',
+    async (fecha) => {
+      await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
+      await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+      const antes = llamadas.filter((l) => l.ruta === '/v1/bitacora').length;
+      await fireEvent.changeText(campoFecha('Desde'), fecha);
+      await fireEvent.press(screen.getByText(T.aplicar));
+      await waitFor(() => screen.getByText(T.fechaInvalida), ESPERA);
+      expect(llamadas.filter((l) => l.ruta === '/v1/bitacora').length).toBe(antes);
+    },
+  );
+
+  test('BIT-01: "Aplicar filtros" con usuario y una fecha válida pide la bitácora con usuario y desde', async () => {
+    await abrirBitacora(() => ({ estado: 200, cuerpo: { registros: [registro(1, 'LOGIN_OK')], siguiente_cursor: null } }));
+    await waitFor(() => screen.getByText(T.aplicar), ESPERA);
+    const antes = llamadas.filter((l) => l.ruta === '/v1/bitacora').length;
+    await fireEvent.changeText(campoTexto('Usuario'), 'agente1');
+    await fireEvent.changeText(campoFecha('Desde'), '19/11/2026');
+    await fireEvent.press(screen.getByText(T.aplicar));
+    await waitFor(() => expect(llamadas.filter((l) => l.ruta === '/v1/bitacora').length).toBe(antes + 1), ESPERA);
+    const q = new URLSearchParams(llamadas.filter((l) => l.ruta === '/v1/bitacora').pop()!.query);
+    expect(q.get('usuario')).toBe('agente1');
+    expect(q.get('desde')).toBeTruthy();
+    expect(screen.queryByText(T.fechaInvalida)).toBeNull();
   });
 
   test.each([

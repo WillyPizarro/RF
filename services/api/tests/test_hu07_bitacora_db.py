@@ -30,13 +30,13 @@ def s(config_defecto):
 
 
 def _un_id(s) -> int:
-    filas = s.sql_json("select id, motivo from bitacora order by id desc limit 1")
+    filas = s.sql_json("select id from bitacora order by ocurrido_en desc, id desc limit 1")
     assert filas, "la bitácora está vacía"
     return filas[0]["id"]
 
 
 def _foto(s, id_):
-    return s.sql_json(f"select * from bitacora where id = {id_}")
+    return s.sql_json(f"select * from bitacora where id::text = '{id_}'")
 
 
 def _dueno(s) -> str:
@@ -71,8 +71,8 @@ def test_permisos_de_api_app(s):
 
 
 SENTENCIAS = {
-    "update": "update bitacora set motivo = 'x' where id = {id}",
-    "delete": "delete from bitacora where id = {id}",
+    "update": "update bitacora set motivo = 'x' where id::text = '{id}'",
+    "delete": "delete from bitacora where id::text = '{id}'",
     "truncate": "truncate bitacora",
 }
 
