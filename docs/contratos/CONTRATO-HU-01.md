@@ -1,8 +1,8 @@
 # CONTRATO — HU-01 Iniciar sesión y mantener una sesión segura
 
 **Tipo:** Feature
-**Versión:** v4
-**Estado:** Aprobado (v1 a v4: 2026-11-19, humano)
+**Versión:** v5
+**Estado:** Aprobado (v1 a v5: 2026-11-19, humano)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -59,6 +59,7 @@ POST /v1/auth/login
 | Clave correcta durante el bloqueo | Clave correcta antes de `bloqueado_hasta` | La misma respuesta `423`, con el mismo `bloqueado_hasta` (el bloqueo no se alarga) · bitácora `LOGIN_FALLIDO` con `codigo_error = CUENTA_BLOQUEADA` | Gherkin esc. 4 ("no indica si la clave era correcta") |
 | Clave incorrecta durante el bloqueo | — | Idéntico al caso anterior | Gherkin esc. 4 |
 | Fin del bloqueo | Clave correcta después de `bloqueado_hasta` | `200` y el contador en 0 | ADR-0011 |
+| Fallo después del bloqueo | Clave incorrecta (o usuario inactivo o inexistente) después de `bloqueado_hasta` | `401` `CREDENCIALES_INVALIDAS`: el contador empezó de nuevo al terminar el bloqueo, así que es el fallo 1 de `BLOQUEO_INTENTOS` (hacen falta otros 5 seguidos para volver a bloquear) · bitácora `LOGIN_FALLIDO` | Hueco del veredicto vuelta 0 (A2) · **v5** |
 | Usuario inexistente | 5 fallos seguidos con un `usuario` que no existe | Se comporta igual (`423` con `bloqueado_hasta`), para no revelar qué usuarios existen | Observación de UX en AUTH-04 · DECISIÓN PROPUESTA 5 |
 
 ### 3. Renovación, cierre e inactividad (provisional, PA #18)
@@ -180,3 +181,4 @@ Respondidas por el humano el 2026-11-19:
 | v2 | 2026-11-19 | §4 bis (montaje en `App.tsx` sin expo-router, `fetch` global, `testID="app-raiz"`, `BackHandler`); AUTH-03 observable desde afuera (SecureStore simulado sin claves, sin datos del usuario anterior, sin el token viejo) en lugar de "caché y store vacíos"; qué cuenta como interacción | Hueco que reportó el TESTER: el contrato no fijaba la interfaz de la app para Jest | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | §3: una renovación exitosa cuenta como actividad en el servidor | Aviso del DEV: el contrato no lo decía, y sin eso la sesión vencería en pantallas que no llaman a la API aunque el usuario las esté tocando | Humano, 2026-11-19 |
 | v4 | 2026-11-19 | §4: AUTH-01 con campos vacíos muestra "Ingrese su usuario y su clave" y no envía la solicitud | Revisión UX #5 (`docs/ux/revisiones/HU-01-02.md`) | Humano, 2026-11-19 |
+| v5 | 2026-11-19 | §2: un fallo después de `bloqueado_hasta` es el fallo 1 (el contador empieza de nuevo al terminar el bloqueo) | Hueco que apareció al arbitrar el veredicto de la vuelta 0 (A2): el contrato solo fijaba la clave correcta después del bloqueo | Humano, 2026-11-19 |

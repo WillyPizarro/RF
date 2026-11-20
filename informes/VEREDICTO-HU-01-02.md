@@ -85,7 +85,7 @@ La corrida completa de la API (52 min) la hace el LEAD en la vuelta 1, sobre los
 
 ## 7. Preguntas para el humano y `NO VERIFICADO`
 
-**Pregunta (hueco de HU-01 §2):** cuando termina un bloqueo y el siguiente intento falla, ¿el contador empieza de nuevo (es el fallo 1 de 5) o la cuenta se vuelve a bloquear con ese fallo? El código hace lo primero (`services/api/app/auth.py:110`).
+**Pregunta (hueco de HU-01 §2):** cuando termina un bloqueo y el siguiente intento falla, ¿el contador empieza de nuevo (es el fallo 1 de 5) o la cuenta se vuelve a bloquear con ese fallo? El código hace lo primero (`services/api/app/auth.py:110`). **Respuesta del humano (2026-11-19): empieza de nuevo** → CONTRATO-HU-01 **v5** y M-7 del encargo.
 
 **`NO VERIFICADO` para aceptación del humano:**
 

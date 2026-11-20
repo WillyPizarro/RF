@@ -83,3 +83,10 @@ Aquí se agregan las aclaraciones durante el ciclo (M-1, M-2, …). Cada una dic
 - **TESTER — A2 (se apartó la prueba):** `test_usuario_inactivo_identico` y el último paso de `test_carga_de_usuarios_idempotente` suponen que el contador de `inactivo1` está en 0 y no lo aseguran. Haz que lo aseguren **por un camino que el contrato fija**, por ejemplo con una configuración de la API con `BLOQUEO_INTENTOS` alto (§6). No te apoyes en lo que pasa con el contador después de que termina un bloqueo: el contrato no lo dice y está en pregunta al humano.
 - **TESTER — A3 (se apartó la prueba):** `test_contrato_sin_rutas_de_negocio` quedó obsoleta desde HU-01. Cámbiala por la lista de rutas vigente (`/v1/salud`, `/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/logout` y `/v1/me`), o retírala si eso ya lo cubre otra prueba.
 - **TESTER, después de A2 y A3:** corre los archivos que tocaste, y el Jest de AUTH-03 cuando llegue la entrega del DEV (el LEAD te avisa). Al terminar: `ENTREGA TESTER` con el informe actualizado. La suite completa la repite el LEAD.
+
+### M-7 (2026-11-19) — CONTRATO-HU-01 v5
+
+**Reemplaza** a M-4 en la versión de HU-01: el documento de trabajo ahora es CONTRATO-HU-01 **v5**. HU-02 sigue en v3. El humano respondió la pregunta de M-6: **al terminar un bloqueo, el contador empieza de nuevo**, así que el siguiente fallo es el 1 de `BLOQUEO_INTENTOS` (nueva fila en §2, "Fallo después del bloqueo").
+
+- **DEV:** sin cambios por la v5: es lo que ya hace `services/api/app/auth.py`. Sigue con A1 de M-6.
+- **TESTER:** agrega la prueba de la v5 (fallo después de `bloqueado_hasta` → `401 CREDENCIALES_INVALIDAS`, no `423`). Para A2 ya puedes apoyarte en esa regla si te sirve.
