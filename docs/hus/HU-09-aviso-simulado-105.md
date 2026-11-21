@@ -10,7 +10,7 @@ PRD › Alcance — Incluye › Componente 2 › Aviso simulado al 105 (decisió
 
 Depende de HU-03 (placa con requisitoria, pantalla PLA-05), HU-06 (decisión "Confirmar" del revisor, que el agente ve en VER-02) y HU-07 (bitácora).
 
-**Estado:** el PM decidió que esta HU se define ahora (BA y UX) pero **no se desarrolla** hasta que él lo autorice: sin contrato, sin código y sin pruebas.
+**Estado:** **aprobada por el humano el 2026-11-20**, junto con la propuesta de UX (vista previa con confirmación y fecha y hora en el mensaje). Sigue **sin desarrollo** (sin contrato, código ni pruebas) hasta que el PM lo autorice.
 
 ## Criterios de aceptación (Gherkin)
 
@@ -77,7 +77,7 @@ Característica: Aviso simulado al 105
 ## Supuestos
 - El aviso lo pulsa el usuario en campo que hizo la consulta. Para la placa, desde el resultado "tiene requisitoria" (PLA-05); para el rostro, desde el detalle de su verificación ya confirmada (VER-02), no desde ROS-05. Quién más puede pulsarlo es el PA #34.
 - Para la placa, el mensaje no lleva nombre de persona: el PRD dice "placa o código de requisitoria", y el nombre aplica a la coincidencia facial.
-- Escenario 5 y la vista previa con "Registrar aviso simulado" o "Cancelar" (AVI-01, AVI-02) son una propuesta de UX (2026-11-20). El PRD no pide un paso de confirmación; se adopta porque refuerza "nunca automático". El aviso se registra al confirmar. **Pendiente de aprobación humana** como elemento no solicitado, igual que la fecha y hora en el mensaje.
+- Escenario 5 y la vista previa con "Registrar aviso simulado" o "Cancelar" (AVI-01, AVI-02) son una propuesta de UX (2026-11-20). El PRD no pide un paso de confirmación; se adopta porque refuerza "nunca automático". El aviso se registra al confirmar. Elemento no solicitado por el PRD, **aprobado por el humano el 2026-11-20**, igual que la fecha y hora en el mensaje.
 - Mientras no se responda el PA #32, la ubicación es la del dispositivo, con permiso, y se muestra solo en el celular (supuesto de trabajo del PRD). Mientras no se responda el PA #34, se muestra como coordenadas: una dirección pediría un servicio externo de geocodificación.
 - La redacción del nombre sigue siendo "Posible coincidencia — requiere revisión" aunque el revisor haya confirmado (decisión del 2026-11-20). La redacción de la coincidencia confirmada en sí sigue abierta (PA #28).
 - El aviso simulado no cambia el estado de la consulta ni de la revisión.

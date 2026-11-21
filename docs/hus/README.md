@@ -81,11 +81,11 @@ También aprobados los 8 elementos no solicitados por las HUs que propuso UX (`d
 - HU-05: nuevos Escenarios 6 (permiso de cámara denegado) y 7 (permiso retirado antes de capturar). OCR-04 solo cubría la placa (HU-04 E3). Sin captura no hay comparación, no se muestra ningún resultado facial y nada se registra como comparación.
 - HU-05 y PRD: Puntos Abiertos #29 y #30: si el intento sin captura se registra en la bitácora (y con qué datos), y si el motivo se conserva al volver de los ajustes.
 
-## Cambios por las decisiones del humano del 2026-11-20 (pendientes de aprobación)
+## Cambios por las decisiones del humano del 2026-11-20 (aprobados por el humano el 2026-11-20)
 
-El PM decidió que se definen ahora (BA y UX) pero **no se desarrollan** hasta que él lo autorice: sin contrato, sin código y sin pruebas.
+Aprobados HU-05 E8 y E9, HU-09 y la propuesta de UX (vista previa con confirmación y fecha y hora en el aviso). Siguen **sin desarrollo** (sin contrato, código ni pruebas) hasta que el PM lo autorice.
 
 - HU-05: el Escenario 2 ya no rechaza una foto por tener varios rostros. Nuevos Escenarios 8 (el usuario elige un solo rostro; solo ese se compara y se conserva) y 9 (sale sin elegir: no se compara nada y la foto se descarta). PRD PA #33.
 - HU-09 nueva: aviso simulado al 105. Cinco escenarios: placa, coincidencia confirmada, sin permiso de ubicación, resultados que no lo habilitan, cancelar en la vista previa. PRD PA #32 (propagado) y #34.
-- Pantallas coordinadas con UX: ROS-10 "Elija un rostro"; botón en PLA-05 y VER-02; AVI-01 (vista previa) y AVI-02 (confirmación). La vista previa con confirmación y la fecha y hora en el mensaje son propuestas de UX, no pedidas por el PRD.
+- Pantallas coordinadas con UX: ROS-10 "Elija un rostro"; botón en PLA-05 y VER-02; AVI-01 (vista previa) y AVI-02 (confirmación). La vista previa con confirmación y la fecha y hora en el mensaje son propuestas de UX, no pedidas por el PRD; aprobadas el 2026-11-20.
 - Conflictos C5 y C6.

@@ -87,9 +87,9 @@ Característica: Verificación facial
     Y no se registra ninguna comparación en la bitácora
 ```
 
-> Escenarios 8 y 9: el PM decidió que se definen ahora (BA y UX) pero **no se desarrollan** hasta que él lo autorice. Pendientes de aprobación humana.
+> Escenarios 8 y 9: **aprobados por el humano el 2026-11-20**. Siguen **sin desarrollo** (sin contrato, código ni pruebas) hasta que el PM lo autorice.
 
-### Escenario 8 — Foto con varias personas: el usuario elige un rostro (decisión del humano, 2026-11-20; reemplaza el rechazo por "más de un rostro" del Escenario 2)
+### Escenario 8 — Foto con varias personas: el usuario elige un rostro (decisión del humano y aprobado el 2026-11-20; reemplaza el rechazo por "más de un rostro" del Escenario 2)
 ```gherkin
   Escenario: La captura tiene más de un rostro y el usuario elige uno
     Dado que un usuario en campo indicó el motivo de consulta
@@ -103,7 +103,7 @@ Característica: Verificación facial
     Y la app no ofrece comparar otro rostro de la misma foto
 ```
 
-### Escenario 9 — Foto con varias personas: el usuario no elige ningún rostro (2026-11-20)
+### Escenario 9 — Foto con varias personas: el usuario no elige ningún rostro (aprobado el 2026-11-20)
 ```gherkin
   Escenario: El usuario sale de la selección sin elegir un rostro
     Dado que la app marcó varios rostros en la captura
