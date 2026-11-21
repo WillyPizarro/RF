@@ -121,3 +121,13 @@ Es lo que haría el prebuild después de copiar la plantilla, y genera el mismo 
 | Hoja A4 de placas (M-1): 8 placas `ZZ` (`ZZA-101`, `ZZB-201`, `ZZZ-999` y 5 de la semilla), una por hoja, A4 horizontal al 90 % (27 × 13,5 cm), fondo blanco, texto negro grueso y "PRUEBA — NO VÁLIDA" fuera del recuadro. Se genera leyendo `semilla.json`. Comprobada con Edge sin ventana: el PDF sale de 8 páginas y cada placa en una línea; sin imágenes | `pruebas/datos/hoja-placas-prueba.html` (generador: `pruebas/datos/generar_hoja_placas.py`) |
 | Guion de las pruebas físicas (M-2): casos "Dispositivo" del §6, sin red (§3), conexión (§8) y el paso a paso del §5, con los comandos `adb` exactos | `pruebas/datos/GUION-HU-04-dispositivo.md` |
 | Plantilla del CSV de precisión (columnas `placa_impresa,leida,condicion,coincide`), para la fase de pruebas | `pruebas/datos/ocr-precision.csv` |
+
+## WIP — pausa del 2026-11-20 (orden del PM: solo documentos)
+
+**Rojo de `apps/movil/__tests__/HU04_sin_cache.test.tsx` (45/46):** se reproduce. Después de "Salir", el 2.º login deja el usuario vacío. Diagnóstico de caja negra con las props de los `TextInput`:
+- **Sin** desmontar y volver a montar `App` en la misma prueba: tras "Salir", `changeText` actualiza el campo (`value = "supervisor1"`). Funciona.
+- **Con** `screen.unmount()` y un segundo `render(<App />)` (el paso "retomar la sesión"): tras "Salir", los campos son `editable` y tienen `onChangeText`, pero `value` sigue en `""` después de `changeText`.
+
+Sospecha (sin confirmar): es un efecto del segundo montaje en el mismo proceso de Jest, no algo que un usuario pueda reproducir. Si se confirma, se corrige la prueba (por ejemplo, separar "retomar" y "bitácora" en pruebas distintas) sin aflojar la verificación de `no-store`. Si el rojo sigue en un montaje único, se reporta al LEAD como hallazgo de la app.
+
+**Pendiente al retomar:** cerrar ese punto, correr `services/api/tests/test_hu04_sin_cache.py` contra docker cuando el LEAD lo libere y esperar la ENTREGA DEV de la M-9 a la M-12. DESPLIEGUE-01: falta la regresión local de la M-1 y el informe (sin cambios desde `f734c39`).
