@@ -20,6 +20,7 @@ La app se construye con **React Native + Expo en modo dev build** (con EAS Build
 - **Cámara:** una librería de cámara compatible con dev build (referencia: `react-native-vision-camera`).
 - **OCR de placa:** Google ML Kit Text Recognition, en el dispositivo.
 - **Calidad facial:** Google ML Kit Face Detection, en el dispositivo. Mide el número de rostros, el ángulo, si los ojos están abiertos y el tamaño del rostro en el cuadro.
+  - *Precisión propuesta en el [ADR-0015](0015-foto-varias-personas-rostro-elegido.md) (C6, propuesto el 2026-11-21, pendiente de aprobación):* en una foto con varias personas, ML Kit marca todos los rostros, el usuario elige uno y la app envía solo el recorte de ese rostro. "Más de un rostro" deja de ser un motivo de rechazo en el dispositivo.
 - **Token de sesión:** almacenamiento seguro del sistema (`expo-secure-store`). Nada de imágenes en disco.
 
 El LEAD confirma en el Sprint 0 qué paquetes exactos usar (los wrappers de ML Kit) y su compatibilidad con la versión del SDK de Expo.

@@ -81,6 +81,8 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0012](adrs/0012-acceso-datos-migraciones.md) | SQLAlchemy 2 async y Alembic | Aceptado |
 | [ADR-0013](adrs/0013-estado-app.md) | Estado en memoria (TanStack Query) y sesión en SecureStore | Aceptado |
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
+| [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | **Propuesto** |
+| [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | **Propuesto** |
 
 ## Modelos biométricos fijados
 
