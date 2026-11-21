@@ -1,6 +1,6 @@
 # Informe DEV — HU-04 (capturar la placa con la cámara), etapa 1
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v4** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-11 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
+**Documento de trabajo:** `docs/contratos/CONTRATO-HU-04.md` **v5** · **Encargo:** `docs/contratos/ENCARGO-HU-04.md` con M-1 a M-12 · **Rama:** `hu-04` · **Fecha:** 2026-11-19
 
 No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` ni drivers ni SDK de Android. Solo agregué dependencias npm al proyecto.
 
@@ -16,7 +16,18 @@ No leí ni ejecuté las pruebas del TESTER. No instalé nada en la PC: ni `adb` 
   - `StatusBar style="light"`: íconos claros.
   - No cambió ningún texto.
 - **Jest:** el proveedor recibe `initialMetrics` con márgenes 0 cuando no hay medidas nativas. Con eso, Jest dibuja las pantallas **sin simular** la librería: no hace falta un mock en `__tests__/`.
-- **Dev build nuevo:** `react-native-safe-area-context` es un **módulo nativo**, así que el dev build anterior no lo trae. Para la mini sesión hace falta el nuevo, cuyo enlace va abajo.
+- **Dev build nuevo:** `react-native-safe-area-context` es un **módulo nativo**, así que el dev build anterior no lo trae. Para la mini sesión hace falta el nuevo:
+  - Build `a3380e39-17d7-4b3e-89ca-db59bcd9eff8`, perfil `development`, **finished** (commit `6eafcd1`, que ya incluye `0ccd8fb`). M-12 es solo JS: no hace falta otro build.
+  - Página: https://expo.dev/accounts/willypizarros-team/projects/movil-buscador/builds/a3380e39-17d7-4b3e-89ca-db59bcd9eff8
+  - APK: https://expo.dev/artifacts/eas/TkKcq4ABsiAT60g622gwSHsW02xnairHzFnh0g2P9l4.apk
+
+### M-12: aviso de telemetría en OCR-01 (CONTRATO-HU-04 v5) — WIP, en pausa
+
+- **Código (`427a40a`):**
+  - `src/estado/sesion.ts`: flag `avisoMlkitVisto`, solo en memoria (sin SecureStore). Se repone en `salir` y en `reiniciarLocal` (`src/sesion/controlador.ts`).
+  - `src/pantallas/PantallaOcr.tsx`: tarjeta sobre el visor con los textos exactos del §3 y el botón "Entendido". Mientras se ve, "Capturar" está desactivado y `capturar()` no llama a `capturarYLeer`. "Ingresar manualmente" sigue activo, y la tarjeta no aparece en OCR-04.
+- **Captura para el UX:** `OCR-01-aviso` (PNG y HTML a 390 px) en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\HU-04\`. Las demás capturas se regeneraron con el safe area.
+- **Pendiente al retomar:** revisar las PNG regeneradas, cerrar esta sección y hacer la `ENTREGA DEV` de M-9 a M-12.
 
 ### M-10: sin caché HTTP (CONTRATO-HU-04 v4)
 
