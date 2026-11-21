@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Movil Buscador · Prototipo</title>
 <!--
-  Prototipo navegable (UX) — HU-01 a HU-09 (HU-05 E8/E9 y HU-09 aprobadas el 2026-11-20, sin desarrollo).
+  Prototipo navegable (UX) — HU-01 a HU-10 (HU-05 E8-E10, HU-09 y HU-10 definidas el 2026-11-20, sin desarrollo).
   Fuente: docs/ux/wireframes/ (inventario aprobado el 2026-11-18) y docs/ux/README.md.
   Archivo local, sin servicios externos, sin dependencias, sin persistencia (al recargar se reinicia).
   Solo datos sintéticos. Rostros = siluetas SVG dibujadas aquí; ninguna foto.
@@ -223,6 +223,13 @@ const ROLE_LABEL = { agente:'Agente', revisor:'Revisor', supervisor:'Supervisor'
 const ROLE_HOME = { agente:'HOME-01', revisor:'REV-01', supervisor:'BIT-01' };
 const PLATES = { 'ABC-123':'requisitoria', 'DEF-456':'sin', 'GHI-789':'caida', 'XYZ-999':'noreg' };
 // Placa con formato válido que no está en la lista: la fuente no la conoce → placa_no_registrada (CONTRATO-HU-03 decisión 3; nunca "sin requisitoria")
+/* HU-10 · consultas complementarias simuladas (PA 35). Sin propietario. */
+const VEH = {
+  'ABC-123': { marca:'Toyota', modelo:'Yaris', color:'Plata', anio:2018, estado:'Inscrito (dato sintético)' },
+  'DEF-456': { marca:'Hyundai', modelo:'Accent', color:'Blanco', anio:2020, estado:'Inscrito (dato sintético)' }
+};
+const SAT = { 'ABC-123': { n:3, monto:1240, grave:true }, 'DEF-456': { n:0, monto:0, grave:false } };
+const FUENTE = { sunarp:'SUNARP (simulado)', sat:'SAT Lima (simulado)' };
 const MOTIVOS = [
   { v:'op1', t:'Opción 1 (por definir)' },
   { v:'op2', t:'Opción 2 (por definir)' },
@@ -262,9 +269,10 @@ const S = {
   fails: {}, locks: {},
   draft: null,
   bitFilter: { fecha:'', usuario:'', tipo:'' },
-  demo: { plate:'auto', face:'posible', camera:'ok', cameraFace:'ok', ocr:'ABC-123', people:'1', loc:'preguntar', gps:'ok', avisoReg:'ok', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
+  demo: { plate:'auto', face:'posible', camera:'ok', cameraFace:'ok', ocr:'ABC-123', people:'1', loc:'preguntar', gps:'ok', avisoReg:'ok', sunarp:'auto', sat:'auto', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
   log: [], seqLog: 117,
   verifs: [], seqV: 10,
+  comp: {},                   // HU-10: ID de la consulta → { placa, motivo, sunarp, sat, marca }
   avisos: {}                  // HU-09: ID de la consulta → fecha del aviso simulado registrado
 };
 function freshDraft(){ return { pla:{placa:'',sel:'',otro:''}, ros:{sel:'',otro:'',id:''}, rev:{vid:null,dec:'',mot:''} }; }
@@ -499,13 +507,27 @@ def('PLA-04', { role:'agente', fname:'Consultar placa', noBack:true, render(p){
     <div style="font-size:20px;font-weight:700" role="status">Consultando…</div><div class="note">Placa <span class="mono"><b>${esc(p.placa)}</b></span></div>
     <div style="width:100%;margin-top:20px"><button class="btn primary" disabled>Consultar</button></div></div>`;
 }});
+function compSection(p){
+  const c = S.comp[p.cid] || {};
+  const b = (f, label) => {
+    const r = c[f];
+    if (r && !r.err) return `<button class="btn sec" data-a="compAbrir" data-f="${f}" data-cid="${p.cid}">${label} · ✓ ${fHM(r.at)}</button>`;   // PA 36 c: se vuelve a ver sin otra consulta
+    return `<button class="btn sec" data-a="compAbrir" data-f="${f}" data-cid="${p.cid}">${label}</button>`;
+  };
+  return `<div class="msg" style="gap:8px"><div class="lbl" style="margin:0">Consultas complementarias (simuladas) ${pa(35)}</div>
+    <div class="note" style="margin:0">Usan el mismo motivo: ${esc(p.motivo)}</div>
+    ${b('sunarp','Datos del vehículo (SUNARP, simulado)')}
+    ${b('sat','Papeletas (SAT Lima, simulado)')}
+    ${Object.keys(c).some(k => c[k] && c[k].at) ? `<div>${pa(36,'c · volver a ver sin otra consulta')}</div>` : ''}</div>`;
+}
 function plateResult(p, cls, kicker, text, aviso){
   return bar('Resultado', {backA:'home'}) + `<div class="body">
     <div class="result ${cls}" role="status"><div class="rk">${kicker}</div><div class="rp mono">${esc(p.placa)}</div><div class="rt">${text}</div></div>
     ${S.demo.pa15==='datos' ? reserved('Datos adicionales', '(campos por definir)', pa(15)) : ''}
     <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div>${p.cid?`<div><b>ID:</b> ${p.cid}</div>`:''}</div>
     <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
-      ${aviso && p.cid ? avisoBtn(p.cid, { kind:'placa', ref:p.cid, placa:p.placa }) : ''}
+      ${aviso && p.cid ? compSection(p) : ''}
+      ${aviso === true && p.cid ? avisoBtn(p.cid, { kind:'placa', ref:p.cid, placa:p.placa }) : ''}
       <button class="btn primary" data-a="nuevaPlaca">Nueva consulta</button></div>
   </div>`;
 }
@@ -515,11 +537,12 @@ def('PLA-08', { role:'agente', fname:'Consultar placa', render(p){
   return bar('Resultado', {backA:'volverForm'}) + `<div class="body">
     <div class="result r-slate" role="status"><div class="rk">Resultado de la consulta</div><div class="rp mono">${esc(p.placa)}</div>
       <div class="rt">Placa no registrada en la fuente consultada. Verifique la placa.</div></div>
+    ${reserved('Consultas complementarias', 'No se ofrecen por ahora.', pa(36,'a'))}
     <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div></div>
     <div style="margin-top:auto"><button class="btn primary" data-a="volverForm">Volver</button></div>
   </div>`;
 }});
-def('PLA-06', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-gray', 'Resultado de la consulta', 'Sin requisitoria registrada en la fuente consultada'); }});
+def('PLA-06', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-gray', 'Resultado de la consulta', 'Sin requisitoria registrada en la fuente consultada', 'comp'); }});
 def('PLA-07', { role:'agente', fname:'Consultar placa', render(){
   return bar('Consultar placa') + `<div class="body center">
     <div class="state-ic st-warn">⚠</div>
@@ -739,6 +762,63 @@ def('REV-04', { role:'revisor', fname:'Revisión', noBack:true, render(p){
     <div class="big-msg" role="status">Decisión registrada</div>
     <p class="note">${p.vid} · ${esc(DECISION[p.dec].label)} · ${fHM(p.at)}</p>
     <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="home">Volver a pendientes</button></div>
+  </div>`;
+}});
+
+/* ---------- HU-10 (consultas complementarias simuladas) ---------- */
+function compHead(f, placa){ return `<div class="alert info" role="note"><span class="ai">ⓘ</span><span><b>SIMULACIÓN.</b> Datos sintéticos de ${FUENTE[f]}. No se consultó ninguna fuente real.</span></div>
+  <div class="meta"><div><b>Placa:</b> <span class="mono">${esc(placa)}</span></div></div>`; }
+def('COM-01', { role:'agente', fname:'Consultar placa', noBack:true, render(p){
+  return bar(p.f==='sunarp'?'Datos del vehículo':'Papeletas', {back:false}) + `<div class="body center"><div class="spin" aria-hidden="true"></div>
+    <div style="font-size:20px;font-weight:700" role="status">Consultando ${FUENTE[p.f]}…</div><div class="note">Placa <span class="mono"><b>${esc(p.placa)}</b></span></div></div>`;
+}});
+def('COM-02,COM-02B', { role:'agente', fname:'Consultar placa', render(p){
+  const c = S.comp[p.cid], r = c.sunarp;
+  if (r.noreg) return bar('Datos del vehículo', {backA:'back'}) + `<div class="body">${compHead('sunarp', c.placa)}
+    <div class="result r-slate" role="status"><div class="rk">SUNARP (simulado)</div><div class="rt" style="font-size:21px">Placa no registrada en SUNARP (simulado). Verifique la placa.</div></div>
+    <div>${pa(35)} ${pa(36,'propuesta · pend. aprobación')}</div>
+    <div style="margin-top:auto"><button class="btn primary" data-a="back">Volver al resultado</button></div></div>`;
+  const v = r.data, row = (k,x) => `<dt>${k}</dt><dd>${esc(x)}</dd>`;
+  const marca = c.marca
+    ? `<div class="status" role="status" style="color:var(--slate)">⚑ Marcado: No coincide con lo registrado · ${fHM(c.marca)}</div><p class="note" style="margin:0">Quedó en la bitácora. La app no saca ninguna conclusión: verifique por otros medios. ${pa(36,'b · sin campo, no se deshace')}</p>`
+    : `<button class="btn sec" data-a="compMarcar">No coincide con lo registrado</button>`;
+  return bar('Datos del vehículo', {backA:'back'}) + `<div class="body">${compHead('sunarp', c.placa)}
+    <div class="lbl" style="margin:0">Características registradas</div>
+    <dl class="kv">${row('Marca', v.marca)}${row('Modelo', v.modelo)}${row('Color', v.color)}${row('Año', v.anio)}${row('Estado registral', v.estado)}</dl>
+    <p class="note" style="margin:0">No se muestra el propietario. ${pa(15)}</p>
+    <div class="alert warn" role="note"><span class="ai">👁</span><span>Compare estos datos con el vehículo que tiene delante.</span></div>
+    <div class="meta"><div><b>Motivo:</b> ${esc(c.motivo)}</div><div><b>Consultado:</b> ${fFull(r.at)}</div></div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">${marca}
+      <button class="btn primary" data-a="back">Volver al resultado</button></div>
+  </div>`;
+}, idOf(p){ const c = S.comp[p.cid]; return c.sunarp.noreg ? 'COM-02 · no registrada' : c.marca ? 'COM-02 · marcado' : 'COM-02'; }});
+def('COM-03', { role:'agente', fname:'Consultar placa', render(p){
+  return bar('Datos del vehículo') + `<div class="body" style="justify-content:center"><div class="sysdlg" role="dialog" aria-label="Confirmar marca">
+    <h2>¿Marcar que el vehículo no coincide con lo registrado?</h2>
+    <p class="note" style="margin:0 0 6px;text-align:center">La marca queda en la bitácora con el motivo de la consulta y no se puede quitar. ${pa(36,'b')}</p>
+    <button data-a="compConfirmarMarca">Marcar</button>
+    <button data-a="back">Cancelar</button></div></div>`;
+}});
+def('COM-04', { role:'agente', fname:'Consultar placa', render(p){
+  const c = S.comp[p.cid], r = c.sat, v = r.data;
+  const res = v.n === 0
+    ? `<div class="result r-gray" role="status"><div class="rk">SAT Lima (simulado)</div><div class="rt" style="font-size:21px">Sin papeletas pendientes registradas en SAT Lima</div></div>`
+    : `<div class="result r-slate" role="status"><div class="rk">SAT Lima (simulado)</div><div class="rt" style="font-size:21px">${v.n} papeleta${v.n>1?'s':''} pendiente${v.n>1?'s':''}</div></div>
+       <dl class="kv"><dt>Monto pendiente</dt><dd>S/ ${v.monto.toLocaleString('es-PE',{minimumFractionDigits:2})}</dd><dt>¿Alguna grave?</dt><dd>${v.grave?'Sí':'No'}</dd></dl>`;
+  return bar('Papeletas', {backA:'back'}) + `<div class="body">${compHead('sat', c.placa)}
+    ${res}
+    <p class="note" style="margin:0">Solo cubre papeletas de Lima Metropolitana. ${pa(35,'solo Lima')}</p>
+    <div class="meta"><div><b>Motivo:</b> ${esc(c.motivo)}</div><div><b>Consultado:</b> ${fFull(r.at)}</div></div>
+    <div style="margin-top:auto"><button class="btn primary" data-a="back">Volver al resultado</button></div>
+  </div>`;
+}});
+def('COM-05', { role:'agente', fname:'Consultar placa', render(p){
+  return bar(p.f==='sunarp'?'Datos del vehículo':'Papeletas') + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" role="alert">No se pudo completar la consulta a ${FUENTE[p.f]}; intente nuevamente</div>
+    <div class="row" style="width:100%;margin-top:16px">
+      <button class="btn primary" data-a="compReintentar">Reintentar</button>
+      <button class="btn sec" style="width:auto" data-a="back">Volver</button></div>
   </div>`;
 }});
 
@@ -987,6 +1067,46 @@ const ACT = {
     setCur('REV-04', { vid, dec, at });
   },
 
+  /* HU-10 */
+  compAbrir(el){
+    const f = el.dataset.f, cid = el.dataset.cid, p = S.cur.p;
+    const c = S.comp[cid] || (S.comp[cid] = { placa:p.placa, motivo:p.motivo });
+    const r = c[f];
+    if (r && !r.err) return go(f==='sunarp' ? 'COM-02' : 'COM-04', { cid });   // se vuelve a ver sin nueva consulta
+    go('COM-01', { f, cid, placa:c.placa }); ACT.compConsultar(f, cid);
+  },
+  compConsultar(f, cid){
+    const c = S.comp[cid], tk = S.token;
+    setTimeout(() => {
+      if (tk !== S.token) return;
+      const at = new Date(), mode = S.demo[f];
+      const base = { motivo:c.motivo, ref:c.placa, detalle:'Consulta de origen: ' + cid };
+      if (mode === 'error') {
+        c[f] = { err:true };
+        addLog(Object.assign({}, base, { user:'sistema', tipo:'Error', resultado: FUENTE[f] + ' no disponible', detalle:'Placa ' + c.placa + ' · consulta de ' + S.user.u + ' · ' + base.detalle }));
+        return replace('COM-05', { f, cid });
+      }
+      if (f === 'sunarp') {
+        const data = mode === 'noreg' ? null : (VEH[c.placa] || null);
+        c.sunarp = data ? { at, data } : { at, noreg:true };
+        addLog(Object.assign({ user:S.user.u, tipo:'Consulta SUNARP (simulada)', resultado: data ? 'Características registradas mostradas' : 'Placa no registrada en SUNARP (simulado)' }, base));
+        return replace('COM-02', { cid });
+      }
+      const data = SAT[c.placa] || { n:0, monto:0, grave:false };
+      c.sat = { at, data };
+      addLog(Object.assign({ user:S.user.u, tipo:'Consulta de papeletas SAT Lima (simulada)', resultado: data.n ? `${data.n} pendientes · S/ ${data.monto} · grave: ${data.grave?'sí':'no'}` : 'Sin papeletas pendientes registradas en SAT Lima' }, base));
+      replace('COM-04', { cid });
+    }, CFG.PLATE_MS);
+  },
+  compReintentar(){ const p = S.cur.p; replace('COM-01', { f:p.f, cid:p.cid, placa:S.comp[p.cid].placa }); ACT.compConsultar(p.f, p.cid); },
+  compMarcar(){ go('COM-03', { cid:S.cur.p.cid }); },
+  compConfirmarMarca(){
+    const cid = S.cur.p.cid, c = S.comp[cid];
+    c.marca = new Date();
+    addLog({ user:S.user.u, tipo:'Marca: No coincide con lo registrado', motivo:c.motivo, ref:c.placa, resultado:'Marcado por el usuario (la app no concluye nada)', detalle:'Consulta de origen: ' + cid, pa:35 });
+    back();
+  },
+
   /* HU-09 */
   avisar(el){
     const d = AVISO_DATA[el.dataset.ref];
@@ -1075,6 +1195,9 @@ function demoPanel(){
     ${sel('camera','Cámara (placa)',[['ok','Permiso concedido'],['denegado','Permiso denegado']])}
     ${sel('cameraFace','Cámara (rostro)',[['ok','Permiso concedido'],['denegado','Permiso denegado o retirado']],'Denegado: ROS-09 al continuar a cámara (HU-05 E6). Retirado: elegirlo estando en la captura y tocar Capturar (E7).')}
     ${sel('ocr','Lectura de placa',[['ABC-123','Lee ABC-123'],['DEF-456','Lee DEF-456'],['GHI-789','Lee GHI-789'],['falla','Falla la lectura']])}
+    <h3>Consultas complementarias (HU-10)</h3>
+    ${sel('sunarp','SUNARP (simulado)',[['auto','Según placa sintética'],['noreg','Forzar placa no registrada'],['error','Forzar error']],'ABC-123 y DEF-456 tienen datos; otra placa: no registrada')}
+    ${sel('sat','SAT Lima (simulado)',[['auto','Según placa (ABC-123: 3 papeletas · DEF-456: ninguna)'],['error','Forzar error']])}
     <h3>Aviso simulado al 105 (HU-09)</h3>
     ${sel('loc','Permiso de ubicación',[['preguntar','Aún no pedido (muestra el diálogo)'],['ok','Concedido'],['denegado','Denegado']])}
     ${sel('gps','Lectura de la ubicación',[['ok','Responde'],['sinfix','GPS apagado o sin respuesta']])}

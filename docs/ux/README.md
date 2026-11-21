@@ -24,7 +24,8 @@ Estado: **aprobado por el usuario (vía BA) el 2026-11-18**: elementos no solici
 | [wireframes/HU-08-simuladores-fuentes.md](wireframes/HU-08-simuladores-fuentes.md) | Sin pantallas propias; dónde se ven sus errores; panel de demo |
 | [wireframes/HU-05-variante-varias-personas.md](wireframes/HU-05-variante-varias-personas.md) | HU-05 E8 a E10: foto con varias personas, se elige un rostro (aprobado 2026-11-20; sin desarrollo) |
 | [wireframes/HU-09-aviso-simulado-105.md](wireframes/HU-09-aviso-simulado-105.md) | HU-09: aviso simulado al 105, solo en el celular (aprobado 2026-11-20; sin desarrollo) |
-| [prototipo/index.html](prototipo/index.html) | Prototipo navegable local, HU-01 a HU-09, tres roles ([notas de entrega](prototipo/README.md)) |
+| [wireframes/HU-10-consultas-complementarias-placa.md](wireframes/HU-10-consultas-complementarias-placa.md) | HU-10: datos del vehículo (SUNARP) y papeletas (SAT Lima), simulados, a pedido (2026-11-20; sin desarrollo) |
+| [prototipo/index.html](prototipo/index.html) | Prototipo navegable local, HU-01 a HU-10, tres roles ([notas de entrega](prototipo/README.md)) |
 | [prototipo/GUION-VALIDACION.md](prototipo/GUION-VALIDACION.md) | Guion de recorrido de 15 min para la validación del 1-dic-2026 |
 | [bolt-prompt.md](bolt-prompt.md) | Solo referencia: no se usa bolt.new (decisión del humano, 2026-11-19) |
 
@@ -121,6 +122,11 @@ flowchart TD
 | AVI-01 | Vista previa del aviso simulado al 105 (con o sin ubicación) | HU-09 · E1, E2, E3 y E5 (Cancelar no registra). Aprobado 2026-11-20, sin desarrollo |
 | AVI-02 | Aviso simulado registrado | HU-09 · E1 a E3; E6 (un aviso por consulta) |
 | AVI-03 | No se pudo registrar el aviso | Regla 7 (error ≠ resultado) |
+| COM-01 | Consultando SUNARP o SAT Lima (simulado) | HU-10 · transición |
+| COM-02 | Datos del vehículo para comparar; marcado; no registrada en SUNARP | HU-10 · E1, E5 y E7 (E7 pendiente de aprobación) |
+| COM-03 | Confirmar "No coincide con lo registrado" | HU-10 · E5 (pendiente de aprobación) |
+| COM-04 | Papeletas (SAT Lima, simulado); sin papeletas en SAT Lima | HU-10 · E2 y E3 |
+| COM-05 | No se pudo completar la consulta complementaria | HU-10 · E4 (regla 7) |
 | DEMO | Panel de demo (solo prototipo) | HU-08 · E1–E3 (simular respuestas); alterna variantes de PA |
 
 ## Cómo se aplican las reglas de negocio clave

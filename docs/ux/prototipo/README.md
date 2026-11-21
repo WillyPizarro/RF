@@ -1,4 +1,4 @@
-# Prototipo navegable — HU-01 a HU-09
+# Prototipo navegable — HU-01 a HU-10
 
 Rol: UX. Fecha: 2026-11-19. Encargo: PM → UX "Prototipo navegable (H1)". Revisión interna: viernes 27-nov-2026. Validación con el área usuaria: martes 1-dic-2026.
 
@@ -28,6 +28,7 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 | Sin la palabra "identificado" | Verificado con una búsqueda en el archivo: 0 apariciones |
 | Foto con varias personas (HU-05 E8 a E10, aprobado 2026-11-20, sin desarrollo) | "⚙ Demo → Personas en la foto: Tres" → ROS-10, se elige un rostro y "Comparar este rostro". "Repetir captura" o "←" descartan la foto sin registrar nada (E9). "Seis" → ROS-03 "Hay más de 5 personas en la foto" (E10, PA 33). "Respuesta de rostro: Recorte: rostros muy juntos" → ROS-03 (ADR-0015). BIT-02 muestra "Rostros en la foto: N" |
 | Aviso simulado al 105 (HU-09, aprobado 2026-11-20, sin desarrollo) | Botón en PLA-05 (`ABC-123`) y en VER-02 de `V-0005` (confirmada). AVI-00 permiso, AVI-01 vista previa ("Cancelar" no registra), AVI-02 registrado, AVI-03 error. Opciones "Permiso de ubicación", "Lectura de la ubicación" y "Registro del aviso" en el panel. Un aviso por consulta; la bitácora guarda "Ubicación disponible: sí/no", sin coordenadas |
+| Consultas complementarias de placa (HU-10, 2026-11-20, sin desarrollo) | Sección en PLA-05 (`ABC-123`) y PLA-06 (`DEF-456`). COM-02 datos del vehículo, sin propietario, con "No coincide con lo registrado" → COM-03 confirmación → marcado. COM-04 papeletas (`ABC-123`: 3; `DEF-456`: ninguna). COM-05 error. "⚙ Demo → SUNARP / SAT Lima (simulado)" fuerza no registrada o error. Volver a abrir no repite la consulta (PA 36 c) |
 | Valores provisionales | Motivo: lista "Opción 1/2/3 (por definir)" + "Otro" con 10 caracteres o más (PA 21). Máximo 3 candidatos (PA 22). Placa con "Solo estado" por defecto (PA 15). Espacio reservado para el aviso de tratamiento de datos en ROS-02 (PA 25) |
 
 ## Verificación hecha
