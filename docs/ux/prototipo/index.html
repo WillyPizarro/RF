@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Movil Buscador · Prototipo</title>
 <!--
-  Prototipo navegable (UX) — HU-01 a HU-08.
+  Prototipo navegable (UX) — HU-01 a HU-09 (HU-05 E8/E9 y HU-09 aprobadas el 2026-11-20, sin desarrollo).
   Fuente: docs/ux/wireframes/ (inventario aprobado el 2026-11-18) y docs/ux/README.md.
   Archivo local, sin servicios externos, sin dependencias, sin persistencia (al recargar se reinicia).
   Solo datos sintéticos. Rostros = siluetas SVG dibujadas aquí; ninguna foto.
@@ -158,6 +158,22 @@ body.nomarks .pa{display:none!important}
 .sheet .fixed{background:var(--gray-bg);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:8px}
 .sep{height:1px;background:var(--line);margin:4px 0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.group{position:relative;border-radius:12px;overflow:hidden;border:1.5px solid var(--line);background:#E2E8F0}
+.group svg{display:block;width:100%;height:auto}
+.fbox{position:absolute;border:3px solid #fff;border-radius:10px;background:rgba(15,23,42,.08);cursor:pointer;min-width:48px;min-height:48px;box-shadow:0 0 0 1px rgba(15,23,42,.5)}
+.fbox span{position:absolute;left:-3px;top:-3px;background:#0F172A;color:#fff;font-weight:800;font-size:13px;border-radius:8px 0 8px 0;padding:1px 7px}
+.fbox.on{border-color:var(--blue);border-width:5px;background:rgba(29,78,216,.12)}
+.group.chosen .fbox:not(.on){opacity:.45}
+.group.chosen .dim{opacity:.35}
+.facebtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.facebtn{min-height:48px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-weight:700;cursor:pointer}
+.facebtn.on{border-color:var(--blue);background:var(--blue-bg);color:var(--blue);border-width:2.5px}
+.msg{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:#F8FAFC}
+.msg .k{font-size:13px;color:var(--muted);font-weight:600}
+.msg .v{font-size:16px;font-weight:700}
+.sysdlg{margin:auto 18px;background:#fff;color:var(--ink);border-radius:24px;padding:22px;box-shadow:0 20px 40px -10px rgba(15,23,42,.5);display:flex;flex-direction:column;gap:10px}
+.sysdlg h2{font-size:18px;margin:0 0 6px;text-align:center}
+.sysdlg button{min-height:48px;border-radius:24px;border:0;background:#E0E7FF;color:#1E3A8A;font-weight:700;cursor:pointer}
 .login-head{text-align:center;padding:36px 0 10px}
 .login-head .logo{width:72px;height:72px;border-radius:20px;background:#E2E8F0;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
 .login-head .logo svg{width:40px;height:40px;stroke:#334155;fill:none;stroke-width:2}
@@ -218,7 +234,9 @@ const QUALITY = {
   'q-luz':'Más luz',
   'q-borrosa':'Imagen borrosa',
   'q-varias':'Solo debe aparecer una persona',
-  'q-sinrostro':'No se detectó un rostro'
+  'q-sinrostro':'No se detectó un rostro',
+  'q-juntos':'Los rostros están muy juntos',   // ADR-0015: el recorte se hace en el celular
+  'q-masde5':'Hay más de 5 personas en la foto'   // HU-05 E8 · PA 33 (supuesto: máximo 5 rostros)
 };
 const TXT = {
   posible:'Posible coincidencia — requiere revisión',
@@ -244,9 +262,10 @@ const S = {
   fails: {}, locks: {},
   draft: null,
   bitFilter: { fecha:'', usuario:'', tipo:'' },
-  demo: { plate:'auto', face:'posible', camera:'ok', cameraFace:'ok', ocr:'ABC-123', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
+  demo: { plate:'auto', face:'posible', camera:'ok', cameraFace:'ok', ocr:'ABC-123', people:'1', loc:'preguntar', gps:'ok', avisoReg:'ok', pa7:'lista', pa15:'solo', marks:true, ids:false, open:false },
   log: [], seqLog: 117,
-  verifs: [], seqV: 10
+  verifs: [], seqV: 10,
+  avisos: {}                  // HU-09: ID de la consulta → fecha del aviso simulado registrado
 };
 function freshDraft(){ return { pla:{placa:'',sel:'',otro:''}, ros:{sel:'',otro:'',id:''}, rev:{vid:null,dec:'',mot:''} }; }
 S.draft = freshDraft();
@@ -397,6 +416,22 @@ function roleBar(title){
       <div class="sub">Rol: ${ROLE_LABEL[S.user.role]}${S.user.role==='revisor'?' '+pa(2):''}${S.user.role==='supervisor'?' '+pa(24):''}</div>
     </div><button class="btn-salir" data-a="logout">Salir</button></header>`;
 }
+/* HU-09: datos sintéticos del mensaje (PA 15 / PA 32) */
+function reqCode(ref){ return 'REQ-SINT-' + String(ref).replace(/\D/g,'').padStart(4,'0').slice(-4); }
+function synthName(vid){ return 'Persona Sintética ' + vid.slice(-2); }
+const AVISO_DATA = {};
+function avisoBtn(ref, data){
+  const t = S.avisos[ref];
+  if (t) return `<button class="btn sec" disabled style="opacity:.6">Aviso simulado registrado · ${fHM(t)}</button>`;
+  AVISO_DATA[ref] = data;
+  return `<button class="btn sec" data-a="avisar" data-ref="${esc(ref)}">Avisar al 105 (simulado)</button>`;
+}
+function groupScene(sel){
+  const xs = [70,180,290];
+  const ppl = xs.map((x,i) => `<g class="${sel!=null && sel!==i?'dim':''}"><ellipse cx="${x}" cy="92" rx="25" ry="30" fill="#94A3B8"/><path d="M${x-26} 84c0-20 12-30 26-30s26 10 26 30c-7-9-16-11-26-11s-19 2-26 11z" fill="#64748B"/><path d="M${x-50} 240c4-50 22-104 50-104s46 54 50 104z" fill="#94A3B8"/></g>`).join('');
+  const boxes = xs.map((x,i) => `<button class="fbox ${sel===i?'on':''}" data-a="elegirRostro" data-i="${i}" aria-label="Rostro ${i+1} de 3" aria-pressed="${sel===i}" style="left:${(x-36)/360*100}%;top:${50/240*100}%;width:${72/360*100}%;height:${84/240*100}%"><span>${i+1}</span></button>`).join('');
+  return `<div class="group ${sel!=null?'chosen':''}"><svg viewBox="0 0 360 240" role="img" aria-label="Foto capturada con 3 siluetas sintéticas (no es una foto real)"><rect width="360" height="240" fill="#DDE3EA"/>${ppl}<text x="180" y="232" text-anchor="middle" font-size="9" font-family="sans-serif" fill="#475569">SILUETAS SINTÉTICAS</text></svg>${boxes}</div>`;
+}
 function newVerif(){
   S.seqV++;
   return 'V-' + String(S.seqV).padStart(4,'0');
@@ -464,15 +499,17 @@ def('PLA-04', { role:'agente', fname:'Consultar placa', noBack:true, render(p){
     <div style="font-size:20px;font-weight:700" role="status">Consultando…</div><div class="note">Placa <span class="mono"><b>${esc(p.placa)}</b></span></div>
     <div style="width:100%;margin-top:20px"><button class="btn primary" disabled>Consultar</button></div></div>`;
 }});
-function plateResult(p, cls, kicker, text){
+function plateResult(p, cls, kicker, text, aviso){
   return bar('Resultado', {backA:'home'}) + `<div class="body">
     <div class="result ${cls}" role="status"><div class="rk">${kicker}</div><div class="rp mono">${esc(p.placa)}</div><div class="rt">${text}</div></div>
     ${S.demo.pa15==='datos' ? reserved('Datos adicionales', '(campos por definir)', pa(15)) : ''}
-    <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div></div>
-    <div style="margin-top:auto"><button class="btn primary" data-a="nuevaPlaca">Nueva consulta</button></div>
+    <div class="meta"><div><b>Motivo:</b> ${esc(p.motivo)}</div><div><b>Consultado:</b> ${fFull(p.at)}</div>${p.cid?`<div><b>ID:</b> ${p.cid}</div>`:''}</div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      ${aviso && p.cid ? avisoBtn(p.cid, { kind:'placa', ref:p.cid, placa:p.placa }) : ''}
+      <button class="btn primary" data-a="nuevaPlaca">Nueva consulta</button></div>
   </div>`;
 }
-def('PLA-05', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-red', 'Resultado de la consulta', 'TIENE REQUISITORIA'); }});
+def('PLA-05', { role:'agente', fname:'Consultar placa', render(p){ return plateResult(p, 'r-red', 'Resultado de la consulta', 'TIENE REQUISITORIA', true); }});
 def('PLA-08', { role:'agente', fname:'Consultar placa', render(p){
   // CONTRATO-HU-03 decisión 3: ni "sin requisitoria" ni error de fuente (regla 7). Neutro, sin verde ni rojo.
   return bar('Resultado', {backA:'volverForm'}) + `<div class="body">
@@ -541,10 +578,24 @@ def('ROS-01', { role:'agente', fname:'Verificar rostro', render(p){
 }, idOf(p){ return p.errs && p.errs.motivo ? 'ROS-01 · falta motivo' : 'ROS-01'; }});
 def('ROS-02', { role:'agente', fname:'Verificar rostro', dark:true, render(){
   return bar('Verificar rostro', {right:'<span class="step">2 de 2</span>'}) + `<div class="viewer" style="min-height:360px"><div class="face-oval"></div></div>
-    <div class="vhint">Rostro de frente, buena luz, una sola persona.</div>
+    <div class="vhint">Rostro de frente, buena luz. Si hay varias personas, después elegirá una.</div>
     <div style="padding:4px 16px 8px">${reserved('Aviso a la persona — por definir', 'Espacio reservado para el aviso de tratamiento de datos.', pa(25))}</div>
     <button class="shutter" data-a="capturarRostro" aria-label="Capturar"></button><div class="shutter-lbl" style="padding-bottom:16px">CAPTURAR</div>`;
 }});
+def('ROS-10', { role:'agente', fname:'Verificar rostro', render(p){
+  // HU-05 E8/E9: se elige un solo rostro; nada se compara antes de elegir; salir descarta la foto.
+  const sel = p.sel;
+  return bar('Verificar rostro', {backA:'descartarFoto', right:'<span class="step">2 de 2</span>'}) + `<div class="body">
+    <div class="big-msg" style="font-size:20px">Elija el rostro que quiere verificar</div>
+    ${groupScene(sel)}
+    <div class="facebtns" role="group" aria-label="Rostros detectados">${[0,1,2].map(i=>`<button class="facebtn ${sel===i?'on':''}" data-a="elegirRostro" data-i="${i}" aria-pressed="${sel===i}">Rostro ${i+1}</button>`).join('')}</div>
+    <p class="note" style="margin:0">${sel!=null?`<b>Rostro ${sel+1} elegido.</b> `:''}Solo se comparará el rostro que elija. Los demás no se comparan ni se guardan.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${pa(33,'supuesto: máx. 5 · solo la cantidad en la bitácora')}</div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      <button class="btn primary" data-a="compararElegido" ${sel==null?'disabled':''}>Comparar este rostro</button>
+      <button class="btn text" data-a="descartarFoto">Repetir captura</button></div>
+  </div>`;
+}, idOf(p){ return p.sel!=null ? 'ROS-10 · elegido' : 'ROS-10'; }});
 def('ROS-09', { role:'agente', fname:'Verificar rostro', render(){
   // HU-05 E6/E7: sin galería ni otra vía de captura; no se compara; no hay resultado facial.
   return bar('Verificar rostro', {backA:'home'}) + `<div class="body center">
@@ -566,6 +617,7 @@ def('ROS-03', { role:'agente', fname:'Verificar rostro', render(p){
   return bar('Verificar rostro') + `<div class="body center">
     <div class="state-ic st-warn">⚠</div>
     <div class="big-msg" style="font-size:30px" role="alert">${esc(p.motivo)}</div>
+    ${p.nota ? `<p class="note" style="margin-bottom:0">${esc(p.nota)} ${p.motivo===QUALITY['q-masde5'] ? pa(33,'máx. 5') : ''}</p>` : ''}
     <p class="note">La captura no se envió a comparar.</p>
     <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="repetirCaptura">Repetir captura</button></div>
   </div>`;
@@ -633,7 +685,8 @@ def('VER-02', { role:'agente', fname:'Mis verificaciones', render(p){
   else if (v.estado === 'vencida') rev = `<div class="result r-slate" style="padding:14px"><div class="rt" style="font-size:20px">${TXT.nc}</div></div><div>${pa(23,'vencida: 24 h sin revisión')}</div>`;
   else rev = `<div style="font-size:18px;font-weight:700">${DECISION[v.decision].agent} ${pa(28,'redacción')}</div>
       <div class="meta">${fFull(v.decisionAt)}</div>
-      ${reserved('Motivo del revisor — por definir', '', pa(27))}`;
+      ${reserved('Motivo del revisor — por definir', '', pa(27))}
+      ${v.decision==='confirmar' ? avisoBtn(v.id, { kind:'rostro', ref:v.id }) : ''}`;
   return bar(v.id) + `<div class="body">
     <div class="meta"><div><b>${v.id}</b> · ${fFull(v.at)}</div><div><b>Motivo:</b> ${esc(v.motivo)}</div></div>
     <div class="sep"></div>
@@ -689,6 +742,54 @@ def('REV-04', { role:'revisor', fname:'Revisión', noBack:true, render(p){
   </div>`;
 }});
 
+/* ---------- HU-09 (aviso simulado al 105) ---------- */
+def('AVI-00', { role:'agente', fname:'Aviso simulado', dark:true, render(){
+  // Diálogo del sistema (Android). Se pide al usar el aviso, no al iniciar la app.
+  return `<div class="body" style="justify-content:center"><div class="sysdlg" role="dialog" aria-label="Permiso de ubicación">
+    <h2>¿Permitir que Movil Buscador acceda a la ubicación del dispositivo?</h2>
+    <p class="note" style="margin:0 0 6px;text-align:center">Movil Buscador usa la ubicación solo para mostrarla en el aviso simulado al 105. No se envía a ninguna central.</p>
+    <button data-a="locPermiso" data-v="ok">Mientras se usa la app</button>
+    <button data-a="locPermiso" data-v="ok">Solo esta vez</button>
+    <button data-a="locPermiso" data-v="denegado">No permitir</button></div></div>`;
+}});
+def('AVI-01', { role:'agente', fname:'Aviso simulado', render(p){
+  const d = p.d, row = (k,v) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  let loc;
+  if (p.loc === 'buscando') loc = row('Ubicación del dispositivo', '<span role="status">Obteniendo ubicación…</span>');
+  else if (p.loc === 'denegado') loc = row('Ubicación del dispositivo', 'Ubicación no disponible: la app no tiene permiso de ubicación.');
+  else if (p.loc === 'sinfix') loc = row('Ubicación del dispositivo', 'Ubicación no disponible.');
+  else loc = row('Ubicación del dispositivo', `<span class="mono">-12.04637, -77.04279</span><br><span style="font-weight:500;font-size:14px">± 15 m · leída a las ${fHM(p.locAt)}</span> ${pa(34,'b · sin geocodificar')}`);
+  const body = d.kind==='placa'
+    ? row('Placa', `<span class="mono">${esc(d.placa)}</span>`) + row('Código de requisitoria', `<span class="mono">${reqCode(d.ref)}</span> ${pa(15)}`)
+    : row('Código de requisitoria', `<span class="mono">${reqCode(d.ref)}</span> ${pa(15)}`) + row('Persona', `${esc(synthName(d.ref))}<br><span style="color:var(--amber)">${TXT.posible}</span> ${pa(28)}`);
+  return bar('Aviso al 105 (simulado)', {close:true}) + `<div class="body">
+    <div class="alert info" role="note"><span class="ai">ⓘ</span><span><b>SIMULACIÓN.</b> Esto no llama ni envía nada al 105 ni a ninguna central. Solo se muestra en este celular. ${pa(32)}</span></div>
+    <div class="lbl" style="margin:0">Mensaje que se enviaría</div>
+    <div class="msg">${loc}${body}${row('ID de la consulta', esc(d.ref))}${row('Fecha y hora', fFull(p.at))}<div class="note" style="margin:0">No incluye fotos.</div></div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      <button class="btn primary" data-a="registrarAviso" ${p.loc==='buscando'?'disabled':''}>Registrar aviso simulado</button>
+      <button class="btn text" data-a="back">Cancelar</button></div>
+  </div>`;
+}, idOf(p){ return p.loc==='denegado' || p.loc==='sinfix' ? 'AVI-01 · sin ubicación' : 'AVI-01'; }});
+def('AVI-02', { role:'agente', fname:'Aviso simulado', render(p){
+  return bar('Aviso al 105 (simulado)', {back:false}) + `<div class="body center">
+    <div class="state-ic st-done">✓</div>
+    <div class="big-msg" role="status">Aviso simulado registrado</div>
+    <p class="note">No se envió nada a ninguna central. Quedó en la bitácora.</p>
+    <p class="note">${esc(p.ref)} · ${fHM(p.at)}</p>
+    <div style="width:100%;margin-top:12px"><button class="btn primary" data-a="back">Volver al resultado</button></div>
+  </div>`;
+}});
+def('AVI-03', { role:'agente', fname:'Aviso simulado', render(){
+  return bar('Aviso al 105 (simulado)') + `<div class="body center">
+    <div class="state-ic st-warn">⚠</div>
+    <div class="big-msg" role="alert">No se pudo registrar el aviso simulado; intente nuevamente.</div>
+    <div class="row" style="width:100%;margin-top:16px">
+      <button class="btn primary" data-a="reintentarAviso">Reintentar</button>
+      <button class="btn sec" style="width:auto" data-a="back">Volver</button></div>
+  </div>`;
+}});
+
 /* ---------- HU-07 ---------- */
 function logLine(r){
   const parts = [r.tipo];
@@ -727,6 +828,7 @@ def('BIT-02', { role:'supervisor', fname:'Bitácora', render(p){
       ${row('Resultado', esc(r.resultado))}
       ${row('Detalle', esc(r.detalle))}
       ${row('ID de captura', r.captureId?`<span class="mono">${esc(r.captureId)}</span>`:'')}
+      ${r.rostros ? row('Rostros en la foto', r.rostros + (r.rostros>1 ? ' (se comparó solo el elegido) ' + pa(33) : '')) : ''}
       ${isFace ? row('Score', r.score.toFixed(2)) : ''}
       ${isFace || r.tipo==='Captura eliminada' ? row('Imagen', 'no almacenada') : ''}
       ${row('Origen', 'datos sintéticos')}
@@ -797,9 +899,11 @@ const ACT = {
         return setCur('PLA-07');   // el formulario sigue en S.draft (Reintentar conserva placa y motivo)
       }
       const res = { requisitoria:'Tiene requisitoria', sin:'Sin requisitoria registrada en la fuente consultada', noreg:'Placa no registrada en la fuente consultada' }[kind];
-      addLog({ user:S.user.u, tipo:'Consulta de placa', motivo, ref:placa, resultado:res });
+      const lr = addLog({ user:S.user.u, tipo:'Consulta de placa', motivo, ref:placa, resultado:res });
+      const cid = 'C-' + String(lr.n).padStart(4,'0');
+      lr.detalle = 'ID de la consulta: ' + cid;
       S.stack = [{ id:'HOME-01', p:{} }];
-      setCur({ requisitoria:'PLA-05', sin:'PLA-06', noreg:'PLA-08' }[kind], { placa, motivo, at });   // en PLA-08 el formulario sigue en S.draft
+      setCur({ requisitoria:'PLA-05', sin:'PLA-06', noreg:'PLA-08' }[kind], { placa, motivo, at, cid });   // en PLA-08 el formulario sigue en S.draft
     }, CFG.PLATE_MS);
   },
   volverForm(){ setCur('PLA-01'); },
@@ -824,9 +928,19 @@ const ACT = {
   capturarRostro(){
     // HU-05 E7: permiso retirado antes de capturar → misma explicación, nada se compara
     if (S.demo.cameraFace === 'denegado') return replace('ROS-09');
+    // HU-05 E8: con varios rostros se elige uno antes de cualquier control o comparación
+    if (S.demo.people === '6') return replace('ROS-03', { motivo:QUALITY['q-masde5'], nota:'Acérquese a una sola persona y repita la captura.' });   // PA 33: no se compara ni se registra
+    if (S.demo.people === '3') return replace('ROS-10', { sel:null });
+    ACT.comparar();
+  },
+  elegirRostro(el){ S.cur.p.sel = Number(el.dataset.i); render(); },
+  descartarFoto(){ ACT.repetirCaptura(); },   // HU-05 E9: no se compara, la foto se descarta, nada en la bitácora
+  compararElegido(){ if (S.cur.p.sel == null) return; ACT.comparar(); },
+  comparar(){
     const f = S.demo.face;
-    if (QUALITY[f]) return replace('ROS-03', { motivo:QUALITY[f] });   // no se compara ni se registra comparación
+    if (QUALITY[f]) return replace('ROS-03', { motivo:QUALITY[f], nota: f==='q-juntos' ? 'Acérquese a la persona y repita la captura.' : '' });   // calidad solo del rostro elegido; no se compara ni se registra comparación
     const d = S.draft.ros, motivo = motivoText(d.sel, d.otro);
+    const rostros = { rostros: S.demo.people === '3' ? 3 : 1 };   // PA 33: solo la cantidad, sin datos de las otras personas
     replace('ROS-04');
     const tk = S.token;
     setTimeout(() => {
@@ -842,10 +956,10 @@ const ACT = {
       if (f === 'posible') {
         const vid = newVerif();
         S.verifs.push({ id:vid, user:S.user.u, motivo, at, estado:'pendiente', captureId, score, candidates: S.demo.pa7==='lista' ? CFG.MAX_CANDIDATES : 1 });
-        addLog({ user:S.user.u, tipo:'Verificación de rostro', motivo, ref:vid, resultado:TXT.posible, captureId, score });
+        addLog(Object.assign({ user:S.user.u, tipo:'Verificación de rostro', motivo, ref:vid, resultado:TXT.posible, captureId, score }, rostros));
         return setCur('ROS-05', { motivo, at, vid });
       }
-      addLog({ user:S.user.u, tipo:'Verificación de rostro', motivo, resultado: f==='nc'?TXT.nc:TXT.sin, captureId, score });
+      addLog(Object.assign({ user:S.user.u, tipo:'Verificación de rostro', motivo, resultado: f==='nc'?TXT.nc:TXT.sin, captureId, score }, rostros));
       setCur(f === 'nc' ? 'ROS-06' : 'ROS-07', { motivo, at });
     }, CFG.FACE_MS);
   },
@@ -872,6 +986,30 @@ const ACT = {
     S.stack = [];
     setCur('REV-04', { vid, dec, at });
   },
+
+  /* HU-09 */
+  avisar(el){
+    const d = AVISO_DATA[el.dataset.ref];
+    if (S.demo.loc === 'preguntar') return go('AVI-00', { d });
+    ACT.abrirAviso(d, true);
+  },
+  locPermiso(el){ S.demo.loc = el.dataset.v; ACT.abrirAviso(S.cur.p.d, false); },
+  abrirAviso(d, push){
+    const p = { d, at:new Date(), loc: S.demo.loc==='denegado' ? 'denegado' : 'buscando' };
+    push ? go('AVI-01', p) : replace('AVI-01', p);
+    if (p.loc !== 'buscando') return;
+    const tk = S.token;
+    setTimeout(() => { if (tk !== S.token) return; if (S.demo.gps === 'sinfix') p.loc = 'sinfix'; else { p.loc = 'ok'; p.locAt = new Date(); } render(); }, 900);
+  },
+  registrarAviso(){
+    const p = S.cur.p;
+    if (S.demo.avisoReg === 'error') return go('AVI-03');
+    const at = new Date();
+    S.avisos[p.d.ref] = at;
+    addLog({ user:S.user.u, tipo:'Aviso simulado al 105', ref:p.d.ref, resultado:'Registrado (simulado: no se envió a ninguna central)', detalle:'Ubicación disponible: ' + (p.loc==='ok' ? 'sí' : 'no') + ' (las coordenadas no se guardan)', pa:34 });
+    replace('AVI-02', { ref:p.d.ref, at });
+  },
+  reintentarAviso(){ back(); ACT.registrarAviso(); },
 
   /* HU-07 */
   bitDetalle(el){ go('BIT-02', { n:Number(el.dataset.n) }); },
@@ -932,10 +1070,15 @@ function demoPanel(){
     <div class="dnote">Herramienta del facilitador. No es parte del producto.</div>
     <h3>Simuladores (HU-08)</h3>
     ${sel('plate','Respuesta de placa',[['auto','Según placa sintética'],['noreg','Forzar placa no registrada'],['caida','Forzar fuente caída'],['invalida','Forzar respuesta inválida']],'ABC-123 tiene requisitoria · DEF-456 sin requisitoria · GHI-789 fuente caída · XYZ-999 (y cualquier otra) no registrada')}
-    ${sel('face','Respuesta de rostro',[['posible','Posible coincidencia'],['nc','No concluyente'],['sin','Sin coincidencia'],['error','Error del servicio'],['q-frente','Calidad: Mire de frente'],['q-luz','Calidad: Más luz'],['q-borrosa','Calidad: Imagen borrosa'],['q-varias','Calidad: Varias personas'],['q-sinrostro','Calidad: Sin rostro']])}
+    ${sel('face','Respuesta de rostro',[['posible','Posible coincidencia'],['nc','No concluyente'],['sin','Sin coincidencia'],['error','Error del servicio'],['q-frente','Calidad: Mire de frente'],['q-luz','Calidad: Más luz'],['q-borrosa','Calidad: Imagen borrosa'],['q-sinrostro','Calidad: Sin rostro'],['q-juntos','Recorte: rostros muy juntos (ADR-0015)']],'Con tres personas, la calidad se aplica solo al rostro elegido.')}
+    ${sel('people','Personas en la foto (HU-05 E8)',[['1','Una'],['3','Tres (se elige un rostro)'],['6','Seis (más de 5: se rechaza)']])}
     ${sel('camera','Cámara (placa)',[['ok','Permiso concedido'],['denegado','Permiso denegado']])}
     ${sel('cameraFace','Cámara (rostro)',[['ok','Permiso concedido'],['denegado','Permiso denegado o retirado']],'Denegado: ROS-09 al continuar a cámara (HU-05 E6). Retirado: elegirlo estando en la captura y tocar Capturar (E7).')}
     ${sel('ocr','Lectura de placa',[['ABC-123','Lee ABC-123'],['DEF-456','Lee DEF-456'],['GHI-789','Lee GHI-789'],['falla','Falla la lectura']])}
+    <h3>Aviso simulado al 105 (HU-09)</h3>
+    ${sel('loc','Permiso de ubicación',[['preguntar','Aún no pedido (muestra el diálogo)'],['ok','Concedido'],['denegado','Denegado']])}
+    ${sel('gps','Lectura de la ubicación',[['ok','Responde'],['sinfix','GPS apagado o sin respuesta']])}
+    ${sel('avisoReg','Registro del aviso',[['ok','Se registra'],['error','Falla (AVI-03)']])}
     <h3>Variantes de puntos abiertos</h3>
     <div class="fixed"><b>PA 2:</b> revisor separado (ADR-0003). La variante «mismo usuario» no se incluye: un agente nunca revisa su propia consulta.</div>
     ${sel('pa7','PA 7 · Tipo de comparación',[['lista','Lista acotada'],['1a1','1:1']])}

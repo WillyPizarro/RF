@@ -1,4 +1,4 @@
-# Prototipo navegable — HU-01 a HU-08
+# Prototipo navegable — HU-01 a HU-09
 
 Rol: UX. Fecha: 2026-11-19. Encargo: PM → UX "Prototipo navegable (H1)". Revisión interna: viernes 27-nov-2026. Validación con el área usuaria: martes 1-dic-2026.
 
@@ -26,6 +26,8 @@ Todas las del inventario de `../README.md`: AUTH-01 a 04, HOME-01, ERR-01, PLA-0
 | Placa no registrada (CONTRATO-HU-03 decisión 3) | PLA-08 con `XYZ-999` (o cualquier placa válida que no esté en la lista), o "⚙ Demo → Respuesta de placa: Forzar placa no registrada". Neutro; ni "sin requisitoria" ni error. "Volver" regresa con la placa y el motivo cargados |
 | Errores de fuente que nunca se muestran como negativos | PLA-07, ROS-08 y el error "respuesta fuera de contrato" (HU-08 E3) |
 | Sin la palabra "identificado" | Verificado con una búsqueda en el archivo: 0 apariciones |
+| Foto con varias personas (HU-05 E8 a E10, aprobado 2026-11-20, sin desarrollo) | "⚙ Demo → Personas en la foto: Tres" → ROS-10, se elige un rostro y "Comparar este rostro". "Repetir captura" o "←" descartan la foto sin registrar nada (E9). "Seis" → ROS-03 "Hay más de 5 personas en la foto" (E10, PA 33). "Respuesta de rostro: Recorte: rostros muy juntos" → ROS-03 (ADR-0015). BIT-02 muestra "Rostros en la foto: N" |
+| Aviso simulado al 105 (HU-09, aprobado 2026-11-20, sin desarrollo) | Botón en PLA-05 (`ABC-123`) y en VER-02 de `V-0005` (confirmada). AVI-00 permiso, AVI-01 vista previa ("Cancelar" no registra), AVI-02 registrado, AVI-03 error. Opciones "Permiso de ubicación", "Lectura de la ubicación" y "Registro del aviso" en el panel. Un aviso por consulta; la bitácora guarda "Ubicación disponible: sí/no", sin coordenadas |
 | Valores provisionales | Motivo: lista "Opción 1/2/3 (por definir)" + "Otro" con 10 caracteres o más (PA 21). Máximo 3 candidatos (PA 22). Placa con "Solo estado" por defecto (PA 15). Espacio reservado para el aviso de tratamiento de datos en ROS-02 (PA 25) |
 
 ## Verificación hecha
