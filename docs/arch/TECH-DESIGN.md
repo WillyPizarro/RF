@@ -24,6 +24,7 @@ Las políticas de seguridad avanzadas se documentan, pero no se construyen. El p
 ┌──────────────────────────┐
 │ App móvil (Expo dev build│   OCR + calidad facial en el dispositivo (ML Kit)
 │ Android, TypeScript)     │   Nada en disco salvo el token (SecureStore)
+│                          │   y la cola de telemetría de ML Kit (sin imagen ni texto)
 └────────────┬─────────────┘
              │ HTTPS + JWT  (REST /v1, contrato OpenAPI)
 ┌────────────▼─────────────────────────────── VPS (docker compose) ─┐
@@ -134,6 +135,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 | Datos de la persona o vehículo requisitoriado | Personal, vinculado a requisitoria | Mostrar un resultado controlado | Función de la entidad | Simulador (sintético) | Simulador | Todo el proyecto | Agente y revisor (vista mínima, PA #15) |
 | Credenciales y perfil del usuario | Identificativo | Autenticación y rol | Relación laboral (a validar) | Script de carga | Supabase Auth, `usuario_perfil` | Todo el proyecto | API |
 | Bitácora | Técnico más personal | Trazabilidad y auditoría | Función de la entidad | API | `bitacora` | Todo el proyecto, luego se borra el ambiente; en producción, PA #16 | Supervisor |
+| Metadatos técnicos de uso de ML Kit (Text Recognition; Face Detection en HU-05) | Técnico, con un identificador por instalación | Diagnóstico y mejora del SDK por parte de Google | A validar por Legal (PA #31). Hay que informar al usuario: aviso de OCR-01 | SDK de ML Kit en el dispositivo | Cola local en la app (`datatransport.events`) y servidores de Google, fuera del Perú | La define Google | Google. Sin imagen, sin texto y sin resultados de detección ([ADR-0002](adrs/0002-stack-movil-expo-mlkit.md)) |
 
 ### Controles: implementados en el MVP frente a documentados para producción
 
@@ -144,7 +146,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 | Cifrado en tránsito | HTTPS (Caddy) | Certificados gestionados por la entidad, mTLS hacia las fuentes |
 | Cifrado en reposo | Captura pendiente y galería con AES-GCM a nivel de aplicación; cifrado del proveedor de nube | Gestión de llaves de la entidad (KMS o HSM) |
 | Minimización | Captura de no candidato sin persistencia; placa leída en el dispositivo; score oculto al agente | Ídem más revisión periódica |
-| Dispositivo | Nada en disco salvo el token; limpieza al cerrar sesión | MDM y borrado remoto |
+| Dispositivo | Nada en disco salvo el token y la cola de telemetría de ML Kit (sin imágenes ni texto); limpieza al cerrar sesión | MDM y borrado remoto; control de red sobre la telemetría de SDK de terceros (brecha 10) |
 | Biometría | Lista acotada, máximo 3 candidatos, revisión humana, bandas con umbral documentado | Prueba de vida, evaluación independiente con datos autorizados |
 | Evaluación de impacto | Borrador (pendiente) | Evaluación formal aprobada |
 | Registro del banco de datos | No aplica (datos sintéticos) | Inscripción ante la ANPD si corresponde (a validar) |
@@ -161,6 +163,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 7. MDM; modo sin conexión (si PA #11 lo exige); iOS (si PA #12 lo exige).
 8. Residencia de datos (Postgres fuera del Perú en el MVP); llaves gestionadas por la entidad.
 9. Circuit breaker y monitoreo para fuentes reales; notificaciones push.
+10. Telemetría de SDK de terceros (ML Kit, [ADR-0002](adrs/0002-stack-movil-expo-mlkit.md)): base legal y flujo transfronterizo hacia Google, a validar por Legal (PA #31); información al usuario; control de red por MDM o firewall de la entidad (falta identificar los dominios y confirmar que el OCR siga funcionando). Si el MININTER exige cero tráfico a terceros, el plan alternativo es cambiar el motor de OCR (opción C de la [evaluación](evaluaciones/HU-04-telemetria-mlkit.md)), con un ADR nuevo.
 
 ## Criterios de aceptación por flujo
 
