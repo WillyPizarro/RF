@@ -95,3 +95,4 @@ Aprobados HU-05 E8 y E9, HU-09 y la propuesta de UX (vista previa con confirmaci
 - PA #33: la bitácora registra solo la cantidad de rostros; con más de 5 rostros se rechaza la captura (HU-05 E10 nuevo). ADR-0015 opción A: solo viaja el recorte del rostro elegido.
 - PA #34 (ADR-0016): solo el agente que hizo la consulta; coordenadas sin geocodificar; sin coordenadas en la bitácora; un aviso por consulta; ubicación al pulsar (HU-09 E6 y E7 nuevos).
 - Siguen sin desarrollo hasta que el PM lo autorice.
+- Detalles de UX del aviso aprobados por el humano (2026-11-20): tarjeta "SIMULACIÓN" con "No incluye fotos.", precisión y hora de la lectura, y AVI-03 (error al registrar), que pasa a ser HU-09 E8.

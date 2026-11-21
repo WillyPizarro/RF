@@ -95,7 +95,19 @@ Característica: Aviso simulado al 105
     Y si intenta registrar el aviso por otra vía, se rechaza y no se registra
 ```
 
+### Escenario 8 — Caso borde: no se pudo registrar el aviso (detalle de UX AVI-03, aprobado el 2026-11-20)
+```gherkin
+  Escenario: El registro del aviso simulado falla
+    Dado que el usuario confirmó "Registrar aviso simulado" en la vista previa
+    Y que el registro en la bitácora no se completa
+    Cuando la app recibe el error
+    Entonces muestra "No se pudo registrar el aviso simulado; intente nuevamente" con las opciones "Reintentar" y "Volver"
+    Y en ningún caso indica que el aviso se registró
+    Y la consulta no cuenta como avisada, de modo que el usuario puede reintentar (Escenario 6)
+```
+
 ## Supuestos
+- Detalles de UX aprobados por el humano el 2026-11-20: la vista previa lleva arriba la tarjeta "SIMULACIÓN" (informativa, sin rojo ni sirena) con la línea "No incluye fotos."; las coordenadas se muestran con su precisión y la hora de la lectura; AVI-03 cubre el error al registrar (Escenario 8, regla 7 de `AGENTS.md`).
 - Supuestos de trabajo vigentes del humano (2026-11-20, ADR-0016), hasta que responda el MININTER: (a) el aviso lo pulsa solo el agente que hizo la consulta, y en el caso facial solo después de la confirmación del revisor; (b) la ubicación se muestra en coordenadas con su precisión, sin convertirla en dirección; (c) la bitácora no guarda las coordenadas, solo si hubo ubicación; (d) un solo aviso por consulta; (e) la ubicación es la del momento en que se pulsa el aviso, en una sola lectura.
 - Textos de UX (2026-11-20): en la bitácora el aviso muestra "Ubicación disponible: sí/no", sin coordenadas.
 - El permiso de ubicación (solo mientras se usa la app) se pide la primera vez que el usuario pulsa el aviso, nunca al abrir la app (ADR-0016).
