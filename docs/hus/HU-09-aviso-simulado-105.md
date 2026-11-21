@@ -82,7 +82,7 @@ Característica: Aviso simulado al 105
     Dado que el usuario ya registró un aviso simulado para una consulta
     Cuando vuelve al resultado de esa consulta
     Entonces la app no ofrece "Avisar al 105 (simulado)" de nuevo
-    Y indica que el aviso de esa consulta ya se registró
+    Y el botón aparece desactivado con el texto "Aviso simulado registrado · hh:mm"
     Y no se registra un segundo aviso
 ```
 
@@ -97,6 +97,7 @@ Característica: Aviso simulado al 105
 
 ## Supuestos
 - Supuestos de trabajo vigentes del humano (2026-11-20, ADR-0016), hasta que responda el MININTER: (a) el aviso lo pulsa solo el agente que hizo la consulta, y en el caso facial solo después de la confirmación del revisor; (b) la ubicación se muestra en coordenadas con su precisión, sin convertirla en dirección; (c) la bitácora no guarda las coordenadas, solo si hubo ubicación; (d) un solo aviso por consulta; (e) la ubicación es la del momento en que se pulsa el aviso, en una sola lectura.
+- Textos de UX (2026-11-20): en la bitácora el aviso muestra "Ubicación disponible: sí/no", sin coordenadas.
 - El permiso de ubicación (solo mientras se usa la app) se pide la primera vez que el usuario pulsa el aviso, nunca al abrir la app (ADR-0016).
 - Para la placa, el aviso se pulsa desde el resultado "tiene requisitoria" (PLA-05); para el rostro, desde el detalle de la verificación ya confirmada (VER-02), no desde ROS-05.
 - Para la placa, el mensaje no lleva nombre de persona: el PRD dice "placa o código de requisitoria", y el nombre aplica a la coincidencia facial.

@@ -122,9 +122,10 @@ Característica: Verificación facial
     Y que captura una foto en la que se detectan más de 5 rostros
     Cuando la app procesa la captura
     Entonces la app no ofrece elegir un rostro
-    Y rechaza la captura con el motivo e indica que se acerque a una sola persona y repita la captura
+    Y rechaza la captura con el motivo "Hay más de 5 personas en la foto" y la nota "Acérquese a una sola persona y repita la captura. La captura no se envió a comparar."
     Y no se envía nada a comparar
     Y la foto se descarta sin guardarse
+    Y no se registra ninguna comparación en la bitácora, igual que en el Escenario 2
 ```
 
 ## Supuestos
@@ -134,6 +135,7 @@ Característica: Verificación facial
 - Escenarios 6 y 7: a diferencia de la placa (HU-04 E3), el rostro no tiene vía alternativa. No hay ingreso manual equivalente, y la foto de galería no figura en el PRD (solo dice "captura del rostro") y el wireframe ROS-02 la excluye. Sin permiso no hay captura, y sin captura no hay comparación ni resultado (reglas 3 y 7 de `AGENTS.md`).
 - Escenarios 8 y 9 (derivados de la decisión del 2026-11-20, no inventados): "sigue siendo una consulta por persona" implica una sola comparación por foto. Para consultar a otra persona de la misma escena se inicia otra consulta, con su motivo y su captura.
 - Escenario 8: "los demás no se guardan" alcanza también a la captura de un candidato que ADR-0008 conserva cifrada hasta la revisión. Lo que se conserva y lo que ve el revisor (HU-06) es solo el rostro elegido, no la foto completa con las otras personas. ADR-0015, opción A (decisión del humano, 2026-11-20): el celular recorta el rostro elegido y solo ese recorte viaja a la API; la foto completa nunca sale del celular.
+- Textos de UX (2026-11-20): Escenario 10 usa ROS-03 con el único botón "Repetir captura". En la bitácora, la cantidad de rostros se muestra como "Rostros en la foto: N" y solo en la verificación que se compara (Escenario 8).
 - Escenario 8: la marca de los rostros ocurre en el dispositivo, antes de enviar nada. Si se hace con ML Kit Face Detection, aplica el aviso de telemetría del PA #31 (ARCH confirma si Face Detection envía datos).
 - Escenario 7 cubre el retiro del permiso **antes** de capturar. Si la captura ya se tomó y se envió, la comparación sigue su curso normal (escenarios 1 a 5).
 
