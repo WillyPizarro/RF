@@ -81,8 +81,8 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0012](adrs/0012-acceso-datos-migraciones.md) | SQLAlchemy 2 async y Alembic | Aceptado |
 | [ADR-0013](adrs/0013-estado-app.md) | Estado en memoria (TanStack Query) y sesión en SecureStore | Aceptado |
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
-| [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | **Propuesto** |
-| [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | **Propuesto** |
+| [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | Aceptado (supuestos PA #33) |
+| [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | Aceptado (supuestos PA #32 y #34) |
 
 ## Modelos biométricos fijados
 
@@ -113,7 +113,7 @@ Base de datos de la API (Postgres en Supabase). El esquema `auth` pertenece a Su
 | `config_umbral` | `version`, `umbral_alto`, `umbral_bajo`, `modelo`, `hash_modelo`, `fecha`, `origen` (enlace a la evaluación) | Hace que cada umbral quede trazable (ADR-0004). |
 | `bitacora` | `id`, `ocurrido_en` (UTC, del servidor), `usuario_id`, `rol`, `tipo_evento`, `motivo`, `parametros` (placa; nunca imagen), `resultado`, `score`, `version_modelo`, `version_umbral`, `captura_id`, `consulta_id`, `codigo_error`, `id_traza`, `es_sintetico` | Solo inserción: permisos más trigger (ADR-0005). |
 
-Tipos de evento de la bitácora: `LOGIN_OK`, `LOGIN_FALLIDO`, `CUENTA_BLOQUEADA`, `LOGOUT`, `SESION_VENCIDA`, `ACCESO_DENEGADO`, `CONSULTA_PLACA`, `CONSULTA_ROSTRO`, `CAPTURA_RECHAZADA`, `DECISION_REVISION`, `REVISION_VENCIDA`, `CAPTURA_ELIMINADA`, `ERROR_FUENTE`, `CONSULTA_BITACORA`.
+Tipos de evento de la bitácora: `LOGIN_OK`, `LOGIN_FALLIDO`, `CUENTA_BLOQUEADA`, `LOGOUT`, `SESION_VENCIDA`, `ACCESO_DENEGADO`, `CONSULTA_PLACA`, `CONSULTA_ROSTRO`, `CAPTURA_RECHAZADA`, `DECISION_REVISION`, `REVISION_VENCIDA`, `CAPTURA_ELIMINADA`, `ERROR_FUENTE`, `CONSULTA_BITACORA`. Diseñado y sin desarrollo: `AVISO_105_SIMULADO` (HU-09, ADR-0016, sin coordenadas); y `rostros_en_foto` en los `parametros` de `CONSULTA_ROSTRO` y `CAPTURA_RECHAZADA` (ADR-0015).
 
 Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (placa, marca, modelo, color, requisitoria vigente, tipo), `sim_persona` (id, nombres y documento sintéticos, requisitoria, referencia a la foto cifrada) y `sim_galeria` (versión y lista de personas). Los campos son provisionales hasta conocer las fuentes reales (PA #6).
 
@@ -135,6 +135,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 | Imagen de la placa | Identificativo indirecto | OCR | — | Cámara | No se guarda: se procesa en el dispositivo | — | Nadie |
 | Datos de la persona o vehículo requisitoriado | Personal, vinculado a requisitoria | Mostrar un resultado controlado | Función de la entidad | Simulador (sintético) | Simulador | Todo el proyecto | Agente y revisor (vista mínima, PA #15) |
 | Credenciales y perfil del usuario | Identificativo | Autenticación y rol | Relación laboral (a validar) | Script de carga | Supabase Auth, `usuario_perfil` | Todo el proyecto | API |
+| Ubicación del dispositivo del agente (aviso simulado al 105, HU-09, sin desarrollo) | Personal del agente; sensibilidad a validar por Legal | Mostrar el mensaje simulado | A validar (PA #32) | GPS del celular, con permiso en primer plano | Solo en la memoria de la app; no va a la API ni a la bitácora | Mientras el mensaje está en pantalla | El usuario ([ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md)) |
 | Bitácora | Técnico más personal | Trazabilidad y auditoría | Función de la entidad | API | `bitacora` | Todo el proyecto, luego se borra el ambiente; en producción, PA #16 | Supervisor |
 
 ### Controles: implementados en el MVP frente a documentados para producción
@@ -193,7 +194,8 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 
 ### Verificación facial (HU-05)
 
-- [ ] Una captura con 0 o ≥ 2 rostros, de perfil, con los ojos cerrados, pequeña o borrosa se rechaza en el dispositivo con su motivo y no se envía.
+- [ ] Una captura sin rostros, con más de 5 rostros, de perfil, con los ojos cerrados, pequeña o borrosa se rechaza en el dispositivo con su motivo y no se envía.
+- [ ] Con 2 a 5 rostros, el usuario elige uno y solo sale su recorte. Los demás rostros no se envían, no se comparan ni se registran. La bitácora guarda solo `rostros_en_foto` (ADR-0015; HU-05 E8 y E9, todavía sin desarrollo).
 - [ ] Si la API recibe una imagen que no pasa la calidad del servidor (YuNet distinto de 1 rostro, nitidez), responde `captura_rechazada` con su motivo y no compara.
 - [ ] Con un score ≥ umbral alto, la respuesta es `candidato` con como máximo 3 candidatos, y la app muestra "Posible coincidencia — requiere revisión".
 - [ ] En la banda intermedia la app muestra "No concluyente — verifique por otros medios", y por debajo del umbral bajo, "Sin coincidencia en la lista consultada".

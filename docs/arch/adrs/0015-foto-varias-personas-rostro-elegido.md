@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Propuesto (2026-11-21).** Espera la aprobación del humano (vía PM). Resuelve el conflicto **C6** (`docs/hus/README.md`). Si se aprueba, **precisa** el ADR-0002 (calidad facial en el dispositivo) y el punto 3 del ADR-0004 (calidad en dos pasos). No cambia el resto de esos ADRs ni el ADR-0008.
+**Aceptado (2026-11-20), opción A.** Decisión del humano, comunicada por el PM. Lo que toca a los PA #33 y #34 es **supuesto de trabajo** hasta que responda el MININTER. Resuelve el conflicto **C6** (`docs/hus/README.md`). **Precisa** el ADR-0002 (calidad facial en el dispositivo) y el punto 3 del ADR-0004 (calidad en dos pasos). No cambia el resto de esos ADRs ni el ADR-0008.
 
 Es solo documental. HU-05 E8 y E9 **no se desarrollan** hasta que el PM lo autorice.
 
@@ -16,7 +16,7 @@ Es solo documental. HU-05 E8 y E9 **no se desarrollan** hasta que el PM lo autor
 - Pedido del PM: evaluar YuNet para detectar varios rostros. YOLO queda descartado porque detecta personas, no reconoce identidad, y Ultralytics se distribuye con licencia AGPL-3.0.
 - PRD PA #33 (abierto): ¿la bitácora puede registrar cuántos rostros tenía la foto? ¿Hay un máximo de rostros por foto?
 
-## Decisión propuesta
+## Decisión
 
 1. **Detección y elección en el dispositivo.** ML Kit Face Detection marca todos los rostros de la foto, y el usuario toca **uno solo** (HU-05 E8). Ninguna marca se envía ni se guarda.
 2. **Recorte en el dispositivo, en memoria.** La app recorta el recuadro del rostro elegido con un margen que deja a YuNet y SFace la frente y el mentón para alinear. Como referencia, un 40 % del lado del recuadro, que el DEV calibra en la prueba biométrica. El margen se reduce para que el recorte **no entre en el recuadro de ningún otro rostro**. Si no se puede (rostros superpuestos), la captura se rechaza en el dispositivo con el motivo "Los rostros están muy juntos: acérquese a la persona y repita la captura" y no se envía (regla 3).
@@ -24,8 +24,8 @@ Es solo documental. HU-05 E8 y E9 **no se desarrollan** hasta que el PM lo autor
 4. **El servidor no cambia.** YuNet sigue exigiendo **exactamente un rostro** en lo que recibe (ADR-0004, punto 3). Si en el recorte aparece parte de otra persona y YuNet detecta dos rostros, la respuesta es `captura_rechazada` y no se compara. Así, el servidor nunca procesa a un tercero aunque el recorte falle.
 5. **Retención.** Lo que se guarda en `captura_pendiente` y lo que ve el revisor (HU-06) es el recorte. La foto completa nunca existe en el servidor. El ADR-0008 no cambia.
 6. **Calidad.** Al rostro elegido se le aplican los mismos controles de ADR-0002 y ADR-0004: ángulo, ojos abiertos y tamaño mínimo en el dispositivo; nitidez y exposición en el servidor. El tamaño mínimo se mide sobre el rostro, no sobre la foto: un rostro lejano y pequeño se rechaza con su motivo (HU-05 E2).
-7. **Bitácora.** No se registra nada de los otros rostros. Si el PA #33 autoriza registrar **solo la cantidad**, se agrega un campo `rostros_en_foto` (entero) en `parametros` de `CONSULTA_ROSTRO`, sin coordenadas ni recortes. Mientras no se responda, no se registra.
-8. **Máximo de rostros (PA #33).** Provisional, hasta que responda el MININTER: **sin máximo propio**. El límite real lo pone el tamaño mínimo del rostro (punto 6): en una multitud, los rostros salen pequeños y se rechazan. Si el MININTER fija un máximo, lo aplica el dispositivo antes de la elección. **Lo decide el humano.**
+7. **Bitácora (supuesto de trabajo del PA #33, humano, 2026-11-20).** Se registra **solo la cantidad** de rostros detectados en el campo `rostros_en_foto` (entero) dentro de `parametros` de `CONSULTA_ROSTRO` (o de `CAPTURA_RECHAZADA`). No se registra ningún dato de las otras personas: ni coordenadas, ni recortes, ni marcas.
+8. **Máximo de 5 rostros (supuesto de trabajo del PA #33, humano, 2026-11-20).** Si ML Kit detecta **más de 5 rostros**, la captura se rechaza en el dispositivo **antes de la elección**, con el motivo "Hay demasiadas personas en la foto: acérquese a una sola persona y repita la captura", y no se envía nada (regla 3). El valor se configura como los demás provisionales (ADR-0011). Además, el tamaño mínimo del rostro (punto 6) sigue rechazando los rostros lejanos.
 
 ## Alternativas consideradas
 
@@ -47,7 +47,7 @@ Es solo documental. HU-05 E8 y E9 **no se desarrollan** hasta que el PM lo autor
 - **Riesgo:** la detección del dispositivo (ML Kit) y la del servidor (YuNet) pueden discrepar: ML Kit ve un rostro y YuNet ve dos, o ninguno. El resultado es `captura_rechazada` con su motivo, nunca un resultado negativo (regla 7).
 - **Telemetría:** la detección en el dispositivo usa ML Kit Face Detection. Aplican el aviso del PA #31 y la brecha 10 de TECH-DESIGN.
 
-## Decisiones que pide al humano
+## Decisiones del humano (2026-11-20, vía PM)
 
-1. ¿Se aprueba la opción A (recorte en el dispositivo) o se prefiere la B (foto completa y YuNet en el servidor)?
-2. PA #33: ¿se registra la cantidad de rostros (`rostros_en_foto`) o no queda ninguna huella? ¿Hay un máximo de rostros por foto?
+1. Opción A: recorte en el celular; solo viaja el recorte.
+2. PA #33, como supuesto de trabajo: la bitácora registra solo la cantidad de rostros; con más de 5 rostros, la captura se rechaza y se pide acercarse a una sola persona.
