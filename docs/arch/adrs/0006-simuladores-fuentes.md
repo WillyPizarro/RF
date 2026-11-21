@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+Aceptado (2026-11-18). Precisado el 2026-11-20 (HU-10, decisión del humano): dos fuentes más, `registro-vehicular` y `papeletas`, en el punto 1. Ver la [evaluación](../evaluaciones/HU-10-simuladores-complementarios.md).
 
 ## Contexto
 
@@ -21,6 +21,8 @@ Aceptado (2026-11-18)
    | `placas` | Datos del vehículo y si tiene requisitoria vehicular vigente | HU-03 |
    | `requisitorias-personas` | Persona con requisitoria simulada: datos mínimos y fotos de referencia | HU-05, HU-06 |
    | `galeria` | Lista cerrada de personas habilitadas para la comparación (versión y fotos) | HU-05 (ADR-0004) |
+   | `registro-vehicular` (SUNARP, simulado; 2026-11-20) | Marca, modelo, color, año y estado registral. **Sin propietario**: el esquema es cerrado | HU-10 (sin desarrollo) |
+   | `papeletas` (SAT Lima, simulado; 2026-11-20) | Cobertura (Lima Metropolitana), cantidad, monto pendiente y si hay alguna grave | HU-10 (sin desarrollo) |
 
    Los campos son provisionales hasta que el MININTER entregue "los campos que muestra hoy una consulta de requisitoria". Cada contrato documenta los campos, los códigos de error, los ejemplos y el tiempo de respuesta simulado.
 

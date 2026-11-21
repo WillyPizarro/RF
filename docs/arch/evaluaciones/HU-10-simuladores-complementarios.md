@@ -3,8 +3,9 @@
 - **Fecha:** 2026-11-20
 - **Pedido por:** PM (decisión del humano del 2026-11-20; PRD `c200dc9`, PA #35)
 - **Rama:** `entregables-osigp`
+- **Estado:** **decidida por el humano el 2026-11-20** (vía PM). Ver "Decisiones del humano" al final. HU-10 está aprobada completa (BA `0392949`), con COM-03 y E7.
 - **Tipo:** evaluación documental. **Sin desarrollo:** HU-10 se define, no se construye. Los contratos `contratos/fuentes/*.yaml` son del DEV; aquí solo se propone su forma para cuando el PM autorice el desarrollo.
-- **HU-10:** todavía no existe (la escribe el BA). Esta evaluación se revisa contra ella cuando llegue, y recién entonces se actualizan FR-03 y FR-04.
+- **HU-10:** `docs/hus/HU-10-consultas-complementarias-placa.md` (BA, `0392949`). FR-03 y FR-04 se actualizaron a la v0.2.
 
 ## Resumen
 
@@ -44,7 +45,7 @@ Igual que las fuentes actuales: OpenAPI 3.1, `servers` con `http://simuladores:8
 | Respuesta | Cuándo | Cuerpo |
 |---|---|---|
 | `200` | La fuente conoce la placa | `placa`, `marca`, `modelo`, `color`, `anio` (entero), `estado_registral` (enumeración provisional: `vigente`, `baja_definitiva`, `en_tramite`), `es_sintetico: true`. **Sin propietario:** el esquema no tiene ningún campo de persona, y una respuesta con campos extra es `FUENTE_RESPUESTA_INVALIDA` (`additionalProperties: false`, igual que hoy) |
-| `404 PLACA_NO_REGISTRADA` | No la conoce | No significa "sin observaciones" |
+| `404 PLACA_NO_REGISTRADA` | No la conoce | No significa "sin observaciones". La app muestra "Placa no registrada en SUNARP (simulado)" (HU-10 E7, aprobado) |
 | `500 ERROR_SIMULADO` | Falla | — |
 
 Los valores de `estado_registral` son provisionales hasta conocer los de la fuente real (PA #6 y #35). No incluyen nada que repita la requisitoria (por ejemplo, "robado"): esa es la fuente de HU-03.
@@ -56,7 +57,7 @@ Los valores de `estado_registral` son provisionales hasta conocer los de la fuen
 | `200` | Consulta válida en la fuente | `placa`, `cobertura: "Lima Metropolitana"`, `cantidad` (entero ≥ 0), `monto_pendiente` (decimal en soles, cadena con 2 decimales para no perder precisión), `hay_grave` (booleano), `es_sintetico: true` |
 | `500 ERROR_SIMULADO` | Falla | — |
 
-- `cantidad: 0` es un resultado válido **solo** con un `200`. La app lo muestra como "Sin papeletas registradas en SAT Lima (la fuente solo cubre Lima)". La redacción final es de UX y BA. Nunca dice solo "Sin papeletas", porque la cobertura no es nacional.
+- `cantidad: 0` es un resultado válido **solo** con un `200`. La app muestra el texto de BA y UX (HU-10 E3 y COM-04), aprobado por el humano: "Sin papeletas pendientes registradas en SAT Lima", con la leyenda "Solo cubre papeletas de Lima Metropolitana". Nunca dice solo "Sin papeletas", porque la cobertura no es nacional.
 - **No hay `404`:** el SAT responde "sin registros" para una placa que no tiene papeletas en Lima. Si la fuente real distingue "placa desconocida", se agrega cuando se conozca (PA #6).
 
 ### 3.3 Datos sintéticos
@@ -71,7 +72,7 @@ Los valores de `estado_registral` son provisionales hasta conocer los de la fuen
 
 ## 4. API, bitácora y datos
 
-- **Endpoints propuestos** (el contrato lo decide el LEAD cuando se autorice HU-10): `POST /v1/consultas/{consulta_id}/vehiculo` y `POST /v1/consultas/{consulta_id}/papeletas`, y `POST /v1/consultas/{consulta_id}/no-coincide` para la marca. Solo el agente dueño de una consulta de **placa** ya resuelta puede usarlos (403 en otro caso). El motivo se toma de esa consulta: no se vuelve a pedir y no se puede cambiar.
+- **Endpoints propuestos** (el contrato lo decide el LEAD cuando se autorice HU-10): `POST /v1/consultas/{consulta_id}/vehiculo` y `POST /v1/consultas/{consulta_id}/papeletas`, y `POST /v1/consultas/{consulta_id}/no-coincide` para la marca, que se envía después de la confirmación de COM-03. Solo el agente dueño de una consulta de **placa** ya resuelta puede usarlos (403 en otro caso). El motivo se toma de esa consulta: no se vuelve a pedir y no se puede cambiar.
 - **Bitácora** (ADR-0005, fail-closed: sin registro no hay resultado). Eventos nuevos:
   - `CONSULTA_VEHICULO_REGISTRAL` y `CONSULTA_PAPELETAS`, con `consulta_id`, motivo y resultado;
   - `MARCA_NO_COINCIDE`, con `consulta_id`;
@@ -93,8 +94,11 @@ Los valores de `estado_registral` son provisionales hasta conocer los de la fuen
   - FR-03: diagrama de paquetes (adaptadores), estados y nota del diccionario (sin tabla nueva).
   - FR-04: inventario de servicios, despliegue y estructura de proyectos.
 
-## Decisiones que pide al humano
+## Decisiones del humano (2026-11-20, vía PM)
 
-1. ¿Dos fuentes separadas (opción A, recomendada) o ampliar `placas.yaml` (opción B)?
-2. ¿Las consultas complementarias y la marca "No coincide" quedan solo como eventos de la bitácora enlazados a la consulta de placa (sin tabla nueva), como se propone?
-3. Papeletas de una placa sin registros en Lima: ¿se acepta `200` con `cantidad: 0` y el texto "Sin papeletas registradas en SAT Lima (la fuente solo cubre Lima)"? La alternativa es no mostrar nada cuando no hay registros.
+1. **Opción A:** dos fuentes separadas, `registro-vehicular` y `papeletas`. Sin propietario, por esquema cerrado.
+2. **Solo eventos en la bitácora** (`CONSULTA_VEHICULO_REGISTRAL`, `CONSULTA_PAPELETAS` y `MARCA_NO_COINCIDE`), sin tabla nueva y sin guardar los datos que devuelven las fuentes.
+3. **HU-10 aprobada completa**, incluidas COM-03 (confirmación de la marca) y E7 ("Placa no registrada en SUNARP (simulado)").
+4. **Texto con cero papeletas:** el de BA y UX, "Sin papeletas pendientes registradas en SAT Lima", con la leyenda "Solo cubre papeletas de Lima Metropolitana". Reemplaza al que propuso ARCH.
+
+Siguen abiertos el PA #35 (respuesta del MININTER) y el PA #36 (PLA-08, detalle de la marca y si se puede deshacer, repetición de la consulta). Sin desarrollo hasta que el PM lo autorice.
