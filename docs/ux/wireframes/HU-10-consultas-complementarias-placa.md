@@ -1,6 +1,11 @@
 # Wireframes — HU-10: Consultas complementarias de placa (simuladas)
 
-> **Estado:** diseño de UX del 2026-11-20. Base: PRD `c200dc9` (decisión del humano, PA 35) y `docs/hus/HU-10-consultas-complementarias-placa.md` (BA, E1 a E7, PA 36). Los textos se alinearon con el BA. Dos elementos no solicitados están **pendientes de aprobación humana**: COM-03 y "Placa no registrada en SUNARP (simulado)". **No se desarrolla** hasta nueva orden del PM (sin contrato, código ni pruebas).
+> **Estado: aprobado por el humano el 2026-11-20 (vía PM)**: HU-10 completa, incluidos COM-03 (confirmación de la marca) y E7 "Placa no registrada en SUNARP (simulado)". Base: PRD `c200dc9` (PA 35) y `docs/hus/HU-10-consultas-complementarias-placa.md` (BA, E1 a E7, PA 36). Decisiones del humano del mismo día:
+> - dos fuentes simuladas separadas, registro vehicular y papeletas, sin propietario por esquema cerrado;
+> - en la bitácora solo van eventos, sin tabla nueva ni datos devueltos guardados;
+> - con cero papeletas queda el texto "Sin papeletas pendientes registradas en SAT Lima", con la leyenda "Solo cubre papeletas de Lima Metropolitana".
+>
+> **No se desarrolla** hasta nueva orden del PM (sin contrato, código ni pruebas).
 
 ## Proyecto / herramienta
 - Herramienta: texto estructurado + prototipo local `../prototipo/index.html` (panel de demo → "Consultas complementarias").
@@ -139,10 +144,10 @@
 ## Reglas de pantalla
 - **Dónde aparece:** solo en PLA-05 y PLA-06. No aparece en PLA-07, PLA-02/03 (E6) ni en PLA-08: ahí se ve una marca reservada "PA 36 a".
 - **Simulación evidente:** la tarjeta "SIMULACIÓN" encabeza COM-02 y COM-04 (mismo patrón aprobado en HU-09).
-- **Bitácora** (textos alineados con el BA; ARCH define los tipos de evento):
-  - "Consulta SUNARP (simulada)" y "Consulta de papeletas SAT Lima (simulada)", con usuario, fecha y hora, **el mismo motivo**, la placa y la consulta de origen;
-  - "Marca: No coincide con lo registrado", con los mismos datos;
-  - los errores como "Error".
+- **Bitácora:** solo eventos (decisión del humano, 2026-11-20). No hay tabla nueva y no se guardan los datos devueltos (marca, color, papeletas…).
+  - `CONSULTA_VEHICULO_REGISTRAL` y `CONSULTA_PAPELETAS`, con usuario, fecha y hora, **el mismo motivo**, la placa y la consulta de origen. En pantalla se leen "Consulta SUNARP (simulada)" y "Consulta de papeletas SAT Lima (simulada)".
+  - `MARCA_NO_COINCIDE`, con los mismos datos. En pantalla: "Marca: No coincide con lo registrado".
+  - Los errores, como "Error".
 - **Accesibilidad:** el foco va al título; los botones miden al menos 48 × 48; los datos se leen como pares etiqueta-valor.
 
 ## Decisiones de diseño aplicadas
@@ -150,12 +155,10 @@
 - La tarjeta "Compare estos datos…" usa el ámbar suave de aviso porque le pide una tarea al agente; los datos registrados van en negro neutro.
 - La marca se muestra en gris pizarra, no en rojo, para que no se lea como una conclusión.
 
-## Elementos no solicitados
-Pendientes de aprobación humana:
+## Elementos no solicitados (aprobados por el humano el 2026-11-20)
 1. COM-03, la confirmación previa de la marca.
 2. COM-02 · no registrada, "Placa no registrada en SUNARP (simulado)" (E7).
-
-Ya aprobados como patrón en HU-09: la tarjeta "SIMULACIÓN".
+3. La tarjeta "SIMULACIÓN", que ya estaba aprobada como patrón en HU-09.
 
 ## Puntos abiertos que afectan el diseño
 - **PA 35:** ¿se aceptan las consultas? ¿Qué campos? ¿Basta con solo Lima o se simula una fuente nacional? Si cambian los campos, cambian las filas de COM-02 y COM-04, no el flujo.
