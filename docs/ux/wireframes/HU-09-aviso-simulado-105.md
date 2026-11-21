@@ -1,6 +1,6 @@
 # Wireframes — HU-09: Avisar al 105 (simulado)
 
-> **Estado: aprobado por el humano el 2026-11-20 (vía PM)**, junto con HU-09 y la propuesta de UX: vista previa con confirmación y fecha y hora en el mensaje. Base: `docs/hus/HU-09-aviso-simulado-105.md` (BA, `4b2f009` y `0f96761`, escenarios E1 a E7) y ADR-0016. Supuestos de trabajo del humano del 2026-11-20, hasta que responda el MININTER, para PA 34: a) solo el agente que hizo la consulta; b) coordenadas sin geocodificar; c) la bitácora guarda solo si la ubicación estaba disponible, sin coordenadas; d) un solo aviso por consulta; e) ubicación leída al pulsar. **No se desarrolla** hasta nueva orden del PM (sin contrato, código ni pruebas).
+> **Estado: aprobado por el humano el 2026-11-20 (vía PM)**, junto con HU-09 y la propuesta de UX: vista previa con confirmación, fecha y hora en el mensaje, tarjeta "SIMULACIÓN" con "No incluye fotos", precisión y hora de la ubicación, y AVI-03. Base: `docs/hus/HU-09-aviso-simulado-105.md` (BA, `4b2f009` y `0f96761`, escenarios E1 a E7) y ADR-0016. Supuestos de trabajo del humano del 2026-11-20, hasta que responda el MININTER, para PA 34: a) solo el agente que hizo la consulta; b) coordenadas sin geocodificar; c) la bitácora guarda solo si la ubicación estaba disponible, sin coordenadas; d) un solo aviso por consulta; e) ubicación leída al pulsar. **No se desarrolla** hasta nueva orden del PM (sin contrato, código ni pruebas).
 
 ## Proyecto / herramienta
 - Herramienta: texto estructurado + prototipo local `../prototipo/index.html`.
@@ -157,12 +157,9 @@ Caso facial (E2): el bloque cambia a
 - La ubicación es la del momento en que se pulsa el aviso (PA 34 e).
 - El permiso de ubicación se pide la primera vez que se pulsa el aviso, no al iniciar la app.
 
-## Elementos no solicitados
-Aprobados por el humano el 2026-11-20:
+## Elementos no solicitados (todos aprobados por el humano el 2026-11-20)
 1. Paso de confirmación AVI-01 → "Registrar aviso simulado".
 2. Fecha y hora dentro del mensaje.
-
-Pendientes de aprobación (detalles de interfaz, sin regla de negocio nueva):
 3. Tarjeta "SIMULACIÓN" y la línea "No incluye fotos."
 4. Precisión (± m) y hora de la lectura de la ubicación.
 5. AVI-03 (error al registrar; aplica la regla 7).
