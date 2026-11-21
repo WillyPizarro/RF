@@ -10,7 +10,7 @@ PRD › Alcance — Incluye › Componente 2 › Consultas complementarias de pl
 
 Depende de HU-03 (resultado de requisitoria y motivo), HU-07 (bitácora) y HU-08 (servicios con simuladores). OSIGP-FR-01: RU009 / RF013.
 
-**Estado:** decisión del humano del 2026-11-20. Se define (BA y UX) y **no se desarrolla** hasta que el PM lo autorice: sin contrato, sin código y sin pruebas. Pendiente de aprobación humana.
+**Estado:** **aprobada por el humano el 2026-11-20**, incluidos la confirmación previa de la marca (COM-03) y el Escenario 7. **No se desarrolla** hasta que el PM lo autorice: sin contrato, sin código y sin pruebas.
 
 ## Criterios de aceptación (Gherkin)
 
@@ -42,7 +42,7 @@ Característica: Consultas complementarias de placa (simuladas)
   Escenario: El SAT de Lima no tiene papeletas para la placa
     Dado que el simulador del SAT de Lima responde que la placa no tiene papeletas
     Cuando el usuario pidió las papeletas
-    Entonces la app muestra "Sin papeletas pendientes registradas en SAT Lima", en un tono neutro
+    Entonces la app muestra "Sin papeletas pendientes registradas en SAT Lima", en un tono neutro, con la leyenda "Solo cubre papeletas de Lima Metropolitana"
     Y no lo presenta como "sin papeletas" en general, porque la fuente cubre solo Lima
 ```
 
@@ -79,7 +79,7 @@ Característica: Consultas complementarias de placa (simuladas)
     Y si la consulta de placa terminó en error, sin motivo o con un formato no válido, la app no ofrece las consultas complementarias
 ```
 
-### Escenario 7 — Caso borde: placa no registrada en SUNARP (propuesta de UX, pendiente de aprobación humana)
+### Escenario 7 — Caso borde: placa no registrada en SUNARP (propuesta de UX, aprobada por el humano el 2026-11-20)
 ```gherkin
   Escenario: El simulador de SUNARP no tiene la placa
     Dado que el simulador de SUNARP responde que la placa no está registrada
@@ -92,13 +92,13 @@ Característica: Consultas complementarias de placa (simuladas)
 
 ## Supuestos
 - Pantallas coordinadas con UX (2026-11-20): sección "Consultas complementarias (simuladas)" en PLA-05 (tiene requisitoria) y PLA-06 (sin requisitoria registrada), porque el PRD dice "después del resultado de requisitoria"; no va en PLA-07 (error). COM-01 Consultando, COM-02 datos de SUNARP ("Compare estos datos con el vehículo que tiene delante", "No se muestra el propietario."), COM-03 confirmación de la marca, COM-04 papeletas ("Solo cubre papeletas de Lima Metropolitana."), COM-05 error. No hay botón "Sí coincide" (el PRD no lo pide).
-- Mientras no se responda el PA #36, UX diseña la variante mínima, marcada "PA 36": no se ofrece en PLA-08, la marca no dice qué característica no coincide y no se deshace, y volver a abrir un resultado ya consultado lo muestra de nuevo sin otra consulta ni otro registro. Ninguno de estos puntos está decidido. Dos elementos no solicitados quedan pendientes de aprobación humana: la confirmación previa de la marca (COM-03) y el estado "Placa no registrada en SUNARP (simulado)" (Escenario 7).
+- Mientras no se responda el PA #36, UX diseña la variante mínima, marcada "PA 36": no se ofrece en PLA-08, la marca no dice qué característica no coincide y no se deshace, y volver a abrir un resultado ya consultado lo muestra de nuevo sin otra consulta ni otro registro. Ninguno de estos puntos está decidido. Los dos elementos no solicitados, la confirmación previa de la marca (COM-03) y el estado "Placa no registrada en SUNARP (simulado)" (Escenario 7), fueron aprobados por el humano el 2026-11-20.
 - Solo las pide el agente que hizo la consulta de placa, usando el mismo motivo: no se pide un motivo nuevo (el PRD dice "con el mismo motivo").
 - Cada consulta complementaria es independiente: pedir una no pide la otra ("una por una").
 - La marca "No coincide con lo registrado" es solo del usuario: la app no compara ni sugiere nada. Solo se ofrece cuando hay datos del vehículo a la vista.
 - Vale para la placa ingresada a mano (HU-03) o leída con la cámara (HU-04), porque ambas llegan al mismo resultado.
 - Sin datos reales: SUNARP y el SAT son simuladores con datos sintéticos (HU-08). La conexión con las fuentes reales y sus convenios queda fuera del MVP (PA #6 y #17).
-- Los tipos de evento de la bitácora (consulta complementaria, marca de no coincidencia y error) los define ARCH.
+- Decisiones del humano del 2026-11-20 (diseño): (1) dos fuentes simuladas separadas, registro vehicular y papeletas, con un esquema cerrado que no tiene campos del propietario; (2) la bitácora registra solo eventos (`CONSULTA_VEHICULO_REGISTRAL`, `CONSULTA_PAPELETAS` y `MARCA_NO_COINCIDE`, más los errores) con el mismo motivo, la placa y el ID de la consulta de origen; no hay tabla nueva y los datos que devuelven las fuentes no se guardan.
 
 ## Conflictos con otras fuentes (documentados, no resueltos)
 - **PA #15 (qué datos muestra el resultado de placa):** sigue abierto si el resultado muestra algo más que "con/sin requisitoria". La decisión del 2026-11-20 permite mostrar datos del vehículo **solo a pedido** y nunca del propietario. Si el MININTER responde "solo estado", HU-10 queda en duda.

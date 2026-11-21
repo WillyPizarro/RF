@@ -99,9 +99,9 @@ Aprobados HU-05 E8 y E9, HU-09 y la propuesta de UX (vista previa con confirmaci
 - Siguen sin desarrollo hasta que el PM lo autorice.
 - Detalles de UX del aviso aprobados por el humano (2026-11-20): tarjeta "SIMULACIÓN" con "No incluye fotos.", precisión y hora de la lectura, y AVI-03 (error al registrar), que pasa a ser HU-09 E8.
 
-## HU-10 consultas complementarias de placa (decisión del humano, 2026-11-20; pendiente de aprobación)
+## HU-10 consultas complementarias de placa (decisión del humano, 2026-11-20; aprobada el 2026-11-20)
 
 - HU-10 nueva, siete escenarios: datos del vehículo sin el propietario, papeletas solo de Lima, cero papeletas ("Sin papeletas pendientes registradas en SAT Lima"), error de la fuente (nunca "sin papeletas"), la marca "No coincide con lo registrado" (nunca "placa clonada"), nada automático, y la placa no registrada en SUNARP (propuesta de UX).
 - PRD: PA #35 (del PM) propagado y PA #36 nuevo (PLA-08, detalle de la marca y si se puede deshacer, repetición de la consulta). Conflicto C7 con el PA #15.
-- Pantallas coordinadas con UX: sección en PLA-05 y PLA-06, COM-01 a COM-05. Pendientes de aprobación: la confirmación previa de la marca (COM-03) y el estado "Placa no registrada en SUNARP (simulado)".
+- Pantallas coordinadas con UX: sección en PLA-05 y PLA-06, COM-01 a COM-05. Aprobados con la HU: la confirmación previa de la marca (COM-03) y el estado "Placa no registrada en SUNARP (simulado)". Diseño decidido por el humano: dos fuentes separadas sin propietario por esquema cerrado, y solo eventos en la bitácora (`CONSULTA_VEHICULO_REGISTRAL`, `CONSULTA_PAPELETAS`, `MARCA_NO_COINCIDE`), sin guardar los datos devueltos.
 - OSIGP: RU009 / RF013. Sin desarrollo hasta que el PM lo autorice.
