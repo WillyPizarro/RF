@@ -89,3 +89,9 @@ Aprobados HU-05 E8 y E9, HU-09 y la propuesta de UX (vista previa con confirmaci
 - HU-09 nueva: aviso simulado al 105. Cinco escenarios: placa, coincidencia confirmada, sin permiso de ubicación, resultados que no lo habilitan, cancelar en la vista previa. PRD PA #32 (propagado) y #34.
 - Pantallas coordinadas con UX: ROS-10 "Elija un rostro"; botón en PLA-05 y VER-02; AVI-01 (vista previa) y AVI-02 (confirmación). La vista previa con confirmación y la fecha y hora en el mensaje son propuestas de UX, no pedidas por el PRD; aprobadas el 2026-11-20.
 - Conflictos C5 y C6.
+
+### Supuestos de trabajo del humano (2026-11-20), vigentes hasta que responda el MININTER
+
+- PA #33: la bitácora registra solo la cantidad de rostros; con más de 5 rostros se rechaza la captura (HU-05 E10 nuevo). ADR-0015 opción A: solo viaja el recorte del rostro elegido.
+- PA #34 (ADR-0016): solo el agente que hizo la consulta; coordenadas sin geocodificar; sin coordenadas en la bitácora; un aviso por consulta; ubicación al pulsar (HU-09 E6 y E7 nuevos).
+- Siguen sin desarrollo hasta que el PM lo autorice.
