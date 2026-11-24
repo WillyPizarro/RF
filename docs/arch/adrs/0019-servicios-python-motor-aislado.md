@@ -42,9 +42,9 @@
 
 ## Alternativas consideradas
 
-- **A. Reescribir la API en Java 21 dentro del MVP y dejar el motor en Python.** Cumple el estándar en todo lo que no es biometría. Se descarta como propuesta por el costo (8 a 10 días de DEV) en un cronograma que ya absorbe Flutter. Es la salida si el MININTER no acepta.
+- **A. Reescribir la API en Java 21 dentro del MVP y dejar el motor en Python.** Cumple el estándar en todo lo que no es biometría. Se descarta por el costo (8 a 10 días de DEV) en un cronograma que ya absorbe Flutter. Es la salida si el MININTER no acepta.
 - **B. Todo en Java, incluido el motor (OpenCV para Java).** Técnicamente posible. Se descarta: rehace la calibración y la evaluación biométrica en otro lenguaje y suma riesgo al módulo más delicado, sin ganar precisión.
-- **C. Mantener el motor dentro de la API (ADR-0004 vigente).** Es más simple: un contenedor menos y sin salto de red. Se descarta como propuesta porque debilita el argumento 3: "reemplazable" sería un cambio en el código de la API, no un cambio de servicio. Es la opción si el humano prefiere ahorrar ese día y medio.
+- **C. Mantener el motor dentro de la API (como decía el ADR-0004).** Es más simple: un contenedor menos y sin salto de red. Se descarta porque debilita el argumento 3: "reemplazable" sería un cambio en el código de la API, no un cambio de servicio. El humano eligió separar el motor ahora (2026-11-24).
 
 ## Consecuencias
 
