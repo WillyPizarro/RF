@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Aceptado (2026-11-20), opción A.** Decisión del humano, comunicada por el PM. Lo que toca a los PA #33 y #34 es **supuesto de trabajo** hasta que responda el MININTER. Resuelve el conflicto **C6** (`docs/hus/README.md`). **Precisa** el ADR-0002 (calidad facial en el dispositivo) y el punto 3 del ADR-0004 (calidad en dos pasos). No cambia el resto de esos ADRs ni el ADR-0008.
+**Aceptado (2026-11-20), opción A.** *(2026-11-24: HU-05 E8 a E10 quedan definidas pero **fuera de la construcción del MVP**, por decisión del humano. Si se construyen, el recorte usa el paquete `image` de Dart, en memoria; ver el [ADR-0017](0017-app-movil-flutter-mlkit.md).)* Decisión del humano, comunicada por el PM. Lo que toca a los PA #33 y #34 es **supuesto de trabajo** hasta que responda el MININTER. Resuelve el conflicto **C6** (`docs/hus/README.md`). **Precisa** el ADR-0002 (calidad facial en el dispositivo) y el punto 3 del ADR-0004 (calidad en dos pasos). No cambia el resto de esos ADRs ni el ADR-0008.
 
 Es solo documental. HU-05 E8 y E9 **no se desarrollan** hasta que el PM lo autorice.
 

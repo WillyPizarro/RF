@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Propuesto (2026-11-24).** Lo pidió el PM (PRD PA #37). Es la posición técnica que el humano lleva a la **negociación con el MININTER**; no es una decisión del cliente. Si se acepta, **precisa el punto 2 del [ADR-0004](0004-verificacion-facial.md)** (el motor pasa de módulo dentro de la API a servicio propio) y agrega un servicio al [ADR-0009](0009-despliegue.md). El texto del ADR-0004 no se toca mientras este ADR siga propuesto.
+**Aceptado (2026-11-24),** con el motor separado desde ahora. Propuesto por el ARCH a pedido del PM (PRD PA #37) y aceptado por el humano el mismo día. Es la posición técnica que el humano lleva a la **negociación con el MININTER**: lo de Python sigue siendo supuesto de trabajo hasta que responda el MININTER. **Precisa el punto 2 del [ADR-0004](0004-verificacion-facial.md)** (el motor pasa de módulo dentro de la API a servicio propio) y agrega el servicio `motor` al [ADR-0009](0009-despliegue.md). El resto del ADR-0004 (lista acotada, bandas, umbrales y modelos fijados) no cambia.
 
 ## Contexto
 
@@ -13,7 +13,7 @@
 - ADR-0004, punto 2: el motor ya está detrás de la interfaz `MotorBiometrico` (`comparar(captura) -> ResultadoComparacion`). La alternativa "motor como servicio separado" se descartó el 2026-11-18 por ser una pieza más que desplegar y un salto de red más. **HU-05 todavía no se construyó**: separar el motor hoy no rehace código.
 - OpenCV también tiene una interfaz para Java (`FaceDetectorYN` y `FaceRecognizerSF` existen en sus *bindings*). Que el motor esté en Python no es una imposición técnica, sino el ecosistema donde están probados los modelos, la calibración y la evaluación biométrica (numpy, métricas FMR y FNMR).
 
-## Decisión (propuesta)
+## Decisión
 
 1. **La API y los simuladores siguen en Python (FastAPI) hasta el cierre del MVP.** No se reescriben en Java dentro del MVP.
 2. **El motor biométrico pasa a ser un servicio interno propio, `motor`,** en su propio contenedor (Python, OpenCV 5.1 y los `.onnx` fijados en el ADR-0004):
@@ -53,3 +53,8 @@
 - **Costo:** la captura hace un salto de red interno más (API → motor) y queda unos milisegundos más en memoria en otro proceso. Viaja por la red interna de docker, sin cifrar en el MVP; en producción, mTLS (brecha).
 - **Costo:** el motor carga los modelos y la galería al arrancar. Mientras no esté listo, la API responde error controlado, nunca un resultado.
 - **Abierto:** si el MININTER rechaza Python en el MVP (PA #37), este ADR se reemplaza por la alternativa A o B, y hay que recortar alcance.
+
+## Decisiones del humano (2026-11-24, vía PM)
+
+1. La API y los simuladores siguen en Python. El humano lo negocia con el MININTER con los argumentos de este ADR.
+2. El motor se separa **ahora**, dentro de HU-05 (alternativa C descartada).

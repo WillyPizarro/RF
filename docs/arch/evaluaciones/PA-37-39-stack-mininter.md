@@ -1,7 +1,7 @@
 # Evaluación: stack del MININTER en el MVP (PA #37, #38 y #39)
 
 **Rol / fecha:** ARCH, 2026-11-24. Encargo del PM del 2026-11-24 (punto 1). Solo documental: sin contratos, código ni pruebas.
-**ADR propuestos:** [ADR-0017](../adrs/0017-app-movil-flutter-mlkit.md) (Flutter), [ADR-0018](../adrs/0018-proxy-nginx.md) (NGINX), [ADR-0019](../adrs/0019-servicios-python-motor-aislado.md) (Python y motor aislado) y [ADR-0020](../adrs/0020-keycloak-al-final.md) (Keycloak al final). Los cuatro están en estado **Propuesto**.
+**ADR:** [ADR-0017](../adrs/0017-app-movil-flutter-mlkit.md) (Flutter), [ADR-0018](../adrs/0018-proxy-nginx.md) (NGINX), [ADR-0019](../adrs/0019-servicios-python-motor-aislado.md) (Python y motor aislado) y [ADR-0020](../adrs/0020-keycloak-al-final.md) (Keycloak). **Los cuatro quedaron aceptados el 2026-11-24** (decisiones del humano vía PM, PRD `7cec298`). El ADR-0020 se aceptó con un ajuste: Keycloak se entrega solo documentado. El plan decidido está en la sección 5 y las decisiones, en la sección 6. Las secciones 1 a 4 conservan el análisis que llevó a esas decisiones.
 **Estimados:** son del ARCH, en días de trabajo de un agente, y los tiene que validar el LEAD. Los rangos de HU-05 y HU-06 se calcularon sin contrato.
 
 ## 1. Resumen
@@ -47,7 +47,9 @@ Fuente: rama `hu-04` (`125cabe`) y `main`, 2026-11-24.
 | Prototipo de UX (`docs/ux/prototipo/`) | HTML | No cambia: nunca fue Expo |
 | `apps/movil/eas.json`, `app.json`, `plugins/` | Configuración de Expo | Desaparecen con la migración |
 
-**Recomendación del ARCH (decisión 3):** no mergear el código Expo de `hu-04` a `main`. La rama se conserva (con una etiqueta) como referencia. `main` mantiene la app Expo aceptada hasta que se acepte la versión en Flutter, y el DEV la reemplaza en un solo commit, de modo que el historial conserva la versión anterior. Antes de cerrar `hu-04`, se mergean sus documentos (`docs/arch/`, la evaluación de telemetría, los informes), que siguen vigentes.
+**Decidido (humano, 2026-11-24):** de `hu-04` van a `main` **solo los documentos**. Las pruebas de la app pasan a `apps/movil/test/` e `integration_test/` (el cambio de `AGENTS.md` lo hace el humano).
+
+**Recomendación original del ARCH:** no mergear el código Expo de `hu-04` a `main`. La rama se conserva (con una etiqueta) como referencia. `main` mantiene la app Expo aceptada hasta que se acepte la versión en Flutter, y el DEV la reemplaza en un solo commit, de modo que el historial conserva la versión anterior. Antes de cerrar `hu-04`, se mergean sus documentos (`docs/arch/`, la evaluación de telemetría, los informes), que siguen vigentes.
 
 ## 4. Argumentos sobre Python (c) y Keycloak (d)
 
@@ -60,7 +62,29 @@ Están en el [ADR-0019](../adrs/0019-servicios-python-motor-aislado.md) (secció
 
 **Supuestos:** un DEV y un TESTER en paralelo, días corridos, desde el 25-nov. Los hitos están en el PRD: demo con APK el 10-dic, pruebas del 16 al 26-dic, despliegue y aceptación del 24 al 28-dic, entrega el 30-dic. Quedan 36 días de calendario.
 
-### Escenario 1: migrar ya (recomendado por el ARCH)
+### Plan decidido (humano, 2026-11-24): escenario 1 con HU-09 en lugar de Keycloak
+
+| Fechas (aprox.) | Trabajo | Días |
+|---|---|---|
+| 25 y 26-nov | LEAD: contrato de la migración (versiones nuevas de HU-01 a HU-04 y HU-07, interfaces Dart de los bordes, pruebas en `apps/movil/test/` e `integration_test/`) | 1 a 2 |
+| 26-nov al 5-dic | DEV: app Flutter con HU-01, 02, 03 y 07, y HU-04 terminada. TESTER, en paralelo: pruebas en `flutter_test` | 8 / 6 |
+| 5 y 6-dic | LEAD: veredicto de la migración | 1 |
+| 6 al 8-dic | DEV: NGINX (ADR-0018) y DESPLIEGUE-01 con el APK de Flutter, descargable desde la ruta protegida del VPS (ADR-0018, punto 5) | 1,5 |
+| 10-dic | Demo con APK | — |
+| 9 al 17-dic | HU-05 E1 a E7, con el motor separado (ADR-0019) y la calibración | 7 a 8 |
+| 17 al 22-dic | HU-06 (opción A del PA #2, mientras el MININTER no responda) | 4 a 5 |
+| **22 al 24-dic** | **HU-09, aviso simulado al 105 (ADR-0016)**, en lugar de construir Keycloak | unos 2 a 3 |
+| 24 al 28-dic | Despliegue, pruebas de desempeño, evaluación biométrica, aceptación | — |
+| Hasta el 30-dic | Keycloak documentado (ADR-0020): manual y brecha 4, con sus dos variantes | ARCH y DEV, en los documentos de entrega |
+
+**Fuera de la construcción del MVP** (definidas y aprobadas): HU-05 E8 a E10 y HU-10.
+
+**Riesgos del plan:**
+- La demo del 10-dic queda sin margen. Si la migración se atrasa más de 2 días, la demo se hace con el último APK de Expo (DESPLIEGUE-01 tal como está).
+- HU-09 queda pegada a la fase de despliegue. Si HU-05 o HU-06 se atrasan, HU-09 es lo primero que se mueve, hasta el plazo máximo (2-ene) o fuera del MVP. Eso lo decide el humano.
+- HU-09 necesita el permiso de ubicación y la prueba en el teléfono real (Samsung Galaxy S23 Ultra, Android 16), con el GPS adentro y afuera. Hay que reservar ese tiempo en el veredicto.
+
+### Escenario 1 original: migrar ya (recomendado por el ARCH, base del plan decidido)
 
 | Fechas (aprox.) | Trabajo | Días |
 |---|---|---|
@@ -95,15 +119,17 @@ No cuesta días: el MVP se entrega en Expo y la app en Flutter queda como trabaj
 | 3. Flutter después del MVP | unos 4 (NGINX y Keycloak) | En Expo | Nada; entra E8 a E10 o HU-09 |
 | Java en la API además (si el MININTER no acepta Python) | +8 a 10 | — | Además, HU-06 |
 
-## 6. Decisiones que el ARCH no toma (para el humano, vía PM)
+## 6. Decisiones del humano (2026-11-24, vía PM)
 
-1. Aceptar o cambiar los ADR-0017, 0018, 0019 y 0020 (hoy en "Propuesto").
-2. **Escenario de cronograma** (1, 2 o 3) y, en el 1, qué sale del MVP: E8 a E10, HU-09, HU-10 o Keycloak construido.
-3. Qué hacer con la rama `hu-04` y el código Expo (recomendación en la sección 3).
-4. Cómo se entrega el APK de Flutter en la demo, ahora sin EAS: (a) descarga desde el VPS por NGINX, en una ruta aparte de `/v1/` y protegida (recomendado: no sale de la infraestructura del proyecto); (b) un *release* privado de GitHub (los probadores necesitan cuenta); (c) Firebase App Distribution (es Google: otro tercero que recibe datos de los probadores).
-5. Separar el motor ahora (ADR-0019, recomendado) o mantenerlo dentro de la API (ADR-0004 vigente).
-6. Ruta de las pruebas de la app en `AGENTS.md`: mantener `apps/movil/__tests__/` o pasar a `test/` e `integration_test/` (le toca al LEAD o al humano).
-7. Keycloak propio o del MININTER (PA #38a), y dónde viven los roles (PA #38b).
+| # | Pregunta | Decisión |
+|---|---|---|
+| 1 | ADR-0017 a 0020 | Aceptados. El 0020 con ajuste: Keycloak no se construye en el MVP |
+| 2 | Escenario de cronograma | Escenario 1, migrar ya. Los días de Keycloak van a HU-09, que entra al MVP. HU-05 E8 a E10 y HU-10 quedan fuera de la construcción |
+| 3 | Rama `hu-04` | A `main` van solo los documentos |
+| 4 | Entrega del APK de la demo | Opción (a): descarga desde una ruta protegida del VPS, por NGINX (ADR-0018, punto 5) |
+| 5 | Motor | Se separa ahora (ADR-0019) |
+| 6 | Ruta de las pruebas de la app | `apps/movil/test/` e `integration_test/`. El cambio de `AGENTS.md` lo hace el humano |
+| 7 | Keycloak propio o del MININTER; roles | Abierto (PA #38). El ADR-0020 describe las dos variantes sin elegir |
 
 ## 7. Lo que se verifica después (NO VERIFICADO hoy)
 

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18). **Cambios propuestos (2026-11-24, PA #37 y #38):** el [ADR-0018](0018-proxy-nginx.md) reemplazaría Caddy por NGINX en el punto 1, el [ADR-0019](0019-servicios-python-motor-aislado.md) agregaría el servicio `motor`, el [ADR-0020](0020-keycloak-al-final.md) agregaría Keycloak al final del MVP y el [ADR-0017](0017-app-movil-flutter-mlkit.md) reemplazaría el build de EAS del punto 4. Mientras sigan propuestos, este ADR rige.
+Aceptado (2026-11-18). **Precisado el 2026-11-24 (PA #37 y #38, decisiones del humano):** el [ADR-0018](0018-proxy-nginx.md) reemplaza Caddy por NGINX en el punto 1 y agrega la descarga protegida del APK; el [ADR-0019](0019-servicios-python-motor-aislado.md) agrega el servicio interno `motor`; el [ADR-0017](0017-app-movil-flutter-mlkit.md) reemplaza el build de EAS del punto 4. El punto 2 (Supabase en la nube) no cambia en el MVP: Keycloak se entrega solo documentado ([ADR-0020](0020-keycloak-al-final.md)).
 
 ## Contexto
 

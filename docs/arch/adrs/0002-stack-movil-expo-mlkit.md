@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18). **Reemplazo propuesto (2026-11-24):** el [ADR-0017](0017-app-movil-flutter-mlkit.md) propone pasar la app a Flutter (PA #37). Mientras siga propuesto, este ADR rige.
+**Reemplazado por el [ADR-0017](0017-app-movil-flutter-mlkit.md) (2026-11-24):** la app pasa a Flutter (PA #37, decisión del humano). Aceptado el 2026-11-18. Siguen vigentes, a través del ADR-0017, el OCR y la calidad facial con ML Kit en el dispositivo, la decisión sobre la telemetría (PA #31) y el riesgo del OCR de placas.
 
 ## Contexto
 

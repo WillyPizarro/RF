@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Aceptado (2026-11-20)** tal como se propuso. Decisión del humano, comunicada por el PM. Las respuestas a los PA #32 y #34 son **supuesto de trabajo** hasta que responda el MININTER. Es solo documental: HU-09 **no se desarrolla** hasta que el PM lo autorice.
+**Aceptado (2026-11-20)** tal como se propuso. *(2026-11-24: HU-09 **entra al MVP** por decisión del humano. Con la app en Flutter, la librería de referencia pasa de `expo-location` a `geolocator`, con `forceLocationManager: true`; ver el [ADR-0017](0017-app-movil-flutter-mlkit.md).)* Decisión del humano, comunicada por el PM. Las respuestas a los PA #32 y #34 son **supuesto de trabajo** hasta que responda el MININTER. Es solo documental: HU-09 **no se desarrolla** hasta que el PM lo autorice.
 
 ## Contexto
 

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+Aceptado (2026-11-18). **Precisado por el [ADR-0017](0017-app-movil-flutter-mlkit.md) (2026-11-24):** con la app en Flutter, el cliente y los modelos de la app se generan en Dart desde el mismo `openapi.json`, en lugar de los tipos de TypeScript. El contrato no cambia.
 
 ## Contexto
 
