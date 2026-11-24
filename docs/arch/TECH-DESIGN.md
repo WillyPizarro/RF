@@ -83,6 +83,12 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
 | [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | Aceptado (supuestos PA #33) |
 | [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | Aceptado (supuestos PA #32 y #34) |
+| [ADR-0017](adrs/0017-app-movil-flutter-mlkit.md) | App con Flutter y ML Kit en el dispositivo (PA #37); reemplazaría al ADR-0002 | **Propuesto** (2026-11-24) |
+| [ADR-0018](adrs/0018-proxy-nginx.md) | NGINX en lugar de Caddy (PA #37); reemplazaría el `proxy` del ADR-0009 | **Propuesto** (2026-11-24) |
+| [ADR-0019](adrs/0019-servicios-python-motor-aislado.md) | API y simuladores en Python; motor biométrico como servicio interno aislado (PA #37); precisaría el punto 2 del ADR-0004 | **Propuesto** (2026-11-24), a negociar con el MININTER |
+| [ADR-0020](adrs/0020-keycloak-al-final.md) | Keycloak al final del MVP, Supabase Auth mientras tanto (PA #38); precisaría el punto 3 del ADR-0003 | **Propuesto** (2026-11-24) |
+
+Impacto y estimado de los ADR-0017 a 0020 frente al cronograma: [evaluación del stack del MININTER](evaluaciones/PA-37-39-stack-mininter.md). Mientras sigan propuestos, el diagrama de componentes y las tablas de este documento describen el diseño aceptado (Expo y Caddy).
 
 ## Modelos biométricos fijados
 
@@ -162,7 +168,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 3. Integración con fuentes reales y convenios (PA #6), incluida la galería biométrica real.
 4. Identidad institucional y MFA; administración de usuarios.
 5. Bitácora firmada y sellada; política de retención legal (PA #16).
-6. Prueba de vida y anti-suplantación; evaluación biométrica con datos representativos de la población.
+6. Prueba de vida y anti-suplantación; evaluación biométrica con datos representativos de la población. **Fotos de referencia y recalibración (PA #40):** los umbrales del MVP se calibran con fotos del equipo (ADR-0004) y no valen tal cual en producción. Antes de producción hay que recalibrar y evaluar con fotos de referencia de las fuentes reales (DNI, ficha policial o requisitoria judicial), con su cantidad, antigüedad y calidad reales, y con cualquier motor que se elija. Con una sola foto de referencia vieja o de baja calidad, aumentan los "No concluyente".
 7. MDM; modo sin conexión (si PA #11 lo exige); iOS (si PA #12 lo exige).
 8. Residencia de datos (Postgres fuera del Perú en el MVP); llaves gestionadas por la entidad.
 9. Circuit breaker y monitoreo para fuentes reales; notificaciones push.
@@ -244,7 +250,8 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - **Revisor (PA #2):** si es el mismo agente, se pierde la separación de funciones (ADR-0003).
 - **Capturas de candidatos en reposo hasta 24 h** en la nube, fuera del Perú: es el riesgo principal de la evaluación de impacto (ADR-0008, ADR-0009).
 - **Consentimiento ampliado** para las fotos del equipo: debe estar firmado antes del día 6, o la prueba biométrica temprana se retrasa.
-- **Datos biométricos poco representativos** (unas 20 personas del equipo): la evaluación no se puede extrapolar a producción; se reporta por subgrupo y con la regla de 3.
+- **Datos biométricos poco representativos** (unas 20 personas del equipo): la evaluación no se puede extrapolar a producción; se reporta por subgrupo y con la regla de 3. Además, la galería del MVP tiene fotos de referencia recientes y de buena calidad, y las de producción pueden ser una sola, vieja o de baja calidad (PA #40): el informe de la evaluación biométrica debe decirlo de forma explícita como límite, y la recalibración queda en la brecha 6.
+- **Stack del MININTER (PA #37 a #39, ADR-0017 a 0020 propuestos):** la migración a Flutter consume la reserva del cronograma; con todo el stack, HU-05 E8 a E10, HU-09 y HU-10 no caben en el MVP. Si el MININTER no acepta Python (ADR-0019), la API en Java suma de 8 a 10 días de DEV.
 - ~~Licencias de YuNet y SFace sin verificar~~: **verificadas el 2026-11-18** (ver "Modelos biométricos fijados"). La prueba de la API en la imagen Linux del contenedor `api` es un requisito del contrato de HU-05 (LEAD).
 - **Expresión regular de placa** no verificada contra la normativa (PA #20).
 - **Contratos de las fuentes** diseñados sin conocer las reales (PA #6): pueden requerir reescribir los adaptadores.
@@ -265,4 +272,8 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 | PA #11 | Solo en línea (ADR-0010) | Decisión de diseño; falta confirmar |
 | PA #12 | Android de referencia (ADR-0010) | Decisión de diseño; falta confirmar |
 | PA #16 | MVP: todo el proyecto y luego se borra; producción: Legal (ADR-0008) | Abierto para producción |
-| PA #17 | Supuesto de todo el diseño | Abierto (bloqueante) |
+| PA #17 | Supuesto de todo el diseño | Abierto (bloqueante); el stack lo reemplaza el PA #37 |
+| PA #37 | Flutter, NGINX y API en Python a negociar (ADR-0017, 0018 y 0019) | Propuesto; falta la respuesta del MININTER sobre Python |
+| PA #38 | Keycloak al final, Supabase Auth mientras tanto (ADR-0020) | Propuesto; falta saber si el Keycloak es propio o del MININTER, y dónde viven los roles |
+| PA #39 | Nada web en el alcance | Abierto |
+| PA #40 | Brecha 6 y riesgo de datos poco representativos; el ADR-0004 no cambia | Abierto |

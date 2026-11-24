@@ -1,0 +1,58 @@
+# ADR 0017: App móvil con Flutter y ML Kit en el dispositivo (stack del MININTER)
+
+## Estado
+
+**Propuesto (2026-11-24).** Lo pidió el PM (encargo del 2026-11-24, PRD PA #37). Si se acepta, **reemplaza** al [ADR-0002](0002-stack-movil-expo-mlkit.md) y **precisa** el [ADR-0013](0013-estado-app.md) (estado de la app), la parte de la app del [ADR-0007](0007-contrato-app-api.md) (tipos generados), las librerías de referencia del [ADR-0015](0015-foto-varias-personas-rostro-elegido.md) y del [ADR-0016](0016-ubicacion-aviso-105-simulado.md), y el punto 4 del [ADR-0009](0009-despliegue.md) (build interno con EAS). No cambia ninguna regla de negocio, el contrato de la API ni la decisión del PA #31.
+
+El impacto, lo que pasa con lo construido en Expo y el estimado en días están en la [evaluación del stack del MININTER](../evaluaciones/PA-37-39-stack-mininter.md).
+
+## Contexto
+
+- **PRD PA #37 (2026-11-24):** el stack del MININTER es obligatorio en el MVP: Java 21, Angular 22+, Keycloak, NGINX y **Flutter para la app móvil**. **Decisión del humano:** la app pasa de Expo a Flutter dentro del MVP. Esto reemplaza el supuesto del PA #17 (el stack lo define el proveedor), sobre el que se tomó el ADR-0002.
+- El ADR-0002 descartó Flutter **solo** por dos razones: un segundo lenguaje (Dart) junto al Python, y no poder reutilizar el prototipo navegable si UX lo generaba en Expo. La segunda no se cumplió: el prototipo de UX es HTML (`docs/ux/prototipo/index.html`), no Expo. La primera ahora la impone el cliente. El ADR-0002 ya reconocía que "la integración con ML Kit es madura" en Flutter.
+- Lo que no cambia: el OCR y la calidad facial en el dispositivo y sin red (HU-04, HU-05 E2), nada de imágenes en disco (regla 5 y ADR-0008), Android como referencia (ADR-0010, PA #12) y la app solo habla con la API (ADR-0001, ADR-0003).
+- Lo construido en Expo (rama `main` y `hu-04`): HU-01, HU-02, HU-03 y HU-07 aceptadas en la app; HU-04 en pausa (WIP `125cabe`). HU-08 no tiene app. Son unas 2.400 líneas de TypeScript propias (sin contar `src/api/esquema.ts`, generado) y unas 2.500 de pruebas Jest del TESTER (`apps/movil/__tests__/`). Fuente: `wc -l` sobre `apps/movil` en la rama `hu-04`, 2026-11-24.
+
+## Decisión (propuesta)
+
+La app se construye con **Flutter (Dart), solo Android en el MVP**, en el mismo directorio `apps/movil/`. Las piezas, con su paquete de referencia (el LEAD fija las versiones exactas en el contrato de la migración):
+
+| Necesidad | Expo hoy (ADR-0002 y siguientes) | Flutter (propuesto) | Licencia |
+|---|---|---|---|
+| Cámara, una foto por toque | `expo-camera` | `camera` (flutter.dev) con `takePicture()`. **No** se usa `startImageStream`: sería un flujo continuo de cuadros (regla 6) | BSD-3 |
+| OCR de la placa (HU-04) | `@react-native-ml-kit/text-recognition` | `google_mlkit_text_recognition` (envuelve el SDK nativo de ML Kit) | MIT (plugin); ML Kit: términos de Google |
+| Calidad facial y rostros de la foto (HU-05 E2, ADR-0015) | ML Kit Face Detection | `google_mlkit_face_detection` | MIT (plugin); ML Kit: términos de Google |
+| Recorte del rostro elegido (ADR-0015) | Librería de manipulación de imagen (escribía en la caché) | `image` (Dart puro): decodifica, corrige la orientación EXIF, recorta y codifica **en memoria**, en un *isolate* | MIT |
+| Ubicación para el aviso al 105 (ADR-0016) | `expo-location` | `geolocator` con `forceLocationManager: true` en Android (no usa el proveedor de ubicación de Google Play services) y `timeLimit` de 10 s | MIT |
+| Token de sesión | `expo-secure-store` | `flutter_secure_storage` (Android Keystore), con `android:allowBackup="false"` | BSD-3 |
+| Estado en memoria (ADR-0013) | TanStack Query + Zustand | Riverpod, o `ChangeNotifier` sin librería; nada en disco salvo el token | MIT |
+| Cliente de la API (ADR-0007) | Tipos generados con `openapi-typescript` | Cliente y modelos generados desde `contratos/api/openapi.json` (`openapi-generator`, generador `dart-dio`) | Apache 2.0 |
+| Pruebas de la app (TESTER) | Jest + Testing Library | `flutter_test` (pruebas de widgets) e `integration_test`; Maestro sigue siendo posible | BSD-3 |
+| Build e instalación | EAS Build (APK por enlace) | `flutter build apk --release` en la máquina del proyecto, firmado con una llave **fuera del repositorio** (regla 8) | — |
+
+Reglas que se mantienen o se precisan:
+
+1. **Módulos de borde.** La cámara, ML Kit, la ubicación y el almacenamiento seguro quedan detrás de **interfaces Dart** (una clase abstracta por borde) que la app recibe por inyección. El TESTER las reemplaza por dobles en `flutter_test`, igual que hoy simula `lectorPlaca.ts` con `jest.mock`. Los nombres de las interfaces los fija el LEAD en cada contrato.
+2. **Nada de imágenes en disco.** `takePicture()` escribe un JPEG temporal: se lee, se borra en un `finally` y la prueba del TESTER verifica que no quede ningún archivo de imagen (igual que en HU-04 v5). El recorte del ADR-0015 ya no escribe temporales, porque `image` trabaja en memoria.
+3. **Telemetría de ML Kit (PA #31).** Los plugins `google_mlkit_*` usan los **mismos SDK nativos** de ML Kit, así que la telemetría y la decisión del 2026-11-20 (opción A: mantener, documentar y avisar) **no cambian**. Siguen el aviso de OCR-01 y la recomendación de usar la variante **empaquetada** de Face Detection. **NO VERIFICADO:** que cada plugin use la variante empaquetada (`com.google.mlkit:text-recognition` y `com.google.mlkit:face-detection`) y no la de Google Play services. El DEV lo confirma en el `build.gradle` de cada plugin en el contrato de la migración.
+4. **Conexión de depuración (HU-04 v3).** Se mantiene: el `network_security_config` de Android confía en los certificados del usuario **solo dentro de `<debug-overrides>`**. En Flutter ese archivo se escribe a mano en `android/app/src/main/res/xml/`, sin `prebuild`.
+5. **Versión fijada.** Se fija una versión estable de Flutter (y de Dart) en la migración y no se cambia hasta el cierre, como se hacía con el SDK 58 de Expo.
+
+## Alternativas consideradas
+
+- **A. Seguir con Expo hasta el cierre del MVP y entregar la app en Flutter solo si el MININTER la pide para producción.** Es lo más barato y ya está probado (cinco HU aceptadas). Se descarta porque el humano decidió el 2026-11-24 que Flutter entra en el MVP y porque el PA #37 dice que el stack del MININTER es obligatorio en el MVP. Queda como **argumento de negociación** si el cronograma no alcanza (ver la evaluación).
+- **B. Seguir en Expo hasta la demo del 10-dic y migrar después.** Protege la demo, pero obliga a construir HU-04 y parte de HU-05 dos veces (en Expo y en Flutter). Se descarta como recomendación, pero el humano puede elegirla (ver la evaluación, escenario 2).
+- **C. Flutter con iOS desde el MVP.** No hay respuesta al PA #12. Compilar para iOS en Flutter exige macOS y Xcode (EAS lo hacía en la nube). Se descarta hasta que el PA #12 confirme iOS.
+- **D. Flutter con cámara de flujo continuo (`startImageStream`) para leer la placa sin tocar el botón.** Daría lectura automática de placas, que la regla 6 prohíbe. Se descarta sin discusión.
+
+## Consecuencias
+
+- La app queda en el stack del MININTER, que la puede mantener con su propio personal.
+- El OCR, la calidad facial, la telemetría y los flujos no cambian: lo que cambia es el código de la app y sus pruebas, no el contrato de la API ni la bitácora.
+- **Costo:** hay que rehacer la app (HU-01, 02, 03 y 07) y sus pruebas, y terminar HU-04 en Flutter. Estimado: unos 8 días de DEV y 6 del TESTER, en paralelo (detalle en la evaluación).
+- **Costo:** los contratos de HU-01 a HU-04 y HU-07 nombran Jest, `expo-secure-store`, `lectorPlaca.ts` y Expo (unas 44 menciones en total). El LEAD tiene que sacar versiones nuevas de esas secciones.
+- **Costo:** desaparece EAS. El APK se compila y se firma en la máquina del proyecto. La llave de firma es un secreto nuevo que vive fuera del repositorio y se borra con el acta de cierre. Cambia la forma de entregar el APK de la demo del 10-dic (ver el [ADR-0018](0018-proxy-nginx.md) y la evaluación).
+- **Costo:** si el PA #12 confirma iOS, hace falta un Mac o un servicio de build en la nube con macOS. Es un costo que con EAS no existía.
+- **Riesgo:** decodificar en Dart una foto de 12 MP para recortarla puede tardar uno o dos segundos. Se mitiga con una resolución de cámara menor (`ResolutionPreset.high`) y un *isolate*. Lo mide el DEV en HU-05 E8.
+- **Riesgo:** las rutas del TESTER en `AGENTS.md` (`apps/movil/__tests__/`) no siguen la convención de Flutter (`test/` e `integration_test/`). Cambiar el mapa de propiedad le toca al LEAD o al humano. La otra opción es mantener `__tests__/` y correr `flutter test __tests__`.
+- **Mejora:** con `geolocator` y `forceLocationManager`, la app no depende del proveedor de ubicación de Google Play services, lo que reduce el riesgo NO VERIFICADO del ADR-0016. Lo que haga el sistema operativo por su cuenta sigue sin verificar.

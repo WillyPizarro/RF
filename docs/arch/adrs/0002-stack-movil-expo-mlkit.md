@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+Aceptado (2026-11-18). **Reemplazo propuesto (2026-11-24):** el [ADR-0017](0017-app-movil-flutter-mlkit.md) propone pasar la app a Flutter (PA #37). Mientras siga propuesto, este ADR rige.
 
 ## Contexto
 
