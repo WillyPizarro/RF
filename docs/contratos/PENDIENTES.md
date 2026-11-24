@@ -12,3 +12,14 @@
 - **Despliegue (OBLIGATORIO, humano 2026-11-19, veredicto HU-01/02):** en el VPS, comprobar que la clave de un login no queda en los logs del proxy (Caddy). Es la misma comprobación que `test_la_clave_no_queda_en_los_logs_del_proxy` (CONTRATO-HU-01 §5), hecha sobre el despliegue real.
 - **HU-03/07 (humano 2026-11-19, veredicto HU-01/02):** puerto local alterno y configurable para el proxy (`PROXY_PUERTO_HTTP`, y el de HTTPS si hace falta), para que las pruebas que pasan por el proxy corran en verde en esta máquina. Encargado en `ENCARGO-HU-03-07.md`.
 - **HU-03 (observación del veredicto HU-01/02):** falta una prueba de Jest para retomar la sesión al abrir la app cuando `/v1/me` responde `401 SESION_VENCIDA` (`restaurar`). Debe mostrar AUTH-03 (CONTRATO-HU-01 §4).
+- **Fase de pruebas, 16 al 26-dic (desde CONTRATO-HU-04 v2, humano 2026-11-19):** medir la precisión del OCR de placa con el dev build en el Samsung Galaxy S23 Ultra (Android 16), con las fotos tomadas por el humano:
+  - **Meta:** ≥ 90 % de lecturas exactas (antes de corregir) en ≥ 100 capturas de día (ADR-0011, provisional PA #4).
+  - **Sin meta:** de noche y en ángulo se mide y se reporta.
+  - **Placas:** solo las sintéticas impresas `ZZ` de la hoja de `pruebas/datos/`.
+  - **Registro:** en `pruebas/datos/ocr-precision.csv`, **sin imágenes**.
+  - **Fuera del veredicto de HU-04**, igual que el p95 de HU-03 (decisión 10).
+- **Acta de eliminación al cierre del proyecto (ADR-0008; CONTRATO-HU-04 v3, humano 2026-11-19):** borrar la CA local de Caddy del Samsung Galaxy S23 Ultra (Ajustes › Seguridad › Otros ajustes de seguridad › Credenciales de usuario, o la ruta que deje el DEV en `informes/DEV-HU-04.md`), quitar la depuración USB si ya no se usa, y dejarlo anotado en el acta.
+- **HU-05 (humano 2026-11-20, decisión sobre la telemetría de ML Kit en HU-04):** la opción A (mantener ML Kit, documentar y avisar al usuario) vale también para ML Kit Face Detection, **con una condición**: el ARCH confirma con la fuente oficial que Face Detection no envía la imagen del rostro ni datos derivados (contornos, *landmarks*). Si no lo puede confirmar, se reabre en el contrato de HU-05.
+- **Producción (brecha, humano 2026-11-20):** la telemetría de los SDK de terceros (ML Kit) se controla bloqueando sus dominios con MDM o el firewall de la entidad, o cambiando de OCR. El área legal define la base legal, el flujo transfronterizo y la información al usuario. Fuente: `docs/arch/evaluaciones/HU-04-telemetria-mlkit.md`.
+- **HU-05 (humano 2026-11-20):** el contrato de HU-05 lleva **su propio aviso** de telemetría de ML Kit Face Detection, igual que HU-04 v5 §3.
+- **Producción (humano 2026-11-20):** decidir si se deja constancia en la bitácora de que el usuario vio el aviso de telemetría ("Entendido"). En el MVP no se guarda. Va junto con la validación legal.
