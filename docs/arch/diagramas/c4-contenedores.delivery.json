@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "a56d6f74-385c-4565-bb78-2251ca8e70ad",
+  "receiptId": "b4ce1462-8f46-45e9-843f-65b0e9b22a0a",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\fuentes\\c4-contenedores.json",
-  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador\\docs\\arch\\diagramas\\c4-contenedores.html",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-entregables\\docs\\arch\\diagramas\\fuentes\\c4-contenedores.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-entregables\\docs\\arch\\diagramas\\c4-contenedores.html",
   "specification": {
-    "sha256": "f03fe8b19dcfdbef9b20c0fd990bc33757e8c81b075e68bcd7cbef9d11440707",
-    "bytes": 3035
+    "sha256": "724378691e30b3ede67927ac6c151eef366268e865f780542df74647c50e4efc",
+    "bytes": 4999
   },
   "artifact": {
-    "sha256": "81cf15d65b38633b156f4c28a60f867da0985dc3778bede391f659b5f5ced8a0",
-    "bytes": 847076
+    "sha256": "5beb04b534261b1cba32c3e2b2dbc564d9f91018631b4ee6edf90576d2755bfe",
+    "bytes": 851386
   }
 }

@@ -60,7 +60,7 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | Diagrama | Qué muestra |
 |---|---|
 | [C4 — Contexto](diagramas/c4-contexto.html) | Los tres roles, el sistema, Supabase, las fuentes simuladas y las fuentes reales (fuera del MVP) |
-| [C4 — Contenedores](diagramas/c4-contenedores.html) | App, Caddy, API con el motor biométrico, simuladores en la red interna, y Supabase Auth y Postgres. **Desactualizado desde el 2026-11-24** (ADR-0017 a 0019): falta regenerarlo |
+| [C4 — Contenedores](diagramas/c4-contenedores.html) | App en Flutter, NGINX, API, motor biométrico y simuladores en la red interna, y Supabase Auth y Postgres (actualizado el 2026-11-24, ADR-0017 a 0019) |
 | [Secuencia — Consulta de placa](diagramas/seq-consulta-placa.html) | HU-03 y HU-04: OCR, validación, fuente con timeout, registro fail-closed y camino de error |
 | [Secuencia — Verificación facial con revisión humana](diagramas/seq-verificacion-facial.html) | HU-05 y HU-06: calidad, comparación, retención cifrada del candidato, decisión con motivo y borrado |
 | [Secuencia — Vencimiento a 24 h](diagramas/seq-vencimiento-24h.html) | ADR-0008 / PA #23: borrado periódico, revisión vencida y "No concluyente" para el agente |
@@ -90,7 +90,7 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0019](adrs/0019-servicios-python-motor-aislado.md) | API y simuladores en Python; motor biométrico como servicio interno aislado (PA #37); precisa el punto 2 del ADR-0004 | Aceptado (2026-11-24); Python a negociar con el MININTER |
 | [ADR-0020](adrs/0020-keycloak-al-final.md) | Keycloak documentado, sin construir en el MVP; Supabase Auth sigue (PA #38) | Aceptado con ajuste (2026-11-24) |
 
-Impacto, estimado y plan decidido de los ADR-0017 a 0020: [evaluación del stack del MININTER](evaluaciones/PA-37-39-stack-mininter.md). El diagrama de componentes y su tabla ya reflejan Flutter, NGINX y el servicio `motor`. **Pendiente:** los diagramas de `archify` (sección Diagramas) y los SVG de `diagramas/osigp/` todavía muestran Expo, Caddy y el motor dentro de la API; hay que regenerarlos.
+Impacto, estimado y plan decidido de los ADR-0017 a 0020: [evaluación del stack del MININTER](evaluaciones/PA-37-39-stack-mininter.md). El diagrama de componentes y su tabla, los diagramas de `archify` (sección Diagramas) y los SVG de `diagramas/osigp/` (paquetes, clases, despliegue y red) se regeneraron el 2026-11-24 con Flutter, NGINX y el servicio `motor`.
 
 ## Modelos biométricos fijados
 
@@ -258,7 +258,7 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - **Expresión regular de placa** no verificada contra la normativa (PA #20).
 - **Contratos de las fuentes** diseñados sin conocer las reales (PA #6): pueden requerir reescribir los adaptadores.
 - **Planes de terceros:** Supabase gratis puede pausarse en la semana de validación; conviene evaluar un mes del plan Pro.
-- **Diagramas:** pasaron todas las verificaciones de `archify`, incluida la revisión automática en el navegador (el usuario la ejecutó desde su PowerShell el 2026-11-18).
+- **Diagramas:** regenerados el 2026-11-24 (ADR-0017 a 0019). Pasaron `validate`, `deliver` y `check` de `archify`. El `browser-check` no corrió en esta sesión porque Chrome no expone su canal de depuración desde aquí; hay que correrlo desde una PowerShell normal, como el 2026-11-18.
 
 ### Estado de los conflictos y puntos abiertos encargados al ARCH
 
