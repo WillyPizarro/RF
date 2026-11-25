@@ -3,6 +3,7 @@
 - **Fecha:** 2026-11-20
 - **Pedido por:** LEAD (encargo del 2026-11-20)
 - **Rama:** `hu-04`
+- **Actualizada:** 2026-11-24 (app en Flutter) y 2026-11-25 (cola del S23 y propuesta de verificación de red).
 - **Tipo:** evaluación corta, sin código. **No cambia ningún ADR**: propone cambios que decide el humano.
 - **Hallazgo de origen:** en la prueba física de HU-04 (dev build, Samsung S23 Ultra, Android 16), el PM encontró en el almacenamiento privado de la app `databases/com.google.android.datatransport.events` (y su `-journal`).
 
@@ -25,6 +26,70 @@ Lo encontró el DEV en la migración a Flutter (ADR-0017). El humano lo aceptó 
 | Qué hacen esas dependencias de Google Play services **en la red**: si agregan tráfico, si mandan otro identificador (la página de divulgación dice que las funciones *thin* agregan un identificador del dispositivo) o si quedan sin uso porque el modelo está empaquetado | **NO VERIFICADO.** No se capturó tráfico ni se revisó qué clases se cargan en tiempo de ejecución |
 
 **Qué cambia:** nada en la decisión. Sigue la opción A: el aviso de OCR-01 y la revisión de la cola `datatransport` en el teléfono, que **se mantiene igual en la mini sesión del 4-dic** (CONTRATO-HU-04 v6 §6, fila "Cola de telemetría"). Lo único que cambia es el criterio del contrato: se pide que el modelo esté dentro del APK, no que falte `play-services-mlkit-*`. La tabla de identificadores de la sección 1 ("para funciones empaquetadas, solo identificadores por instalación") pasa a ser **lo que dice Google para la variante empaquetada**: con la dependencia transitiva presente, no hay evidencia de que no se sumen los datos de la variante *thin*. Para producción, esto se agrega a la brecha 10 de TECH-DESIGN (control de red, opción E).
+
+## Actualización 2026-11-25: lo que había en la cola `datatransport` del S23 (app Flutter)
+
+Fuente: la mini sesión física del 25-nov, sección 9 del registro de resultados (`resultados-s23.md`, **fuera del repositorio**, en la carpeta de capturas de MIGRACION-FLUTTER). El DEV y el PM corrieron la sección con el APK de depuración de la migración, después de leer una placa impresa `ZZ…`. La copia de la cola se revisó con `pruebas/datos/revisar_datatransport.py` y se borró al terminar (paso 9.6). Aquí **no se copia ningún valor identificador** (ni el UUID de la instalación ni la huella del build): solo las categorías.
+
+| Afirmación | Evidencia |
+|---|---|
+| La cola existe en el almacenamiento privado de la app: `databases/com.google.android.datatransport.events` (40 960 bytes) y su `-journal` (vacío) | Pasos 9.2 y 9.4 |
+| Hay **5 eventos**, todos con `transport_name = FIREBASE_ML_SDK`, con payload protobuf de **110 a 144 bytes** cada uno y `num_attempts = 0` | Paso 9.5 |
+| El transporte usa el *backend* `cct`, y el destino que tiene configurado (extras en base64 de `transport_contexts`) es **`firebaselogging.googleapis.com/v0cc/log/batch`** | Paso 9.5 (2 filas en `transport_contexts`) |
+| Datos legibles en los metadatos (75 filas en `event_metadata`, unas 15 por evento): el **paquete** de la app, dos **versiones de SDK** (`17.3.0` y `16.0.1`), un **identificador de instalación** (UUID) y **datos del equipo**: país, idioma, fabricante, modelo, nombre de dispositivo, hardware, nivel de API, huella del build, desfase horario y tipo de red | Paso 9.5 |
+| **Ninguna imagen** (JPEG o PNG, crudas o en base64) y **ningún texto de placa** `ZZ…` en la cola. Tampoco se vieron tokens ni datos del usuario | Paso 9.5, código 0 del script |
+| El OCR funciona **sin ninguna red**: con modo avión, Wi-Fi apagado y el cable USB desconectado, `ZZA-101` se leyó en el teléfono | Sección 10, repetición de 10.2 |
+
+**Cómo se lee:**
+
+1. **Coincide con lo que Google declara** para las funciones empaquetadas (sección 1): datos del dispositivo y de la app, versiones y un identificador **por instalación**. En la cola **no** apareció un identificador del dispositivo (Android ID o de publicidad) como el que la divulgación atribuye a las funciones *thin*.
+2. **`num_attempts = 0` no prueba que no se envíe nada.** La cola guarda solo lo **pendiente**: el transporte borra los eventos que ya subió. Que haya 5 sin intento quiere decir que, cuando se copió, esos 5 no se habían intentado subir. Lo más probable es que la subida la programe el sistema más tarde (JobScheduler), cuando hay red, pero eso es **NO VERIFICADO**.
+3. **El destino ya está identificado** para lo que pasa por la cola de la app: `firebaselogging.googleapis.com`. Es el primer dominio para la opción E (control de red en producción). No se sabe si hay **otros** destinos.
+4. **El script solo ve lo legible.** Busca firmas de imagen y el texto `ZZ…` en bytes crudos y en base64, pero no descomprime ni decodifica el protobuf. Con payloads de 110 a 144 bytes no cabe una foto, pero el **contenido exacto del protobuf** (métricas, configuración de la imagen, códigos de evento) sigue **NO VERIFICADO**.
+5. **Lo que no cubre la cola:** las dependencias transitivas `play-services-mlkit-*` (actualización del 2026-11-24) corren, si es que corren, en el proceso de Google Play services, que tiene su propia red y sus propias colas, fuera del almacenamiento de la app. La cola de la app **no dice nada** sobre ese tráfico. Sigue **NO VERIFICADO**.
+6. **Dos versiones de SDK:** `16.0.1` coincide con `com.google.mlkit:text-recognition:16.0.1`. Que `17.3.0` sea el núcleo común de ML Kit (por ejemplo, `vision-common`) es lo más probable, pero **NO VERIFICADO**. Este APK solo tiene Text Recognition: Face Detection (HU-05) no está construido.
+7. **El OCR no necesita red** (sección 10). Si en producción se bloquean los dominios de telemetría (opción E), la lectura de la placa debería seguir funcionando. Falta comprobar que el SDK no falle ni se quede esperando cuando la red está presente pero el dominio bloqueado.
+
+**Qué cambia:** **nada en la decisión.** La condición del contrato para reabrirla (que aparezca una imagen o un texto `ZZ…`) **no se cumplió**, así que sigue la opción A del 2026-11-20. El aviso de OCR-01 ("código de esta instalación") describe bien lo que se vio. Se actualizan el punto 3 del ADR-0017 y la brecha 10 de TECH-DESIGN con el dominio y con lo que sigue sin verificar.
+
+## Propuesta 2026-11-25: verificación de red pendiente
+
+**Pregunta:** ¿la app con ML Kit empaquetado se conecta a servicios de Google y, si lo hace, qué envía? Interesa la red **del proceso de la app** (la cola `datatransport`) y la de **Google Play services** mientras la app usa el OCR (las dependencias `play-services-mlkit-*`).
+
+**Propuesta ARCH: dos niveles en una sola sesión con el S23, y un tercero opcional.** La decisión es del humano y del PM.
+
+| Nivel | Qué responde | Método | Requisitos |
+|---|---|---|---|
+| **1. A quién se conecta** (recomendado) | Qué dominios contacta la app y cuántos bytes envía; si Google Play services abre conexiones nuevas mientras se usa el OCR | **PCAPdroid** en el S23 (captura sin root por una VPN local de Android; GPL-3.0; se instala desde F-Droid o Google Play y se desinstala al terminar). Se filtra por la app `pe.prototipo.movilbuscador` y, en una segunda corrida, por `com.google.android.gms`. Muestra el DNS y el nombre del servidor TLS (SNI) de cada conexión, con bytes y hora, y exporta un `.pcap`. Secuencia: (a) copiar la cola y contar los eventos, como en la sección 9; (b) iniciar la captura con el Wi-Fi conectado; (c) leer una placa `ZZ…` impresa; (d) forzar la subida pendiente con `adb shell cmd jobscheduler run -f pe.prototipo.movilbuscador <id>` (el id sale de `adb shell dumpsys jobscheduler`); (e) esperar 5 minutos; (f) detener la captura y volver a copiar la cola. **Se espera:** una conexión de la app a `firebaselogging.googleapis.com` y que la cola se vacíe. Cualquier otro dominio de Google se anota | El S23 con Wi-Fi real: el túnel de `adb reverse` no sirve para esto. El humano instala PCAPdroid y acepta el diálogo de VPN de Android |
+| **2. Qué envía** (recomendado, en la misma sesión) | El contenido de la subida de la cola: qué campos van y si va algo más que lo que se vio en la cola | **mitmproxy** (MIT) en la PC, con el **APK de depuración**. Su `network_security_config` confía en los certificados del usuario (`debug-overrides`, ADR-0017 regla 4), así que el tráfico del proceso de la app que use la pila de red de Android se puede leer si se instala la CA de mitmproxy como certificado del usuario. El cuerpo de la subida se decodifica con `protoc --decode_raw` (antes se descomprime, si viene en gzip) y se le pasa la misma búsqueda de imagen y de `ZZ…` del script del TESTER. El tráfico de Google Play services **no** se puede leer así, porque es otra app y no confía en los certificados del usuario: para ese queda solo el nivel 1 | El humano instala la CA de mitmproxy como certificado del usuario y la **quita** al terminar. El release no se puede inspeccionar, y eso es lo esperado: confirma que el release solo confía en las CA del sistema |
+| **3. Control negativo** (opcional, para producción) | Si el OCR sigue funcionando con la red presente y los dominios de telemetría bloqueados (opción E) | Bloquear `firebaselogging.googleapis.com` (y lo que salga del nivel 1) en el DNS del punto de acceso que use el teléfono. Luego leer una placa y ver que OCR-02 aparece sin demora y que la cola crece sin vaciarse | Lo mismo que el nivel 1, más un punto de acceso con DNS controlable (por ejemplo, la PC del proyecto) |
+
+**Quién lo corre:**
+- **El DEV** prepara y corre los `adb` y la captura, como en la M-11 a la M-15.
+- **El humano** hace en el teléfono lo que requiere su mano: instalar PCAPdroid, aceptar la VPN, instalar y quitar la CA de mitmproxy y leer la placa impresa.
+- **El TESTER** escribe los pasos en su guion de dispositivo (`pruebas/datos/`) y, si hace falta, amplía `revisar_datatransport.py` para que descomprima y busque en el cuerpo capturado.
+- **El ARCH** recibe el resultado y actualiza esta evaluación, el ADR-0017 y la brecha 10.
+- **El LEAD** arma el encargo.
+
+**Cuánto tarda (estimado, no medido):**
+- Preparación del guion y de las herramientas: unas 2 horas entre el TESTER y el DEV.
+- Sesión con el S23: unos 45 minutos el nivel 1 y otros 60 a 90 minutos el nivel 2. El nivel 3 suma unos 30 minutos.
+- En total, **medio día** con el teléfono y el humano.
+
+**Sí hace falta el S23 y el humano.** Sin root, solo el teléfono puede atribuir cada conexión a la app o a Google Play services. Además, instalar una app de captura y una CA de usuario obliga a aceptar diálogos del sistema a mano. Y lo que interesa es el comportamiento en un equipo con Google Play services real, como los de producción.
+
+**Alternativa sin el S23 (no recomendada):** un emulador de Android con imagen de Google APIs y root, con `tcpdump` adentro y una imagen de placa sintética en la cámara virtual. No necesita al humano, pero tarda más (medio día solo en armarlo) y es menos representativo, porque usa el Google Play services del emulador y no el del Samsung. Además, el ARCH no comprobó que el OCR empaquetado funcione con la cámara virtual (**NO VERIFICADO**).
+
+**Cuidados (regla 8 y ADR-0008):**
+- La captura tiene el identificador de instalación y los datos del equipo. Se guarda **fuera del repositorio** (por ejemplo, en `C:\Willy\Trabajo\MININTER\flutter-capturas\red\`) y se borra al terminar, como la cola en el paso 9.6.
+- En el repositorio solo quedan categorías, dominios y conteos, nunca valores identificadores.
+- Solo se usan placas sintéticas `ZZ…` impresas.
+- Al terminar se desinstala PCAPdroid y se quita la CA de mitmproxy, y se deja constancia en el registro.
+
+**Qué cambia según el resultado:**
+- **Solo `firebaselogging.googleapis.com`, sin imagen ni texto:** se cierra el NO VERIFICADO de la red del proceso de la app, se confirma la opción A y la brecha 10 queda con una lista concreta de dominios.
+- **Otros dominios de Google** (por ejemplo, desde Google Play services al usar el OCR): se anotan en la brecha 10 y se le pregunta al humano si se excluye `play-services-mlkit-*`, con una prueba de que el OCR empaquetado sigue funcionando sin esa dependencia.
+- **Una imagen o un texto `ZZ…` en lo que sale:** se reabre la decisión, igual que con la cola.
 
 ## 1. Qué envía el transporte a Google
 
