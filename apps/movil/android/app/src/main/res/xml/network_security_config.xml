@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Conexión del APK con la API (CONTRATO-MIGRACION-FLUTTER §6, CONTRATO-HU-04 v6 §8, ADR-0017 regla 4).
+  Escrito a mano.
+  - base-config: solo los certificados del sistema y nada de texto plano (también en release).
+  - debug-overrides: los certificados del usuario (la CA local del proxy) solo en el APK de
+    depuración. Android ignora este bloque en un APK no depurable (release).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
