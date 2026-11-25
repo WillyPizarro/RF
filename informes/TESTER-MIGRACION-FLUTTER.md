@@ -5,6 +5,25 @@
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
 
+## 0-S23v3. Tercera vuelta de la S23 (2026-11-25, M-15; documentos de la M-16)
+
+Fuente: sección "Tercera vuelta" de `resultados-s23.md` (fuera del repositorio). Corrida por el DEV con el PM; el humano operó el S23 Ultra. APK de la `ENTREGA DEV` M-15 (código `d81c6f9`): debug `5f62f6a4…`, release `65799fb6…`. Capturas en `…\s23\` con el sufijo `-v3`. **Todo `OK`.** El UX dio la aprobación final (`54906c3`).
+
+| Paso | Resultado |
+|---|---|
+| T.0 | OK: `R5CW21ERL2L device`; `adb reverse` `UsbFfs tcp:8443 tcp:8443` |
+| T.1 (0.8 a 0.12) | OK: desinstalado el release `48f8117a`; SHA `5f62f6a4…` y `65799fb6…`; instalado el debug; `flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]`, sin `ALLOW_BACKUP`. `font_scale` 1.08, Botones |
+| T.2 (1.2) | OK: `agente1` entra a HOME-01 (`POST /v1/auth/login` 200, `GET /v1/me` 200) |
+| T.3 (S7 y S7b, obs. 5 y 6) | OK: con `font_scale` 2.0 la tarjeta muestra la **barra de desplazamiento visible** sin tocarla (S7-v3), y desplazada se ven el final del texto y "Entendido" (S7b-v3). La franja va en dos líneas, **centrada** y con margen. Para el UX: la barra queda en el borde derecho del visor y tiene poco contraste. Lo juzgó el UX en `54906c3` |
+| T.4 (S14, obs. 7) | **OK, el ROJO de la segunda vuelta quedó resuelto:** sigue saliendo el teclado de Samsung **sin "/"**, pero al teclear solo `25112026` en "Desde" y en "Hasta" la app pone la "/" y se ve **`25/11/2026`** en los dos (S14-v3 y S14b-v3). "Aplicar filtros" muestra la lista **sin** "Use fechas con el formato dd/mm/aaaa." (`GET /v1/bitacora` 200). Es lo mismo que verifica la prueba de widget de la M-15 |
+| T.5 y T.6 (11.7 y 11.8) | OK: el release `65799fb6` instalado; `flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]`, **sin** `DEBUGGABLE` |
+| T.7 (11.9) | OK: con el release **no entra**; AUTH-01 con **"No se pudo completar la operación; intente nuevamente"**; nunca HOME-01 ni "sin requisitoria" (regla 7) |
+| T.8 (11.10) | OK con un reintento: con el log normal del proxy no salía ninguna línea, porque Caddy registra el `TLS handshake error` solo en DEBUG. Se puso DEBUG en caliente, solo en el contenedor, y al repetir el login: `TLS handshake error … remote error: tls: unknown certificate`, con **0** accesos a `/v1/auth/login`. Después, `caddy reload` del Caddyfile versionado (`logging` = `null`). **Guion corregido (M-16):** nuevo 11.8b (DEBUG en caliente por la API de administración, en `127.0.0.1:2019`), 11.10 con el DEBUG y 11.10b (recarga), y lo mismo en T.6b y T.8. El TESTER probó los comandos en PowerShell 5.1: el JSON tiene que armarse dentro del contenedor, porque PowerShell quita las comillas y la tubería agrega un BOM |
+| T.9 (11.11) | OK: reinstalado el debug `5f62f6a4` |
+| T.10 | OK: `adb reverse --remove-all`; compose arriba (`/v1/salud` 200), sin el 12.4 |
+
+Con la tercera vuelta, ya **no queda nada del teléfono `NO VERIFICADO`** en la S23.
+
 ## 0-M15. Corrida M-15, punto 2 (2026-11-25, sobre `bb36969`: código del DEV `d81c6f9`, informe `bb36969` §13)
 
 Solo lo que pide la M-15 al TESTER; no es la suite completa.
