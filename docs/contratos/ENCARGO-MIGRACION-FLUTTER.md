@@ -227,3 +227,36 @@ Reemplaza: el alcance de la M-11, que era solo la sección 0, ahora es **todo el
 4. **Capturas:** cuando estén S1 a S15 en `s23\`, avísame, así se las paso al UX.
 5. **Copias del teléfono:** las de los pasos 8 y 9 van en `C:\Willy\Trabajo\MININTER\flutter-capturas\` y se borran al terminar (paso 12). No se hace commit de nada que salga del teléfono.
 6. **Al terminar el guion:** `ESTADO DEV` con el resumen de OK, ROJO y NO HECHO. Después le paso al TESTER `resultados-s23.md` (paso 12.2).
+
+### M-15 (2026-11-25) — Lo que dejó la S23: teclado de fechas, observaciones 5 y 6 del UX, HU-04 v7 y el guion (DEV y TESTER)
+
+Reemplaza: nada; suma lo que dejó la mini sesión S23 (M-14, registro en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`). Contratos vigentes: **CONTRATO-MIGRACION-FLUTTER v1.5** y **CONTRATO-HU-04 v7** (`45f19d2`, solo texto en la §3: para el aviso de telemetría, una sesión retomada después de reiniciar la app cuenta como sesión nueva). Revisión del UX: `docs/ux/revisiones/MIGRACION-FLUTTER.md`, obs. 5, 6 y 7 (`65c3606`, `e2356dd`). Rama `migracion-flutter`. Cada uno toca solo sus rutas y hace commits con su prefijo. Sin push.
+
+**DEV** (primero):
+1. **Obs. 7, BLOQUEA (S14):** regresión del refactor (§1.1). En Expo, la obs. 4 de HU-03-07 se resolvió con `numbers-and-punctuation`. Lo observable: en el S23 con Samsung Keyboard, "Desde" y "Hasta" de BIT-01 dejan escribir `dd/mm/aaaa` (por ejemplo `25/11/2026`) **sin cambiar de teclado**. Los textos, la ayuda "dd/mm/aaaa" y el error "Use fechas con el formato dd/mm/aaaa." no cambian (CONTRATO-HU-07). El cómo lo decides tú y lo justificas en el informe.
+2. **Obs. 5, MEJORA:** en la tarjeta del aviso de OCR-01, una barra de desplazamiento **siempre visible** (`Scrollbar` con `thumbVisibility: true` en su `SingleChildScrollView`), sin texto nuevo.
+3. **Obs. 6, MEJORA:** la franja "DATOS SINTÉTICOS · PROTOTIPO" centrada (`textAlign: center`) y con relleno lateral de 16 dp, sin limitar el tamaño de la letra.
+4. Nada más. HU-04 v7 no cambia el código.
+5. `flutter analyze` sin avisos y `flutter test` antes de entregar. Si una prueba del TESTER se pone roja por el punto 1, no la toques: anótala en el informe y yo la arbitro.
+6. APK nuevos (depuración y release) en `Movil_Buscador_apk\MIGRACION-FLUTTER\`, que reemplazan a `6d6b0405` y `48f8117a`, con su `SHA256SUMS.txt` nuevo y la búsqueda de la CA, como en la M-13. **No los instales** en el teléfono.
+7. **Entorno:** vuelve el log del proxy al nivel normal por la API de administración de Caddy, solo en el contenedor y sin tocar el Caddyfile. **No bajes el compose** (12.4): lo necesita el TESTER y la suite completa.
+8. Informe y `ENTREGA DEV: M-15 <commit>, SHA debug/release`.
+
+**TESTER:**
+1. **Ya, sin esperar al DEV:**
+   - **12.2:** pasa `resultados-s23.md` a `informes/TESTER-MIGRACION-FLUTTER.md`, con los OK, el ROJO S14, los NO HECHO con su motivo y los arbitrajes del LEAD:
+     - **8.5:** se apartó la prueba. Las marcas están solo en `app_flutter/flutter_assets/kernel_blob.bin`, que tiene el mismo SHA-256 que el del APK.
+     - **Primera vuelta de 10.2 y 10.3:** se apartó la prueba. El keep-alive de OkHttp sobrevive a `adb reverse --remove`. La repetición con el cable USB fuera dio OK.
+   - **`revisar_cache_app.py`:** excluye `app_flutter/flutter_assets/` **solo** cuando el SHA-256 de cada archivo coincide con el del mismo archivo dentro del APK de depuración. Si no coincide, lo marca.
+   - **Guion, 10.1:** se corta la red desconectando el cable USB (con el modo avión y el Wi-Fi apagados). En 10.4 se reconecta, se comprueba con `adb devices` y se vuelve a poner `adb reverse`. El guion dice por qué no alcanza con `adb reverse --remove`.
+   - **HU-04 v7:** una nota en el guion (junto a S5 y al paso del aviso) y en el informe: el aviso vuelve a salir tras recrear la actividad y eso es lo esperado.
+   - **Guion de la tercera vuelta,** corto, desde 0.8, con el debug nuevo:
+     - 1.2: login;
+     - S7 y S7b, con la letra al máximo;
+     - S14, que tiene que dejar escribir `25/11/2026`;
+     - instalar el release y repetir 11.7 a 11.10;
+     - reinstalar el debug.
+2. **Cuando yo avise de la ENTREGA DEV:** `flutter test` sobre ese commit, los SHA, `revisar_ca_apk.py` sobre los dos APK, y el guion de la tercera vuelta con el commit y los SHA nuevos.
+3. Al terminar: `ESTADO TESTER`.
+
+Después: tercera vuelta corta en el teléfono (DEV con el PM, como en la M-14) → el UX revisa S7, S7b y S14 → M-n de la suite completa, una sola vez → veredicto.
