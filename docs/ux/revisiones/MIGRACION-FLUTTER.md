@@ -179,3 +179,41 @@ Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `HU-04.md`).
 - **Fuera de la §4 (no lo decide el UX):** el LEAD avisó que el aviso de ML Kit volvió a salir en OCR-01 al regresar de Ajustes, porque Android recreó la actividad. Es un hueco de HU-04 que decide el humano. Si la decisión cambia cuándo sale el aviso, el UX revisa el texto y la pantalla que resulten.
 
 **Qué falta:** S6 a S15, que no bloquean la §4. Cierran la etapa 2 de HU-04 (aviso, letra al máximo, indicador sobre la cámara real, marco a 1 o 2 m y OCR-04) y el aviso 2 del DEV sobre los símbolos.
+
+## Confirmación S6 a S15 (S23 Ultra, mini sesión del 25-nov)
+
+**Resultado: los símbolos quedan aprobados y la etapa 2 de HU-04 se cierra con 2 observaciones MEJORA.** Además, S14 tiene una observación que **BLOQUEA el filtro de fechas de BIT-01**. No toca la §4 ni HU-04, y ya está en la M-15.
+
+- **Qué se revisó:** S6 a S15 y la captura de apoyo S07b, en la misma carpeta, con el APK de depuración `6d6b0405`, en modo Botones. También las notas del DEV en `resultados-s23.md` (fuera del repositorio). Del código se revisaron `comunes.dart` (la franja), `pantalla_ocr.dart` (la tarjeta del aviso) y `pantalla_bitacora.dart` (líneas 351 a 371).
+- **Contra qué:** CONTRATO-HU-04 v6 (§3, texto del aviso de la v5), `docs/ux/revisiones/HU-04.md` (aviso, accesibilidad y observación 1), `HU-03-07.md` (observación 4) y la lista de la sección "Capturas del S23 Ultra".
+
+| # | Pantalla | Qué se vio | Estado |
+|---|---|---|---|
+| S6 | OCR-01 con el aviso | La tarjeta va sobre el visor atenuado. El título y el cuerpo coinciden letra por letra con el texto de la v5, y "Entendido" se ve entero. "Capturar" está desactivado e "Ingresar manualmente" sigue activo | ✔ |
+| S7 y S7b | El aviso con la letra al máximo (`font_scale` 2.0) | La tarjeta se corta en "…una herramienta de". Desplazando dentro del visor se llega al final del cuerpo y a "Entendido" (S7b), pero **nada indica que se puede desplazar**. La franja pasa a dos líneas pegadas al borde izquierdo | Observaciones 5 y 6 |
+| S8 | OCR-01 leyendo | El indicador es chico, circular y está centrado en el marco, sobre la imagen real. "Capturar" está desactivado. La observación 1 queda confirmada en el teléfono | ✔ |
+| S9 | OCR-01 con la placa a 1 o 2 m | El marco blanco contrasta bien sobre el piso y sobre la hoja. La placa entra en el marco con margen | ✔ |
+| S10a | OCR-04 | El 📷✕ se dibuja bien. Los textos coinciden con HU-04 y no aparece el aviso de telemetría | ✔ |
+| S10b | Ajustes | "Abrir ajustes" abre "Información de la aplicación" de Movil Buscador, con "Permisos" a la vista | ✔ |
+| S11 | PLA-01 con el teclado | ←, 📷, ◉ y ○ se dibujan bien. El teclado sale con las mayúsculas activas. "Consultar" queda debajo del teclado y se alcanza desplazando (lo confirmó el humano) | ✔ |
+| S12 | PLA-02 y PLA-03 | El ⚠ se dibuja en los dos mensajes. Los textos y el rojo coinciden con lo aprobado | ✔ |
+| S13 | AUTH-02 | El ⚠ se dibuja. "Usuario o clave incorrectos" aparece y el usuario se conserva | ✔ |
+| S14 | BIT-01 con los filtros y el teclado de "Desde" | Las opciones de "Tipo" van agrupadas, varias por fila (la observación 2 queda confirmada en el teléfono). El ▴ de "Filtros" se dibuja. **El teclado es numérico y no tiene "/"** | Observación 7 |
+| S15 | BIT-02 | El 🔒 se dibuja. "Registro de solo lectura" y los campos coinciden con lo aprobado | ✔ |
+
+- **Símbolos (aviso 2 del DEV): cerrado.** En el teléfono se dibujan 🚗, ←, 📷, ○, ◉, ✕, ⚠, 📷✕, 🔒 y ▴, y ninguno sale como cuadrado. Por la regla de la lista, no hace falta revisar AUTH-03, AUTH-04, ERR-01 ni PLA-05 a PLA-08 en el teléfono. ⓘ y ⛔ no aparecen en S6 a S15; se aceptan por la misma fuente de respaldo.
+- **Etapa 2 de HU-04: cerrada** con S6 a S10 y las observaciones 5 y 6.
+
+### Observaciones nuevas
+
+| # | Tipo | Pantalla | Observación | ¿M-15? |
+|---|---|---|---|---|
+| 5 | MEJORA | OCR-01 con el aviso y la letra al máximo (S7, S7b) | `HU-04.md` pide que el cuerpo se vea completo "sin cortes ni desplazamiento oculto, aun con la letra del sistema agrandada". Con la letra al 200 % la tarjeta se corta y el desplazamiento existe, pero no se ve. La lista del S23 aceptaba "alcanzable desplazando", así que se cumple a medias. No bloquea por tres razones: el texto entero y "Entendido" se alcanzan, "Ingresar manualmente" y "✕" siguen activos, y no se lee ninguna placa antes del aviso. Propuesta: que la barra de desplazamiento se vea siempre en la tarjeta (por ejemplo, `Scrollbar` con `thumbVisibility: true` sobre el `SingleChildScrollView` de `pantalla_ocr.dart`). No cambia ningún texto | Sí, recomendada: es barata y cierra un criterio de `HU-04.md`. Si no entra, queda para la fase de pruebas |
+| 6 | MEJORA | La franja, en todas las pantallas, con la letra al máximo (S7, S7b) | Con la letra al 200 % "DATOS SINTÉTICOS · PROTOTIPO" pasa a dos líneas alineadas a la izquierda y pegadas al borde de la pantalla, sin margen. Con la letra normal sale centrada en una línea. La franja sigue entera y legible, así que no bloquea. En `comunes.dart` el `Container` centra el bloque, pero el `Text` no tiene `textAlign` y el relleno es solo vertical. Propuesta: `textAlign: TextAlign.center` y un relleno lateral de 16 dp. No se limita el tamaño de la letra. No cambia ningún texto | Sí, recomendada: son dos líneas en un solo widget |
+| 7 | **BLOQUEA (filtro de fechas de BIT-01)** | BIT-01, "Desde" y "Hasta" (S14) | La observación 4 de `HU-03-07.md` era MEJORA porque en Expo el teclado alfabético dejaba escribir la fecha con un cambio de teclado, y quedó resuelta con `numbers-and-punctuation`. En Flutter, `TextInputType.datetime` abre en Samsung Keyboard un teclado de solo dígitos sin "/". Los campos no tienen formateador que agregue la barra, y la fecha se exige como dd/mm/aaaa. Si no se puede escribir "/", **el filtro de fechas no se puede usar en el S23**: es una regresión frente a lo aprobado en Expo y no una mejora de comodidad. Si la prueba pendiente del humano (escribir 25/11/2026) muestra que la "/" se puede escribir, vuelve a ser MEJORA. No bloquea la §4 ni HU-04. Criterio para la M-15: en el S23, con Samsung Keyboard, "Desde" y "Hasta" dejan escribir dd/mm/aaaa sin cambiar de teclado (el mismo criterio del arbitraje del LEAD) | Sí (ya está en la M-15, arbitraje del LEAD) |
+
+- **Fuera de estas observaciones:** el aviso de ML Kit que vuelve a salir cuando Android recrea la actividad sigue siendo un hueco de HU-04 que decide el humano (ver la confirmación de la §4).
+
+**Qué falta para el aprobado final de MIGRACION-FLUTTER:**
+1. La corrección de la observación 7 en la M-15, confirmada con una captura nueva de S14 (teclado con "/") o con la prueba del humano escribiendo una fecha.
+2. Las observaciones 5 y 6, si entran en la M-15, se confirman con capturas nuevas de S7 y S7b con la letra al máximo. Si no entran, quedan anotadas como MEJORA y no frenan el aprobado.
