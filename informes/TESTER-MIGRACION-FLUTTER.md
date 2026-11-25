@@ -3,7 +3,53 @@
 **Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.5** (con la M-1 a la M-15 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v7.
 **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-15).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
-**Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
+**Estado:** **suite completa M-16** sobre `ebe8e5d`, una sola vez: API 207/211 (**2 rojos** en `test_hu04_sin_cache.py[login-401]`, 2 NO VERIFICADO por contrato), simuladores 115 + 27 NO VERIFICADO (opción B del LEAD), `flutter analyze` limpio, `flutter test` 137/138 (**1 rojo**, AUTH-04), `integration_test` no aplica. Los 3 rojos parecen de la prueba (usuario fijo bloqueado; borde del reloj): sin arreglar ni volver a correr, esperan el arbitraje del LEAD. S23 completa en verde (tres vueltas).
+
+## SUITE COMPLETA M-16 (2026-11-25, sobre `ebe8e5d`, una sola vez)
+
+**Commit de la corrida:** `ebe8e5d` (el definitivo de la M-16: código de la app `d81c6f9`, UX aprobado en `54906c3`). Compose arriba desde `Movil_Buscador-flutter` (no se bajó ni se reconstruyó). Cada suite se corrió **una vez**; los rojos **no se arreglaron ni se volvieron a correr** (M-16 punto 3): los arbitra el LEAD.
+
+| Suite | Comando (desde la raíz, salvo Flutter) | Total | Resultado | Duración |
+|---|---|---|---|---|
+| API | `PROXY_DISPONIBLE=1 C:/Willy/Trabajo/MININTER/venv-pruebas/Scripts/python.exe -m pytest services/api/tests --integracion --url-base https://localhost:8443 -p no:cacheprovider -rfEs -q` | 211 | **207 pasan, 2 ROJOS, 2 omitidas** (NO VERIFICADO por contrato) | 10 min 8 s |
+| Simuladores (opción B del LEAD, sin `--reinicio`) | `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env run --rm simuladores pytest -rfEs -q -p no:cacheprovider` | 142 | **115 pasan, 0 rojos, 27 omitidas** (solo corren desde el anfitrión: NO VERIFICADO) | 36 s |
+| `flutter analyze` | `flutter.bat analyze` en `apps/movil` | — | **No issues found** | 8 s |
+| `flutter test` | `flutter.bat test` en `apps/movil` | 138 | **137 pasan, 1 ROJO** | 12 s |
+| `integration_test` | — | — | **No aplica**: `apps/movil/integration_test/` no existe | — |
+
+### Rojos (para el arbitraje del LEAD)
+
+1. **API, `test_hu04_sin_cache.py::test_no_store_por_la_red_interna[login-401]` y `::test_no_store_por_el_proxy[login-401]`.** Esperaba `401`, llegó `423` `CUENTA_BLOQUEADA` (`bloqueado_hasta` `2026-11-25T22:26:50Z`). **Causa probable: se apartó la prueba.** El caso usa un usuario **fijo** (`noexiste-cache`), y cada corrida del archivo le suma 2 fallos de login. El contador vive en la base, que persiste entre corridas: 2 de la M-10, 2 de la preparación del 25-nov, y en esta el quinto fallo dio el `423` que pide CONTRATO-HU-01 (§ "5.º fallo seguido" y "Usuario inexistente": se comporta igual). Las demás pruebas de HU-01 usan `usuario_falso()`, que es único por prueba, justamente por esto. El `Cache-Control: no-store` del `423` no se verificó en ese caso. Los otros 26 casos del archivo pasaron.
+2. **Flutter, `hu01_hu02_test.dart:112` "HU-01 AUTH-04 — cuenta bloqueada muestra la hora local (HH:MM) y los minutos, vacía la clave e Ingresar sigue activo".** `esperarQue` no encontró ninguno de `[Cuenta bloqueada temporalmente. Podrá volver a intentar a las 17:24 (en 15 min).]`. **Causa probable: se apartó la prueba (depende del reloj).** La lista tenía un solo candidato: la prueba calculó los minutos restantes justo en el borde de un segundo (900 s exactos, así que piso y techo dan los dos 15). La app calcula en otro instante y puede mostrar 16. En las corridas anteriores (M-5, M-9, M-13 y M-15) pasó siempre. No se miró el código del DEV.
+
+### NO VERIFICADO de la suite
+
+| Qué | Motivo |
+|---|---|
+| API: `test_hu01_bitacora_config.py:88` (fail-closed de `LOGIN_OK` → 503) | Por contrato: se prueba en HU-07 (CONTRATO-HU-01 decisión 2) |
+| API: `test_hu02_perfil_roles.py:55` (matriz de 403 por rol) | Por contrato: no hay ruta reservada a un rol en HU-01/02; se prueba en HU-03 y HU-07 (CONTRATO-HU-02 decisión 3) |
+| API: `no-store` del `423` en `login-401` | Rojo 1 |
+| Simuladores: las 27 omitidas (`test_contratos_yaml`, `test_carga_fotos`, `test_herramientas`, `test_reemplazo_y_config`, `test_aislamiento`, `test_reinicio`, `test_repositorio` y `test_fuente_personas.py:48`), y `--reinicio` | Sin cambios en `services/simuladores`, `contratos/` ni `infra/` desde `main` (diff vacío); cubiertas en los veredictos anteriores sobre `main`. Decisión del LEAD (opción B) |
+| `integration_test` | No existe en el proyecto |
+| Qué hace en la red `play-services-mlkit-*` | Decisión del humano, contrato v1.2 §7 (opción A) |
+
+### Matriz final (caso → prueba → resultado)
+
+| Caso del contrato | Prueba | Resultado |
+|---|---|---|
+| HU-01/02/03/07 en la app (§1.1, §1.2; matriz Jest → Dart de la §3) | `hu01_hu02_test.dart`, `hu01_retomar_test.dart`, `hu03_hu07_test.dart` | Verde, salvo **AUTH-04 (rojo 2)** |
+| HU-07 obs. 7 (M-15): `25112026` tecleado da `25/11/2026` y la misma solicitud | `hu03_hu07_test.dart` "BIT-01 (M-15, obs. 7)" + S14-v3 en el S23 | Verde |
+| HU-04 §2 a §5 (OCR-01 a OCR-04, aviso de telemetría, v7) | `hu04_ocr_test.dart` + S23 (pasos 3 a 7, S6 a S13) | Verde |
+| Sin caché HTTP en la app (§6, v1.5 OkHttp) | `red_sin_cache_test.dart`, `repositorio_test.dart` + S23 8.3, 8.3b y 8.5 | Verde |
+| Interfaz y repositorio (§2, §5, §6) | `repositorio_test.dart` (17) + `flutter analyze` | Verde |
+| API §1.3 v1.4 (`no-store` en `/v1/*`) | `test_hu04_sin_cache.py` (28) | 26 en verde, **`login-401` rojo (rojo 1)** |
+| API HU-01, 02, 03 y 07, errores, red, logs, salud, dependencias, OpenAPI (sin cambios en la migración) | `services/api/tests` (183 en los otros 15 archivos) | 181 en verde, 2 NO VERIFICADO por contrato |
+| Simuladores (sin cambios) | `services/simuladores/tests` dentro de la red | 115 en verde, 27 NO VERIFICADO |
+| Safe area (§4) | Capturas S1 a S5 del S23 | Aprobada por el UX (`7a16428`) |
+| Cliente `ok_http` y CA (v1.5 §6, §8) | S23 1.2 (debug entra) y 11.7 a 11.10 / T.5 a T.8 (release no entra, TLS) + `revisar_ca_apk.py` | Verde |
+| Release no depurable, firma y modelo de ML Kit (§6, §7) | Paso 11.2 a 11.6 sobre `65799fb6` (M-15) | Verde |
+| Telemetría `datatransport` (HU-04 v6 §6) | S23 paso 9 + `revisar_datatransport.py` | Verde: sin imagen ni placa |
+| Sin red (HU-04 v6 §3) | S23 10.2 y 10.3 con el cable fuera | Verde |
 
 ## 0-S23v3. Tercera vuelta de la S23 (2026-11-25, M-15; documentos de la M-16)
 
