@@ -260,3 +260,26 @@ Reemplaza: nada; suma lo que dejó la mini sesión S23 (M-14, registro en `C:\Wi
 3. Al terminar: `ESTADO TESTER`.
 
 Después: tercera vuelta corta en el teléfono (DEV con el PM, como en la M-14) → el UX revisa S7, S7b y S14 → M-n de la suite completa, una sola vez → veredicto.
+
+### M-16 (2026-11-25) — Suite completa, una sola vez, sobre el commit definitivo (TESTER; DEV congelado)
+
+Reemplaza: nada. Es el punto 5 de la §10 del contrato. El UX dio la **aprobación final** (`54906c3`). La S23 terminó: segunda vuelta y tercera vuelta en verde, con el único ROJO (S14) resuelto en la M-15. Contratos: **MIGRACION-FLUTTER v1.5** y **HU-04 v7**. Código definitivo de la app: `d81c6f9`, APK debug `5f62f6a4…` y release `65799fb6…`.
+
+**DEV:** **congelado**. No hay más commits en `apps/movil/`, `services/` ni en tu informe salvo orden mía. Si ves algo, avísame sin tocarlo.
+
+**TESTER**, en este orden:
+1. **Solo documentos** (`informes/TESTER-MIGRACION-FLUTTER.md` y `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`):
+   - vuelca la tercera vuelta (sección "Tercera vuelta" de `resultados-s23.md`);
+   - corrige en el guion el 11.10/T.8: el proxy tiene que estar en DEBUG, puesto en caliente, y al terminar se recarga el Caddyfile versionado.
+   
+   Haz commit. **Ese commit es el definitivo** de la suite.
+2. **Suite completa, una sola vez**, sobre ese commit, con el compose arriba desde `-flutter` (no lo bajes ni lo reconstruyas) y el venv `C:\Willy\Trabajo\MININTER\venv-pruebas` (M-10):
+   - `pytest` de `services/api/tests/` completo, incluido `test_hu04_sin_cache.py` con la integración por la red interna y por el proxy, como en la M-10;
+   - `pytest` de `services/simuladores/tests/`;
+   - `flutter analyze` y `flutter test` en `apps/movil/` (138 esperados);
+   - `integration_test`: hoy no existe, anótalo como "no aplica".
+3. Si algo da rojo, **no lo arregles ni vuelvas a correr**: anota el caso exacto y avísame. Lo arbitro yo con el contrato.
+4. Informe: el commit de la corrida, los comandos, los totales por suite, la duración y la **matriz final** (caso → prueba → resultado), con los `NO VERIFICADO` que queden, cada uno con su motivo.
+5. Al terminar: `ENTREGA TESTER: suite completa <commit>, totales`.
+
+Después: veredicto (skill `veredicto`) y PR con `gh pr create`. Sin merge ni push a `main`.
