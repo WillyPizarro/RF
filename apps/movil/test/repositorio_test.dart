@@ -129,7 +129,10 @@ void main() {
       for (final f in archivos) {
         final lineas = f.readAsLinesSync();
         for (var i = 0; i < lineas.length; i++) {
-          if (RegExp('expo|react-native', caseSensitive: false).hasMatch(lineas[i])) {
+          // Palabra completa, como `grep -riw` (criterio v1.2, pendiente de aprobación): así
+          // `android:exported` no cuenta, pero `expo`, `expo-camera` o `react-native` sí.
+          if (RegExp(r'(?<![A-Za-z0-9_])(expo|react-native)(?![A-Za-z0-9_])', caseSensitive: false)
+              .hasMatch(lineas[i])) {
             menciones.add('${_ruta(f)}:${i + 1}');
           }
         }
