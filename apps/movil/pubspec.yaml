@@ -20,6 +20,7 @@ dependencies:
   http: 1.6.0
   material_ui: 1.11.1
   permission_handler: 13.0.2
+  ok_http: 0.1.0
 
 dev_dependencies:
   flutter_test:
