@@ -219,7 +219,7 @@ El historial no se reescribe: el código Expo queda en `main` hasta el merge y e
 | Dependencias exactas | Cada dependencia de `pubspec.yaml` lleva versión exacta (sin `^`), y `pubspec.lock` se versiona | ADR-0017 ("el LEAD fija las versiones") · DECISIÓN PROPUESTA 5 |
 | Paquetes | `camera` (solo `takePicture()`, **nunca** `startImageStream`), `google_mlkit_text_recognition`, `flutter_secure_storage`, `http`, `clock`. Cualquier otro paquete con código nativo lo justifica el DEV en su informe. `google_mlkit_face_detection` y `geolocator` **no se agregan** en este ciclo (son de HU-05 y HU-09) | ADR-0017, regla 6 |
 | Sin flujo continuo | `grep -r startImageStream apps/movil/lib` vacío | ADR-0017 alternativa D, regla 6 |
-| Identificador de la app | `applicationId` `pe.prototipo.movilbuscador` y nombre visible "Movil Buscador", los mismos de Expo, para que los comandos `adb … run-as pe.prototipo.movilbuscador` de HU-04 sigan valiendo | CONTRATO-HU-04 v5 §6 · DECISIÓN PROPUESTA 6 |
+| ID de la aplicación (`applicationId`) | `applicationId` `pe.prototipo.movilbuscador` y nombre visible "Movil Buscador", los mismos de Expo, para que los comandos `adb … run-as pe.prototipo.movilbuscador` de HU-04 sigan valiendo | CONTRATO-HU-04 v5 §6 · DECISIÓN PROPUESTA 6 |
 | Respaldo | `android:allowBackup="false"` en el manifiesto | ADR-0017 (fila del token) |
 | Conexión de depuración | `apps/movil/android/app/src/main/res/xml/network_security_config.xml` escrito a mano: el `base-config` confía solo en los certificados del sistema y no permite texto plano; los certificados del usuario solo dentro de `<debug-overrides>` | ADR-0017 regla 4, CONTRATO-HU-04 v3 §8 |
 | Release no depurable | `flutter build apk --release` da un APK sin `application-debuggable` (`aapt dump badging` o `apkanalyzer`) | CONTRATO-HU-04 v3 §8 |
@@ -279,7 +279,7 @@ Lo que necesite el teléfono y no se pueda hacer a tiempo queda `NO VERIFICADO` 
 | Vista raíz | `Key('app-raiz')` |
 | Etiquetas de accesibilidad | "Usuario" · "Clave" · "Placa" · "Describa el motivo *" · "Desde" · "Hasta" · "Placa leída" · "Leer con cámara" · "Cerrar" · "Atrás" · "Ingresando" · "Cargando" |
 | URL de la API | `--dart-define=API_URL=…` |
-| Identificador de la app | `pe.prototipo.movilbuscador` · "Movil Buscador" |
+| ID de la aplicación (`applicationId`) | `pe.prototipo.movilbuscador` · "Movil Buscador" |
 | Informes | `informes/DEV-MIGRACION-FLUTTER.md` · `informes/TESTER-MIGRACION-FLUTTER.md` |
 | Textos de pantalla | Los de cada contrato (HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5, HU-04 v6) |
 

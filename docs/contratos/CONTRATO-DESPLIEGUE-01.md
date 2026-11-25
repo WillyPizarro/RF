@@ -142,7 +142,7 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 | Rol de la API | `api_app` |
 | Variables | Las de `infra/.env.example`, más `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` (**v2**) y la credencial de administración de Auth solo para la carga |
 | Comandos | `scripts/desplegar.ps1` · `scripts/publicar-apk.ps1` (**v2**) |
-| Identificador de la app | `pe.prototipo.movilbuscador` · "Movil Buscador" |
+| ID de la aplicación (`applicationId`) | `pe.prototipo.movilbuscador` · "Movil Buscador" |
 | Usuarios | `agente1` · `agente2` · `revisor1` · `supervisor1` · `inactivo1` |
 | Placas del demo | `ZZA-101` · `ZZB-201` · `ZZZ-999` |
 
