@@ -137,3 +137,24 @@ Reemplaza: nada. El rojo es de `test_proxy_es_nginx_con_version_fijada` y `test_
 - `build:` con un `Dockerfile` cuyo `FROM` sea `nginx:<x.y.z[-variante]>`, de la librería oficial de Docker Hub (sin otro registro). Ni `latest`, ni `stable`, ni `mainline`, ni una etiqueta sin versión completa.
 
 Además, si el contenedor está arriba, la versión de NGINX en marcha (`nginx -v` o `NGINX_VERSION`) coincide con la fijada. Vale para el compose local y para el del VPS. Corre las dos pruebas **cuando yo avise de la `ENTREGA DEV` de B1**, no antes.
+
+### M-5 (2026-11-25) — Sesión 1 en el S23: el DEV corre los `adb` y la captura (DEV; TESTER, el registro)
+
+Reemplaza: nada. Es la sesión 1 de la M-3. Contrato **v2.2**. Guion: `pruebas/datos/GUION-DESPLIEGUE-01-dispositivo.md` (`67a39e2`), secciones 0, (a), (b), (c) y (e). La (d) queda para la sesión 2, con el VPS. Se hace igual que en la M-14 de la migración: el DEV corre los `adb`, PCAPdroid y mitmproxy, el humano opera el teléfono con las instrucciones del PM, y el DEV coordina el momento de cada paso **directo con el PM**. El TESTER sigue sin correr `adb` contra el teléfono.
+
+**DEV:**
+1. **Antes de empezar:** borra `apps/movil/node_modules` (v2.2) y confirma que el compose está arriba solo desde `-despliegue`.
+2. **Registro:** anota cada paso en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\DESPLIEGUE-01\resultados-sesion1.md`, fuera del repositorio, como `OK`, `ROJO: …` o `NO HECHO: …`.
+   - **Nunca** escribas la clave, el identificador de instalación ni otros valores que identifiquen. Solo dominios, categorías y conteos.
+   - Las capturas de red van en `flutter-capturas\red\` y se borran en (e).
+3. **Un `ROJO`:** se para el paso y me avisas en el momento. Nada se arregla en la sesión.
+4. **(a):** al terminar, `docker volume rm movil-buscador_caddy-datos movil-buscador_caddy-config` y borras `C:\Willy\Trabajo\MININTER\ca-local\`. Queda anotado para el acta.
+5. **(e) siempre**, aunque algo salga `ROJO`:
+   - desinstalar PCAPdroid;
+   - quitar la CA de mitmproxy del teléfono;
+   - quitar el proxy del teléfono y comprobar que `settings get global http_proxy` da `:0` o vacío;
+   - `adb reverse --remove-all`;
+   - borrar `flutter-capturas\red\`.
+
+   La CA de NGINX **se queda** en el teléfono para el desarrollo.
+6. **Al terminar:** `ESTADO DEV` con el resumen y el registro. Después se lo paso al TESTER para su informe, y el resultado de (b) y (c) al ARCH.
