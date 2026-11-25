@@ -191,3 +191,27 @@ Reemplaza: nada; amplía la M-11. En el S23, al iniciar sesión con `agente1` la
 5. Si el problema es la CA, prepara el 0.6b (`adb push` a `/sdcard/Download/`) y avísame con los pasos para el humano. Si es otra cosa, dime la causa y qué hace falta, sin aplicarlo, salvo que sea solo de entorno (reverse o contenedores) y no cambie archivos del repositorio.
 
 Al terminar, `ESTADO DEV` con: la causa y su evidencia (la línea del log), lo que hiciste y lo que necesitas del humano o de una decisión.
+
+### M-13 (2026-11-25) — Contrato v1.5: cliente `ok_http` y APK nuevos para retomar la S23 (DEV y TESTER)
+
+Reemplaza: en la §6 del contrato, la fila "Conexión de depuración" de la v1.4 queda **completada** con las filas nuevas de la v1.5. El contrato **v1.5** (`docs/contratos/CONTRATO-MIGRACION-FLUTTER.md`) está aprobado por el humano vía PM (2026-11-25). Las filas nuevas de la §6 son: Paquetes con `ok_http`, Cliente HTTP de la app, Sin caché HTTP con OkHttp, Ninguna CA de desarrollo dentro de un APK y Plan B. La §8 tiene una fila nueva. La nota del ARCH está en ADR-0017 regla 4 (`ad57ee3`). La causa es el ROJO del paso 1.2 de la S23 (M-12). Rama `migracion-flutter`. Cada uno toca solo sus rutas y hace commits con su prefijo. Sin push.
+
+**DEV** (primero):
+1. Implementa la §6 v1.5 **opción A**: `ok_http` con versión exacta en `pubspec.yaml` y `pubspec.lock`, y el `OkHttpClient` en el arranque real de `lib/main.dart`, **sin `Cache`** de OkHttp. No cambies la interfaz `clienteHttp` (§2) ni el `network_security_config`.
+2. **Plan B:** si `ok_http` se traba en **menos de medio día desde que empiezas** (no compila con Flutter 3.50.1 / Dart 3.14.0, no corre en el S23 o deja caché en disco sin forma de apagarla), pasa a la opción B de la §6 sin escalar y avísame con `ESTADO DEV`, el motivo y la evidencia.
+3. `flutter analyze` sin avisos y `flutter test` 137/137 antes de entregar. No es la suite completa del cierre.
+4. Recompila los **dos APK** (depuración y release) desde tu commit y déjalos en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, reemplazando los de `987be377` y `3528cb54`, con `SHA256SUMS.txt` nuevo. Comprueba con `unzip -l` y una búsqueda del texto de la CA que **ningún APK lleva la CA de Caddy**. Con B, el de release no la lleva.
+5. Informe (`informes/DEV-MIGRACION-FLUTTER.md`): versión y licencia de `ok_http`, cómo armas el cliente sin caché, tamaño de los dos APK antes y después, los SHA nuevos y la búsqueda de la CA.
+6. Al terminar: `ENTREGA DEV: M-13 <commit>, SHA debug/release`.
+
+**TESTER** (cuando el DEV entregue; te aviso yo):
+1. `flutter test` sobre el commit del DEV: 137/137, o los que correspondan si cambió algún caso, con el motivo.
+2. Comprueba los SHA de los APK nuevos contra `SHA256SUMS.txt`.
+3. Pon al día el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`:
+   - el commit y los SHA de los APK nuevos;
+   - **retomar desde 0.8**: los pasos 0.1 a 0.7 quedan `OK` del 25-nov y la CA de usuario ya está instalada;
+   - **paso 8**: vuelve la búsqueda de un `http-cache` (o similar) de OkHttp en `cache/` y `files/`;
+   - **paso 11**: con el APK de release instalado, iniciar sesión con `agente1` contra el Caddy local **falla con un mensaje de error** (TLS) y nunca muestra un resultado negativo (regla 7). Después se vuelve a instalar el de depuración si quedan pasos.
+4. Al terminar: `ESTADO TESTER` con el resultado y el commit del guion.
+
+Lo de la mini sesión (desde 0.8) lo vuelve a correr el DEV como en la M-11, cuando el PM lo pida.
