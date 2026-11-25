@@ -3,9 +3,31 @@
 **Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (con la M-1 a la M-4 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
 **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-4).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
-**Estado:** **corrida temprana contra la interfaz del DEV (`dd08a54`), antes de la `ENTREGA DEV`.** Las pruebas de la app (`flutter_test`) compilan y pasan: **120/120**. `repositorio_test` se corrió sobre el árbol de trabajo, con el `android/` del DEV todavía sin commit y el código Expo sin borrar: sus rojos son trabajo en curso, no hallazgos (§8). Esta no es la suite completa del cierre (§10 del contrato, con orden del LEAD).
+**Estado:** **ENTREGA TESTER parcial (M-5)** sobre la `ENTREGA DEV` (`1382d13`; código en `0a1d93e`; corrida sobre `fb3869b`, que no cambia nada de `apps/movil/` del DEV). Solo lo tocado: **no** es la suite completa del cierre (§10 del contrato; va con otra M-n después de la aprobación del UX). Todo lo de `flutter_test` y del repositorio está en **verde**; lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov (M-6).
 
-## 0. Corrida 1 (2026-11-24, contra `dd08a54`)
+## 0. Corrida M-5 (2026-11-24, sobre la ENTREGA DEV)
+
+| Paso de la M-5 | Comando | Resultado |
+|---|---|---|
+| 1 | `flutter analyze` en `apps/movil` (todo el paquete: `lib/` y `test/`) | **`No issues found!`** |
+| 1 | `flutter test` en `apps/movil` (las 7 suites) | **`+137: All tests passed!`**: 120 de la app y 17 de `repositorio_test` |
+| 2 | `repositorio_test` completo, con `android/` en el repositorio | **17/17** (§2 imports y clientes HTTP, `clock.now()`; §5 sin Expo ni TypeScript y `grep -riw` de la v1.3; §6 Flutter 3.50.1, versiones exactas, `pubspec.lock`, paquetes, sin caché, sin `startImageStream`, `applicationId`, "Movil Buscador", `allowBackup`, `network_security_config.xml`, `.gitignore`; reglas 1 y 8) |
+| 2 | `git ls-files` sin `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore`, `.p12`, `key.properties` ni `local.properties` | **Vacío** |
+| 2 | `git ls-files apps/movil` con imágenes | Solo los 4 íconos de `android/app/src/main/res/drawable-nodpi/ic_launcher_*.png` (regla 8: permitidos) |
+| 2 | `git ls-files apps/movil` con `.ts`, `.tsx`, `package.json` o `__tests__/` | **Vacío** |
+| 2 | `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` (v1.3) | **Vacío** (código 1) |
+| 2 | `grep -rw startImageStream apps/movil/lib` | **Vacío** (código 1) |
+| 2 | `git diff --stat main...HEAD -- services/ contratos/` (§1.3) | **Vacío** |
+| 3 | APK de release **compilado por el TESTER** desde `fb3869b` con el comando del informe del DEV (`flutter build apk --release --dart-define=API_URL=https://localhost:8443`), en un worktree temporal fuera del repositorio (ya borrado), **sin** la llave de firma (sale sin firmar; no cambia lo que se mide) | `√ Built … app-release.apk (78.4MB)` |
+| 3 | `aapt dump badging` (build-tools 36.0.0) sobre ese APK | `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'`, **0 líneas `debuggable`** |
+| 3 | `aapt dump xmltree <apk> AndroidManifest.xml` | `allowBackup` 0x0, `usesCleartextTraffic` 0x0, `networkSecurityConfig` presente |
+| 3 | `python -I pruebas/datos/revisar_modelo_apk.py <apk>` (§7 v1.2, M-3) | **Modelo dentro:** 21 archivos en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en `arm64-v8a`, `armeabi-v7a` y `x86_64`. `play-services-mlkit-text-recognition` y `-common` (`.properties`): **no es rojo** (v1.2); su comportamiento en la red queda `NO VERIFICADO` |
+| 3 | Lo mismo sobre el `app-release.apk` firmado del DEV en `build/` (SHA-1 `6659053b52c3…`) | Igual (corrida preliminar de la M-3) |
+| 4 | Lo del teléfono (safe area, HU-04 v6 §6 y §8, cola `datatransport`) | `NO VERIFICADO` hasta la mini sesión del 25-nov (guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`) |
+
+**Arreglos de mis pruebas en esta corrida (`95741fa`):** `repositorio_test` recorría `build/` con `listSync(recursive: true)` y se rompía con una ruta de Gradle que Windows no puede listar (`PathNotFoundException`, 2 rojos que no eran de la app). Ahora no entra en `build/`, `.dart_tool/`, `.gradle/` ni `node_modules/`, que no son del repositorio. No cambia lo que se verifica.
+
+## 0 bis. Corrida 1 (2026-11-24, contra `dd08a54`)
 
 | Qué | Resultado |
 |---|---|
@@ -198,20 +220,20 @@ Automatizadas en `repositorio_test.dart` (corren con `flutter test`) y, por coma
 
 | Comprobación | Cómo | Estado |
 |---|---|---|
-| Imports de cámara, ML Kit, permisos y almacenamiento solo en `lib/bordes/` | `repositorio_test` | NO EJECUTADO |
-| `HttpClient`, `dio` y otros clientes solo en `lib/main.dart` o `lib/bordes/` | `repositorio_test` | NO EJECUTADO |
-| `DateTime.now()` no aparece en `lib/` (la hora sale de `clock.now()`) | `repositorio_test` | NO EJECUTADO |
-| `startImageStream` no aparece en `lib/` | `repositorio_test` y `grep -r startImageStream apps/movil/lib` | NO EJECUTADO |
-| Ningún paquete de caché | `repositorio_test` | NO EJECUTADO |
-| Flutter 3.50.1 en `environment`, dependencias exactas, `pubspec.lock` | `repositorio_test` | NO EJECUTADO |
+| Imports de cámara, ML Kit, permisos y almacenamiento solo en `lib/bordes/` | `repositorio_test` | **VERDE** (M-5) |
+| `HttpClient`, `dio` y otros clientes solo en `lib/main.dart` o `lib/bordes/` | `repositorio_test` | **VERDE** (M-5) |
+| `DateTime.now()` no aparece en `lib/` (la hora sale de `clock.now()`) | `repositorio_test` | **VERDE** (M-5) |
+| `startImageStream` no aparece en `lib/` | `repositorio_test` y `grep -r startImageStream apps/movil/lib` | **VERDE** (M-5) |
+| Ningún paquete de caché | `repositorio_test` | **VERDE** (M-5) |
+| Flutter 3.50.1 en `environment`, dependencias exactas, `pubspec.lock` | `repositorio_test` | **VERDE** (M-5) |
 | Sin Expo: ni `.ts`/`.tsx`, ni `package.json`, ni menciones en `pubspec.yaml` y `android/` | `repositorio_test` y `git ls-files apps/movil` | Archivos: **VERDE** tras `cd9c3d2` (DEV) y `7132e10` (TESTER). Menciones: **VERDE con el criterio de la v1.3** (palabra completa, `grep -riw`; definitivo por la M-4). Con la v1.1 (`grep -ri`, subcadena) sale un falso positivo: `apps/movil/android/app/src/main/AndroidManifest.xml: android:exported="true"` ("exported" contiene "expo"). Con `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` no sale nada (código 1), sobre el árbol de trabajo con el `android/` del DEV todavía sin commit. `repositorio_test` usa el mismo criterio (palabra completa: `android:exported` no cuenta; `expo`, `expo-camera` o `react-native` sí). Se repite con la `ENTREGA DEV` |
 | `apps/movil/__tests__/` borrado | `git ls-files apps/movil/__tests__` vacío | **HECHO** (`7132e10`, TESTER; los 5 archivos que había en la rama) |
-| `applicationId`, nombre visible, `allowBackup`, `network_security_config.xml` | `repositorio_test` | NO EJECUTADO |
-| `.gitignore` con `key.properties`, `*.jks`, `*.keystore`; `git ls-files` sin `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore` | `repositorio_test` y `git ls-files \| grep -E '\.(crt\|pem\|key\|der\|jks\|keystore)$'` | NO EJECUTADO |
-| `flutter analyze` sin errores ni avisos | Comando en `apps/movil` | NO EJECUTADO |
-| APK de release no depurable | `aapt dump badging` (build-tools 36.0.0; guion, paso 11) | **Preliminar VERDE** sobre el `app-release.apk` que hay en `build/` (SHA-1 `6659053b52c3…`, del DEV, todavía sin `ENTREGA`): `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `debuggable` (control: `app-debug.apk` sí la tiene). `aapt dump xmltree <apk> AndroidManifest.xml`: `allowBackup` 0x0, `usesCleartextTraffic` 0x0 y `networkSecurityConfig` presente. Se repite sobre el APK de la entrega |
-| Modelo de ML Kit dentro del APK (§7, v1.2, M-3) | `python -I pruebas/datos/revisar_modelo_apk.py <app-release.apk>` (equivale a `unzip -l`; guion, paso 11.5) | **Preliminar VERDE** sobre el mismo APK: 21 archivos en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en `arm64-v8a`, `armeabi-v7a` y `x86_64`. Aparecen `play-services-mlkit-text-recognition.properties` y `-common.properties`: **no es un rojo** (v1.2, opción A: dependencia transitiva del POM de Google). **NO VERIFICADO:** qué hace esa dependencia en la red; la cola `datatransport` se revisa en la mini sesión del 4-dic (guion, paso 9) |
-| `git diff main...migracion-flutter -- services/ contratos/` vacío | Comando | NO EJECUTADO |
+| `applicationId`, nombre visible, `allowBackup`, `network_security_config.xml` | `repositorio_test` | **VERDE** (M-5) |
+| `.gitignore` con `key.properties`, `*.jks`, `*.keystore`; `git ls-files` sin `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore` | `repositorio_test` y `git ls-files \| grep -E '\.(crt\|pem\|key\|der\|jks\|keystore)$'` | **VERDE** (M-5) |
+| `flutter analyze` sin errores ni avisos | Comando en `apps/movil` | **VERDE** (M-5) |
+| APK de release no depurable | `aapt dump badging` (build-tools 36.0.0; guion, paso 11) | **VERDE** (M-5): sobre el APK compilado por el TESTER desde `fb3869b` y sobre el firmado del DEV; ver §0 |
+| Modelo de ML Kit dentro del APK (§7, v1.2, M-3) | `python -I pruebas/datos/revisar_modelo_apk.py <app-release.apk>` (equivale a `unzip -l`; guion, paso 11.5) | **VERDE** (M-5): modelo dentro en los dos APK; `play-services-mlkit-*` sin rojo (v1.2); la red queda **NO VERIFICADO** y la cola `datatransport` va en el paso 9 del guion |
+| `git diff main...migracion-flutter -- services/ contratos/` vacío | Comando | **VERDE** (M-5) |
 
 ## 5. Cómo se corren
 
@@ -252,7 +274,7 @@ Tools • Dart 3.14.0 • DevTools 2.61.0
 
 ## 7. NO VERIFICADO (por diseño o por ahora)
 
-- **Comprobaciones del repositorio, `flutter analyze` de `apps/movil` y APK:** se cierran con la `ENTREGA DEV` (§4).
+- **Qué hace en la red `play-services-mlkit-*`** (§7 v1.2): NO VERIFICADO por decisión del humano (opción A).
 - **PLA-02 "con el foco ahí"** (HU-03 §6): no lo verificaba Jest; con un selector de motivo, el foco no es observable de forma estable en `flutter_test`. Queda para la revisión del UX.
 - **PLA-07 "ícono y color distintos"** y **PLA-06 "gris, sin verde"**: se verifica la ausencia de ✓; el color queda para el UX.
 - **Safe area (§4)** y **todo lo del teléfono** (HU-04 v6 §6 y §8): guion de la mini sesión del 4-dic.
