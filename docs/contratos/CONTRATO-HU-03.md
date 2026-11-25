@@ -2,7 +2,7 @@
 
 **Tipo:** Feature
 **Versión:** v5
-**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano · v3 y v4: 2026-11-19, humano vía PM) · **v5 pendiente de aprobación** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
+**Estado:** Aprobado (v1: 2026-11-19, humano vía PM · v2: 2026-11-19, humano · v3 y v4: 2026-11-19, humano vía PM) · **v5 aprobada (humano vía PM, 2026-11-24)** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-03-consultar-placa.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 4 de 5
 **Rama de trabajo:** `hu-03` (HU-03 + HU-07), desde `main` después del merge de `hu-01` (o desde `hu-01`, rebasada después)
 **Pasa por UX:** Sí. Pantallas PLA-01 a PLA-07 (`docs/ux/wireframes/HU-03-consultar-placa.md`) y una pantalla nueva para la placa no registrada (DECISIÓN PROPUESTA 3). Se revisa con capturas de Jest y del emulador contra los wireframes, como en HU-01. **v5:** en Flutter, con capturas de `flutter_test` y del S23 Ultra (CONTRATO-MIGRACION-FLUTTER §10).
@@ -186,4 +186,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | v2 | 2026-11-19 | La prueba de la pantalla ERR-01 llega desde HU-02 (§6, fila `403`) | En HU-01/02 ninguna solicitud de la app podía recibir un `403` | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | §1, §6 PLA-03, §7 y decisión 9: `GET /v1/motivos` agrega `formato_placa` `{regex, descripcion}` desde `PLACA_FORMATO_REGEX` y `PLACA_FORMATO_DESCRIPCION`; PLA-03 valida en la app con esa descripción sin enviar nada | Pregunta del TESTER: sin la forma fijada, la prueba de la app tendría que leer el código del DEV | Humano (vía PM), 2026-11-19 |
 | v4 | 2026-11-19 | §6: si falla `GET /v1/motivos`, PLA-01 muestra el error de PLA-07 ("No se pudo completar la consulta; intente nuevamente", con "Reintentar" y "Volver") y no se puede consultar | Revisión UX de HU-03/07 (notas): el DEV lo construyó y el contrato no lo decía | Humano (vía PM), 2026-11-19 |
-| v5 | 2026-11-24 | §6: el `403` se simula con el `MockClient` de `flutter_test` y "nada en el dispositivo" se comprueba con `AlmacenSeguro`; revisión del UX con capturas de `flutter_test` y del S23 Ultra; rutas del TESTER en `apps/movil/test/` e `integration_test/`. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Pendiente |
+| v5 | 2026-11-24 | §6: el `403` se simula con el `MockClient` de `flutter_test` y "nada en el dispositivo" se comprueba con `AlmacenSeguro`; revisión del UX con capturas de `flutter_test` y del S23 Ultra; rutas del TESTER en `apps/movil/test/` e `integration_test/`. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Humano (vía PM), 2026-11-24 (con CONTRATO-MIGRACION-FLUTTER v1) |

@@ -2,7 +2,7 @@
 
 **Tipo:** Feature
 **Versión:** v4
-**Estado:** Aprobado (v1 a v3: 2026-11-19, humano) · **v4 pendiente de aprobación** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
+**Estado:** Aprobado (v1 a v3: 2026-11-19, humano) · **v4 aprobada (humano vía PM, 2026-11-24)** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-02-acceso-por-rol.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 3 de 5
 **Rama de trabajo:** la misma de HU-01 (`hu-01`), porque HU-02 depende del login (DECISIÓN PROPUESTA 1)
 **Pasa por UX:** Sí. Pantallas HOME-01 y ERR-01 (`docs/ux/wireframes/HU-02-acceso-por-rol.md`).
@@ -118,4 +118,4 @@ Respondidas por el humano el 2026-11-19:
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD, Iteración 1 | Humano, 2026-11-19 |
 | v2 | 2026-11-19 | La app se prueba con la interfaz de CONTRATO-HU-01 §4 bis (v2) | Hueco que reportó el TESTER | Humano, 2026-11-19 |
 | v3 | 2026-11-19 | La prueba de ERR-01 pasa a HU-03 | Hueco que reportó el TESTER: en este ciclo no hay ninguna solicitud de la app que pueda recibir un `403` | Humano, 2026-11-19 |
-| v4 | 2026-11-24 | La app se prueba con la interfaz de CONTRATO-MIGRACION-FLUTTER §2 (Flutter); rutas de CONTRATO-HU-01 v6. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Pendiente |
+| v4 | 2026-11-24 | La app se prueba con la interfaz de CONTRATO-MIGRACION-FLUTTER §2 (Flutter); rutas de CONTRATO-HU-01 v6. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Humano (vía PM), 2026-11-24 (con CONTRATO-MIGRACION-FLUTTER v1) |

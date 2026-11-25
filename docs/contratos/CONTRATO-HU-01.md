@@ -2,7 +2,7 @@
 
 **Tipo:** Feature
 **Versión:** v6
-**Estado:** Aprobado (v1 a v5: 2026-11-19, humano) · **v6 pendiente de aprobación** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
+**Estado:** Aprobado (v1 a v5: 2026-11-19, humano) · **v6 aprobada (humano vía PM, 2026-11-24)** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -177,4 +177,4 @@ Respondidas por el humano el 2026-11-19:
 | v3 | 2026-11-19 | §3: una renovación exitosa cuenta como actividad en el servidor | Aviso del DEV: el contrato no lo decía, y sin eso la sesión vencería en pantallas que no llaman a la API aunque el usuario las esté tocando | Humano, 2026-11-19 |
 | v4 | 2026-11-19 | §4: AUTH-01 con campos vacíos muestra "Ingrese su usuario y su clave" y no envía la solicitud | Revisión UX #5 (`docs/ux/revisiones/HU-01-02.md`) | Humano, 2026-11-19 |
 | v5 | 2026-11-19 | §2: un fallo después de `bloqueado_hasta` es el fallo 1 (el contador empieza de nuevo al terminar el bloqueo) | Hueco que apareció al arbitrar el veredicto de la vuelta 0 (A2): el contrato solo fijaba la clave correcta después del bloqueo | Humano, 2026-11-19 |
-| v6 | 2026-11-24 | §4 y §4 bis: la interfaz de la app para las pruebas es la de CONTRATO-MIGRACION-FLUTTER §2 (`MovilBuscadorApp`, `MockClient`, `AlmacenSeguro`, `Key('app-raiz')`, `handlePopRoute`); rutas del TESTER en `apps/movil/test/` e `integration_test/`. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Pendiente |
+| v6 | 2026-11-24 | §4 y §4 bis: la interfaz de la app para las pruebas es la de CONTRATO-MIGRACION-FLUTTER §2 (`MovilBuscadorApp`, `MockClient`, `AlmacenSeguro`, `Key('app-raiz')`, `handlePopRoute`); rutas del TESTER en `apps/movil/test/` e `integration_test/`. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Humano (vía PM), 2026-11-24 (con CONTRATO-MIGRACION-FLUTTER v1) |

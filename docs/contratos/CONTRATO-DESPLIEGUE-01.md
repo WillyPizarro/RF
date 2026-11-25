@@ -2,10 +2,10 @@
 
 **Tipo:** Feature (despliegue)
 **Versión:** v2
-**Estado:** v1 aprobada (2026-11-19, humano vía PM) · **v2 pendiente de aprobación**
+**Estado:** v1 aprobada (2026-11-19, humano vía PM) · **v2 aprobada (humano vía PM, 2026-11-24)**
 **Origen:** encargo PM → LEAD (2026-11-19, decisión del humano): el MININTER y el equipo prueban desde **sus** celulares en el demo del **jueves 10-dic**. **v2:** encargo PM → LEAD (2026-11-24, tarea 2): NGINX en lugar de Caddy (ADR-0018) y el APK de Flutter descargable desde una ruta protegida del VPS (ADR-0018 punto 5, decisión 4 del humano), en lugar del enlace de EAS
 **Alcance:** lo que esté en `main` después del merge de la migración a Flutter (CONTRATO-MIGRACION-FLUTTER: HU-08, HU-01, HU-02, HU-03, HU-07 y HU-04 en la app Flutter). Las HU siguientes se suben después con los mismos comandos (§6)
-**Rama de trabajo:** `despliegue-01` (worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`), con la fase A de la v1 ya hecha (`8402ef2`, `f734c39`, `4fb531c`). **v2:** se rebasa sobre `main` después del merge de la migración (pregunta 1)
+**Rama de trabajo:** `despliegue-01` (worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`), con la fase A de la v1 ya hecha (`8402ef2`, `f734c39`, `4fb531c`). **v2:** se rebasa sobre `main` después del merge de la migración (respuesta 1 de la v2)
 **Plazo (plan decidido, evaluación del stack §5):** del 6 al 8-dic, después del veredicto de la migración. El humano contrata el VPS, el dominio y Supabase a más tardar el **miércoles 2-dic**. Desplegado, y probado por el humano desde su S23 Ultra **por descarga (no por cable)**, antes del **10-dic**
 
 > **Qué cambia de la v1 a la v2:** el proxy (§1 y §2), el APK y su entrega (§5), los comandos de la app (§6), la guía (§7), el borrado al cierre (§8) y las pruebas del proxy. Lo de Supabase, los secretos y `api_app` (§3 y §4) no cambia, salvo los secretos nuevos. Cada cambio lleva la marca **v2**.
@@ -101,7 +101,7 @@
 | Otras rutas | `/descargas/`, `/descargas/otro.apk`, `/descargas/movil-buscador.apk/` y cualquier otra bajo `/descargas/` → `404` (también con credencial) | ADR-0018 §5 |
 | Solo por HTTPS | `http://<DOMINIO>/descargas/movil-buscador.apk` redirige a `https://` antes de pedir la credencial; la clave nunca viaja por HTTP | ADR-0018 §5 |
 | La clave no queda en los logs | Después de una descarga con credencial, `docker compose logs proxy` no contiene la clave ni la cabecera `Authorization` | ADR-0018 consecuencias |
-| `htpasswd` | El archivo de claves se genera **en el VPS** desde `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` al arrancar o al desplegar; nunca va al repositorio | ADR-0018 §5 · DECISIÓN PROPUESTA 5 |
+| `htpasswd` | El archivo de claves se genera **en el VPS** desde `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` al arrancar o al desplegar, con **un solo usuario y una sola clave para todos los probadores** (respuesta 4 de la v2); nunca va al repositorio. La clave se reparte por un canal aparte, nunca junto con el enlace | ADR-0018 §5 · DECISIÓN PROPUESTA 5 |
 | El APK no se versiona | `git ls-files` no muestra ningún `.apk` ni `.aab`, y `.gitignore` los excluye | ADR-0018 §5, regla 8 |
 | Funciona sin cable | En el S23 Ultra, **después de desinstalar** la app de Expo, descargado desde la ruta con la credencial e instalado, sin USB: login con `agente1`, `ZZA-101` con motivo → "TIENE REQUISITORIA", `ZZB-201` → sin requisitoria, `ZZZ-999` → placa no registrada; 📷 lee una placa impresa; `supervisor1` → BIT-01 con esas consultas | Encargo v1 (prueba del humano), HU-04 |
 
@@ -162,7 +162,7 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 
 | Rol | Rutas | Origen |
 |---|---|---|
-| DEV | `infra/` (NGINX, `certbot`, CA local, composes), `scripts/` (`desplegar.ps1`, `publicar-apk.ps1`), `docs/despliegue/`, `services/api/` (solo si la API necesitara confiar en `X-Forwarded-*`; no se espera), `.gitignore` (solo agregar: `*.apk`, `*.aab`, certificados), `README.md` raíz, `informes/DEV-*.md` | AGENTS.md (`docs/despliegue/`: decisión 2 de la v1; pregunta 3) |
+| DEV | `infra/` (NGINX, `certbot`, CA local, composes), `scripts/` (`desplegar.ps1`, `publicar-apk.ps1`), `docs/despliegue/`, `services/api/` (solo si la API necesitara confiar en `X-Forwarded-*`; no se espera), `.gitignore` (solo agregar: `*.apk`, `*.aab`, certificados), `README.md` raíz, `informes/DEV-*.md` | AGENTS.md (`docs/despliegue/` en la fila del DEV desde la rama `migracion-flutter`: decisión 2 de la v1 y respuesta 3 de la v2) |
 | TESTER | `services/api/tests/` (pruebas del proxy y contra el VPS), `pruebas/`, `informes/TESTER-*.md` | AGENTS.md |
 
 La app (`apps/movil/`) no se toca en este ciclo: el APK sale del `main` con la migración.
@@ -170,7 +170,7 @@ La app (`apps/movil/`) no se toca en este ciclo: el APK sale del `main` con la m
 ## Avisos de contexto
 
 - **Supabase y `asyncpg`, llaves de Supabase, plan gratuito, usuarios compartidos:** siguen los avisos de la v1 (Session pooler en IPv4; adaptar solo la carga si el proyecto no tiene el secreto heredado; el plan gratuito se pausa; el bloqueo y la bitácora se comparten si varios usan `agente1`).
-- **La credencial de la descarga se puede reenviar** (ADR-0018, riesgo aceptado): el APK tiene datos sintéticos y sin usuario de la app no consulta nada. Si se filtra, se cambia `DESCARGA_APK_CLAVE` y se vuelve a desplegar.
+- **La credencial de la descarga se puede reenviar** (ADR-0018, riesgo aceptado): el APK tiene datos sintéticos y sin usuario de la app no consulta nada. Como es una sola para todos (respuesta 4), si se filtra se cambia `DESCARGA_APK_CLAVE`, se vuelve a desplegar y se reparte la nueva a todos los probadores.
 - **`client_max_body_size` es provisional (5 MB)** y lo fija el ADR-0011 cuando llegue HU-05. Si se olvida, HU-05 recibe un `413` que la API no ve, y la app lo tiene que mostrar como error (regla 7).
 - **Módulo ACME nativo de NGINX:** descartado por el ADR-0018 (se usa `certbot`), así que su NO VERIFICADO no aplica a este contrato.
 - **Desinstalar la app de Expo:** el APK de Flutter tiene otra firma y no se instala encima.
@@ -181,10 +181,10 @@ La app (`apps/movil/`) no se toca en este ciclo: el APK sale del `main` con la m
 | # | Decisión | Por qué hace falta | Estado |
 |---|---|---|---|
 | 1 a 4 | Las de la v1 (credencial de administración solo para la carga, `docs/despliegue/` del DEV, VPS con `DOMINIO` real y SSH con llave, despliegue por SSH desde `origin`) | — | Aprobadas por el humano (vía PM, 2026-11-19) |
-| 5 | La credencial de la descarga entra por `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` en el `.env` del VPS, y el `htpasswd` se genera desde ahí | El ADR-0018 dice "desde una variable de entorno" sin nombrarla. El TESTER y el DEV necesitan el mismo nombre | Pendiente |
-| 6 | El APK se compila y se sube con `scripts/publicar-apk.ps1` | El ADR-0018 dice que el DEV lo copia en cada build; un comando fijo lo hace repetible y comprobable | Pendiente |
-| 7 | En local, la ruta del APK sirve un archivo de prueba que pone el TESTER en el volumen; el APK real solo existe en el VPS | Las pruebas de `401`, `200` y `404` no necesitan un APK real, y así no se compila uno en cada prueba | Pendiente |
-| 8 | El compose local también pasa a NGINX (no solo el VPS) | Lo que se prueba en local tiene que ser lo que se despliega (ADR-0009). El ADR-0018 ya prevé la CA local | Pendiente |
+| 5 | La credencial de la descarga es **una sola** (un usuario y una clave para todos los probadores), entra por `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` en el `.env` del VPS, y el `htpasswd` se genera desde ahí. La clave se reparte por otro canal y nunca se versiona | El ADR-0018 dice "desde una variable de entorno" sin nombrarla. El TESTER y el DEV necesitan el mismo nombre | Aprobada por el humano (vía PM, 2026-11-24), con un solo usuario (respuesta 4) |
+| 6 | El APK se compila y se sube con `scripts/publicar-apk.ps1` | El ADR-0018 dice que el DEV lo copia en cada build; un comando fijo lo hace repetible y comprobable | Aprobada por el humano (vía PM, 2026-11-24) |
+| 7 | En local, la ruta del APK sirve un archivo de prueba que pone el TESTER en el volumen; el APK real solo existe en el VPS | Las pruebas de `401`, `200` y `404` no necesitan un APK real, y así no se compila uno en cada prueba | Aprobada por el humano (vía PM, 2026-11-24) |
+| 8 | El compose local también pasa a NGINX (no solo el VPS) | Lo que se prueba en local tiene que ser lo que se despliega (ADR-0009). El ADR-0018 ya prevé la CA local | Aprobada por el humano (vía PM, 2026-11-24) |
 
 ## Fuera del contrato (decide el DEV)
 
@@ -198,14 +198,16 @@ Respuestas de la v1 (humano vía PM, 2026-11-19): VPS y Supabase los contrata el
 
 Nuevas en la v2:
 
-1. **Rama:** ¿`despliegue-01` se rebasa sobre `main` después del merge de la migración (recomendación del LEAD), o sobre `migracion-flutter` antes del merge para ganar tiempo?
-2. **Decisiones 5 a 8:** ¿se aprueban tal cual?
-3. **`docs/despliegue/` en `AGENTS.md`:** la decisión 2 de la v1 la asignó al DEV, pero en `main` todavía no aparece en la tabla de rutas (solo en la rama `despliegue-01`). ¿El LEAD la agrega en `main` junto con este contrato?
-4. **Credencial de la descarga:** ¿un solo usuario para todos los probadores (más simple) o uno por probador (se puede revocar de a uno)?
+Respuestas del humano a la v2 (vía PM, 2026-11-24):
+
+1. **Rama:** `despliegue-01` se rebasa sobre `main` **después** del merge de la migración.
+2. **Decisiones 5 a 8:** aprobadas (la 5, ajustada por la respuesta 4).
+3. **`docs/despliegue/` en `AGENTS.md`:** el LEAD la agrega a la fila del DEV en la rama `migracion-flutter`, junto con el cambio de rutas.
+4. **Credencial de la descarga:** **un solo usuario y una sola clave** para todos los probadores. La clave se reparte por otro canal y nunca se versiona. Si se filtra, se cambia para todos.
 
 ## Changelog
 
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD (despliegue temprano para el demo del 10-dic) | Humano (vía PM), 2026-11-19 |
-| v2 | 2026-11-24 | NGINX en lugar de Caddy, con `certbot`, CA local, TLS, cabeceras, cuerpo máximo y registro sin `Authorization` (§1, §2); APK de Flutter descargable desde `/descargas/movil-buscador.apk` con usuario y clave, en lugar de EAS (§5); `scripts/publicar-apk.ps1` (§6); guía con la desinstalación de la app de Expo y la credencial de la descarga (§7); borrado de la ruta, la credencial, la llave de firma y la CA (§8); pruebas del proxy | ADR-0017 y ADR-0018 aceptados (decisiones del humano del 2026-11-24, 1 y 4) | Pendiente |
+| v2 | 2026-11-24 | NGINX en lugar de Caddy, con `certbot`, CA local, TLS, cabeceras, cuerpo máximo y registro sin `Authorization` (§1, §2); APK de Flutter descargable desde `/descargas/movil-buscador.apk` con usuario y clave, en lugar de EAS (§5); `scripts/publicar-apk.ps1` (§6); guía con la desinstalación de la app de Expo y la credencial de la descarga (§7); borrado de la ruta, la credencial, la llave de firma y la CA (§8); pruebas del proxy | ADR-0017 y ADR-0018 aceptados (decisiones del humano del 2026-11-24, 1 y 4) | Humano (vía PM), 2026-11-24, con las respuestas 1 a 4 (una sola credencial de descarga) |

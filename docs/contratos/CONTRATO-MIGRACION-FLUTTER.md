@@ -2,7 +2,7 @@
 
 **Tipo:** Refactor (HU-01, HU-02, HU-03 y HU-07 en la app: el comportamiento no cambia) + Feature (HU-04, construida directo en Flutter)
 **Versión:** v1
-**Estado:** Pendiente de aprobación
+**Estado:** Aprobado (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
 **Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`. TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
@@ -264,7 +264,7 @@ Lo que necesite el teléfono y no se pueda hacer a tiempo queda `NO VERIFICADO` 
 1. **DEV** entrega con `ENTREGA DEV` (informe `informes/DEV-MIGRACION-FLUTTER.md`): la app, la versión de Flutter fijada, la §7 y las capturas para el UX (de `flutter_test` y del teléfono, **fuera del repositorio**).
 2. **TESTER** corre las pruebas de lo tocado y entrega con `ENTREGA TESTER` (informe `informes/TESTER-MIGRACION-FLUTTER.md`, con la matriz de la §5).
 3. **UX** revisa todas las pantallas del encabezado contra los wireframes, incluida la safe area (§4) con capturas del S23 Ultra. Las vueltas que hagan falta.
-4. **Mini sesión física** con el PM y el humano en el S23 Ultra: HU-04 v6 §6 y §8, y la §4.
+4. **Mini sesión física** con el PM y el humano en el S23 Ultra, el **jueves 4-dic** o antes (respuesta 3): HU-04 v6 §6 y §8, y la §4.
 5. **Una sola suite completa** (pytest de la API y de los simuladores, `flutter test`, y `integration_test` si existe) sobre el commit definitivo, con orden expresa del LEAD.
 6. **Veredicto** (skill `veredicto`) con la matriz de trazabilidad.
 
@@ -295,7 +295,7 @@ Las capturas, las placas impresas y la llave de firma quedan **fuera del reposit
 
 ## Avisos de contexto
 
-- **Herramientas en esta PC (2026-11-24):** no hay Flutter SDK en el `PATH` ni Android SDK en la ruta por defecto; sí hay `adb` (`C:\Android\platform-tools`) y Java 21. El DEV y el TESTER instalan el SDK de la versión fijada (§6) y lo dicen en su informe. El humano puede tener que aprobar la instalación.
+- **Herramientas en esta PC (2026-11-24):** no hay Flutter SDK en el `PATH` ni Android SDK en la ruta por defecto; sí hay `adb` (`C:\Android\platform-tools`) y Java 21. El DEV y el TESTER instalan el Flutter SDK de la versión fijada (§6) y el Android SDK (command-line tools), con la autorización del humano (respuesta 4), y anotan versiones y rutas en sus informes.
 - **El APK nuevo no se instala encima del de Expo:** tiene otra firma. En el S23 Ultra hay que desinstalar antes "Movil Buscador" de Expo (lo dice el DEV en su informe y la guía de DESPLIEGUE-01 v2).
 - **Riesgo del cronograma (evaluación §5):** si la migración se atrasa más de 2 días, la demo del 10-dic se hace con el último APK de Expo. El LEAD avisa al PM en cuanto lo vea.
 - **Proxy durante este ciclo:** el compose local sigue con Caddy hasta DESPLIEGUE-01 v2. La conexión del teléfono (HU-04 v6 §8) usa la CA local de Caddy en este ciclo.
@@ -306,14 +306,14 @@ Las capturas, las placas impresas y la llave de firma quedan **fuera del reposit
 
 | # | Decisión | Por qué hace falta | Estado |
 |---|---|---|---|
-| 1 | La interfaz de la §2: paquete `movil_buscador`, `MovilBuscadorApp(dependencias:)`, `Dependencias` con cuatro campos, interfaces `AlmacenSeguro` y `LectorPlaca`, `Key('app-raiz')`, las etiquetas de accesibilidad de Expo y el "atrás" con `handlePopRoute` | El ADR-0017 pide que el LEAD fije los nombres de las interfaces. Sin una interfaz fija, el TESTER tendría que adivinar cómo monta el DEV la app (como pasó en HU-01 v2) | Pendiente |
-| 2 | La red pasa por un `http.Client` de `package:http` inyectado, y el TESTER usa `MockClient`. El ADR-0017 nombra `dart-dio` como referencia del cliente generado: si el DEV usa `dio` por dentro, igual tiene que pasar todas las solicitudes por `clienteHttp` | `MockClient` es la forma estándar de simular la red en `flutter_test` y equivale al `fetch` simulado de Jest. Un adaptador de `dio` sería un segundo mecanismo | Pendiente |
-| 3 | La hora sale de `clock.now()` (paquete `clock`) y la inactividad se mide con `Timer` | Sin esto, el TESTER no puede probar AUTH-03 (10 min) ni la hora de AUTH-04 sin esperar en tiempo real | Pendiente |
-| 4 | La URL de la API entra por `--dart-define=API_URL` | Reemplaza a `EXPO_PUBLIC_API_URL`; DESPLIEGUE-01 v2 la usa para el APK de la demo | Pendiente |
-| 5 | El DEV fija la versión estable de Flutter al empezar y las dependencias exactas, y el LEAD la anota en el changelog sin una vuelta de aprobación (no cambia nada observable) | El ADR-0017 pide fijar la versión. El LEAD no puede comprobar hoy cuál es la estable vigente, porque Flutter no está instalado | Pendiente |
-| 6 | Se mantienen el `applicationId` `pe.prototipo.movilbuscador` y el nombre "Movil Buscador" | Los pasos con `adb run-as` de HU-04 y la guía de los probadores ya los usan | Pendiente |
-| 7 | Los casos de la §1.2 (retomar la sesión, volver del segundo plano, segundo login e indicadores de espera) se conservan aunque no estaban en las tablas de los contratos | Es el comportamiento aceptado en Expo. En un refactor no se cambia lo observable | Pendiente |
-| 8 | Un solo encargo, un solo ciclo y un solo veredicto para las cinco HU de la app | Comparten la interfaz, el build y la revisión del UX. Separarlas duplicaría el montaje y la mini sesión | Pendiente |
+| 1 | La interfaz de la §2: paquete `movil_buscador`, `MovilBuscadorApp(dependencias:)`, `Dependencias` con cuatro campos, interfaces `AlmacenSeguro` y `LectorPlaca`, `Key('app-raiz')`, las etiquetas de accesibilidad de Expo y el "atrás" con `handlePopRoute` | El ADR-0017 pide que el LEAD fije los nombres de las interfaces. Sin una interfaz fija, el TESTER tendría que adivinar cómo monta el DEV la app (como pasó en HU-01 v2) | Aprobada por el humano (vía PM, 2026-11-24) |
+| 2 | La red pasa por un `http.Client` de `package:http` inyectado, y el TESTER usa `MockClient`. El ADR-0017 nombra `dart-dio` como referencia del cliente generado: si el DEV usa `dio` por dentro, igual tiene que pasar todas las solicitudes por `clienteHttp` | `MockClient` es la forma estándar de simular la red en `flutter_test` y equivale al `fetch` simulado de Jest. Un adaptador de `dio` sería un segundo mecanismo | Aprobada por el humano (vía PM, 2026-11-24) |
+| 3 | La hora sale de `clock.now()` (paquete `clock`) y la inactividad se mide con `Timer` | Sin esto, el TESTER no puede probar AUTH-03 (10 min) ni la hora de AUTH-04 sin esperar en tiempo real | Aprobada por el humano (vía PM, 2026-11-24) |
+| 4 | La URL de la API entra por `--dart-define=API_URL` | Reemplaza a `EXPO_PUBLIC_API_URL`; DESPLIEGUE-01 v2 la usa para el APK de la demo | Aprobada por el humano (vía PM, 2026-11-24) |
+| 5 | El DEV fija la versión estable de Flutter al empezar y las dependencias exactas, y el LEAD la anota en el changelog sin una vuelta de aprobación (no cambia nada observable) | El ADR-0017 pide fijar la versión. El LEAD no puede comprobar hoy cuál es la estable vigente, porque Flutter no está instalado | Aprobada por el humano (vía PM, 2026-11-24) |
+| 6 | Se mantienen el `applicationId` `pe.prototipo.movilbuscador` y el nombre "Movil Buscador" | Los pasos con `adb run-as` de HU-04 y la guía de los probadores ya los usan | Aprobada por el humano (vía PM, 2026-11-24) |
+| 7 | Los casos de la §1.2 (retomar la sesión, volver del segundo plano, segundo login e indicadores de espera) se conservan aunque no estaban en las tablas de los contratos | Es el comportamiento aceptado en Expo. En un refactor no se cambia lo observable | Aprobada por el humano (vía PM, 2026-11-24) |
+| 8 | Un solo encargo, un solo ciclo y un solo veredicto para las cinco HU de la app | Comparten la interfaz, el build y la revisión del UX. Separarlas duplicaría el montaje y la mini sesión | Aprobada por el humano (vía PM, 2026-11-24) |
 
 ## Fuera del contrato (decide el DEV)
 
@@ -324,13 +324,15 @@ Las capturas, las placas impresas y la llave de firma quedan **fuera del reposit
 
 ## Preguntas abiertas para el humano
 
-1. **ADR-0017 a 0020 en `main`.** Están solo en `entregables-osigp`. ¿Se mergea `entregables-osigp` a `main` antes de levantar al DEV y al TESTER (y el LEAD rebasa `migracion-flutter` sobre ese `main`), o los agentes leen los ADR desde `origin/entregables-osigp`? **Recomendación del LEAD:** mergearla antes, para que la rama de trabajo tenga los ADR que el contrato cita.
-2. **Decisiones 1 a 8:** ¿se aprueban tal cual?
-3. **Mini sesión física:** ¿la hacen el PM y el humano entre el 4 y el 5-dic, antes del veredicto? El plan deja un día para el veredicto (5 y 6-dic).
-4. **Instalación del SDK:** ¿el humano autoriza que el DEV y el TESTER instalen el Flutter SDK y el Android SDK (command-line tools) en esta PC?
+Respuestas del humano (vía PM, 2026-11-24):
+
+1. **ADR-0017 a 0020 en `main`:** `entregables-osigp` se mergea a `main` **antes** de levantar al DEV y al TESTER (lo hace el PM). Después, el LEAD rebasa `migracion-flutter` sobre ese `main`.
+2. **Decisiones 1 a 8:** aprobadas tal cual.
+3. **Mini sesión física:** el **jueves 4-dic**, o antes si se llega.
+4. **Instalación del SDK:** autorizada. El DEV y el TESTER pueden instalar el Flutter SDK y el Android SDK (command-line tools) en esta PC, y anotan las versiones y las rutas en sus informes.
 
 ## Changelog
 
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
-| v1 | 2026-11-24 | Versión inicial | Encargo PM → LEAD (2026-11-24), tarea 2: migración de la app a Flutter (ADR-0017, escenario 1) | Pendiente |
+| v1 | 2026-11-24 | Versión inicial | Encargo PM → LEAD (2026-11-24), tarea 2: migración de la app a Flutter (ADR-0017, escenario 1) | Humano (vía PM), 2026-11-24, con las respuestas 1 a 4 |
