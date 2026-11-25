@@ -1,6 +1,6 @@
 # ENCARGO LEAD → TESTER y DEV — MIGRACION-FLUTTER
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.1** (M-1), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
+**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.2** (M-1 y M-3), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
 **Rama:** `migracion-flutter` (rebasada sobre `main` `1204a77`, que ya tiene los ADR-0017 a 0020), en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
 **Plazo:** del 26-nov al 5-dic. Mini sesión física el **jueves 4-dic** o antes. Veredicto el 5 y 6-dic.
 **Pasa por UX:** sí, todas las pantallas (contrato §10).
@@ -69,4 +69,12 @@ Reemplaza: el punto 1 de "Qué entrega cada uno" de los dos roles, en lo que res
 - **Versión:** **Flutter 3.50.1** (stable) con **Dart 3.14.0**, anotada en el changelog del contrato (§6). No se cambia hasta el cierre.
 - **SDK compartido:** el DEV lo instala en `C:\Programas_Portables\flutter_3.50.1\flutter` y el Android SDK en `C:\Android`. **El TESTER usa esa misma instalación** y no descarga otra copia. Espera a que el DEV confirme que terminó la instalación (`flutter --version` muestra 3.50.1) antes de correr `flutter test`.
 - Los dos anotan en su informe la salida de `flutter --version` y de `flutter doctor -v`.
+
+### M-3 (2026-11-24) — Contrato v1.2: §7, el modelo dentro del APK (DEV y TESTER)
+
+Reemplaza: la §7 de la v1.1 y el punto 6 del DEV en "Qué entrega cada uno". Decisión del humano (vía PM): **opción A**.
+
+- **DEV:** no excluyes nada. En tu informe van: la línea del `build.gradle` del plugin (variante empaquetada `com.google.mlkit:text-recognition`), el fragmento de `releaseRuntimeClasspath` con `play-services-mlkit-text-recognition` y `-common` (dependencia transitiva del POM de Google), y la lista de archivos del modelo **dentro del APK** (`assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`). Lo que esa dependencia haga en la red queda `NO VERIFICADO`. Para Face Detection (HU-05) solo reportas lo que ves, sin agregarlo.
+- **TESTER:** sobre el APK de release, comprueba con `unzip -l` (o `apkanalyzer`) que esos archivos del modelo están. **No** marques en rojo la presencia de `play-services-mlkit-*`. La revisión de la cola `datatransport` sigue en el guion de la mini sesión del 4-dic.
+- **La §5 (`grep -riw`) sigue pendiente de aprobación** en una v1.3. Mientras tanto vale lo que ya les dije: se evalúa con palabra completa.
 

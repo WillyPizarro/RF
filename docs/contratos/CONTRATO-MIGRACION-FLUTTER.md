@@ -1,8 +1,8 @@
 # CONTRATO — MIGRACION-FLUTTER La app móvil en Flutter (HU-01, 02, 03 y 07, más HU-04)
 
 **Tipo:** Refactor (HU-01, HU-02, HU-03 y HU-07 en la app: el comportamiento no cambia) + Feature (HU-04, construida directo en Flutter)
-**Versión:** v1.1
-**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1 aprobada (humano vía PM, 2026-11-24)
+**Versión:** v1.2
+**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1 y v1.2 aprobadas (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
 **Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `main` `1204a77` (con los ADR-0017 a 0020). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
@@ -226,14 +226,14 @@ El historial no se reescribe: el código Expo queda en `main` hasta el merge y e
 | Llave de firma fuera del repositorio | El APK de release se firma con una llave que vive fuera del repositorio. `.gitignore` agrega `apps/movil/android/key.properties`, `*.jks` y `*.keystore`, y `git ls-files` no muestra ninguno. El informe del DEV dice dónde vive (sin la clave) y cómo se borra en el acta de cierre | ADR-0017 (consecuencias), regla 8 |
 | Sin secretos ni fotos | `git ls-files` no muestra `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore` ni imágenes de captura. Las únicas imágenes permitidas en `apps/movil/` son los íconos de la app | Regla 8 |
 
-### 7. ML Kit: variante empaquetada (NO VERIFICADO del ARCH)
+### 7. ML Kit: el modelo va dentro del APK (v1.2)
 
 | Caso | Salida esperada | Origen |
 |---|---|---|
-| OCR de la placa | El DEV confirma, en el `android/build.gradle` del plugin `google_mlkit_text_recognition` **de la versión fijada**, que depende de `com.google.mlkit:text-recognition` (variante empaquetada) y **no** de `com.google.android.gms:play-services-mlkit-text-recognition`. Lo confirma también en el APK (`./gradlew :app:dependencies` o el árbol de dependencias). Pega las líneas en su informe | Evaluación §7, ADR-0017 regla 3 |
-| Calidad facial (para HU-05) | El DEV revisa el `android/build.gradle` del plugin `google_mlkit_face_detection` en la misma línea de versiones y dice si usa `com.google.mlkit:face-detection` (empaquetada). **No lo agrega** a la app | Evaluación §7, ESTADO-2026-11-20 (pendiente del contrato de HU-05) |
-| Si alguno usa Google Play services | El DEV lo reporta como hueco del contrato y no lo resuelve solo (forzar la dependencia es una decisión) | Regla del LEAD |
-| Telemetría | Sigue la decisión A (2026-11-20): el aviso de OCR-01 y la revisión de la cola `datatransport` en el teléfono (CONTRATO-HU-04 v6 §3 y §6) | ADR-0017 regla 3 |
+| OCR de la placa (**v1.2**) | El DEV confirma: (a) en el `android/build.gradle` del plugin `google_mlkit_text_recognition` **de la versión fijada**, que declara la variante empaquetada `com.google.mlkit:text-recognition`; y (b) **en el APK**, que el modelo viene dentro: `assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`, o lo equivalente si Google cambia los nombres (con `unzip -l` o `apkanalyzer` sobre el APK). **No se exige** que falte `com.google.android.gms:play-services-mlkit-text-recognition`: ese artefacto (y su `-common`) llega como dependencia transitiva del POM oficial de Google y no se excluye. Pega en el informe las líneas del `build.gradle`, el fragmento de `releaseRuntimeClasspath` y la lista de archivos del modelo | Evaluación §7, ADR-0017 regla 3 · decisión del humano (opción A), 2026-11-24 · **v1.2** |
+| Calidad facial (para HU-05; **v1.2**) | El DEV revisa el `android/build.gradle` del plugin `google_mlkit_face_detection` en la misma línea de versiones y dice si declara `com.google.mlkit:face-detection` (empaquetada). **No lo agrega** a la app. En HU-05 vale el mismo criterio que para el OCR: se pide el modelo dentro del APK, no la ausencia de `play-services-mlkit-face-detection` | Evaluación §7, ESTADO-2026-11-20 · decisión del humano (opción A), 2026-11-24 · **v1.2** |
+| NO VERIFICADO (**v1.2**) | Qué hace en la red la dependencia transitiva `play-services-mlkit-*`. Queda documentado como `NO VERIFICADO` en el informe del DEV y en el veredicto. Si el plugin **no** trae el modelo dentro del APK (depende de que Play services lo baje), el DEV lo reporta como hueco y **no fuerza** ninguna exclusión | Decisión del humano (opción A), 2026-11-24 · **v1.2** |
+| Telemetría | Sigue la decisión A (2026-11-20): el aviso de OCR-01 y la revisión de la cola `datatransport` en el teléfono (CONTRATO-HU-04 v6 §3 y §6), **que se mantiene en la mini sesión del 4-dic** (**v1.2**) | ADR-0017 regla 3 |
 
 ### 8. Qué se prueba dónde
 
@@ -243,7 +243,7 @@ El historial no se reescribe: el código Expo queda en `main` hasta el merge y e
 | HU-04 en la app (contrato v6 §2 a §5) | **Sí, todo**, con el doble de `LectorPlaca` | Opcional | Paso a paso (contrato v6 §6) |
 | Interfaz y repositorio (§2, §5 y §6) | — | — | `grep`, `git ls-files`, `flutter analyze`, `aapt` |
 | Safe area (§4) | No | No | Capturas |
-| Variante empaquetada (§7) | — | — | Informe del DEV; el LEAD lo revisa en el veredicto |
+| Modelo dentro del APK (§7, v1.2) | — | — | Informe del DEV y `unzip -l` o `apkanalyzer` sobre el APK; el LEAD lo revisa en el veredicto |
 | La foto se borra, sin caché en disco, cola de telemetría, la placa impresa se lee, permiso real, sin red, 30 s sin lectura (HU-04 v6 §6) | No | Puede automatizar lo que no necesite `adb` | **Sí**, con `adb` |
 
 Lo que necesite el teléfono y no se pueda hacer a tiempo queda `NO VERIFICADO` y se escala.
@@ -339,3 +339,4 @@ Respuestas del humano (vía PM, 2026-11-24):
 | v1 | 2026-11-24 | Versión inicial | Encargo PM → LEAD (2026-11-24), tarea 2: migración de la app a Flutter (ADR-0017, escenario 1) | Humano (vía PM), 2026-11-24, con las respuestas 1 a 4 |
 | v1.1 | 2026-11-24 | §1.2: "Retomar la sesión" con la secuencia exacta de la referencia (`POST /v1/auth/refresh` con el token de renovación guardado, después `GET /v1/me` con el token nuevo; sin token, AUTH-01). §5 y §9: `PantallaEstado` y su prueba no se portan | Huecos que reportó el TESTER al armar la matriz (la §1.2 no coincidía con la referencia; la §5 no decía qué hacer con una pantalla que la app no monta) | Humano (vía PM), 2026-11-24 |
 | v1.1 (anotación) | 2026-11-24 | §6: versión fijada **Flutter 3.50.1** (canal stable, publicada el 2026-11-20) con **Dart 3.14.0**, en `apps/movil/pubspec.yaml` (`environment`: `sdk` 3.14.0, `flutter` 3.50.1). SDK en `C:\Programas_Portables\flutter_3.50.1\flutter` y Android SDK en `C:\Android` (cmdline-tools 16111833). No se cambia hasta el cierre del MVP | Decisión 5: la fija el DEV y el LEAD la anota sin vuelta de aprobación (no cambia nada observable) | — (decisión 5 aprobada por el humano, 2026-11-24) |
+| v1.2 | 2026-11-24 | §7: se pide el modelo de ML Kit **dentro del APK** (`assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so`, o lo equivalente) y no la ausencia de `play-services-mlkit-text-recognition`, que llega como dependencia transitiva del POM de Google y no se excluye; lo que esa dependencia haga en la red queda `NO VERIFICADO`; la cola `datatransport` se sigue revisando en la mini sesión del 4-dic; el mismo criterio vale para Face Detection en HU-05 | Hueco que reportó el DEV: el árbol del APK trae `play-services-mlkit-text-recognition` 19.0.1 por el POM oficial del artefacto empaquetado 16.0.1 | Humano (vía PM), 2026-11-24, opción A |
