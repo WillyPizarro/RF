@@ -1,6 +1,6 @@
 # Informe DEV — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` v1.3 (M-1 a M-4 del encargo), con CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` v1.4 (M-1 a M-8 del encargo), con CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6
 **Rama:** `migracion-flutter` (worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`)
 **Fecha:** 2026-11-24
 **Commits del DEV:**
@@ -12,6 +12,8 @@
 | `f315ff3` | §6: proyecto Android y `.gitignore` raíz (solo agregar) |
 | `a70e627` | Comentarios de `android/` sin mencionar la app anterior por nombre |
 | `0a1d93e` | Etiquetas de accesibilidad exactas en los campos con texto de ayuda |
+| `0724e88` | M-7 (revisión del UX): obs. 1, círculo de carga de OCR-01 de 76 dp y centrado en el marco; obs. 2, opciones de filtro de BIT-01 a la medida de su texto, varias por fila y 48 dp de alto |
+| `3bcee92` | M-8 (contrato v1.4): `Cache-Control: no-store` en la API, portado tal cual de `0ccd8fb` (solo `services/api/app/traza.py`) |
 
 Sin push ni merge. Ningún commit lleva `Co-Authored-By`.
 
@@ -138,12 +140,16 @@ flutter build apk --release --dart-define=API_URL=https://localhost:8443
 
 Para un teléfono conectado: `flutter run --debug --dart-define=API_URL=https://localhost:8443`.
 
-Salida: `apps/movil/build/app/outputs/flutter-apk/app-debug.apk` y `app-release.apk` (78,5 MB; lleva las tres ABI). `build/` no se versiona. En el commit `0a1d93e`:
+Salida: `apps/movil/build/app/outputs/flutter-apk/app-debug.apk` y `app-release.apk` (78,5 MB; lleva las tres ABI). `build/` no se versiona.
+
+**APK para la mini sesión (M-6, M-7 y M-8)**, compilados desde `3bcee92` y copiados fuera del repositorio a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (verificado con `sha256sum -c`):
 
 | APK | sha256 |
 |---|---|
-| `app-debug.apk` | `4e92ae284768d10b0ad6d0014d08e9b87adc8f5cbe3a8297b168bd3c5321c1af` |
-| `app-release.apk` | `9d753eb9b22066d10af2bbb2061ef09cad5271481393343f6d355ab6f7dbfd27` |
+| `movil-buscador-debug.apk` | `987be377aad06c985a25f19ef2571656037c367b08290eccaafe204074d40cc1` |
+| `movil-buscador-release.apk` | `3528cb541c73c4fce4b1e70f62bdb0a012c492ec70f8227925e20e1512950381` |
+
+Reemplazan a los de `0a1d93e` (`4e92ae28…` y `9d753eb9…`).
 
 El primer build tardó unos 25 min (Gradle 9.5.0 y las dependencias se bajan una vez); los siguientes, menos de 2 min.
 
@@ -268,6 +274,10 @@ Con el compose local levantado desde `Movil_Buscador-flutter` (encargo, regla 8)
 6. **Al cierre:** en el teléfono, Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › Usuario › quitar la CA de Caddy; `adb reverse --remove-all`; borrar `C:\Willy\Trabajo\MININTER\ca-local\`.
 
 El APK de release no confía en la CA del usuario: contra la API local con Caddy no va a conectar, y es lo esperado (sirve para la demo con DESPLIEGUE-01 v2).
+
+## 9 bis. Compose para la mini sesión (M-8)
+
+Con la autorización del humano, bajé el compose de la carpeta principal con el comando exacto de la M-8 (`down`, sin `-v`) y lo levanté desde `Movil_Buscador-flutter` con `up -d --build`. Queda **levantado** para la mini sesión. Comprobado: `https://localhost:8443/v1/salud` → `200` con `Cache-Control: no-store`; `GET /v1/me` sin token → `401`, también con `no-store`; la CA de Caddy se copia con el comando del paso 2 (lo probé y borré la copia). `infra/.env` está copiado de la carpeta principal (con `PROXY_PUERTO_HTTPS=8443`) y lo ignora git.
 
 ## 10. Lo que queda NO VERIFICADO o pendiente
 
