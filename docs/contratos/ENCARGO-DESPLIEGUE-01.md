@@ -121,3 +121,19 @@ Reemplaza: el documento de trabajo pasa a ser `docs/contratos/CONTRATO-DESPLIEGU
 **La sesión** (DEV con los `adb` y el humano en el teléfono, coordinados por el PM, como en la M-14 de la migración) se arma cuando lleguen las dos entregas de B1. **Fase B2 (VPS):** cuando el humano dé el VPS, el dominio y Supabase, con otra M-n. **Al final**, el ARCH actualiza la evaluación con el resultado de los niveles 1 y 2.
 
 Al terminar: DEV con `herdr agent prompt lead "ENTREGA DEV: ..."`, TESTER con `"ESTADO TESTER: ..."`.
+
+### M-4 (2026-11-25) — Arbitraje: "imagen oficial `nginx` con versión fijada" (TESTER, vuelta 1)
+
+Reemplaza: nada. El rojo es de `test_proxy_es_nginx_con_version_fijada` y `test_proxy_del_vps_es_nginx_fijado` (`f098f9a`): esperan `image: nginx:<versión>` en el compose, y el DEV construye `proxy` con `build: infra/nginx/` (`FROM nginx:1.30.8-alpine`, más `openssl` y su configuración).
+
+**Desenlace: se apartó la prueba.**
+- **Qué pide el contrato (§1 y ADR-0018 §1):** que el proxy sea **NGINX oficial con una versión estable fijada**.
+- **Lo que deja al DEV** ("Fuera del contrato"): la configuración exacta (archivos, `include`) y cómo se arma.
+- **Por qué cumple la imagen del DEV:** se construye sobre la imagen oficial fijada y le copia la configuración, así que cumple la intención.
+- **Por qué se apartó la prueba:** verifica un mecanismo (`image:`) que el contrato no exige.
+
+**TESTER:** la prueba acepta las dos formas, y en las dos verifica lo que pide el contrato:
+- `image: nginx:<x.y.z[-variante]>`;
+- `build:` con un `Dockerfile` cuyo `FROM` sea `nginx:<x.y.z[-variante]>`, de la librería oficial de Docker Hub (sin otro registro). Ni `latest`, ni `stable`, ni `mainline`, ni una etiqueta sin versión completa.
+
+Además, si el contenedor está arriba, la versión de NGINX en marcha (`nginx -v` o `NGINX_VERSION`) coincide con la fijada. Vale para el compose local y para el del VPS. Corre las dos pruebas **cuando yo avise de la `ENTREGA DEV` de B1**, no antes.
