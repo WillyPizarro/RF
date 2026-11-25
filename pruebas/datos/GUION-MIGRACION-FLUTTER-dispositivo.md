@@ -170,8 +170,9 @@ No necesita el teléfono. Lo puede correr el TESTER cuando el DEV entregue el AP
 |---|---|---|---|
 | 11.1 | El APK de release que entrega el DEV (comando exacto en su informe), en `apps\movil\build\app\outputs\flutter-apk\app-release.apk` | El archivo existe | |
 | 11.2 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump badging apps\movil\build\app\outputs\flutter-apk\app-release.apk \| Select-String "package:\|application-label:\|debuggable"` | `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `application-debuggable` | |
-| 11.3 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump xmltree apps\movil\build\app\outputs\flutter-apk\app-release.apk --file AndroidManifest.xml \| Select-String "allowBackup\|networkSecurityConfig"` | `android:allowBackup` en `0x0` (false) y `android:networkSecurityConfig` presente | |
+| 11.3 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump xmltree apps\movil\build\app\outputs\flutter-apk\app-release.apk AndroidManifest.xml \| Select-String "allowBackup\|networkSecurityConfig"` | `android:allowBackup` en `0x0` (false) y `android:networkSecurityConfig` presente | |
 | 11.4 | El mismo `dump badging` sobre `app-debug.apk` | Aparece `application-debuggable` (control: el de depuración sí lo es) | |
+| 11.5 | Modelo de ML Kit dentro del APK (contrato v1.2 §7, M-3): `python -I pruebas\datos\revisar_modelo_apk.py apps\movil\build\app\outputs\flutter-apk\app-release.apk` (equivale a `unzip -l`) | Archivos en `assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`; termina con "El modelo de ML Kit está dentro del APK." (código 0). Si aparecen `play-services-mlkit-*.properties`, **no** es un rojo (v1.2: dependencia transitiva; lo que hace en la red queda NO VERIFICADO) | |
 
 ## 12. Al terminar
 

@@ -1,7 +1,7 @@
 # Informe TESTER — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.1** (con la M-1 y la M-2 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
-**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 y M-2).
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (con la M-1 a la M-4 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
+**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-4).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida temprana contra la interfaz del DEV (`dd08a54`), antes de la `ENTREGA DEV`.** Las pruebas de la app (`flutter_test`) compilan y pasan: **120/120**. `repositorio_test` se corrió sobre el árbol de trabajo, con el `android/` del DEV todavía sin commit y el código Expo sin borrar: sus rojos son trabajo en curso, no hallazgos (§8). Esta no es la suite completa del cierre (§10 del contrato, con orden del LEAD).
 
@@ -204,12 +204,13 @@ Automatizadas en `repositorio_test.dart` (corren con `flutter test`) y, por coma
 | `startImageStream` no aparece en `lib/` | `repositorio_test` y `grep -r startImageStream apps/movil/lib` | NO EJECUTADO |
 | Ningún paquete de caché | `repositorio_test` | NO EJECUTADO |
 | Flutter 3.50.1 en `environment`, dependencias exactas, `pubspec.lock` | `repositorio_test` | NO EJECUTADO |
-| Sin Expo: ni `.ts`/`.tsx`, ni `package.json`, ni menciones en `pubspec.yaml` y `android/` | `repositorio_test` y `git ls-files apps/movil` | Archivos: **VERDE** tras `cd9c3d2` (DEV) y `7132e10` (TESTER). Menciones: **VERDE con el criterio v1.2, pendiente de aprobación** (palabra completa, `grep -riw`). Con la v1.1 (`grep -ri`, subcadena) sale un falso positivo: `apps/movil/android/app/src/main/AndroidManifest.xml: android:exported="true"` ("exported" contiene "expo"). Con `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` no sale nada (código 1), sobre el árbol de trabajo con el `android/` del DEV todavía sin commit. `repositorio_test` usa el mismo criterio (palabra completa: `android:exported` no cuenta; `expo`, `expo-camera` o `react-native` sí). Se repite con la `ENTREGA DEV` |
+| Sin Expo: ni `.ts`/`.tsx`, ni `package.json`, ni menciones en `pubspec.yaml` y `android/` | `repositorio_test` y `git ls-files apps/movil` | Archivos: **VERDE** tras `cd9c3d2` (DEV) y `7132e10` (TESTER). Menciones: **VERDE con el criterio de la v1.3** (palabra completa, `grep -riw`; definitivo por la M-4). Con la v1.1 (`grep -ri`, subcadena) sale un falso positivo: `apps/movil/android/app/src/main/AndroidManifest.xml: android:exported="true"` ("exported" contiene "expo"). Con `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` no sale nada (código 1), sobre el árbol de trabajo con el `android/` del DEV todavía sin commit. `repositorio_test` usa el mismo criterio (palabra completa: `android:exported` no cuenta; `expo`, `expo-camera` o `react-native` sí). Se repite con la `ENTREGA DEV` |
 | `apps/movil/__tests__/` borrado | `git ls-files apps/movil/__tests__` vacío | **HECHO** (`7132e10`, TESTER; los 5 archivos que había en la rama) |
 | `applicationId`, nombre visible, `allowBackup`, `network_security_config.xml` | `repositorio_test` | NO EJECUTADO |
 | `.gitignore` con `key.properties`, `*.jks`, `*.keystore`; `git ls-files` sin `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore` | `repositorio_test` y `git ls-files \| grep -E '\.(crt\|pem\|key\|der\|jks\|keystore)$'` | NO EJECUTADO |
 | `flutter analyze` sin errores ni avisos | Comando en `apps/movil` | NO EJECUTADO |
-| APK de release no depurable | `aapt dump badging` (guion, paso 11) | NO EJECUTADO |
+| APK de release no depurable | `aapt dump badging` (build-tools 36.0.0; guion, paso 11) | **Preliminar VERDE** sobre el `app-release.apk` que hay en `build/` (SHA-1 `6659053b52c3…`, del DEV, todavía sin `ENTREGA`): `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `debuggable` (control: `app-debug.apk` sí la tiene). `aapt dump xmltree <apk> AndroidManifest.xml`: `allowBackup` 0x0, `usesCleartextTraffic` 0x0 y `networkSecurityConfig` presente. Se repite sobre el APK de la entrega |
+| Modelo de ML Kit dentro del APK (§7, v1.2, M-3) | `python -I pruebas/datos/revisar_modelo_apk.py <app-release.apk>` (equivale a `unzip -l`; guion, paso 11.5) | **Preliminar VERDE** sobre el mismo APK: 21 archivos en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en `arm64-v8a`, `armeabi-v7a` y `x86_64`. Aparecen `play-services-mlkit-text-recognition.properties` y `-common.properties`: **no es un rojo** (v1.2, opción A: dependencia transitiva del POM de Google). **NO VERIFICADO:** qué hace esa dependencia en la red; la cola `datatransport` se revisa en la mini sesión del 4-dic (guion, paso 9) |
 | `git diff main...migracion-flutter -- services/ contratos/` vacío | Comando | NO EJECUTADO |
 
 ## 5. Cómo se corren

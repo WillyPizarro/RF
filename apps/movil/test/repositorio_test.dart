@@ -129,7 +129,7 @@ void main() {
       for (final f in archivos) {
         final lineas = f.readAsLinesSync();
         for (var i = 0; i < lineas.length; i++) {
-          // Palabra completa, como `grep -riw` (criterio v1.2, pendiente de aprobación): así
+          // Palabra completa, como `grep -riw` (CONTRATO-MIGRACION-FLUTTER v1.3 §5): así
           // `android:exported` no cuenta, pero `expo`, `expo-camera` o `react-native` sí.
           if (RegExp(r'(?<![A-Za-z0-9_])(expo|react-native)(?![A-Za-z0-9_])', caseSensitive: false)
               .hasMatch(lineas[i])) {
