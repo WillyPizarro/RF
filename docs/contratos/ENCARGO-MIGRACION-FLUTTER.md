@@ -111,3 +111,17 @@ Reemplaza: la fecha de la mini sesión (jueves 4-dic) del encabezado y del paso 
 1. Pone el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` al día con la entrega del DEV: el paso 0.9 ya no compila, sino que instala `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` y comprueba su SHA-256 contra `SHA256SUMS.txt`; los pasos de la CA y de la desinstalación coinciden con la §9 del informe del DEV; y el paso 11 usa `movil-buscador-release.apk`.
 2. Cuando llegue la revisión del UX (`docs/ux/revisiones/MIGRACION-FLUTTER.md`), suma al paso 3 (safe area) las capturas que pida el UX. El LEAD te avisa.
 3. Avisa con `herdr agent prompt lead "ESTADO TESTER: guion al día <commit>"`.
+
+### M-7 (2026-11-24) — Revisión del UX (DEV y TESTER)
+
+Reemplaza: el paso 1 de la M-6 del DEV, en cuanto a **desde qué commit** se compilan los APK. La revisión del UX está en `docs/ux/revisiones/MIGRACION-FLUTTER.md` (`6e5111a`): aprueba las 30 capturas con 3 observaciones, ninguna BLOQUEA, sin cambios de contrato. Los botones se quedan como están escritos (sin mayúsculas).
+
+**DEV**, **antes** de compilar los APK de la M-6, para que el teléfono pruebe la versión definitiva:
+1. **Obs. 1 (OCR-01 leyendo):** el círculo del indicador de carga vuelve a ser chico y centrado en el marco, sin tapar el visor. Sin texto nuevo.
+2. **Obs. 2 (BIT-01 filtros):** las opciones de "Tipo" y "Resultado" miden lo que su texto y se agrupan varias por fila, para que "Aplicar filtros" quede a la vista. Mantén el alto mínimo (36 dp, o 48 dp si se puede). Sin texto nuevo.
+3. **Obs. 3:** agrega a tu paquete de capturas PLA-01 sin catálogo (falla `GET /v1/motivos`) y BIT-01 con una fecha inválida, y regenera las capturas de OCR-01 leyendo y de BIT-01 con los filtros abiertos. Todas fuera del repositorio, en la misma carpeta.
+4. Compila los APK de la M-6 **desde ese commit**, y avisa con `PREGUNTA DEV: M-7 en <commit>; APK listos <sha256>`.
+
+**TESTER:**
+1. Suma al guion (M-6, punto 2) las capturas del S23 Ultra que pide el UX: **S1 a S5 son obligatorias para la §4** y S6 a S15 cierran la etapa 2 de HU-04 y los símbolos. Todas van a la carpeta de capturas fuera del repositorio. Respeta el orden y las condiciones que pide el UX (S5 en el otro modo de navegación; S7 con la letra del sistema al máximo).
+2. Cuando el DEV entregue la M-7, corre `flutter test` sobre ese commit (solo lo tocado).
