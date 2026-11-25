@@ -1,7 +1,7 @@
 # ENCARGO LEAD → TESTER y DEV — MIGRACION-FLUTTER
 
 **Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1**, aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
-**Rama:** `migracion-flutter`, en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
+**Rama:** `migracion-flutter` (rebasada sobre `main` `1204a77`, que ya tiene los ADR-0017 a 0020), en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
 **Plazo:** del 26-nov al 5-dic. Mini sesión física el **jueves 4-dic** o antes. Veredicto el 5 y 6-dic.
 **Pasa por UX:** sí, todas las pantallas (contrato §10).
 

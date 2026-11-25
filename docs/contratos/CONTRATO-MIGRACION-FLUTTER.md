@@ -4,7 +4,7 @@
 **Versión:** v1
 **Estado:** Aprobado (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
-**Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`. TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
+**Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `main` `1204a77` (con los ADR-0017 a 0020). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
 **Pasa por UX:** sí. Se rehacen todas las pantallas: AUTH-01 a AUTH-04, HOME-01 (y los inicios del revisor y del supervisor), ERR-01, PLA-01 a PLA-08, BIT-01 y BIT-02, y OCR-01 a OCR-04 (§10)
 
@@ -27,7 +27,7 @@
 
 | Fuente | Por qué entra |
 |---|---|
-| ADR-0017 (rama `entregables-osigp`, `docs/arch/adrs/0017-app-movil-flutter-mlkit.md`) | Flutter para Android en `apps/movil/`, los paquetes de referencia, los módulos de borde detrás de interfaces Dart, nada de imágenes en disco, telemetría sin cambios, `debug-overrides`, versión fijada, build sin EAS |
+| ADR-0017 (`docs/arch/adrs/0017-app-movil-flutter-mlkit.md`) | Flutter para Android en `apps/movil/`, los paquetes de referencia, los módulos de borde detrás de interfaces Dart, nada de imágenes en disco, telemetría sin cambios, `debug-overrides`, versión fijada, build sin EAS |
 | Evaluación del stack, §2, §3, §5, §6 y §7 | Qué cambia por pieza, qué se reutiliza de Expo, el plan con días, las decisiones del humano y lo que queda NO VERIFICADO |
 | ADR-0013 | Estado solo en memoria, el token en almacenamiento seguro, limpieza al cerrar sesión (lo precisa el ADR-0017) |
 | ADR-0007 | El contrato de la API no cambia; los modelos de la app se generan desde `contratos/api/openapi.json` |
@@ -40,7 +40,7 @@
 | Código Expo en la etiqueta `hu-04-expo-referencia` (`125cabe`) | Comportamiento actual que se conserva (§1.2) y lo que se reutiliza (§9). **No se mergea** |
 | AGENTS.md (`d6d97dd` en esta rama) | Rutas de cada rol, con `apps/movil/test/` e `apps/movil/integration_test/` para el TESTER (decisión 6 del humano) |
 
-**Aviso:** el ADR-0017 al ADR-0020, la evaluación del stack y el TECH-DESIGN actualizado están en la rama `entregables-osigp` (en origin hasta `5d3879a`), todavía no en `main`. Ver la pregunta 1.
+**Aviso:** el ADR-0017 al ADR-0020, la evaluación del stack y el TECH-DESIGN actualizado están en `main` desde `1204a77` (respuesta 1 del humano).
 
 ## Alcance
 

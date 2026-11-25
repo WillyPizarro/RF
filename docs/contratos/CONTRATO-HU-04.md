@@ -4,7 +4,7 @@
 **Versión:** v6
 **Estado:** v1 a v3 aprobadas (2026-11-19) · v4 y v5 aprobadas (2026-11-20, humano vía PM) · **v6 aprobada (humano vía PM, 2026-11-24)** (se construye directo en Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-04-capturar-placa-ocr.md` · encargo PM → LEAD (2026-11-19), Iteración 2, contrato 1
-**Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b` (**v6**). La rama `hu-04` y el código Expo quedan como referencia en la etiqueta `hu-04-expo-referencia` y no se mergean (decisión 3 del humano, 2026-11-24)
+**Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `1204a77` (**v6**). La rama `hu-04` y el código Expo quedan como referencia en la etiqueta `hu-04-expo-referencia` y no se mergean (decisión 3 del humano, 2026-11-24)
 **Pasa por UX:** sí. Pantallas OCR-01 a OCR-04 (`docs/ux/wireframes/HU-04-capturar-placa-ocr.md`) y el botón 📷 de PLA-01. **v6:** el UX revisa con capturas de `flutter_test` y del S23 Ultra, junto con el resto de la app (CONTRATO-MIGRACION-FLUTTER §10).
 
 ---

@@ -17,7 +17,7 @@
 | Fuente | Por qué entra |
 |---|---|
 | ADR-0009 | VPS pequeño con docker compose, Supabase en la nube (Auth y Postgres, referencia São Paulo), secretos solo en variables del VPS. **v2:** su punto 1 (proxy) lo reemplaza el ADR-0018 y su punto 4 (EAS) el ADR-0017 |
-| **ADR-0018 (v2)** (rama `entregables-osigp`) | NGINX con la misma regla (`/v1/` → `api:8000`, 404 al resto), `certbot` en un contenedor aparte en el VPS, CA local generada por un script de `infra/`, la configuración que Caddy daba por defecto (cuerpo máximo, TLS, cabeceras, registro sin `Authorization`) y la ruta protegida del APK (punto 5) |
+| **ADR-0018 (v2)** (`docs/arch/adrs/0018-proxy-nginx.md`) | NGINX con la misma regla (`/v1/` → `api:8000`, 404 al resto), `certbot` en un contenedor aparte en el VPS, CA local generada por un script de `infra/`, la configuración que Caddy daba por defecto (cuerpo máximo, TLS, cabeceras, registro sin `Authorization`) y la ruta protegida del APK (punto 5) |
 | **ADR-0017 (v2)** | APK firmado en la máquina del proyecto, sin EAS; la llave de firma es un secreto fuera del repositorio; el APK de la demo sin `debug-overrides` |
 | **CONTRATO-MIGRACION-FLUTTER v1 (v2)** | `--dart-define=API_URL`, `applicationId` `pe.prototipo.movilbuscador`, release no depurable, llave de firma fuera del repositorio (§6) |
 | ADR-0005 y CONTRATO-HU-07 v5 | La API se conecta como `api_app` (solo `INSERT` y `SELECT` en `bitacora`, más el trigger), **nunca** con `service_role` |
