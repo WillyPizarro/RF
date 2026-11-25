@@ -1,12 +1,12 @@
 # CONTRATO — DESPLIEGUE-01 Despliegue temprano en el VPS y APK para probadores
 
 **Tipo:** Feature (despliegue)
-**Versión:** v2
-**Estado:** v1 aprobada (2026-11-19, humano vía PM) · **v2 aprobada (humano vía PM, 2026-11-24)**
+**Versión:** v2.1
+**Estado:** v1 aprobada (2026-11-19, humano vía PM) · v2 aprobada (humano vía PM, 2026-11-24) · **v2.1 PROPUESTA, espera la aprobación del humano (vía PM)**
 **Origen:** encargo PM → LEAD (2026-11-19, decisión del humano): el MININTER y el equipo prueban desde **sus** celulares en el demo del **jueves 10-dic**. **v2:** encargo PM → LEAD (2026-11-24, tarea 2): NGINX en lugar de Caddy (ADR-0018) y el APK de Flutter descargable desde una ruta protegida del VPS (ADR-0018 punto 5, decisión 4 del humano), en lugar del enlace de EAS
 **Alcance:** lo que esté en `main` después del merge de la migración a Flutter (CONTRATO-MIGRACION-FLUTTER: HU-08, HU-01, HU-02, HU-03, HU-07 y HU-04 en la app Flutter). Las HU siguientes se suben después con los mismos comandos (§6)
-**Rama de trabajo:** `despliegue-01` (worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`), con la fase A de la v1 ya hecha (`8402ef2`, `f734c39`, `4fb531c`). **v2:** se rebasa sobre `main` después del merge de la migración (respuesta 1 de la v2)
-**Plazo (plan decidido, evaluación del stack §5):** del 6 al 8-dic, después del veredicto de la migración. El humano contrata el VPS, el dominio y Supabase a más tardar el **miércoles 2-dic**. Desplegado, y probado por el humano desde su S23 Ultra **por descarga (no por cable)**, antes del **10-dic**
+**Rama de trabajo:** `despliegue-01` (worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`), con la fase A de la v1 ya hecha. **v2.1:** rebasada el 2026-11-25 sobre `main` `7c81105` (merge de MIGRACION-FLUTTER, PR #1). La fase A quedó en `fb2eef2` (DEV), `5b2d45e` (TESTER), `3186a95` y `c98d3ec` (LEAD). La rama anterior se conserva en `backup/despliegue-01-pre-rebase-4fb531c`. `origin/despliegue-01` tiene la historia previa al rebase, así que subirla exige un push forzado de **esta** rama, con autorización del humano
+**Plazo (plan decidido, evaluación del stack §5):** del 6 al 8-dic, después del veredicto de la migración. **v2.1:** la migración se mergeó el 25-nov, así que la fase B puede empezar en cuanto se apruebe esta versión. El humano contrata el VPS, el dominio y Supabase a más tardar el **miércoles 2-dic**. Desplegado, y probado por el humano desde su S23 Ultra **por descarga (no por cable)**, antes del **10-dic**
 
 > **Qué cambia de la v1 a la v2:** el proxy (§1 y §2), el APK y su entrega (§5), los comandos de la app (§6), la guía (§7), el borrado al cierre (§8) y las pruebas del proxy. Lo de Supabase, los secretos y `api_app` (§3 y §4) no cambia, salvo los secretos nuevos. Cada cambio lleva la marca **v2**.
 
@@ -19,7 +19,7 @@
 | ADR-0009 | VPS pequeño con docker compose, Supabase en la nube (Auth y Postgres, referencia São Paulo), secretos solo en variables del VPS. **v2:** su punto 1 (proxy) lo reemplaza el ADR-0018 y su punto 4 (EAS) el ADR-0017 |
 | **ADR-0018 (v2)** (`docs/arch/adrs/0018-proxy-nginx.md`) | NGINX con la misma regla (`/v1/` → `api:8000`, 404 al resto), `certbot` en un contenedor aparte en el VPS, CA local generada por un script de `infra/`, la configuración que Caddy daba por defecto (cuerpo máximo, TLS, cabeceras, registro sin `Authorization`) y la ruta protegida del APK (punto 5) |
 | **ADR-0017 (v2)** | APK firmado en la máquina del proyecto, sin EAS; la llave de firma es un secreto fuera del repositorio; el APK de la demo sin `debug-overrides` |
-| **CONTRATO-MIGRACION-FLUTTER v1 (v2)** | `--dart-define=API_URL`, `applicationId` `pe.prototipo.movilbuscador`, release no depurable, llave de firma fuera del repositorio (§6) |
+| **CONTRATO-MIGRACION-FLUTTER v1.5 (v2.1)** | `--dart-define=API_URL`, `applicationId` `pe.prototipo.movilbuscador`, release no depurable y llave de firma fuera del repositorio (§6). **v1.5:** la app usa `ok_http`, así que rige el `network_security_config`: el release confía **solo** en las CA del sistema (Let's Encrypt sirve) y el de depuración, además, en la CA de usuario (la CA local de NGINX) |
 | ADR-0005 y CONTRATO-HU-07 v5 | La API se conecta como `api_app` (solo `INSERT` y `SELECT` en `bitacora`, más el trigger), **nunca** con `service_role` |
 | ADR-0012 y CONTRATO-HU-07 v2 | Alembic con SQL explícito; migración con `MIGRACION_DATABASE_URL` (rol dueño) |
 | ADR-0003 y CONTRATO-HU-01 v6 | Supabase Auth; carga de los usuarios sintéticos con `python -m app.cargar_usuarios`; la clave solo en `CLAVE_USUARIOS_PRUEBA` |
@@ -50,7 +50,7 @@
 | Puertos | Desde internet solo responden **22** (SSH, solo con llave), **80** y **443**. `8000`, `8001` y `5432` no responden. `certbot` no publica puertos | ADR-0009 §1, ADR-0006 |
 | Salud | `GET https://<DOMINIO>/v1/salud` → `200` con `"bd":"ok"` y `"simuladores":"ok"` | CONTRATO-HU-08 §8, Sprint 0 |
 | Solo `/v1/*` y el APK | `GET https://<DOMINIO>/openapi.json`, `GET https://<DOMINIO>/` y cualquier otra ruta fuera de `/v1/` y de `/descargas/movil-buscador.apk` → `404` | ADR-0018 §1 y §5 · **v2** |
-| Mismo comportamiento | Los contratos vigentes en `main` se cumplen igual en el VPS: HU-08 v4, HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6 | ADR-0009 ("lo que se entrega es lo que se probó") |
+| Mismo comportamiento | Los contratos vigentes en `main` se cumplen igual en el VPS: HU-08 v4, HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 **v7** (**v2.1**) | ADR-0009 ("lo que se entrega es lo que se probó") |
 
 ### 2. NGINX: TLS, certificados y configuración (v2)
 
@@ -112,7 +112,7 @@
 | Servidor | `scripts/desplegar.ps1 <rama o commit>` entra al VPS por SSH, trae el código desde `origin`, reconstruye y reinicia `api`, `simuladores`, `proxy` y `certbot`, y aplica las migraciones. Al terminar, `GET /v1/salud` responde `200`. **No copia ningún secreto** | Encargo v1, decisión 4 (v1) |
 | App (**v2**) | `scripts/publicar-apk.ps1` compila el APK de release (§5), lo copia al volumen del `proxy` en el VPS por SSH y muestra su SHA-256. No copia la llave de firma ni la credencial | ADR-0018 §5 ("el DEV lo copia al volumen del VPS en cada build") · DECISIÓN PROPUESTA 6 |
 | Idempotente | Correr los dos comandos dos veces seguidas no rompe nada ni duplica usuarios | CONTRATO-HU-01 §6 |
-| Sin EAS (**v2**) | `apps/movil/eas.json` y el perfil `preview` de la fase A ya no existen en la rama (los quita la migración) | ADR-0017 |
+| Sin EAS (**v2**, **v2.1**) | `apps/movil/eas.json` y el perfil `preview` de la fase A **no existen** en la rama. **v2.1:** la migración no lo quitó, porque el archivo solo estaba en `despliegue-01` (`fb2eef2`) y sobrevivió al rebase. Lo **borra el DEV** en este ciclo (única excepción en `apps/movil/`, ver Rutas). Tampoco queda ninguna mención de EAS en `docs/despliegue/`: `grep -rniw "eas" apps/movil docs/despliegue` vacío | ADR-0017 · hallazgo del rebase (2026-11-25) |
 
 ### 7. Documentos
 
@@ -129,6 +129,7 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 - borrar el proyecto de Supabase, con sus respaldos;
 - **v2:** quitar la ruta `/descargas/movil-buscador.apk`, el archivo y la credencial `DESCARGA_APK_*`, al terminar la validación y a más tardar en el acta (ADR-0018 §5);
 - **v2:** borrar la llave de firma del APK y la CA local del proxy (y pedir que se quite del teléfono de pruebas);
+- **v2.1:** la CA de Caddy de la migración (`C:\Willy\Trabajo\MININTER\ca-local\` y la CA de usuario del S23) se quita **en este ciclo**, cuando el S23 pase a la CA de NGINX, y queda anotado en el acta;
 - borrar los builds y el proyecto de EAS de la etapa Expo (por ejemplo `a3380e39`), o como mínimo sus enlaces internos;
 - borrar el registro DNS del subdominio;
 - pedir a los probadores que desinstalen la app.
@@ -156,16 +157,17 @@ Se agrega a `PENDIENTES.md` y al acta de eliminación (ADR-0008):
 | `api_app` en `pg_stat_activity`, trigger, `printenv` sin secretos de administración, la clave fuera de los logs del proxy, renovación de `certbot` en seco (`certbot renew --dry-run`) | TESTER con SSH (respuesta 5 de la v1) | En el VPS |
 | APK no depurable | TESTER | Sobre el APK descargado de la ruta |
 | Instalación por descarga y el paso a paso en el S23 Ultra, sin cable | **Humano** | Su teléfono |
-| Regresión | TESTER | Las suites de siempre en local, ahora con NGINX en el compose |
+| Regresión | TESTER | Las suites de siempre en local, ahora con NGINX en el compose, incluidas `test_hu04_sin_cache.py` por el proxy y `test_la_clave_no_queda_en_los_logs_del_proxy` |
+| Teléfono de pruebas con el NGINX local (**v2.1**) | TESTER (guion) y **humano** | El TESTER pasa a la CA local de NGINX los pasos de Caddy del guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`: exportar la CA, la CA de usuario y ver el error de TLS en el log del proxy. En el S23, con el APK de depuración de `main`, el humano quita la CA de Caddy, instala la de NGINX y hace un login con `agente1` contra el compose local. Va en la misma sesión que la prueba por descarga |
 
 ## Rutas de cada rol
 
 | Rol | Rutas | Origen |
 |---|---|---|
-| DEV | `infra/` (NGINX, `certbot`, CA local, composes), `scripts/` (`desplegar.ps1`, `publicar-apk.ps1`), `docs/despliegue/`, `services/api/` (solo si la API necesitara confiar en `X-Forwarded-*`; no se espera), `.gitignore` (solo agregar: `*.apk`, `*.aab`, certificados), `README.md` raíz, `informes/DEV-*.md` | AGENTS.md (`docs/despliegue/` en la fila del DEV desde la rama `migracion-flutter`: decisión 2 de la v1 y respuesta 3 de la v2) |
-| TESTER | `services/api/tests/` (pruebas del proxy y contra el VPS), `pruebas/`, `informes/TESTER-*.md` | AGENTS.md |
+| DEV | `infra/` (NGINX, `certbot`, CA local, composes), `scripts/` (`desplegar.ps1`, `publicar-apk.ps1`), `docs/despliegue/`, **v2.1:** borrar `apps/movil/eas.json` (lo único que toca en `apps/movil/`), `services/api/` (solo si la API necesitara confiar en `X-Forwarded-*`; no se espera), `.gitignore` (solo agregar: `*.apk`, `*.aab`, certificados), `README.md` raíz, `informes/DEV-*.md` | AGENTS.md (`docs/despliegue/` en la fila del DEV desde la rama `migracion-flutter`: decisión 2 de la v1 y respuesta 3 de la v2) |
+| TESTER | `services/api/tests/` (pruebas del proxy y contra el VPS; **v2.1:** también las referencias a Caddy de `test_despliegue_vps.py`), `pruebas/` (**v2.1:** el guion del teléfono con NGINX), `informes/TESTER-*.md` | AGENTS.md |
 
-La app (`apps/movil/`) no se toca en este ciclo: el APK sale del `main` con la migración.
+La app (`apps/movil/`) no se toca en este ciclo, **salvo el borrado de `apps/movil/eas.json` (v2.1)**: el APK sale del `main` con la migración (CONTRATO-MIGRACION-FLUTTER v1.5).
 
 ## Avisos de contexto
 
@@ -211,3 +213,4 @@ Respuestas del humano a la v2 (vía PM, 2026-11-24):
 |---|---|---|---|---|
 | v1 | 2026-11-19 | Versión inicial | Encargo PM → LEAD (despliegue temprano para el demo del 10-dic) | Humano (vía PM), 2026-11-19 |
 | v2 | 2026-11-24 | NGINX en lugar de Caddy, con `certbot`, CA local, TLS, cabeceras, cuerpo máximo y registro sin `Authorization` (§1, §2); APK de Flutter descargable desde `/descargas/movil-buscador.apk` con usuario y clave, en lugar de EAS (§5); `scripts/publicar-apk.ps1` (§6); guía con la desinstalación de la app de Expo y la credencial de la descarga (§7); borrado de la ruta, la credencial, la llave de firma y la CA (§8); pruebas del proxy | ADR-0017 y ADR-0018 aceptados (decisiones del humano del 2026-11-24, 1 y 4) | Humano (vía PM), 2026-11-24, con las respuestas 1 a 4 (una sola credencial de descarga) |
+| v2.1 | 2026-11-25 | Rama rebasada sobre `main` `7c81105`, con los commits nuevos de la fase A y el aviso de que subirla exige un push forzado autorizado. Paquete: MIGRACION-FLUTTER **v1.5** (`ok_http`: el release confía solo en las CA del sistema y el de depuración, además, en la CA de usuario). §1: HU-04 **v7**. §6: `apps/movil/eas.json` sobrevivió al rebase y lo borra el DEV; sin menciones de EAS en `docs/despliegue/`. Qué prueba quién: regresión con `test_hu04_sin_cache.py` por NGINX, y el teléfono de pruebas pasa de la CA de Caddy a la de NGINX (guion del TESTER y un login del humano). Rutas: el borrado de `eas.json` para el DEV, y las referencias a Caddy de `test_despliegue_vps.py` y el guion para el TESTER. §8: la CA de Caddy se quita en este ciclo | Rebase del 2026-11-25 sobre el merge de la migración (encargo PM → LEAD, aprobado por el humano): la v2 suponía que la migración borraba `eas.json` y citaba MIGRACION v1 y HU-04 v6 | **Pendiente:** humano (vía PM) |
