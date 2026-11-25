@@ -16,7 +16,7 @@ void main() {
     MovilBuscadorApp(
       dependencias: Dependencias(
         urlApi: _urlApi,
-        // package:http sobre dart:io, sin caché HTTP (CONTRATO-HU-04 v6 §6).
+        // package:http (cliente por defecto), sin caché HTTP (CONTRATO-HU-04 v6 §6).
         clienteHttp: http.Client(),
         almacen: AlmacenSeguroDispositivo(),
         lectorPlaca: LectorPlacaDispositivo(),

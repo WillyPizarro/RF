@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        // El mismo ID de la app Expo, para que los comandos adb run-as de HU-04 sigan valiendo.
+        // El mismo ID de la app anterior (CONTRATO-MIGRACION-FLUTTER §6, decisión 6), para que los comandos adb run-as de HU-04 sigan valiendo.
         applicationId = "pe.prototipo.movilbuscador"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
