@@ -16,6 +16,7 @@ import urllib.request
 import pytest
 
 from ayudas_hu03 import PLACA_CON, RUTA_BITACORA, RUTA_MOTIVOS, RUTA_PLACA, consulta
+from ayudas_hu01 import usuario_falso
 
 
 def _no_store(valor: str | None) -> bool:
@@ -23,11 +24,17 @@ def _no_store(valor: str | None) -> bool:
     return "no-store" in directivas
 
 
+# M-17 (vuelta 1): el `usuario` que no existe es **único por corrida**. Con uno fijo, los fallos se
+# acumulaban en la base entre corridas y al quinto la API respondía `423` (lo correcto según
+# CONTRATO-HU-01). Por corrida son 2 fallos (red interna y proxy), lejos del bloqueo. Lo que se
+# verifica no cambia: el `Cache-Control: no-store` del `401`.
+USUARIO_INEXISTENTE = usuario_falso()
+
 # (nombre, quién, método, ruta, cuerpo, estado esperado)
 CASOS = [
     ("salud-200", None, "GET", "/v1/salud", None, 200),
     ("login-200", "agente1", "POST", "/v1/auth/login", "LOGIN", 200),
-    ("login-401", None, "POST", "/v1/auth/login", {"usuario": "noexiste-cache", "clave": "x"}, 401),
+    ("login-401", None, "POST", "/v1/auth/login", {"usuario": USUARIO_INEXISTENTE, "clave": "x"}, 401),
     ("login-422", None, "POST", "/v1/auth/login", {"usuario": "agente1"}, 422),
     ("me-200", "agente1", "GET", "/v1/me", None, 200),
     ("me-401", None, "GET", "/v1/me", None, 401),

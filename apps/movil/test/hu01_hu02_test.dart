@@ -110,24 +110,23 @@ void main() {
 
   group('HU-01 AUTH-04 — cuenta bloqueada', () {
     testWidgets('muestra la hora local (HH:MM) y los minutos, vacía la clave e Ingresar sigue activo', (t) async {
-      // Minuto entero siguiente a "ahora + 15 min": HH:MM sin ambigüedad.
-      final base = clock.now().add(const Duration(minutes: 15));
-      final hasta = DateTime(base.year, base.month, base.day, base.hour, base.minute).add(const Duration(minutes: 1));
-      e.servidor.rutas['POST /v1/auth/login'] = (_) => errorApi(423, 'CUENTA_BLOQUEADA', 'Cuenta bloqueada temporalmente', {
-            'bloqueado_hasta': hasta.toUtc().toIso8601String(),
-          });
-      await abrir(t);
-      await ingresar(t, 'agente1', 'cualquiera');
-      final hhmm = '${dosDigitos(hasta.hour)}:${dosDigitos(hasta.minute)}';
-      final restante = hasta.difference(clock.now()).inSeconds / 60;
-      final posibles = {restante.floor(), restante.ceil()}
-          .map((n) => 'Cuenta bloqueada temporalmente. Podrá volver a intentar a las $hhmm (en $n min).')
-          .toList();
-      await esperarQue(t, () => posibles.any((p) => find.text(p).evaluate().isNotEmpty),
-          razon: 'esperaba uno de $posibles');
-      expect(valor(t, T.clave), '');
-      habilitado(t, T.ingresar);
-      expect(find.text(T.credenciales), findsNothing);
+      // M-17 (vuelta 1): la hora se fija con withClock (CONTRATO-MIGRACION-FLUTTER §2, "Hora y
+      // temporizadores"). Con el reloj real, la prueba calculaba los minutos después que la app y
+      // en el borde de 900 s exactos esperaba "15" cuando la app ya había mostrado "16". Con la
+      // hora fija y el bloqueo a 15 min justos, el texto esperado es uno solo.
+      final ahora = DateTime(2026, 11, 25, 17, 9);
+      final hasta = ahora.add(const Duration(minutes: 15));
+      await withClock(Clock.fixed(ahora), () async {
+        e.servidor.rutas['POST /v1/auth/login'] = (_) => errorApi(423, 'CUENTA_BLOQUEADA', 'Cuenta bloqueada temporalmente', {
+              'bloqueado_hasta': hasta.toUtc().toIso8601String(),
+            });
+        await abrir(t);
+        await ingresar(t, 'agente1', 'cualquiera');
+        await esperarTexto(t, 'Cuenta bloqueada temporalmente. Podrá volver a intentar a las 17:24 (en 15 min).');
+        expect(valor(t, T.clave), '');
+        habilitado(t, T.ingresar);
+        expect(find.text(T.credenciales), findsNothing);
+      });
     });
   });
 
