@@ -73,11 +73,12 @@ def test_certbot_no_publica_puertos(vps):
 
 
 def test_proxy_del_vps_es_nginx_fijado(vps):
-    """§1 'Servicios' y §2 'Caddy desaparece': imagen oficial nginx con versión fijada."""
-    import re
-    imagen = str(vps["proxy"].get("image", ""))
-    m = re.fullmatch(r"(?:docker\.io/)?(?:library/)?nginx:([^@\s]+)(?:@sha256:[0-9a-f]{64})?", imagen)
-    assert m and m.group(1) not in ("latest", "stable", "mainline"), imagen
+    """§1 'Servicios' y §2 'Caddy desaparece' (arbitraje de la M-4): NGINX oficial con versión
+    x.y.z fijada, por `image:` o por `build:` con `FROM nginx:<x.y.z>`. La versión en marcha en el
+    VPS se compara con `COMANDOS-VPS.md` §7 (no hay VPS en esta PC)."""
+    from ayudas_nginx import version_fijada_del_proxy
+
+    version_fijada_del_proxy(vps["proxy"])
     assert not [n for n, x in vps.items() if "caddy" in str(x.get("image", "")).lower()]
 
 

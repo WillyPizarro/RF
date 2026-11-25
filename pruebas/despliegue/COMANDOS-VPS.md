@@ -108,6 +108,7 @@ $C --profile herramientas run --rm herramientas python -m app.cargar_usuarios   
 |---|---|
 | `sudo ss -tlnp \| awk 'NR>1 {print $4}' \| sort -u` | Hacia afuera, solo `:22`, `:80` y `:443` (más lo que escuche solo en `127.0.0.1`) |
 | `$C ps --format '{{.Service}} {{.Ports}}'` | Solo `proxy` con `0.0.0.0:80` y `0.0.0.0:443`; `certbot` sin puertos |
+| `$C exec proxy nginx -v` | `nginx version: nginx/<x.y.z>`, la **misma** versión fijada en el compose del VPS (`image: nginx:<x.y.z>` o el `FROM nginx:<x.y.z>` del `Dockerfile`; M-4) |
 
 ## 8. El APK de release no es depurable (§5, v2) — en la PC, sobre el APK descargado de la ruta
 

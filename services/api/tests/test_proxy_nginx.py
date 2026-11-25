@@ -321,15 +321,23 @@ def test_la_credencial_de_la_descarga_no_queda_en_los_logs_del_proxy(
 # --- §2 Caddy desaparece; imagen fijada -------------------------------------------------------
 
 def test_proxy_es_nginx_con_version_fijada(compose):
-    """§1 'Servicios': el proxy usa la imagen oficial nginx con una versión fijada (ni `latest`
-    ni sin etiqueta); ningún servicio usa caddy."""
+    """§1 'Servicios' (arbitraje de la M-4): el proxy es NGINX oficial con versión x.y.z fijada,
+    por `image:` o por `build:` con `FROM nginx:<x.y.z>`; con el contenedor arriba, la versión en
+    marcha (`nginx -v`) es la fijada. Ningún servicio usa caddy."""
+    from ayudas_nginx import version_en_marcha, version_fijada_del_proxy
+
     servicios = compose.config_json()["services"]
-    imagen = str(servicios["proxy"].get("image", ""))
-    m = re.fullmatch(r"(?:docker\.io/)?(?:library/)?nginx:([^@\s]+)(?:@sha256:[0-9a-f]{64})?", imagen)
-    assert m, f"el proxy no usa la imagen oficial nginx: {imagen!r}"
-    assert m.group(1) not in ("latest", "stable", "mainline"), f"versión no fijada: {imagen}"
+    fijada = version_fijada_del_proxy(servicios["proxy"])
     con_caddy = [n for n, s in servicios.items() if "caddy" in str(s.get("image", "")).lower()]
     assert not con_caddy, con_caddy
+    estado = compose.correr("ps", "--format", "{{.State}}", "proxy")
+    if "running" not in estado.stdout:
+        pytest.skip(f"versión fijada {fijada}; el contenedor proxy no está arriba: no se compara la "
+                    "versión en marcha (M-4: solo si está arriba)")
+    r = compose.correr("exec", "-T", "proxy", "nginx", "-v")
+    en_marcha = version_en_marcha(r.stdout + r.stderr)
+    assert en_marcha, f"no se reconoce la salida de nginx -v: {(r.stdout + r.stderr)[:200]!r}"
+    assert en_marcha == fijada, f"en marcha {en_marcha}, fijada {fijada}"
 
 
 def test_no_queda_el_caddyfile():
