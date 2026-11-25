@@ -176,3 +176,18 @@ Reemplaza: en el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` (`
 7. No compiles nada ni toques código. Tampoco abras la app: desde la sección 1 en adelante lo hace el humano.
 
 Al terminar, `ESTADO DEV` con: pasos OK/ROJO, huella de la CA, versionName y flags, G0/P0, y si hace falta el 0.6b.
+
+### M-12 (2026-11-25) — ROJO en el paso 1.2 de la S23: diagnóstico (DEV)
+
+Reemplaza: nada; amplía la M-11. En el S23, al iniciar sesión con `agente1` la app muestra "No se pudo completar la operación, intente nuevamente". Lo que se vio, solo leyendo:
+- PM: `adb reverse --list` muestra `UsbFfs tcp:8443 tcp:8443`; api, auth, db y simuladores están healthy y el proxy running. A la api no llegó ninguna solicitud del teléfono y auth no tiene logs. En logcat no hay nada con handshake, certif ni SocketException.
+- LEAD: desde el teléfono, `nc -z 127.0.0.1 8443` abre el puerto. Al arrancar, Caddy **renovó el certificado de `localhost`**, que había vencido durante la pausa, y la raíz sigue siendo la misma (`2d87078e…3e2ae30e`).
+
+**DEV**, solo diagnóstico. **No se cambia código, configuración versionada ni el APK en la sesión**:
+1. Comprueba qué hosts y puertos usa la app para la API y para auth (la `API_URL` del build y la ruta de login), y si todo pasa por `https://localhost:8443`.
+2. Desde el teléfono: `adb shell` con `curl` o `toybox`, si está, contra `https://localhost:8443/v1/salud`, y anota el resultado.
+3. Mira los logs del proxy y, si hace falta, súbeles el detalle **solo en el contenedor en marcha**, sin tocar el Caddyfile versionado. Así ves si llega el ClientHello del teléfono y qué error de TLS hay.
+4. Con `adb logcat` filtrado por el proceso de `pe.prototipo.movilbuscador`, reproduce el login y busca la excepción real (por ejemplo `HandshakeException`, `CERTIFICATE_VERIFY_FAILED` o `Connection refused`).
+5. Si el problema es la CA, prepara el 0.6b (`adb push` a `/sdcard/Download/`) y avísame con los pasos para el humano. Si es otra cosa, dime la causa y qué hace falta, sin aplicarlo, salvo que sea solo de entorno (reverse o contenedores) y no cambie archivos del repositorio.
+
+Al terminar, `ESTADO DEV` con: la causa y su evidencia (la línea del log), lo que hiciste y lo que necesitas del humano o de una decisión.
