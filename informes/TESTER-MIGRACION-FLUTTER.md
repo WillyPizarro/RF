@@ -5,6 +5,22 @@
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
 
+## 0-M15. Corrida M-15, punto 2 (2026-11-25, sobre `bb36969`: código del DEV `d81c6f9`, informe `bb36969` §13)
+
+Solo lo que pide la M-15 al TESTER; no es la suite completa.
+
+| Qué | Resultado |
+|---|---|
+| `flutter test` sobre HEAD sin la prueba nueva | **137/137** |
+| Prueba nueva de la obs. 7 (`hu03_hu07_test.dart`, "BIT-01 (M-15, obs. 7)…", criterio del TESTER que la M-15 deja abierto) | Teclea los dígitos `25112026` **uno por uno** en "Desde" y en "Hasta" (como el teclado de Samsung sin "/"), y comprueba que el campo muestra `25/11/2026`, que "Aplicar filtros" no da "Use fechas con el formato dd/mm/aaaa." y que `desde` y `hasta` salen **iguales** a los de escribir "25/11/2026" (no fija el formato del parámetro, que el contrato no dice). **Contra `875cb26` (antes del arreglo) falla** con `Actual: '25112026'`, lo mismo que vio el humano en S14; contra `d81c6f9` pasa. Corrida en un worktree temporal fuera del repositorio, ya borrado; no se miró el código del DEV |
+| `flutter test` con la prueba nueva | **138/138**; `flutter analyze test` sin avisos |
+| Casos de fecha inválida (`2026-11-19`, `19-11-2026`, `32/13/2026`, `ayer`) | Siguen en verde con el formateador: el error no cambió |
+| SHA-256 contra `SHA256SUMS.txt` nuevo | Coinciden: debug `5f62f6a4…b997085`, release `65799fb6…84c6bdc6` |
+| `revisar_ca_apk.py` sobre los dos APK | Los dos: "sin la CA ni archivos de certificado." (código 0) |
+| Guion | Tercera vuelta ("11 bis") con el commit y los SHA nuevos; T.1 desinstala el release `48f8117a` que quedó en el teléfono; T.4 dice que el teclado puede seguir sin "/" y la app la pone sola |
+
+En el teléfono quedan `NO VERIFICADO` hasta la tercera vuelta: S14 con Samsung Keyboard, S7 y S7b con las obs. 5 y 6, y el release nuevo (T.5 a T.8).
+
 ## 0-S23. Resultados de la mini sesión S23 (2026-11-25; paso 12.2, M-15)
 
 Fuente: `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md` (fuera del repositorio; los `adb` los corrió el DEV por la M-11 y la M-14, el PM dirigió y el humano operó el S23 Ultra `R5CW21ERL2L`, Android 16). El registro se copió del guion de la M-11: el 8.3b y los 11.6b a 11.11 estaban al final del archivo y aquí van cada uno en su paso (aviso del LEAD). Primera vuelta con el debug `987be377…` (ROJO en 1.2, M-12); desde 0.8 con el debug `6d6b0405…` y el release `48f8117a…` (contrato v1.5, M-13). Las capturas están en `…\s23\` y las juzga el UX (`docs/ux/revisiones/MIGRACION-FLUTTER.md`).
@@ -245,7 +261,7 @@ Nuevos: sin token → AUTH-01 sin solicitudes de sesión (M-1); retomar correcto
 | 62–64 | error al cargar la bitácora (3) | igual (3) |
 | 65 | lista vacía real | igual |
 
-Nuevos: "Cargando" mientras llegan el catálogo y la bitácora (§1.2).
+Nuevos: "Cargando" mientras llegan el catálogo y la bitácora (§1.2). **M-15 (obs. 7 del UX, S14):** "BIT-01 (M-15, obs. 7): tecleando 25112026 en 'Desde' y 'Hasta' se ve 25/11/2026 y sale la misma solicitud que con '25/11/2026'". No tiene un caso Jest: en Expo el teclado `numbers-and-punctuation` traía la "/". Falla antes del arreglo (`875cb26`) y pasa con `d81c6f9`.
 
 ### 3.4 `HU04_ocr.test.tsx` (45) → `hu04_ocr_test.dart` y `repositorio_test.dart`
 

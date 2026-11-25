@@ -558,6 +558,45 @@ void main() {
       expect(find.text(T.fechaInvalida), findsNothing);
     });
 
+    // M-15, obs. 7 del UX (BLOQUEA en el S23): con Samsung Keyboard el teclado de "Desde" y "Hasta"
+    // no tiene "/". Lo observable que pide la M-15: tecleando solo los dígitos 25112026, uno por uno,
+    // el campo muestra 25/11/2026 y la solicitud sale con la misma fecha que si se hubiera escrito
+    // "25/11/2026" (sin el error "Use fechas con el formato dd/mm/aaaa.").
+    Future<void> teclear(WidgetTester t, String etiqueta, String digitos) async {
+      for (final d in digitos.split('')) {
+        await t.enterText(campo(etiqueta), valor(t, etiqueta) + d);
+        await t.pump();
+      }
+    }
+
+    testWidgets('BIT-01 (M-15, obs. 7): tecleando 25112026 en "Desde" y "Hasta" se ve 25/11/2026 y sale la misma solicitud que con "25/11/2026"',
+        (t) async {
+      await abrirBitacora(t, (_) => pagina([registro(1, 'LOGIN_OK')]));
+      await desplegarFiltros(t);
+      var antes = pedidosBitacora().length;
+      await escribirFecha(t, 'Desde', '25/11/2026');
+      await escribirFecha(t, 'Hasta', '25/11/2026');
+      await aplicarFiltros(t);
+      await esperarQue(t, () => pedidosBitacora().length == antes + 1);
+      final conBarra = pedidosBitacora().last.consulta;
+      expect(conBarra['desde'], isNotNull);
+      expect(conBarra['hasta'], isNotNull);
+
+      await desplegarFiltros(t);
+      for (final etiqueta in ['Desde', 'Hasta']) {
+        await escribirFecha(t, etiqueta, '');
+        await teclear(t, etiqueta, '25112026');
+        expect(valor(t, etiqueta), '25/11/2026', reason: etiqueta);
+      }
+      antes = pedidosBitacora().length;
+      await aplicarFiltros(t);
+      await esperarQue(t, () => pedidosBitacora().length == antes + 1);
+      final soloDigitos = pedidosBitacora().last.consulta;
+      expect(soloDigitos['desde'], conBarra['desde']);
+      expect(soloDigitos['hasta'], conBarra['hasta']);
+      expect(find.text(T.fechaInvalida), findsNothing);
+    });
+
     final fallas = <(String, Resp)>[
       ('503', errorApi(503, 'SERVICIO_NO_DISPONIBLE', 'No se pudo completar la operación; intente nuevamente')),
       ('error de red', red),
