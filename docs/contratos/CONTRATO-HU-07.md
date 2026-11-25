@@ -1,11 +1,11 @@
 # CONTRATO — HU-07 Registrar cada consulta en una bitácora
 
 **Tipo:** Feature
-**Versión:** v4
-**Estado:** Aprobado (v1 a v4: 2026-11-19, humano vía PM)
+**Versión:** v5
+**Estado:** Aprobado (v1 a v4: 2026-11-19, humano vía PM) · **v5 pendiente de aprobación** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-07-bitacora-consultas.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 5 de 5
 **Rama de trabajo:** `hu-03`, la misma de HU-03 (CONTRATO-HU-03, decisión 1)
-**Pasa por UX:** Sí. Pantallas BIT-01 y BIT-02 (`docs/ux/wireframes/HU-07-bitacora-consultas.md`), revisadas con capturas de Jest y del emulador.
+**Pasa por UX:** Sí. Pantallas BIT-01 y BIT-02 (`docs/ux/wireframes/HU-07-bitacora-consultas.md`), revisadas con capturas de Jest y del emulador. **v5:** en Flutter, con capturas de `flutter_test` y del S23 Ultra (CONTRATO-MIGRACION-FLUTTER §10).
 
 ---
 
@@ -112,7 +112,7 @@ GET /v1/bitacora?usuario=<usuario>&desde=<ISO 8601>&hasta=<ISO 8601>&tipo=<TIPO_
 
 ## Rutas de cada rol
 
-Las mismas que CONTRATO-HU-03 (AGENTS.md). Las migraciones (`services/api/alembic/`) son del DEV.
+Las mismas que CONTRATO-HU-03 v5 (AGENTS.md). Las migraciones (`services/api/alembic/`) son del DEV.
 
 ## Decisiones propuestas (no venían en la tarea)
 
@@ -145,3 +145,4 @@ Respondidas por el humano (vía PM) el 2026-11-19:
 | v2 | 2026-11-19 | §1: la migración se corre con `docker compose … run --rm api alembic upgrade head` y la base destino va en `MIGRACION_DATABASE_URL` (rol dueño, en `infra/.env`, nunca versionada; si falta, la base del proyecto) | Pregunta del TESTER: el contrato no decía cómo correr la migración sobre una base vacía | Humano (vía PM), 2026-11-19 |
 | v3 | 2026-11-19 | §5: BIT-02 con título "Registro #<primeros 8 caracteres del id>" y el id completo en el campo "ID"; BIT-01 con los textos de los filtros ("Filtros", "Usuario", "Desde", "Hasta", "Tipo", "Resultado", "dd/mm/aaaa", "Aplicar filtros") y el error "Use fechas con el formato dd/mm/aaaa." | Revisión UX de HU-03/07, observaciones 1 y 3 (`docs/ux/revisiones/HU-03-07.md`) | Humano (vía PM), 2026-11-19 |
 | v4 | 2026-11-19 | §5: los filtros de BIT-01 pueden ir plegados bajo "Filtros ▾" y se despliegan con un toque | Veredicto de la vuelta 0, A6 (R6): el contrato no decía si iban a la vista o plegados | Humano (vía PM), 2026-11-19 |
+| v5 | 2026-11-24 | §5 se prueba con la interfaz de CONTRATO-MIGRACION-FLUTTER §2; revisión del UX con capturas de `flutter_test` y del S23 Ultra. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Pendiente |
