@@ -7,8 +7,10 @@
     1. trae el codigo desde origin (git fetch) y deja la carpeta en esa rama o commit;
     2. construye las imagenes;
     3. aplica las migraciones con el servicio "herramientas" (rol dueño de Supabase);
-    4. levanta api, simuladores y proxy (up -d --build);
-    5. espera a que https://<DOMINIO>/v1/salud responda 200.
+    4. levanta api, simuladores, proxy (NGINX) y certbot (up -d --build);
+    5. la primera vez, pide el certificado de Let's Encrypt con certbot (webroot por el puerto 80)
+       y recarga NGINX; despues certbot lo renueva solo (DESPLIEGUE-01 v2 §2);
+    6. espera a que https://<DOMINIO>/v1/salud responda 200.
   Con -CargarUsuarios, ademas corre app.cargar_usuarios (pide la credencial de administracion de
   Auth en el VPS si no esta en su .env; no queda guardada).
 
@@ -60,7 +62,7 @@ fi
 git log --oneline -1
 
 echo "== 2. Imagenes"
-$C --profile herramientas build api herramientas simuladores
+$C --profile herramientas build api herramientas simuladores proxy
 
 echo "== 3. Migraciones (rol dueño, servicio herramientas)"
 $C --profile herramientas run --rm herramientas python -m app.migrar
@@ -80,7 +82,19 @@ fi
 echo "== 4. Servicios"
 $C up -d --build --remove-orphans
 
-echo "== 5. Salud: https://$DOMINIO/v1/salud"
+echo "== 5. Certificado de Let's Encrypt para $DOMINIO"
+for i in $(seq 1 30); do $C exec -T proxy true 2>/dev/null && break; sleep 2; done
+if $C exec -T proxy test -s "/etc/letsencrypt/live/$DOMINIO/fullchain.pem"; then
+  echo "Ya existe; certbot lo renueva solo (servicio certbot)."
+else
+  CORREO="$(grep -E '^CERTBOT_EMAIL=' infra/.env | tail -1 | cut -d= -f2- | tr -d "'\"")"
+  if [ -n "$CORREO" ]; then OPC_CORREO="--email $CORREO --no-eff-email"; else OPC_CORREO="--register-unsafely-without-email"; fi
+  # NGINX ya sirve /.well-known/acme-challenge/ por el puerto 80 con un certificado provisional.
+  $C run --rm --entrypoint certbot certbot certonly --webroot -w /var/www/certbot     -d "$DOMINIO" $OPC_CORREO --agree-tos --non-interactive
+  $C exec -T proxy /usr/local/bin/movil-certificado-activo.sh --recargar
+fi
+
+echo "== 6. Salud: https://$DOMINIO/v1/salud"
 for i in $(seq 1 60); do
   codigo="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "https://$DOMINIO/v1/salud" || true)"
   if [ "$codigo" = "200" ]; then

@@ -149,18 +149,32 @@ services:
     restart: unless-stopped
 
   proxy:
-    image: caddy:2.10
+    # NGINX (DESPLIEGUE-01 v2 §1 y §2, ADR-0018): imagen oficial nginx:1.30.8-alpine + openssl
+    # (infra/nginx/Dockerfile). Solo /v1/* (hacia api:8000) y /descargas/movil-buscador.apk; el
+    # resto, 404. En local usa una CA propia generada al primer arranque (volumen proxy-certs, fuera
+    # del repositorio; se exporta con infra/exportar-ca-local.ps1). En el VPS, Let's Encrypt
+    # (docker-compose.vps.yml).
+    build: ./nginx
     environment:
       DOMINIO: ${DOMINIO:-localhost}
+      CERT_MODO: local
+      # Para que la redireccion de HTTP a HTTPS lleve el puerto publicado (8443 en local).
+      PROXY_PUERTO_HTTPS: ${PROXY_PUERTO_HTTPS:-443}
+      # Credencial unica de la descarga del APK (DESPLIEGUE-01 v2 §5, decision 5). El htpasswd se
+      # genera al arrancar y la clave no queda en el entorno de NGINX. Sin ellas, la ruta da 401.
+      DESCARGA_APK_USUARIO: ${DESCARGA_APK_USUARIO:-}
+      DESCARGA_APK_CLAVE: ${DESCARGA_APK_CLAVE:-}
     # Puertos publicados: 80 y 443 por defecto (VPS). En un equipo donde 80 esta ocupado (por
     # ejemplo por http.sys de Windows) se usan PROXY_PUERTO_HTTP y PROXY_PUERTO_HTTPS.
     ports:
       - "${PROXY_PUERTO_HTTP:-80}:80"
       - "${PROXY_PUERTO_HTTPS:-443}:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-datos:/data
-      - caddy-config:/config
+      - proxy-certs:/etc/nginx/certs
+      # Carpeta del anfitrion con movil-buscador.apk, de solo lectura (DESPLIEGUE-01 v2.1, anotacion).
+      # DESCARGA_APK_DIR es relativa a infra/ o absoluta; por defecto, una carpeta hermana del
+      # repositorio (fuera de el). En local, el TESTER pone ahi un archivo de prueba (decision 7).
+      - ${DESCARGA_APK_DIR:-../../movil-buscador-descargas}:/srv/descargas:ro
     depends_on:
       api:
         condition: service_healthy
@@ -176,5 +190,5 @@ networks:
 volumes:
   datos-bd:
   fotos-galeria:
-  caddy-datos:
-  caddy-config:
+  # CA local y certificados del proxy (fuera del repositorio).
+  proxy-certs:

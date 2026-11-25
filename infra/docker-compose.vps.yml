@@ -3,8 +3,9 @@
 # NUNCA con docker-compose.fotos.yml: en el VPS no hay fotos (ADR-0008).
 #
 # - db, auth-preparar y auth quedan fuera (perfil "solo-local"): la base y Auth los da Supabase.
-# - api, simuladores y proxy corren igual que en local. El proxy publica 80 y 443 (sin
-#   PROXY_PUERTO_* en el .env del VPS) y Caddy pide el certificado a Let's Encrypt con DOMINIO.
+# - api, simuladores y proxy (NGINX) corren igual que en local. El proxy publica 80 y 443 (sin
+#   PROXY_PUERTO_* en el .env del VPS) y usa el certificado de Let's Encrypt que emite y renueva
+#   certbot (modo webroot por el puerto 80; DESPLIEGUE-01 v2 §2, ADR-0018 §2).
 # - La API en marcha no recibe ninguna credencial de administracion: ni la de Auth, ni la del rol
 #   dueño de la base, ni la clave de los usuarios (DESPLIEGUE-01 §3, decision 1). Esas solo las
 #   recibe el servicio "herramientas", que se corre a mano para migrar y cargar usuarios.
@@ -59,3 +60,32 @@ services:
     command: ["python", "-c", "print('Use: run --rm herramientas python -m app.migrar | app.cargar_usuarios')"]
     networks: [interna]
     restart: "no"
+
+  proxy:
+    environment:
+      CERT_MODO: letsencrypt
+    volumes:
+      # Certificados de Let's Encrypt (solo lectura) y la carpeta del desafio de certbot.
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+
+  # Renueva el certificado cada 12 h (certbot renew no hace nada si faltan mas de 30 dias). La
+  # primera emision la hace scripts/desplegar.ps1 (certbot certonly --webroot). No publica puertos;
+  # el proxy toma el certificado renovado con su recarga periodica.
+  certbot:
+    image: certbot/certbot:v5.10.0
+    entrypoint: ["/bin/sh", "-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    networks: [salida]
+    restart: unless-stopped
+
+networks:
+  # Solo para que certbot hable con Let's Encrypt.
+  salida:
+
+volumes:
+  letsencrypt:
+  certbot-webroot:
+

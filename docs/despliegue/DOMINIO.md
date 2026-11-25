@@ -30,8 +30,8 @@ documentos lo llama `<DOMINIO>`.
 
 3. Guarde. **No** cree un registro `AAAA` (IPv6), salvo que el VPS tenga IPv6 y el firewall la permita.
 
-El proxy de Cloudflare tiene que estar **apagado**: Caddy, en el VPS, pide el certificado
-directamente a Let's Encrypt y necesita recibir la conexión.
+El proxy de Cloudflare tiene que estar **apagado**: `certbot`, en el VPS, pide el certificado
+directamente a Let's Encrypt, y Let's Encrypt necesita llegar al puerto 80 del VPS para validarlo.
 
 ## 4. Comprobar
 
