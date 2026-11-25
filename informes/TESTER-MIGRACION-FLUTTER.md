@@ -1,15 +1,15 @@
 # Informe TESTER — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (con la M-1 a la M-9 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
-**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-9).
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (con la M-1 a la M-10 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
+**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-10).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
-**Estado:** **corrida M-9** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado: `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 en verde y los dos APK nuevos en verde. **Pendiente:** `test_hu04_sin_cache.py` contra el compose, **bloqueado** porque pytest no está instalado en el anfitrión (escalado al humano por el LEAD; llega como M-n). Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. Antes: `ENTREGA TESTER` parcial M-5.
+**Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
 
 ## 0. Corrida M-9 (2026-11-24, sobre `6790594`)
 
 | Paso de la M-9 | Comando | Resultado |
 |---|---|---|
-| 1 | `PROXY_DISPONIBLE=1 python -m pytest services/api/tests/test_hu04_sin_cache.py --integracion --url-base https://localhost:8443` (14 casos por la red interna y 14 por el proxy), con el compose arriba desde esta carpeta (`https://localhost:8443/v1/salud` → `200`) | **NO EJECUTADO, bloqueado:** `No module named pytest` en el Python del anfitrión (`Python313`); no hay venv en las carpetas del proyecto. Pregunté al LEAD; lo escaló al humano con la propuesta de un venv en `C:\Willy\Trabajo\MININTER\venv-pruebas` (fuera del repositorio) con solo `pytest==9.2.0`. No instalé nada |
+| 1 | `PROXY_DISPONIBLE=1 C:\Willy\Trabajo\MININTER\venv-pruebas\Scripts\python.exe -m pytest services/api/tests/test_hu04_sin_cache.py --integracion --url-base https://localhost:8443 -rA`, desde la raíz, con el compose arriba desde esta carpeta (`/v1/salud` → `200`) | **`28 passed in 28.36s`**: los 14 casos por la red interna y los 14 por el proxy, **ninguno omitido** (`PROXY_DISPONIBLE=1`). Toda respuesta de `/v1/*` (200, 401, 403, 404, 405 y 422) lleva `Cache-Control: no-store`. Primero estuvo bloqueado: no había pytest en el anfitrión. Lo resolvió la M-10 (venv aparte, ver §6). Después el compose siguió arriba y sano, con la configuración por defecto (`config_defecto`) |
 | 2 | `flutter analyze` en `apps/movil` | **`No issues found!`** |
 | 2 | `flutter test` en `apps/movil` | **`+137: All tests passed!`** (120 de la app y 17 de `repositorio_test`) |
 | 2 | §1.3 v1.4: `git diff --stat main...HEAD -- services/ contratos/` | Solo `services/api/app/traza.py` (DEV, `36d174a`) y `services/api/tests/test_hu04_sin_cache.py` (TESTER, `3bcee92`). Las líneas cambiadas de `traza.py` son **las mismas** que en `0ccd8fb` (comparadas con `diff`) |
@@ -267,6 +267,7 @@ C:\Programas_Portables\flutter_3.50.1\flutter\bin\flutter.bat test
 |---|---|
 | Flutter | 3.50.1 (stable), Dart 3.14.0, instalación compartida del DEV en `C:\Programas_Portables\flutter_3.50.1\flutter` (M-2). El TESTER no instaló nada propio |
 | Android SDK | `C:\Android` (del DEV) |
+| **venv de pytest (M-10)** | `C:\Willy\Trabajo\MININTER\venv-pruebas`, fuera del repositorio, creado con el Python 3.13.5 del anfitrión (`python -m venv`). Instalado **solo** `pytest==9.2.0` (la versión de `services/api/pyproject.toml`) con el `pip` del venv; llegaron sus dependencias obligatorias `colorama` 0.4.6, `iniconfig` 2.3.1, `packaging` 26.4, `pluggy` 1.7.0 y `Pygments` 2.21.0. El Python del sistema no se tocó. **Se borra al cierre de la migración:** `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\venv-pruebas` |
 
 `flutter --version` (2026-11-24):
 
@@ -291,6 +292,7 @@ Tools • Dart 3.14.0 • DevTools 2.61.0
 
 ## 7. NO VERIFICADO (por diseño o por ahora)
 
+- **Al cierre de la migración**, borrar el venv de la M-10: `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\venv-pruebas` (va al acta de eliminación con la CA de Caddy y la llave de firma).
 - **Qué hace en la red `play-services-mlkit-*`** (§7 v1.2): NO VERIFICADO por decisión del humano (opción A).
 - **PLA-02 "con el foco ahí"** (HU-03 §6): no lo verificaba Jest; con un selector de motivo, el foco no es observable de forma estable en `flutter_test`. Queda para la revisión del UX.
 - **PLA-07 "ícono y color distintos"** y **PLA-06 "gris, sin verde"**: se verifica la ausencia de ✓; el color queda para el UX.
