@@ -264,6 +264,8 @@ class _EstadoPantallaOcr extends State<PantallaOcr> {
             ),
             const SizedBox(height: 8),
             Semantics(
+              // Nodo propio: la etiqueta queda exacta (el texto de ayuda no se le suma).
+              container: true,
               label: 'Placa leída',
               child: TextField(
                 controller: _leida,

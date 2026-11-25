@@ -288,6 +288,8 @@ class CampoTexto extends StatelessWidget {
         );
     final normal = conError ? borde(Colores.errorBorde, 2) : borde(Colores.borde, 1);
     return Semantics(
+      // Nodo propio: la etiqueta queda exacta (el texto de ayuda no se le suma).
+      container: true,
       label: etiqueta,
       child: TextField(
         controller: controlador,
@@ -303,7 +305,12 @@ class CampoTexto extends StatelessWidget {
         style: estilo ?? const TextStyle(fontSize: 17, color: Colores.texto),
         decoration: InputDecoration(
           isDense: true,
-          hintText: pista,
+          // La ayuda no entra en la etiqueta de accesibilidad: el campo se encuentra por su nombre.
+          hint: pista == null
+              ? null
+              : ExcludeSemantics(
+                  child: Text(pista!, style: const TextStyle(fontSize: 15, color: Colores.tenue)),
+                ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           enabledBorder: normal,
           border: normal,

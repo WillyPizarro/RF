@@ -572,6 +572,8 @@ class _CampoPlaca extends StatelessWidget {
         );
     final normal = conError ? borde(Colores.errorBorde, 2) : borde(Colores.borde, 1);
     return Semantics(
+      // Nodo propio: la etiqueta queda exacta (el texto de ayuda no se le suma).
+      container: true,
       label: 'Placa',
       child: TextField(
         controller: controlador,
@@ -589,7 +591,13 @@ class _CampoPlaca extends StatelessWidget {
         ),
         decoration: InputDecoration(
           isDense: true,
-          hintText: 'ABC-123',
+          // La ayuda no entra en la etiqueta de accesibilidad ("Placa" exacto).
+          hint: const ExcludeSemantics(
+            child: Text(
+              'ABC-123',
+              style: TextStyle(fontFamily: 'monospace', fontSize: 22, color: Colores.tenue),
+            ),
+          ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           enabledBorder: normal,
           border: normal,
