@@ -1,6 +1,6 @@
 # ENCARGO LEAD → TESTER y DEV — MIGRACION-FLUTTER
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1**, aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
+**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.1** (M-1), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
 **Rama:** `migracion-flutter` (rebasada sobre `main` `1204a77`, que ya tiene los ADR-0017 a 0020), en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
 **Plazo:** del 26-nov al 5-dic. Mini sesión física el **jueves 4-dic** o antes. Veredicto el 5 y 6-dic.
 **Pasa por UX:** sí, todas las pantallas (contrato §10).
@@ -54,3 +54,10 @@
 ## Secciones M-n
 
 Las aclaraciones de este ciclo se agregan abajo como `M-1`, `M-2`, … Cada una dice qué reemplaza. Los mensajes de herdr solo dicen "lee M-n del encargo".
+
+### M-1 (2026-11-24) — Contrato v1.1 (TESTER y DEV)
+
+Reemplaza: la §1.2 ("Retomar la sesión") y la §5 (fila "Pruebas de la app") de la v1. El humano (vía PM) aprobó la v1.1 por los dos huecos que reportó el TESTER:
+
+1. **`PantallaEstado` no se porta.** Ni el DEV la construye ni el TESTER porta `PantallaEstado.test.tsx`. En la matriz queda como "no se porta: pantalla del Sprint 0 que la app no monta".
+2. **"Retomar la sesión" (§1.2) con la secuencia exacta de la referencia:** al abrir la app con un token de renovación guardado, **primero** `POST /v1/auth/refresh` con ese token y **después** `GET /v1/me` con el token de acceso nuevo, y se va al inicio del rol. **Sin token guardado: AUTH-01**, sin enviar ninguna solicitud de sesión. El TESTER lo prueba con el orden de las solicitudes del `MockClient`; el DEV lo implementa así.

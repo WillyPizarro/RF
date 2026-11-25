@@ -1,8 +1,8 @@
 # CONTRATO — MIGRACION-FLUTTER La app móvil en Flutter (HU-01, 02, 03 y 07, más HU-04)
 
 **Tipo:** Refactor (HU-01, HU-02, HU-03 y HU-07 en la app: el comportamiento no cambia) + Feature (HU-04, construida directo en Flutter)
-**Versión:** v1
-**Estado:** Aprobado (humano vía PM, 2026-11-24)
+**Versión:** v1.1
+**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1 aprobada (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
 **Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `main` `1204a77` (con los ADR-0017 a 0020). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
@@ -83,7 +83,7 @@ El TESTER lo confirma contra la referencia `hu-04-expo-referencia` (las pruebas 
 
 | Caso | Comportamiento | Origen |
 |---|---|---|
-| Retomar la sesión | Al abrir la app con un token guardado, la app pide `GET /v1/me` y va al inicio de su rol, sin pasar por AUTH-01 | `App.tsx` (`restaurar`), pruebas `HU01_retomar_*` |
+| Retomar la sesión (**v1.1**) | Al abrir la app con un token de renovación guardado, la app manda **primero** `POST /v1/auth/refresh` con ese token y **después** `GET /v1/me` con el token de acceso nuevo, y va al inicio de su rol sin pasar por AUTH-01. **Sin token guardado, muestra AUTH-01** sin enviar ninguna solicitud de sesión | `controlador.ts` (`restaurar`) de la referencia, pruebas `HU01_retomar_*` · **v1.1** |
 | Retomar con la sesión vencida | Si ese `GET /v1/me` (o la renovación) responde `401 SESION_VENCIDA`, la app muestra AUTH-03 ("Su sesión se cerró por inactividad. Ingrese de nuevo.") y el almacenamiento queda vacío | `ENCARGO-HU-01-02.md` A1, `PENDIENTES.md` (HU-03) |
 | Retomar con todo vencido | Si el token de acceso y el de renovación ya no sirven (`401` en los dos), la app muestra AUTH-01 o AUTH-03 tal como lo hace hoy la referencia (el TESTER fija cuál en su informe) y el almacenamiento queda vacío | `HU01_retomar_todo_vencido.test.tsx` |
 | Volver del segundo plano | Si la app vuelve del segundo plano después de más de `inactividad_s` sin interacción, muestra AUTH-03 | `App.tsx` (`revisarAlVolver`, `AppState`) |
@@ -207,7 +207,7 @@ abstract class LectorPlaca {
 | Pruebas Jest | `apps/movil/__tests__/` (7 archivos en la referencia) | No existe | `git ls-files apps/movil/__tests__` vacío |
 | Dependencias de Expo | `expo`, `react-native` y los paquetes `@react-native-*` / `expo-*` | Ninguna mención en `apps/movil/pubspec.yaml` ni en `apps/movil/android/` | `grep -ri "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` vacío |
 | Análisis estático | — | `flutter analyze` sin errores ni avisos en `apps/movil/` | Comando |
-| Pruebas de la app | Jest: 111/111 en el veredicto parcial de HU-04 | Cada caso de las pruebas Jest de la referencia tiene su equivalente en `flutter_test` (los casos se mantienen; el código no), más los de M-9 a M-12 que faltaban | Matriz del TESTER en `informes/TESTER-MIGRACION-FLUTTER.md`: caso Jest → prueba Dart |
+| Pruebas de la app | Jest: 111/111 en el veredicto parcial de HU-04 | Cada caso de las pruebas Jest de la referencia tiene su equivalente en `flutter_test` (los casos se mantienen; el código no). **Excepción (v1.1):** `PantallaEstado.test.tsx` no se porta y queda en la matriz como "no se porta: pantalla del Sprint 0 que la app no monta", más los de M-9 a M-12 que faltaban | Matriz del TESTER en `informes/TESTER-MIGRACION-FLUTTER.md`: caso Jest → prueba Dart |
 
 El historial no se reescribe: el código Expo queda en `main` hasta el merge y en la etiqueta `hu-04-expo-referencia`.
 
@@ -258,6 +258,7 @@ Lo que necesite el teléfono y no se pueda hacer a tiempo queda `NO VERIFICADO` 
 | Pantallas y textos de HU-01, 02, 03 y 07 | Los mismos (§1.1); el prototipo de UX (`docs/ux/prototipo/`) no cambia |
 | `contratos/api/openapi.json` | Fuente de los modelos de la app. Cómo se generan (`openapi-generator` u otro) lo decide el DEV, siempre que la red pase por `clienteHttp` (§2) |
 | `eas.json`, `app.json`, `plugins/`, `package.json` | **No se reutilizan**: desaparecen |
+| `PantallaEstado` (pantalla de salud del Sprint 0) y su prueba | **No se porta (v1.1):** la app no la monta y ningún contrato de la app la nombra |
 
 ### 10. Revisión del UX y orden del cierre
 
@@ -336,3 +337,4 @@ Respuestas del humano (vía PM, 2026-11-24):
 | Versión | Fecha | Cambio | Motivo | Aprobado por |
 |---|---|---|---|---|
 | v1 | 2026-11-24 | Versión inicial | Encargo PM → LEAD (2026-11-24), tarea 2: migración de la app a Flutter (ADR-0017, escenario 1) | Humano (vía PM), 2026-11-24, con las respuestas 1 a 4 |
+| v1.1 | 2026-11-24 | §1.2: "Retomar la sesión" con la secuencia exacta de la referencia (`POST /v1/auth/refresh` con el token de renovación guardado, después `GET /v1/me` con el token nuevo; sin token, AUTH-01). §5 y §9: `PantallaEstado` y su prueba no se portan | Huecos que reportó el TESTER al armar la matriz (la §1.2 no coincidía con la referencia; la §5 no decía qué hacer con una pantalla que la app no monta) | Humano (vía PM), 2026-11-24 |
