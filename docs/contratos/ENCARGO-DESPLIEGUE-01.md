@@ -1,6 +1,6 @@
 # ENCARGO LEAD → DEV y TESTER — DESPLIEGUE-01
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v1**, aprobado por el humano (vía PM) el 2026-11-19. Es la única spec.
+**Documento de trabajo:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1** (aprobado por el humano vía PM el 2026-11-25; la fase B va en la M-3). La v1 (2026-11-19) rigió la fase A. Es la única spec.
 **Rama:** `despliegue-01`, desde `main` `fa75945`. **Se trabaja en un worktree aparte**, `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`, para no pisar `hu-04` en la carpeta principal. Ahí no está `infra/.env` (no se versiona): si lo necesitas, cópialo desde la carpeta principal y **no lo agregues a git**. Tampoco están las dependencias: corre `npm ci` en `apps/movil` si te hacen falta.
 **Bloqueo:** el humano contrata el VPS, el dominio y Supabase **a más tardar el 2-dic**. La ventana de despliegue es del 3 al 7-dic. **Fase A (ahora):** todo lo que no necesita el VPS. **Fase B (3 al 7-dic):** el despliegue real, con una M-n.
 **Prioridad:** HU-04 va primero. Esto avanza en los huecos y **no la frena**.
@@ -72,3 +72,52 @@ Se abre con una M-n cuando el humano tenga el VPS, el dominio y Supabase. La ver
 **No reemplaza nada.** El humano aprobó el anexo del BA, `docs/hus/anexos/HU-04-aviso-telemetria-mlkit.md` (commit `6eafcd1`, rama `hu-04`). Ese anexo no está en esta rama: léelo con `git show 6eafcd1:docs/hus/anexos/HU-04-aviso-telemetria-mlkit.md`.
 
 - **DEV:** **después** de entregar la M-9 a la M-12 de HU-04, que tienen prioridad, copia **tal cual** el §2 del anexo en `docs/despliegue/GUIA-PROBADORES.md`. Ponlo como una sección sobre la lectura de la placa con la cámara y aclara que **se aplica desde el despliegue que incluya HU-04**: el APK de la Iteración 1 no tiene cámara. No cambies el texto. Commit `[DEV]` en `despliegue-01` y avisa con `ENTREGA DEV`.
+
+### M-3 (2026-11-25) — Contrato v2.1: fase B (NGINX, APK de Flutter por descarga) y verificación de red de ML Kit (DEV y TESTER)
+
+Reemplaza: el documento de trabajo pasa a ser `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1**, aprobado tal cual por el humano vía PM el 2026-11-25. Del encabezado quedan reemplazados la v1 y `main` `fa75945`, y de la fase A, el perfil de EAS. La rama `despliegue-01` está rebasada sobre `main` `889a91b`, que ya trae la app Flutter (PR #1). Las reglas 1 a 5 siguen; en la 2, los "tokens de EAS" pasan a ser la llave de firma del APK, `DESCARGA_APK_CLAVE` y las CA. Sin push ni merge.
+
+**Además (decisión del humano, 2026-11-25):** la verificación de red de ML Kit, **niveles 1 y 2** de la "Propuesta 2026-11-25" de `docs/arch/evaluaciones/HU-04-telemetria-mlkit.md` (`889a91b`), se hace **en la misma sesión del teléfono** que el login contra NGINX y la prueba por descarga. El nivel 3 no entra.
+
+**Antes de la sesión, B1 (sin VPS):**
+
+**DEV:**
+1. **NGINX en el compose local y en el del VPS**, según §1 y §2 del contrato:
+   - el servicio `proxy` con la imagen `nginx` fijada;
+   - `certbot` solo en el VPS;
+   - TLS 1.2 y 1.3, la redirección a HTTPS, las cabeceras, `client_max_body_size 5m` y el registro sin `Authorization`;
+   - la CA local generada por un script de `infra/`, fuera del repositorio;
+   - fuera `infra/Caddyfile` y la imagen `caddy`.
+2. **La ruta `/descargas/movil-buscador.apk`** (§5), con un volumen de solo lectura, autenticación básica y el `htpasswd` generado desde `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE`. En local sirve el archivo de prueba del TESTER (decisión 7).
+3. **`scripts/publicar-apk.ps1`** (§6) y `desplegar.ps1` con `certbot`.
+4. **Borrar `apps/movil/eas.json`**, lo único que tocas en `apps/movil/`. Saca EAS y Caddy de `docs/despliegue/`: el manual y la guía van con NGINX, la descarga y la desinstalación de la app anterior (§7).
+5. `.gitignore`: agrega `*.apk`, `*.aab` y los certificados.
+6. **Verificación local:**
+   - el compose arriba con NGINX;
+   - `/v1/salud` responde `200` por `https://localhost:8443`;
+   - `curl` contra la ruta del APK da `401`, `200` y `404`;
+   - un APK de depuración de `main` instalado no hace falta todavía.
+7. **Preparación de la red de ML Kit**, fuera del repositorio. Usa los programas que hagan falta sin dejarlos en el repositorio; las versiones van en el informe.
+   - **mitmproxy** (MIT) y **`protoc`** en la PC.
+   - **PCAPdroid** (GPL-3.0): el APK de F-Droid o el enlace de Google Play para el humano.
+   - **La captura**, en `C:\Willy\Trabajo\MININTER\flutter-capturas\red\`.
+   - **Cómo pasa el tráfico del S23 por mitmproxy:** por ejemplo, el proxy global con `adb` y `adb reverse`. Pruébalo **sin el teléfono** en lo que se pueda, y deja escrito cómo se deshace.
+8. Informe `informes/DEV-DESPLIEGUE-01.md` con una sección v2.1 y `ENTREGA DEV: B1 <commit>`.
+
+**TESTER:**
+1. **Pruebas de NGINX en local** (Qué prueba quién, primera fila) en `services/api/tests/`, con un **archivo de prueba** (no un APK) en el volumen.
+2. **`test_despliegue_vps.py`:** las referencias a Caddy pasan a NGINX y se suman la ruta del APK (`401`, `200` con el SHA-256 y `404`) y la redirección a HTTPS. Se siguen omitiendo sin `URL_VPS`.
+3. **Guion de la sesión del teléfono**, en `pruebas/datos/`: uno nuevo o una sección del de la migración. En orden:
+   - **(a)** Quitar la CA de Caddy del S23 y de `ca-local`. Instalar la CA local de NGINX y hacer un login de `agente1` con el APK de depuración contra el compose local.
+   - **(b)** Nivel 1 con PCAPdroid: la app, después `com.google.android.gms`, y el OCR de una placa `ZZ` impresa.
+   - **(c)** Nivel 2 con mitmproxy y el APK de depuración, con la CA de mitmproxy como CA de usuario, y `protoc --decode_raw` sobre la subida.
+   - **(d)** Cuando exista el VPS: la prueba por descarga (§5, "Funciona sin cable") con el APK de release.
+   - **(e)** Limpieza: desinstalar PCAPdroid, quitar la CA de mitmproxy, quitar el proxy del teléfono y borrar `flutter-capturas\red\`.
+
+   Si hace falta, amplía `revisar_datatransport.py` para que descomprima el cuerpo y busque `ZZ` o imágenes en lo capturado. Solo categorías, dominios y conteos van al informe, **nunca** identificadores.
+4. **Regresión local con NGINX**, solo de lo que toca el proxy: `test_hu04_sin_cache.py` por el proxy, la clave fuera de los logs y las pruebas nuevas. La suite completa va después, con una M-n.
+5. `ESTADO TESTER` con el commit del guion y los resultados.
+
+**La sesión** (DEV con los `adb` y el humano en el teléfono, coordinados por el PM, como en la M-14 de la migración) se arma cuando lleguen las dos entregas de B1. **Fase B2 (VPS):** cuando el humano dé el VPS, el dominio y Supabase, con otra M-n. **Al final**, el ARCH actualiza la evaluación con el resultado de los niveles 1 y 2.
+
+Al terminar: DEV con `herdr agent prompt lead "ENTREGA DEV: ..."`, TESTER con `"ESTADO TESTER: ..."`.
