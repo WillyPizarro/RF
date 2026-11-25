@@ -1,9 +1,23 @@
 # Informe TESTER — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (con la M-1 a la M-10 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
-**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-10).
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.5** (con la M-1 a la M-13 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
+**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-13).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
+
+## 0-M13. Corrida M-13 (2026-11-25, contrato v1.5, sobre `c237762`: código del DEV `a15535f` y `29617a7`, informe `9c80864`)
+
+Solo lo que pide la M-13 al TESTER; no es la suite completa.
+
+| Qué | Resultado |
+|---|---|
+| `flutter test` (Flutter 3.50.1) en `apps/movil` | **137/137**. No cambió ningún caso (v1.5: las pruebas siguen con `MockClient`) |
+| SHA-256 contra `SHA256SUMS.txt` nuevo | Coinciden: debug `6d6b0405…bef3c8`, release `48f8117a…2ed008` |
+| `revisar_ca_apk.py` con `ca-local\caddy-root.crt` sobre los dos APK (v1.5 §6, paso 11.6b) | Los dos: "sin la CA ni archivos de certificado." (código 0) |
+| Paso 11.2 a 11.6 sobre los APK nuevos | Release: `pe.prototipo.movilbuscador`, "Movil Buscador", sin `application-debuggable`; `allowBackup` y `usesCleartextTraffic` en `0x0`, `networkSecurityConfig` presente; modelo de ML Kit dentro; firma `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE`. Debug: `application-debuggable` y `CN=Android Debug` (control). Tamaños: debug 236 277 571 B, release 82 177 616 B |
+| Guion | Commit y SHA de los APK nuevos en "APK de la sesión" (ya no hay `PENDIENTE`) |
+
+En el teléfono quedan `NO VERIFICADO` hasta la segunda vuelta de la S23: el login con el debug (1.2), la caché de OkHttp (8.3b y 8.5) y el login con el release que tiene que fallar (11.7 a 11.11).
 
 ## 0-25nov. Preparación de la mini sesión S23 (2026-11-25, tras el reinicio; encargo del PM)
 
