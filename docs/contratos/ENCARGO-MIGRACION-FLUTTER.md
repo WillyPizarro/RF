@@ -150,3 +150,14 @@ Reemplaza: el punto 2 de la M-7 y el punto 2 de la M-8 del TESTER. El DEV entreg
 4. **No bajes el compose:** queda arriba para la mini sesión del 25-nov.
 
 Al terminar: `ESTADO TESTER` con el resultado.
+
+### M-10 (2026-11-24) — pytest en un venv aparte (TESTER)
+
+Reemplaza: la regla 7 del encargo, solo para este caso. El humano (vía PM) autoriza **un venv aparte** en `C:\Willy\Trabajo\MININTER\venv-pruebas`, **fuera del repositorio**, con **solo `pytest==9.2.0`** (la versión de `services/api/pyproject.toml`). No toques el Python del sistema ni instales nada más.
+
+**TESTER:**
+1. Crea el venv con el Python 3.13 del anfitrión (`python -m venv C:\Willy\Trabajo\MININTER\venv-pruebas`) e instala solo `pytest==9.2.0` con el `pip` de ese venv.
+2. Con ese `pytest`, corre el punto 1 de la M-9: `services/api/tests/test_hu04_sin_cache.py` contra el compose (14 casos por la red interna y 14 por el proxy), como en HU-04 (`PROXY_DISPONIBLE=1 … --integracion`). No bajes el compose.
+3. Anota en tu informe la ruta del venv, la versión y que **se borra al cierre de la migración** (`Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\venv-pruebas`).
+
+Al terminar: `ESTADO TESTER` con el resultado.
