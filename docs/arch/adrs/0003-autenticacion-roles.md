@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+Aceptado (2026-11-18). **Precisión documentada (2026-11-24, PA #38):** el [ADR-0020](0020-keycloak-al-final.md) (aceptado) describe cómo cambiar el verificador de la clave del punto 3 de Supabase Auth a Keycloak después del MVP, sin cambiar los roles ni que el inicio de sesión pase por la API. En el MVP este ADR rige sin cambios. El PA #2 (opciones B, C y E) **no** reabre este ADR hasta que responda el MININTER ([estimado](../evaluaciones/PA-02-estimado-opciones.md)).
 
 ## Contexto
 

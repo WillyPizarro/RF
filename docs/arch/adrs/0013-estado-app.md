@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+Aceptado (2026-11-18). **Precisado por el [ADR-0017](0017-app-movil-flutter-mlkit.md) (2026-11-24):** con la app en Flutter, el estado en memoria se lleva con Riverpod o `ChangeNotifier` y el token con `flutter_secure_storage`. Las reglas (nada en disco salvo el token, limpieza al cerrar sesión) no cambian.
 
 ## Contexto
 

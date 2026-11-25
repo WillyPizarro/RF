@@ -12,7 +12,7 @@
     { "id": "revisor", "type": "external", "label": "Revisor humano", "sublabel": "rol revisor", "icon": "person", "pos": [40, 180], "size": [160, 64] },
     { "id": "supervisor", "type": "external", "label": "Supervisor", "sublabel": "rol supervisor", "icon": "person", "pos": [40, 320], "size": [160, 64] },
     { "id": "sistema", "type": "backend", "label": "Movil Buscador", "sublabel": "App móvil + API FastAPI", "tag": "datos sintéticos", "pos": [440, 40], "size": [220, 344] },
-    { "id": "supabase", "type": "cloud", "label": "Supabase", "sublabel": "Auth (JWT) + Postgres", "pos": [880, 40], "size": [190, 64] },
+    { "id": "supabase", "type": "cloud", "label": "Supabase", "sublabel": "Auth (clave) + Postgres", "pos": [880, 40], "size": [190, 64] },
     { "id": "simuladores", "type": "backend", "label": "Fuentes simuladas", "sublabel": "placas · requisitorias · galería", "pos": [880, 180], "size": [200, 64] },
     { "id": "reales", "type": "external", "label": "Fuentes reales MININTER", "sublabel": "fuera del MVP (PA #6, #17)", "pos": [880, 320], "size": [200, 64] }
   ],

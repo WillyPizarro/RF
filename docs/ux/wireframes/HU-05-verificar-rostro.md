@@ -17,6 +17,7 @@
 | 7 | Sin coincidencia en la lista consultada | E4 | ROS-07 |
 | 8 | No se pudo completar | E5 El servicio de comparación no responde (y HU-08 E3) | ROS-08 |
 | 9 | Sin permiso de cámara | E6 El usuario negó el permiso; E7 El permiso se retiró antes de capturar | ROS-09 |
+| 10 | Elija un rostro (foto con varias personas) | E8, E9 y E10 (aprobados 2026-11-20; sin desarrollo) | ROS-10, en [HU-05-variante-varias-personas.md](HU-05-variante-varias-personas.md) |
 
 ### ROS-01 — Motivo (paso 1 de 2)
 ```
@@ -45,8 +46,9 @@
 │░░░░░░░░│  óvalo   │░░░░░░░░░░│
 │░░░░░░░░│  guía    │░░░░░░░░░░│
 │░░░░░░░░╰──────────╯░░░░░░░░░░│
-│ Rostro de frente, buena luz, │
-│ una sola persona.            │
+│ Rostro de frente, buena luz. │
+│ Si hay varias personas,      │
+│ después elegirá una.         │
 │ ┌ - - - - - - - - - - - - -┐ │
 │ │ Aviso a la persona —     │ │
 │ │ por definir      [PA 25] │ │
@@ -65,7 +67,7 @@
 │  comparar.                   │
 │  [   REPETIR CAPTURA      ]  │
 ```
-- Motivos posibles (de E2 y de la skill de biometría): "Mire de frente", "Más luz", "Imagen borrosa", "Solo debe aparecer una persona", "No se detectó un rostro".
+- Motivos posibles (de E2 y de la skill de biometría): "Mire de frente", "Más luz", "Imagen borrosa", "No se detectó un rostro". Desde el 2026-11-20 (E8 y E10) ya no se rechaza por "más de un rostro"; se agregan "Hay más de 5 personas en la foto" y "Los rostros están muy juntos" (ver la variante).
 - No muestra la foto rechazada.
 
 ### ROS-04 — Comparando

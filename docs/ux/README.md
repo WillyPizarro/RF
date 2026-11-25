@@ -22,7 +22,10 @@ Estado: **aprobado por el usuario (vía BA) el 2026-11-18**: elementos no solici
 | [wireframes/HU-06-revisar-coincidencia.md](wireframes/HU-06-revisar-coincidencia.md) | Cola del revisor, comparación lado a lado, decisión, vista del agente |
 | [wireframes/HU-07-bitacora-consultas.md](wireframes/HU-07-bitacora-consultas.md) | Bitácora de solo lectura y detalle de registro |
 | [wireframes/HU-08-simuladores-fuentes.md](wireframes/HU-08-simuladores-fuentes.md) | Sin pantallas propias; dónde se ven sus errores; panel de demo |
-| [prototipo/index.html](prototipo/index.html) | Prototipo navegable local, HU-01 a HU-08, tres roles ([notas de entrega](prototipo/README.md)) |
+| [wireframes/HU-05-variante-varias-personas.md](wireframes/HU-05-variante-varias-personas.md) | HU-05 E8 a E10: foto con varias personas, se elige un rostro (aprobado 2026-11-20; sin desarrollo) |
+| [wireframes/HU-09-aviso-simulado-105.md](wireframes/HU-09-aviso-simulado-105.md) | HU-09: aviso simulado al 105, solo en el celular (aprobado 2026-11-20; sin desarrollo) |
+| [wireframes/HU-10-consultas-complementarias-placa.md](wireframes/HU-10-consultas-complementarias-placa.md) | HU-10: datos del vehículo (SUNARP) y papeletas (SAT Lima), simulados, a pedido (aprobado 2026-11-20; sin desarrollo) |
+| [prototipo/index.html](prototipo/index.html) | Prototipo navegable local, HU-01 a HU-10, tres roles ([notas de entrega](prototipo/README.md)) |
 | [prototipo/GUION-VALIDACION.md](prototipo/GUION-VALIDACION.md) | Guion de recorrido de 15 min para la validación del 1-dic-2026 |
 | [bolt-prompt.md](bolt-prompt.md) | Solo referencia: no se usa bolt.new (decisión del humano, 2026-11-19) |
 
@@ -114,6 +117,16 @@ flowchart TD
 | REV-04 | Decisión registrada | HU-06 · E1 (Then) |
 | BIT-01 | Bitácora | HU-07 · E1; HU-07 · E2 (sin controles de edición); HU-06 · E4 (eventos "Revisión vencida" y "Captura eliminada") |
 | BIT-02 | Detalle de registro | HU-07 · E3 Datos sensibles (ID de captura + score, sin imagen) |
+| ROS-10 | Elija un rostro (foto con varias personas) | HU-05 · E8 (elige uno) y E9 (sale sin elegir); con más de 5 rostros, ROS-03 (E10, PA 33). Aprobado 2026-11-20, sin desarrollo |
+| AVI-00 | Permiso de ubicación (diálogo del sistema) | HU-09 · E1 a E3, la primera vez que se pulsa el aviso |
+| AVI-01 | Vista previa del aviso simulado al 105 (con o sin ubicación) | HU-09 · E1, E2, E3 y E5 (Cancelar no registra). Aprobado 2026-11-20, sin desarrollo |
+| AVI-02 | Aviso simulado registrado | HU-09 · E1 a E3; E6 (un aviso por consulta) |
+| AVI-03 | No se pudo registrar el aviso | Regla 7 (error ≠ resultado) |
+| COM-01 | Consultando SUNARP o SAT Lima (simulado) | HU-10 · transición |
+| COM-02 | Datos del vehículo para comparar; marcado; no registrada en SUNARP | HU-10 · E1, E5 y E7 (aprobado 2026-11-20) |
+| COM-03 | Confirmar "No coincide con lo registrado" | HU-10 · E5 (aprobado 2026-11-20) |
+| COM-04 | Papeletas (SAT Lima, simulado); sin papeletas en SAT Lima | HU-10 · E2 y E3 |
+| COM-05 | No se pudo completar la consulta complementaria | HU-10 · E4 (regla 7) |
 | DEMO | Panel de demo (solo prototipo) | HU-08 · E1–E3 (simular respuestas); alterna variantes de PA |
 
 ## Cómo se aplican las reglas de negocio clave
@@ -124,7 +137,7 @@ flowchart TD
 | 2. Motivo obligatorio antes de consultar | Placa: el motivo está en el mismo formulario y "Consultar" no envía sin él (PLA-02). Rostro: el motivo es el paso 1; la cámara no se abre sin él (ROS-01). |
 | 3. Mala calidad se rechaza con motivo visible | ROS-03 muestra el motivo concreto y dice "La captura no se envió a comparar". El único botón es "Repetir captura". |
 | 4. Nada automático antes de la revisión | ROS-05 y REV-01 no tienen alertas, sonidos, notificaciones push ni botones de acción operativa. El estado visible es "Pendiente de revisión". |
-| 5. Sin identificación masiva ni lectura continua | OCR-01 y ROS-02 capturan **una** imagen solo al tocar "Capturar". No hay video continuo, ni lectura automática, ni carga desde galería, ni lote. ROS-02 pide "una sola persona" y ROS-03 rechaza más de un rostro. |
+| 5. Sin identificación masiva ni lectura continua | OCR-01 y ROS-02 capturan **una** imagen solo al tocar "Capturar". No hay video continuo, ni lectura automática, ni carga desde galería, ni lote. Con varias personas en la foto se compara **un solo** rostro, elegido por el usuario (ROS-10, HU-05 E8); con más de 5 se rechaza la captura (E10). Solo viaja el recorte del rostro elegido (ADR-0015). |
 
 ## Decisiones de diseño aplicadas
 

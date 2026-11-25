@@ -19,7 +19,7 @@
       "id": "app",
       "type": "frontend",
       "label": "App móvil",
-      "sublabel": "Expo · ML Kit"
+      "sublabel": "Flutter · ML Kit"
     },
     {
       "id": "api",

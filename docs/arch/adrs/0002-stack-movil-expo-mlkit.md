@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18)
+**Reemplazado por el [ADR-0017](0017-app-movil-flutter-mlkit.md) (2026-11-24):** la app pasa a Flutter (PA #37, decisión del humano). Aceptado el 2026-11-18. Siguen vigentes, a través del ADR-0017, el OCR y la calidad facial con ML Kit en el dispositivo, la decisión sobre la telemetría (PA #31) y el riesgo del OCR de placas.
 
 ## Contexto
 
@@ -20,6 +20,7 @@ La app se construye con **React Native + Expo en modo dev build** (con EAS Build
 - **Cámara:** una librería de cámara compatible con dev build (referencia: `react-native-vision-camera`).
 - **OCR de placa:** Google ML Kit Text Recognition, en el dispositivo.
 - **Calidad facial:** Google ML Kit Face Detection, en el dispositivo. Mide el número de rostros, el ángulo, si los ojos están abiertos y el tamaño del rostro en el cuadro.
+  - *Precisión propuesta en el [ADR-0015](0015-foto-varias-personas-rostro-elegido.md) (C6, aceptado el 2026-11-20, opción A):* en una foto con varias personas, ML Kit marca todos los rostros, el usuario elige uno y la app envía solo el recorte de ese rostro. "Más de un rostro" deja de ser un motivo de rechazo en el dispositivo; con más de 5 rostros, la captura se rechaza.
 - **Token de sesión:** almacenamiento seguro del sistema (`expo-secure-store`). Nada de imágenes en disco.
 
 El LEAD confirma en el Sprint 0 qué paquetes exactos usar (los wrappers de ML Kit) y su compatibilidad con la versión del SDK de Expo.

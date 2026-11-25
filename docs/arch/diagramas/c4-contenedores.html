@@ -5203,7 +5203,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / LÁMINA 04">
-      <svg viewBox="0 0 1470 632" role="img" lang="es" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14">
+      <svg viewBox="0 0 1730 632" role="img" lang="es" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14">
         <title id="archify-diagram-title">C4 Contenedores — Movil Buscador (MVP)</title>
         <desc id="archify-diagram-description">Un diagrama de arquitectura generado por Archify.</desc>
         <!-- Definitions -->
@@ -5250,9 +5250,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="VPS · docker compose" x="590" y="160" width="840" height="284" rx="12" class="c-region" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="VPS · docker compose" x="590" y="160" width="1100" height="272" rx="12" class="c-region" stroke-width="1"/>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" data-composition-frame-id="1" data-composition-frame-label="Red interna · sin puerto publicado" x="1190" y="170" width="240" height="274" rx="8" class="c-security-group" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" data-composition-frame-id="1" data-composition-frame-label="Red interna · sin puerto publicado" x="1190" y="170" width="500" height="262" rx="8" class="c-security-group" stroke-width="1"/>
 
         <!-- Connection paths (before components for correct z-order) -->
         <g data-graph-role="automatic-crossover" style="--step:0">
@@ -5260,8 +5260,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <path data-edge-from="agente" data-edge-to="app" data-edge-label="captura + motivo" data-edge-key="0" data-edge-id="usa-app" data-composition-points="190,232;330,232" data-composition-crossover="halo" data-composition-independent="true" d="M 190 232 L 330 232" class="a-emphasis" data-animate="edge" style="--step:0" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:1">
-          <path data-graph-role="automatic-crossover-underlay" d="M 510 232 L 620 232" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="app" data-edge-to="proxy" data-edge-label="HTTPS + JWT" data-edge-key="1" data-edge-id="app-proxy" data-composition-points="510,232;620,232" data-composition-crossover="halo" data-composition-independent="true" d="M 510 232 L 620 232" class="a-emphasis" data-animate="edge" style="--step:1" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 510 232 L 526 232 Q 534 232 534 240 L 534 280 Q 534 288 542 288 L 692 288 Q 700 288 700 280 L 700 264" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="app" data-edge-to="proxy" data-edge-label="HTTPS + token de la API" data-edge-key="1" data-edge-id="app-proxy" data-composition-points="510,232;534,232;534,288;700,288;700,264" data-composition-crossover="halo" data-composition-independent="true" d="M 510 232 L 526 232 Q 534 232 534 240 L 534 280 Q 534 288 542 288 L 692 288 Q 700 288 700 280 L 700 264" class="a-emphasis" data-animate="edge" style="--step:1" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:2">
           <path data-graph-role="automatic-crossover-underlay" d="M 780 232 L 880 232" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
@@ -5269,19 +5269,27 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </g>
         <g data-graph-role="automatic-crossover" style="--step:3">
           <path data-graph-role="automatic-crossover-underlay" d="M 985 190 L 985 104" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="api" data-edge-to="auth" data-edge-label="login · verifica JWT" data-edge-key="3" data-edge-id="api-auth" data-composition-points="985,190;985,104" data-composition-crossover="halo" data-composition-independent="true" d="M 985 190 L 985 104" class="a-security" data-animate="edge" style="--step:3" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+          <path data-edge-from="api" data-edge-to="auth" data-edge-label="valida la clave" data-edge-key="3" data-edge-id="api-auth" data-composition-points="985,190;985,104" data-composition-crossover="halo" data-composition-independent="true" d="M 985 190 L 985 104" class="a-security" data-animate="edge" style="--step:3" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:4">
           <path data-graph-role="automatic-crossover-underlay" d="M 985 274 L 985 500" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
           <path data-edge-from="api" data-edge-to="pg" data-edge-label="SQL (rol api_app)" data-edge-key="4" data-edge-id="api-pg" data-composition-points="985,274;985,500" data-composition-crossover="halo" data-composition-independent="true" d="M 985 274 L 985 500" class="a-default" data-animate="edge" style="--step:4" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:5">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1090 232 L 1220 232" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="api" data-edge-to="sim" data-edge-label="HTTP + contrato" data-edge-key="5" data-edge-id="api-sim" data-composition-points="1090,232;1220,232" data-composition-crossover="halo" data-composition-independent="true" d="M 1090 232 L 1220 232" class="a-default" data-animate="edge" style="--step:5" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1074 274 L 1074 348 Q 1074 356 1082 356 L 1220 356" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="api" data-edge-to="motor" data-edge-label="recorte → bandas" data-edge-key="5" data-edge-id="api-motor" data-composition-points="1074,274;1074,356;1220,356" data-composition-crossover="halo" data-composition-independent="true" d="M 1074 274 L 1074 348 Q 1074 356 1082 356 L 1220 356" class="a-default" data-animate="edge" style="--step:5" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:6">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1310 264 L 1310 360" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="sim" data-edge-to="simdata" data-edge-label="lee" data-edge-key="6" data-edge-id="sim-data" data-composition-points="1310,264;1310,360" data-composition-crossover="halo" data-composition-independent="true" d="M 1310 264 L 1310 360" class="a-default" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1090 225 L 1220 225" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="api" data-edge-to="sim" data-edge-label="HTTP + contrato" data-edge-key="6" data-edge-id="api-sim" data-composition-points="1090,225;1220,225" data-composition-crossover="halo" data-composition-independent="true" d="M 1090 225 L 1220 225" class="a-default" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:7">
+          <path data-graph-role="automatic-crossover-underlay" d="M 1400 232 L 1480 232" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="sim" data-edge-to="simdata" data-edge-label="lee" data-edge-key="7" data-edge-id="sim-data" data-composition-points="1400,232;1480,232" data-composition-crossover="halo" data-composition-independent="true" d="M 1400 232 L 1480 232" class="a-default" data-animate="edge" style="--step:7" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:8">
+          <path data-graph-role="automatic-crossover-underlay" d="M 1315 340 L 1315 264" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="motor" data-edge-to="sim" data-edge-label="galería al arrancar" data-edge-key="8" data-edge-id="motor-sim" data-composition-points="1315,340;1315,264" data-composition-crossover="halo" data-composition-independent="true" d="M 1315 340 L 1315 264" class="a-default" data-animate="edge" style="--step:8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
 
         <!-- Components -->
@@ -5296,8 +5304,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="115" y="246" class="t-muted" font-size="8.1" text-anchor="middle">agente · revisor · supervisor</text>
         </g>
 
-        <g id="node-app" data-node-id="app" data-node-label="App móvil" tabindex="0" role="button" aria-label="Enfocar App móvil, Expo dev build · Android, Componente de arquitectura" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Expo dev build · Android" data-node-tag="ML Kit: OCR + calidad" data-node-context="Componente de arquitectura">
-          <title>App móvil · Expo dev build · Android · Componente de arquitectura · ML Kit: OCR + calidad</title>
+        <g id="node-app" data-node-id="app" data-node-label="App móvil" tabindex="0" role="button" aria-label="Enfocar App móvil, Flutter · Android, Componente de arquitectura" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Flutter · Android" data-node-tag="ML Kit: OCR + calidad" data-node-context="Componente de arquitectura">
+          <title>App móvil · Flutter · Android · Componente de arquitectura · ML Kit: OCR + calidad</title>
           <rect x="330" y="200" width="180" height="64" rx="8" class="c-mask"/>
           <rect x="330" y="200" width="180" height="64" rx="8" class="c-frontend" data-animate="node" style="--step:1" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(336 206) scale(0.6875)">
@@ -5307,36 +5315,37 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="420" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">App móvil</text>
-        <text data-detail="context" x="420" y="246" class="t-muted" font-size="9" text-anchor="middle">Expo dev build · Android</text>
+        <text data-detail="context" x="420" y="246" class="t-muted" font-size="9" text-anchor="middle">Flutter · Android</text>
         <text data-detail="fine" x="420" y="256" class="t-frontend" font-size="7" text-anchor="middle">ML Kit: OCR + calidad</text>
         </g>
 
-        <g id="node-proxy" data-node-id="proxy" data-node-label="Caddy" tabindex="0" role="button" aria-label="Enfocar Caddy, TLS :443 · único expuesto, VPS · docker compose" aria-pressed="false" data-node-kind="security" data-node-sublabel="TLS :443 · único expuesto" data-node-context="VPS · docker compose">
-          <title>Caddy · TLS :443 · único expuesto · VPS · docker compose</title>
+        <g id="node-proxy" data-node-id="proxy" data-node-label="NGINX" tabindex="0" role="button" aria-label="Enfocar NGINX, TLS :443 · único expuesto, VPS · docker compose" aria-pressed="false" data-node-kind="security" data-node-sublabel="TLS :443 · único expuesto" data-node-tag="/v1 + APK protegido" data-node-context="VPS · docker compose">
+          <title>NGINX · TLS :443 · único expuesto · VPS · docker compose · /v1 + APK protegido</title>
           <rect x="620" y="200" width="160" height="64" rx="8" class="c-mask"/>
           <rect x="620" y="200" width="160" height="64" rx="8" class="c-security" data-animate="node" style="--step:2" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(626 206) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="700" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Caddy</text>
+          <text data-node-label="" data-detail-anchor="" x="700" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">NGINX</text>
         <text data-detail="context" x="700" y="246" class="t-muted" font-size="9" text-anchor="middle">TLS :443 · único expuesto</text>
+        <text data-detail="fine" x="700" y="256" class="t-security" font-size="7" text-anchor="middle">/v1 + APK protegido</text>
         </g>
 
-        <g id="node-api" data-node-id="api" data-node-label="API FastAPI" tabindex="0" role="button" aria-label="Enfocar API FastAPI, /v1 · roles · bitácora, VPS · docker compose" aria-pressed="false" data-node-kind="backend" data-node-sublabel="/v1 · roles · bitácora" data-node-tag="MotorBiometrico YuNet+SFace" data-node-context="VPS · docker compose">
-          <title>API FastAPI · /v1 · roles · bitácora · VPS · docker compose · MotorBiometrico YuNet+SFace</title>
+        <g id="node-api" data-node-id="api" data-node-label="API FastAPI" tabindex="0" role="button" aria-label="Enfocar API FastAPI, /v1 · sesión · roles · bitácora, VPS · docker compose" aria-pressed="false" data-node-kind="backend" data-node-sublabel="/v1 · sesión · roles · bitácora" data-node-tag="cliente del motor" data-node-context="VPS · docker compose">
+          <title>API FastAPI · /v1 · sesión · roles · bitácora · VPS · docker compose · cliente del motor</title>
           <rect x="880" y="190" width="210" height="84" rx="8" class="c-mask"/>
           <rect x="880" y="190" width="210" height="84" rx="8" class="c-backend" data-animate="node" style="--step:3" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(886 196) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="985" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">API FastAPI</text>
-        <text data-detail="context" x="985" y="246" class="t-muted" font-size="9" text-anchor="middle">/v1 · roles · bitácora</text>
-        <text data-detail="fine" x="985" y="266" class="t-backend" font-size="7" text-anchor="middle">MotorBiometrico YuNet+SFace</text>
+        <text data-detail="context" x="985" y="246" class="t-muted" font-size="9" text-anchor="middle">/v1 · sesión · roles · bitácora</text>
+        <text data-detail="fine" x="985" y="266" class="t-backend" font-size="7" text-anchor="middle">cliente del motor</text>
         </g>
 
-        <g id="node-auth" data-node-id="auth" data-node-label="Supabase Auth" tabindex="0" role="button" aria-label="Enfocar Supabase Auth, nube · emite JWT, Componente de arquitectura" aria-pressed="false" data-node-kind="security" data-node-sublabel="nube · emite JWT" data-node-context="Componente de arquitectura">
-          <title>Supabase Auth · nube · emite JWT · Componente de arquitectura</title>
+        <g id="node-auth" data-node-id="auth" data-node-label="Supabase Auth" tabindex="0" role="button" aria-label="Enfocar Supabase Auth, nube · verifica la clave, Componente de arquitectura" aria-pressed="false" data-node-kind="security" data-node-sublabel="nube · verifica la clave" data-node-context="Componente de arquitectura">
+          <title>Supabase Auth · nube · verifica la clave · Componente de arquitectura</title>
           <rect x="895" y="40" width="180" height="64" rx="8" class="c-mask"/>
           <rect x="895" y="40" width="180" height="64" rx="8" class="c-security" data-animate="node" style="--step:4" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(901 46) scale(0.6875)">
@@ -5344,7 +5353,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="985" y="70" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Supabase Auth</text>
-        <text data-detail="context" x="985" y="86" class="t-muted" font-size="9" text-anchor="middle">nube · emite JWT</text>
+        <text data-detail="context" x="985" y="86" class="t-muted" font-size="9" text-anchor="middle">nube · verifica la clave</text>
         </g>
 
         <g id="node-pg" data-node-id="pg" data-node-label="Postgres (Supabase)" tabindex="0" role="button" aria-label="Enfocar Postgres (Supabase), bitácora solo INSERT, Componente de arquitectura" aria-pressed="false" data-node-kind="database" data-node-sublabel="bitácora solo INSERT" data-node-tag="captura_pendiente ≤24 h" data-node-context="Componente de arquitectura">
@@ -5363,7 +5372,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <g id="node-sim" data-node-id="sim" data-node-label="Simuladores" tabindex="0" role="button" aria-label="Enfocar Simuladores, FastAPI · OpenAPI 3.1, VPS · docker compose › Red interna · sin puerto publicado" aria-pressed="false" data-node-kind="backend" data-node-sublabel="FastAPI · OpenAPI 3.1" data-node-context="VPS · docker compose › Red interna · sin puerto publicado">
           <title>Simuladores · FastAPI · OpenAPI 3.1 · VPS · docker compose › Red interna · sin puerto publicado</title>
           <rect x="1220" y="200" width="180" height="64" rx="8" class="c-mask"/>
-          <rect x="1220" y="200" width="180" height="64" rx="8" class="c-backend" data-animate="node" style="--step:6" stroke-width="1.5"/>
+          <rect x="1220" y="200" width="180" height="64" rx="8" class="c-backend" data-animate="node" style="--step:7" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1226 206) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
@@ -5373,14 +5382,26 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
         <g id="node-simdata" data-node-id="simdata" data-node-label="Datos sintéticos" tabindex="0" role="button" aria-label="Enfocar Datos sintéticos, galería cifrada (volumen), VPS · docker compose › Red interna · sin puerto publicado" aria-pressed="false" data-node-kind="database" data-node-sublabel="galería cifrada (volumen)" data-node-context="VPS · docker compose › Red interna · sin puerto publicado">
           <title>Datos sintéticos · galería cifrada (volumen) · VPS · docker compose › Red interna · sin puerto publicado</title>
-          <rect x="1220" y="360" width="180" height="64" rx="8" class="c-mask"/>
-          <rect x="1220" y="360" width="180" height="64" rx="8" class="c-database" data-animate="node" style="--step:7" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(1226 366) scale(0.6875)">
+          <rect x="1480" y="200" width="180" height="64" rx="8" class="c-mask"/>
+          <rect x="1480" y="200" width="180" height="64" rx="8" class="c-database" data-animate="node" style="--step:8" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(1486 206) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1310" y="390" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Datos sintéticos</text>
-        <text data-detail="context" x="1310" y="406" class="t-muted" font-size="9" text-anchor="middle">galería cifrada (volumen)</text>
+          <text data-node-label="" data-detail-anchor="" x="1570" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Datos sintéticos</text>
+        <text data-detail="context" x="1570" y="246" class="t-muted" font-size="9" text-anchor="middle">galería cifrada (volumen)</text>
+        </g>
+
+        <g id="node-motor" data-node-id="motor" data-node-label="Motor biométrico" tabindex="0" role="button" aria-label="Enfocar Motor biométrico, YuNet + SFace · no guarda, VPS · docker compose › Red interna · sin puerto publicado" aria-pressed="false" data-node-kind="backend" data-node-sublabel="YuNet + SFace · no guarda" data-node-tag="reemplazable (ADR-0019)" data-node-context="VPS · docker compose › Red interna · sin puerto publicado">
+          <title>Motor biométrico · YuNet + SFace · no guarda · VPS · docker compose › Red interna · sin puerto publicado · reemplazable (ADR-0019)</title>
+          <rect x="1220" y="340" width="190" height="72" rx="8" class="c-mask"/>
+          <rect x="1220" y="340" width="190" height="72" rx="8" class="c-backend" data-animate="node" style="--step:6" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1226 346) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1315" y="374" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Motor biométrico</text>
+        <text data-detail="context" x="1315" y="390" class="t-muted" font-size="9" text-anchor="middle">YuNet + SFace · no guarda</text>
+        <text data-detail="fine" x="1315" y="404" class="t-backend" font-size="7" text-anchor="middle">reemplazable (ADR-0019)</text>
         </g>
 
         <!-- Connection labels -->
@@ -5388,40 +5409,48 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <rect x="216.6" y="212" width="86.8" height="14" rx="3" class="c-mask"/>
           <text x="260" y="222" class="t-edge-emphasis" font-size="8" text-anchor="middle">captura + motivo</text>
         </g>
-        <g data-detail="context" data-edge-from="app" data-edge-to="proxy" data-edge-label="HTTPS + JWT" data-edge-key="1" data-edge-id="app-proxy">
-          <rect x="533.6" y="212" width="62.8" height="14" rx="3" class="c-mask"/>
-          <text x="565" y="222" class="t-edge-emphasis" font-size="8" text-anchor="middle">HTTPS + JWT</text>
+        <g data-detail="context" data-edge-from="app" data-edge-to="proxy" data-edge-label="HTTPS + token de la API" data-edge-key="1" data-edge-id="app-proxy">
+          <rect x="407.6" y="267" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="467.8" y="277" class="t-edge-emphasis" font-size="8" text-anchor="middle">HTTPS + token de la API</text>
         </g>
         <g data-detail="context" data-edge-from="proxy" data-edge-to="api" data-edge-label="REST /v1" data-edge-key="2" data-edge-id="proxy-api">
           <rect x="805.8" y="212" width="48.4" height="14" rx="3" class="c-mask"/>
           <text x="830" y="222" class="t-edge-default" font-size="8" text-anchor="middle">REST /v1</text>
         </g>
-        <g data-detail="context" data-edge-from="api" data-edge-to="auth" data-edge-label="login · verifica JWT" data-edge-key="3" data-edge-id="api-auth">
-          <rect x="932" y="170" width="106" height="14" rx="3" class="c-mask"/>
-          <text x="985" y="180" class="t-edge-security" font-size="8" text-anchor="middle">login · verifica JWT</text>
+        <g data-detail="context" data-edge-from="api" data-edge-to="auth" data-edge-label="valida la clave" data-edge-key="3" data-edge-id="api-auth">
+          <rect x="944" y="170" width="82" height="14" rx="3" class="c-mask"/>
+          <text x="985" y="180" class="t-edge-security" font-size="8" text-anchor="middle">valida la clave</text>
         </g>
         <g data-detail="context" data-edge-from="api" data-edge-to="pg" data-edge-label="SQL (rol api_app)" data-edge-key="4" data-edge-id="api-pg">
           <rect x="887.4000000000001" y="380" width="91.6" height="14" rx="3" class="c-mask"/>
           <text x="933.2" y="390" class="t-edge-default" font-size="8" text-anchor="middle">SQL (rol api_app)</text>
         </g>
-        <g data-detail="context" data-edge-from="api" data-edge-to="sim" data-edge-label="HTTP + contrato" data-edge-key="5" data-edge-id="api-sim">
-          <rect x="1114" y="212" width="82" height="14" rx="3" class="c-mask"/>
-          <text x="1155" y="222" class="t-edge-default" font-size="8" text-anchor="middle">HTTP + contrato</text>
+        <g data-detail="context" data-edge-from="api" data-edge-to="motor" data-edge-label="recorte → bandas" data-edge-key="5" data-edge-id="api-motor">
+          <rect x="1103.6" y="336" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="1147" y="346" class="t-edge-default" font-size="8" text-anchor="middle">recorte → bandas</text>
         </g>
-        <g data-detail="context" data-edge-from="sim" data-edge-to="simdata" data-edge-label="lee" data-edge-key="6" data-edge-id="sim-data">
-          <rect x="1274" y="305" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="1289" y="315" class="t-edge-default" font-size="8" text-anchor="middle">lee</text>
+        <g data-detail="context" data-edge-from="api" data-edge-to="sim" data-edge-label="HTTP + contrato" data-edge-key="6" data-edge-id="api-sim">
+          <rect x="1114" y="205" width="82" height="14" rx="3" class="c-mask"/>
+          <text x="1155" y="215" class="t-edge-default" font-size="8" text-anchor="middle">HTTP + contrato</text>
+        </g>
+        <g data-detail="context" data-edge-from="sim" data-edge-to="simdata" data-edge-label="lee" data-edge-key="7" data-edge-id="sim-data">
+          <rect x="1425" y="212" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="1440" y="222" class="t-edge-default" font-size="8" text-anchor="middle">lee</text>
+        </g>
+        <g data-detail="context" data-edge-from="motor" data-edge-to="sim" data-edge-label="galería al arrancar" data-edge-key="8" data-edge-id="motor-sim">
+          <rect x="1264.4" y="320" width="101.2" height="14" rx="3" class="c-mask"/>
+          <text x="1315" y="330" class="t-edge-default" font-size="8" text-anchor="middle">galería al arrancar</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
         <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="VPS · docker compose">
-          <rect data-graph-role="structural-frame-label-mask" x="594" y="169" width="123.8064636129032" height="17" rx="3" class="c-mask"/>
-          <text data-boundary-label="" x="598" y="182.48387196774195" class="t-cloud" font-size="9.483871967741933" font-weight="600">VPS · docker compose</text>
+          <rect data-graph-role="structural-frame-label-mask" x="594" y="167" width="143.9354958709677" height="19" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="598" y="182.16129132258064" class="t-cloud" font-size="11.161291322580643" font-weight="600">VPS · docker compose</text>
         </g>
 
         <g data-graph-role="structural-frame-label" data-composition-frame-id="1" data-composition-frame-kind="security-group" data-composition-frame-label="Red interna · sin puerto publicado">
-          <rect data-graph-role="structural-frame-label-mask" x="1194" y="179" width="203.47098814193546" height="17" rx="3" class="c-mask"/>
-          <text data-boundary-label="" x="1198" y="192.48387196774195" class="t-security" font-size="9.483871967741933" font-weight="600">Red interna · sin puerto publicado</text>
+          <rect data-graph-role="structural-frame-label-mask" x="1194" y="177" width="237.6903429806451" height="19" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="1198" y="192.16129132258064" class="t-security" font-size="11.161291322580643" font-weight="600">Red interna · sin puerto publicado</text>
         </g>
 
         <!-- Legend -->
@@ -5633,6 +5662,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <ul>
           <li>La app solo habla con la API, incluido el login (ADR-0001, ADR-0003)</li>
           <li>Rol validado en cada request; 403 queda en bitácora</li>
+          <li>El motor solo lo llama la API; si falla, error controlado, nunca &quot;sin coincidencia&quot;</li>
         </ul>
       </div>
 
@@ -5655,7 +5685,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>El mismo compose se entrega al MININTER (ADR-0009)</li>
-          <li>Supabase reemplazable por Postgres + OIDC</li>
+          <li>Keycloak documentado, sin construir en el MVP (ADR-0020)</li>
+          <li>Motor reemplazable detrás de su contrato (ADR-0019)</li>
         </ul>
       </div>
     </div>

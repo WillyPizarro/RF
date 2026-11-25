@@ -22,17 +22,18 @@ Las políticas de seguridad avanzadas se documentan, pero no se construyen. El p
 
 ```
 ┌──────────────────────────┐
-│ App móvil (Expo dev build│   OCR + calidad facial en el dispositivo (ML Kit)
-│ Android, TypeScript)     │   Nada en disco salvo el token (SecureStore)
+│ App móvil (Flutter,      │   OCR + calidad facial en el dispositivo (ML Kit)
+│ Android, Dart)           │   Nada en disco salvo el token (flutter_secure_storage)
 │                          │   y la cola de telemetría de ML Kit (sin imagen ni texto)
 └────────────┬─────────────┘
              │ HTTPS + JWT  (REST /v1, contrato OpenAPI)
 ┌────────────▼─────────────────────────────── VPS (docker compose) ─┐
-│ proxy (Caddy, TLS)                                                 │
+│ proxy (NGINX, TLS; /v1/* y la descarga protegida del APK)          │
 │   └─► api (FastAPI) ─────────────────────────────┐                 │
 │        ├─ auth: login/refresh/logout → Supabase Auth                │
 │        ├─ control de rol en cada request                           │
-│        ├─ MotorBiometrico (YuNet + SFace, OpenCV)                  │
+│        ├─ cliente MotorBiometrico ──► motor (YuNet + SFace, red    │
+│        │                            interna, sin puerto público)   │
 │        ├─ adaptadores de fuente ──► simuladores (FastAPI, red      │
 │        │                            interna, sin puerto público)   │
 │        └─ bitácora (fail-closed)                                   │
@@ -46,11 +47,12 @@ Las políticas de seguridad avanzadas se documentan, pero no se construyen. El p
 
 | Componente | Responsabilidad | ADR |
 |---|---|---|
-| App móvil | Captura, OCR, calidad facial, pantallas por rol (agente, revisor, supervisor). Solo habla con la API. | 0001, 0002, 0010, 0013 |
-| API (FastAPI) | Único punto de entrada: sesión, roles, consultas, motor biométrico, adaptadores de fuente, bitácora, borrado de capturas. | 0001, 0003, 0004, 0005, 0007, 0012, 0014 |
+| App móvil (Flutter) | Captura, OCR, calidad facial, pantallas por rol (agente, revisor, supervisor). Solo habla con la API. | 0001, 0017, 0010, 0013 |
+| API (FastAPI) | Único punto de entrada: sesión, roles, consultas, adaptadores de fuente y del motor, bitácora, borrado de capturas. | 0001, 0003, 0004, 0005, 0007, 0012, 0014, 0019 |
+| Motor biométrico (Python, OpenCV) | Calidad y comparación contra la galería; servicio interno sin puerto público, sin guardar nada; reemplazable detrás de su contrato. | 0004, 0019 |
 | Simuladores (FastAPI) | Placas, requisitorias de personas y galería, con contrato OpenAPI y modos de falla. | 0006 |
-| Supabase | Auth (emisión de JWT) y Postgres (datos de la API y bitácora). | 0001, 0009, 0012 |
-| Proxy (Caddy) | Terminación TLS; único servicio expuesto. | 0009 |
+| Supabase | Auth (verificación de la clave) y Postgres (datos de la API y bitácora). Keycloak, solo documentado. | 0001, 0009, 0012, 0020 |
+| Proxy (NGINX) | Terminación TLS; único servicio expuesto; descarga protegida del APK de la demo. | 0009, 0018 |
 
 ### Diagramas
 
@@ -59,7 +61,7 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | Diagrama | Qué muestra |
 |---|---|
 | [C4 — Contexto](diagramas/c4-contexto.html) | Los tres roles, el sistema, Supabase, las fuentes simuladas y las fuentes reales (fuera del MVP) |
-| [C4 — Contenedores](diagramas/c4-contenedores.html) | App, Caddy, API con el motor biométrico, simuladores en la red interna, y Supabase Auth y Postgres |
+| [C4 — Contenedores](diagramas/c4-contenedores.html) | App en Flutter, NGINX, API, motor biométrico y simuladores en la red interna, y Supabase Auth y Postgres (actualizado el 2026-11-24, ADR-0017 a 0019) |
 | [Secuencia — Consulta de placa](diagramas/seq-consulta-placa.html) | HU-03 y HU-04: OCR, validación, fuente con timeout, registro fail-closed y camino de error |
 | [Secuencia — Verificación facial con revisión humana](diagramas/seq-verificacion-facial.html) | HU-05 y HU-06: calidad, comparación, retención cifrada del candidato, decisión con motivo y borrado |
 | [Secuencia — Vencimiento a 24 h](diagramas/seq-vencimiento-24h.html) | ADR-0008 / PA #23: borrado periódico, revisión vencida y "No concluyente" para el agente |
@@ -69,7 +71,7 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | # | Decisión | Estado |
 |---|---|---|
 | [ADR-0001](adrs/0001-componentes-api-unica.md) | API propia como único punto de entrada de la app | Aceptado |
-| [ADR-0002](adrs/0002-stack-movil-expo-mlkit.md) | App con Expo (dev build) y ML Kit en el dispositivo | Aceptado |
+| [ADR-0002](adrs/0002-stack-movil-expo-mlkit.md) | App con Expo (dev build) y ML Kit en el dispositivo | Reemplazado por el ADR-0017 (2026-11-24) |
 | [ADR-0003](adrs/0003-autenticacion-roles.md) | Login vía API, tres roles, usuarios por script de carga | Aceptado |
 | [ADR-0004](adrs/0004-verificacion-facial.md) | Lista acotada, motor dentro de la API, umbrales calibrados | Aceptado |
 | [ADR-0005](adrs/0005-bitacora.md) | Bitácora de solo inserción, sin resultado sin registro, consultable en la app | Aceptado |
@@ -82,6 +84,14 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0012](adrs/0012-acceso-datos-migraciones.md) | SQLAlchemy 2 async y Alembic | Aceptado |
 | [ADR-0013](adrs/0013-estado-app.md) | Estado en memoria (TanStack Query) y sesión en SecureStore | Aceptado |
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
+| [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | Aceptado (supuestos PA #33) |
+| [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | Aceptado (supuestos PA #32 y #34) |
+| [ADR-0017](adrs/0017-app-movil-flutter-mlkit.md) | App con Flutter y ML Kit en el dispositivo (PA #37); reemplaza al ADR-0002 | Aceptado (2026-11-24) |
+| [ADR-0018](adrs/0018-proxy-nginx.md) | NGINX en lugar de Caddy (PA #37), con la descarga protegida del APK; reemplaza el `proxy` del ADR-0009 | Aceptado (2026-11-24) |
+| [ADR-0019](adrs/0019-servicios-python-motor-aislado.md) | API y simuladores en Python; motor biométrico como servicio interno aislado (PA #37); precisa el punto 2 del ADR-0004 | Aceptado (2026-11-24); Python a negociar con el MININTER |
+| [ADR-0020](adrs/0020-keycloak-al-final.md) | Keycloak documentado, sin construir en el MVP; Supabase Auth sigue (PA #38) | Aceptado con ajuste (2026-11-24) |
+
+Impacto, estimado y plan decidido de los ADR-0017 a 0020: [evaluación del stack del MININTER](evaluaciones/PA-37-39-stack-mininter.md). El diagrama de componentes y su tabla, los diagramas de `archify` (sección Diagramas) y los SVG de `diagramas/osigp/` (paquetes, clases, despliegue y red) se regeneraron el 2026-11-24 con Flutter, NGINX y el servicio `motor`.
 
 ## Modelos biométricos fijados
 
@@ -112,7 +122,7 @@ Base de datos de la API (Postgres en Supabase). El esquema `auth` pertenece a Su
 | `config_umbral` | `version`, `umbral_alto`, `umbral_bajo`, `modelo`, `hash_modelo`, `fecha`, `origen` (enlace a la evaluación) | Hace que cada umbral quede trazable (ADR-0004). |
 | `bitacora` | `id`, `ocurrido_en` (UTC, del servidor), `usuario_id`, `rol`, `tipo_evento`, `motivo`, `parametros` (placa; nunca imagen), `resultado`, `score`, `version_modelo`, `version_umbral`, `captura_id`, `consulta_id`, `codigo_error`, `id_traza`, `es_sintetico` | Solo inserción: permisos más trigger (ADR-0005). |
 
-Tipos de evento de la bitácora: `LOGIN_OK`, `LOGIN_FALLIDO`, `CUENTA_BLOQUEADA`, `LOGOUT`, `SESION_VENCIDA`, `ACCESO_DENEGADO`, `CONSULTA_PLACA`, `CONSULTA_ROSTRO`, `CAPTURA_RECHAZADA`, `DECISION_REVISION`, `REVISION_VENCIDA`, `CAPTURA_ELIMINADA`, `ERROR_FUENTE`, `CONSULTA_BITACORA`.
+Tipos de evento de la bitácora: `LOGIN_OK`, `LOGIN_FALLIDO`, `CUENTA_BLOQUEADA`, `LOGOUT`, `SESION_VENCIDA`, `ACCESO_DENEGADO`, `CONSULTA_PLACA`, `CONSULTA_ROSTRO`, `CAPTURA_RECHAZADA`, `DECISION_REVISION`, `REVISION_VENCIDA`, `CAPTURA_ELIMINADA`, `ERROR_FUENTE`, `CONSULTA_BITACORA`. Diseñado y sin desarrollo: `AVISO_105_SIMULADO` (HU-09, ADR-0016, sin coordenadas); `rostros_en_foto` en los `parametros` de `CONSULTA_ROSTRO` y `CAPTURA_RECHAZADA` (ADR-0015); y `CONSULTA_VEHICULO_REGISTRAL`, `CONSULTA_PAPELETAS` y `MARCA_NO_COINCIDE` (HU-10, con el `consulta_id` y el motivo de la consulta de placa; no se guardan los datos que devuelven las fuentes).
 
 Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (placa, marca, modelo, color, requisitoria vigente, tipo), `sim_persona` (id, nombres y documento sintéticos, requisitoria, referencia a la foto cifrada) y `sim_galeria` (versión y lista de personas). Los campos son provisionales hasta conocer las fuentes reales (PA #6).
 
@@ -132,8 +142,11 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 | Embeddings de la galería | Sensible (derivado biométrico) | Comparación | Ídem | Calculados por la API | `embedding_galeria` | Hasta el cierre | API |
 | Placa consultada | Identificativo indirecto | Verificar requisitoria | Función de la entidad | Ingreso manual u OCR | `consulta`, `bitacora` | Todo el proyecto, luego se borra el ambiente | Agente (las propias), supervisor |
 | Imagen de la placa | Identificativo indirecto | OCR | — | Cámara | No se guarda: se procesa en el dispositivo | — | Nadie |
+| Datos registrales del vehículo, sin propietario (HU-10, sin desarrollo) | Identificativo indirecto | Que el agente compare el vehículo con lo registrado | Función de la entidad (a validar, PA #35) | Simulador `registro-vehicular` (sintético) | No se guardan: solo el evento en la bitácora | — | Agente que consultó la placa |
+| Papeletas del vehículo: cantidad, monto y si hay grave (HU-10, sin desarrollo) | Identificativo indirecto | Informar al agente, a pedido | Función de la entidad (a validar, PA #35) | Simulador `papeletas` (sintético; solo Lima) | No se guardan: solo el evento en la bitácora | — | Agente que consultó la placa |
 | Datos de la persona o vehículo requisitoriado | Personal, vinculado a requisitoria | Mostrar un resultado controlado | Función de la entidad | Simulador (sintético) | Simulador | Todo el proyecto | Agente y revisor (vista mínima, PA #15) |
 | Credenciales y perfil del usuario | Identificativo | Autenticación y rol | Relación laboral (a validar) | Script de carga | Supabase Auth, `usuario_perfil` | Todo el proyecto | API |
+| Ubicación del dispositivo del agente (aviso simulado al 105, HU-09, sin desarrollo) | Personal del agente; sensibilidad a validar por Legal | Mostrar el mensaje simulado | A validar (PA #32) | GPS del celular, con permiso en primer plano | Solo en la memoria de la app; no va a la API ni a la bitácora | Mientras el mensaje está en pantalla | El usuario ([ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md)) |
 | Bitácora | Técnico más personal | Trazabilidad y auditoría | Función de la entidad | API | `bitacora` | Todo el proyecto, luego se borra el ambiente; en producción, PA #16 | Supervisor |
 | Metadatos técnicos de uso de ML Kit (Text Recognition; Face Detection en HU-05) | Técnico, con un identificador por instalación | Diagnóstico y mejora del SDK por parte de Google | A validar por Legal (PA #31). Hay que informar al usuario: aviso de OCR-01 | SDK de ML Kit en el dispositivo | Cola local en la app (`datatransport.events`) y servidores de Google, fuera del Perú | La define Google | Google. Sin imagen, sin texto y sin resultados de detección ([ADR-0002](adrs/0002-stack-movil-expo-mlkit.md)) |
 
@@ -143,7 +156,7 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 |---|---|---|
 | Autenticación y roles | Usuario y clave vía API, 3 roles, bloqueo por intentos, sesión de 10 min | Identidad institucional (OIDC), MFA, administración de usuarios |
 | Bitácora | Solo inserción (permisos y trigger), con motivo, fail-closed | Hash encadenado o firma, sellado de tiempo, retención legal |
-| Cifrado en tránsito | HTTPS (Caddy) | Certificados gestionados por la entidad, mTLS hacia las fuentes |
+| Cifrado en tránsito | HTTPS (NGINX, ADR-0018) | Certificados gestionados por la entidad, mTLS hacia las fuentes |
 | Cifrado en reposo | Captura pendiente y galería con AES-GCM a nivel de aplicación; cifrado del proveedor de nube | Gestión de llaves de la entidad (KMS o HSM) |
 | Minimización | Captura de no candidato sin persistencia; placa leída en el dispositivo; score oculto al agente | Ídem más revisión periódica |
 | Dispositivo | Nada en disco salvo el token y la cola de telemetría de ML Kit (sin imágenes ni texto); limpieza al cerrar sesión | MDM y borrado remoto; control de red sobre la telemetría de SDK de terceros (brecha 10) |
@@ -157,9 +170,9 @@ Base de datos de los simuladores (esquema propio, ADR-0006): `sim_vehiculo` (pla
 1. Base legal del tratamiento biométrico y de la consulta de requisitorias, confirmada por el área legal.
 2. Evaluación de impacto formal, con la retención de capturas de candidatos como riesgo principal.
 3. Integración con fuentes reales y convenios (PA #6), incluida la galería biométrica real.
-4. Identidad institucional y MFA; administración de usuarios.
+4. Identidad institucional y MFA; administración de usuarios. Keycloak se entrega documentado, con sus dos variantes ([ADR-0020](adrs/0020-keycloak-al-final.md)); se recomienda el login OIDC estándar con MFA.
 5. Bitácora firmada y sellada; política de retención legal (PA #16).
-6. Prueba de vida y anti-suplantación; evaluación biométrica con datos representativos de la población.
+6. Prueba de vida y anti-suplantación; evaluación biométrica con datos representativos de la población. **Fotos de referencia y recalibración (PA #40):** los umbrales del MVP se calibran con fotos del equipo (ADR-0004) y no valen tal cual en producción. Antes de producción hay que recalibrar y evaluar con fotos de referencia de las fuentes reales (DNI, ficha policial o requisitoria judicial), con su cantidad, antigüedad y calidad reales, y con cualquier motor que se elija. Con una sola foto de referencia vieja o de baja calidad, aumentan los "No concluyente".
 7. MDM; modo sin conexión (si PA #11 lo exige); iOS (si PA #12 lo exige).
 8. Residencia de datos (Postgres fuera del Perú en el MVP); llaves gestionadas por la entidad.
 9. Circuit breaker y monitoreo para fuentes reales; notificaciones push.
@@ -194,7 +207,8 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 
 ### Verificación facial (HU-05)
 
-- [ ] Una captura con 0 o ≥ 2 rostros, de perfil, con los ojos cerrados, pequeña o borrosa se rechaza en el dispositivo con su motivo y no se envía.
+- [ ] Una captura sin rostros, con más de 5 rostros, de perfil, con los ojos cerrados, pequeña o borrosa se rechaza en el dispositivo con su motivo y no se envía.
+- [ ] Con 2 a 5 rostros, el usuario elige uno y solo sale su recorte. Los demás rostros no se envían, no se comparan ni se registran. La bitácora guarda solo `rostros_en_foto` (ADR-0015; HU-05 E8 y E9, todavía sin desarrollo).
 - [ ] Si la API recibe una imagen que no pasa la calidad del servidor (YuNet distinto de 1 rostro, nitidez), responde `captura_rechazada` con su motivo y no compara.
 - [ ] Con un score ≥ umbral alto, la respuesta es `candidato` con como máximo 3 candidatos, y la app muestra "Posible coincidencia — requiere revisión".
 - [ ] En la banda intermedia la app muestra "No concluyente — verifique por otros medios", y por debajo del umbral bajo, "Sin coincidencia en la lista consultada".
@@ -241,12 +255,13 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - **Revisor (PA #2):** si es el mismo agente, se pierde la separación de funciones (ADR-0003).
 - **Capturas de candidatos en reposo hasta 24 h** en la nube, fuera del Perú: es el riesgo principal de la evaluación de impacto (ADR-0008, ADR-0009).
 - **Consentimiento ampliado** para las fotos del equipo: debe estar firmado antes del día 6, o la prueba biométrica temprana se retrasa.
-- **Datos biométricos poco representativos** (unas 20 personas del equipo): la evaluación no se puede extrapolar a producción; se reporta por subgrupo y con la regla de 3.
+- **Datos biométricos poco representativos** (unas 20 personas del equipo): la evaluación no se puede extrapolar a producción; se reporta por subgrupo y con la regla de 3. Además, la galería del MVP tiene fotos de referencia recientes y de buena calidad, y las de producción pueden ser una sola, vieja o de baja calidad (PA #40): el informe de la evaluación biométrica debe decirlo de forma explícita como límite, y la recalibración queda en la brecha 6.
+- **Stack del MININTER (PA #37 a #39, ADR-0017 a 0020 aceptados el 2026-11-24):** la migración a Flutter consume la reserva del cronograma y la demo del 10-dic queda sin margen. Plan decidido: escenario 1, HU-09 entra en lugar de construir Keycloak, y HU-05 E8 a E10 y HU-10 quedan fuera de la construcción. Si el MININTER no acepta Python (ADR-0019), la API en Java suma de 8 a 10 días de DEV y hay que recortar alcance.
 - ~~Licencias de YuNet y SFace sin verificar~~: **verificadas el 2026-11-18** (ver "Modelos biométricos fijados"). La prueba de la API en la imagen Linux del contenedor `api` es un requisito del contrato de HU-05 (LEAD).
 - **Expresión regular de placa** no verificada contra la normativa (PA #20).
 - **Contratos de las fuentes** diseñados sin conocer las reales (PA #6): pueden requerir reescribir los adaptadores.
 - **Planes de terceros:** Supabase gratis puede pausarse en la semana de validación; conviene evaluar un mes del plan Pro.
-- **Diagramas:** pasaron todas las verificaciones de `archify`, incluida la revisión automática en el navegador (el usuario la ejecutó desde su PowerShell el 2026-11-18).
+- **Diagramas:** regenerados el 2026-11-24 (ADR-0017 a 0019). Pasaron `validate`, `deliver` y `check` de `archify`. El `browser-check` no corrió en esta sesión porque Chrome no expone su canal de depuración desde aquí; hay que correrlo desde una PowerShell normal, como el 2026-11-18.
 
 ### Estado de los conflictos y puntos abiertos encargados al ARCH
 
@@ -262,4 +277,8 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 | PA #11 | Solo en línea (ADR-0010) | Decisión de diseño; falta confirmar |
 | PA #12 | Android de referencia (ADR-0010) | Decisión de diseño; falta confirmar |
 | PA #16 | MVP: todo el proyecto y luego se borra; producción: Legal (ADR-0008) | Abierto para producción |
-| PA #17 | Supuesto de todo el diseño | Abierto (bloqueante) |
+| PA #17 | Supuesto de todo el diseño | Abierto (bloqueante); el stack lo reemplaza el PA #37 |
+| PA #37 | Flutter, NGINX y API en Python con el motor separado (ADR-0017, 0018 y 0019) | Decidido por el humano; falta la respuesta del MININTER sobre Python |
+| PA #38 | Keycloak solo documentado, con las dos variantes; Supabase Auth en el MVP (ADR-0020) | Decidido para el MVP; falta saber si el Keycloak es propio o del MININTER, y dónde viven los roles |
+| PA #39 | Nada web en el alcance | Abierto |
+| PA #40 | Brecha 6 y riesgo de datos poco representativos; el ADR-0004 no cambia | Abierto |

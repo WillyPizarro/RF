@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado (2026-11-18). Precisado el 2026-11-18 en el Sprint 0 (encargo del LEAD): versiones y modelos fijados, ver "Versiones y modelos fijados".
+Aceptado (2026-11-18). Precisado el 2026-11-18 en el Sprint 0 (encargo del LEAD): versiones y modelos fijados, ver "Versiones y modelos fijados". El punto 3 tiene una precisión propuesta en el [ADR-0015](0015-foto-varias-personas-rostro-elegido.md) (C6, foto con varias personas; aceptado el 2026-11-20). **El punto 2 queda precisado por el [ADR-0019](0019-servicios-python-motor-aislado.md) (aceptado el 2026-11-24):** el motor pasa a ser el servicio interno `motor`, detrás de la misma interfaz `MotorBiometrico`.
 
 ## Contexto
 
@@ -23,6 +23,7 @@ Aceptado (2026-11-18). Precisado el 2026-11-18 en el Sprint 0 (encargo del LEAD)
    - Los embeddings de la galería se calculan una vez y se guardan; no se reprocesan las fotos en cada consulta.
 
 3. **Calidad en dos pasos.** En el dispositivo, ML Kit verifica un solo rostro, el ángulo, los ojos abiertos y el tamaño mínimo (ADR-0002). En el servidor, YuNet debe detectar exactamente un rostro; además se mide la nitidez (varianza del Laplaciano) y la exposición. Si alguno falla, la respuesta es "captura rechazada" con su motivo y no se compara.
+   - *ADR-0015 (aceptado):* con varias personas en la foto, el dispositivo envía solo el recorte del rostro elegido. El servidor no cambia: sigue exigiendo exactamente un rostro en lo que recibe, y nunca recibe ni compara a las demás personas.
 
 4. **Bandas y umbrales:**
 
