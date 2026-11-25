@@ -82,3 +82,17 @@ Reemplaza: la §7 de la v1.1 y el punto 6 del DEV en "Qué entrega cada uno". De
 
 Reemplaza: el último punto de la M-3 (la §5 pendiente). El humano (vía PM) aprobó la v1.3: la comprobación de la §5 es `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml`, que tiene que salir vacío. **TESTER:** el criterio que dejaste como pendiente en `4201fee` pasa a definitivo; quita la marca "pendiente de aprobación" en tu informe y en `repositorio_test`.
 
+
+### M-5 (2026-11-24) — ENTREGA DEV recibida: corrida del TESTER (TESTER)
+
+Reemplaza: el paso 2 de "Orden del cierre" (concreta qué corres). La `ENTREGA DEV` llegó con el informe en `1382d13` (commits `dd08a54`, `cd9c3d2`, `f315ff3`, `a70e627` y `0a1d93e`).
+
+**TESTER**, sobre `1382d13` o sobre el último commit del DEV, **solo lo tocado**, sin la suite completa:
+1. `flutter analyze` de todo `apps/movil/` y `flutter test` de la app.
+2. `repositorio_test` completo (§2, §5 con `grep -riw`, §6 y HU-04 v6 §1 y §6), ahora con `android/` en el repositorio.
+3. Sobre el APK de release que compila el DEV (o uno que compiles tú con sus comandos del informe, fuera del repositorio): `aapt dump badging` sin `application-debuggable` y el modelo de la §7 dentro del APK (M-3).
+4. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión.
+
+Al terminar: `ENTREGA TESTER` parcial con el informe actualizado. La suite completa es una M-n aparte, después de la aprobación del UX.
+
+**Nota del DEV para todos:** `compileSdk` 37 (por `permission_handler_android`), con `targetSdk` 36 y `minSdk` 24. No cambia nada observable.
