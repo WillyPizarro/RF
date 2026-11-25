@@ -73,7 +73,8 @@ Sin push ni merge. Ningún commit lleva `Co-Authored-By`.
 | `camera` | 0.12.2 (en Android, `camera_android_camerax` 0.7.6+2) | Sí | Visor y `takePicture()`. **Nunca** `startImageStream` |
 | `google_mlkit_text_recognition` | 1.0.3 (con `google_mlkit_commons` 1.0.3) | Sí | OCR en el dispositivo, modelo latino incluido |
 | `flutter_secure_storage` | 11.2.0 | Sí | Tokens de la sesión (ADR-0013) |
-| `http` | 1.6.0 | No | `clienteHttp`; toda la red pasa por él |
+| `http` | 1.6.0 | No | La interfaz `http.Client` de `clienteHttp` (§2) y el `MockClient` de las pruebas |
+| `ok_http` (**v1.5, M-13**) | 0.1.0 (BSD-3-Clause, `dart-lang/http`; trae OkHttp 4.12.0 y Okio, Apache-2.0, y `jni` 0.10.1, BSD-3-Clause) | **Sí** | El `OkHttpClient` del arranque real (`lib/main.dart`). Ver la §12 |
 | `clock` | 1.1.3 | No | `clock.now()` para la hora y la inactividad |
 | `permission_handler` | 13.0.2 (en Android, `permission_handler_android` 14.1.1) | **Sí** | Ver la justificación abajo |
 | `material_ui` | 1.11.1 | No (Dart puro) | Los widgets de Material. Flutter 3.50 marca `package:flutter/material.dart` como obsoleto y la plantilla oficial de `flutter create` usa `material_ui` |
@@ -142,7 +143,14 @@ Para un teléfono conectado: `flutter run --debug --dart-define=API_URL=https://
 
 Salida: `apps/movil/build/app/outputs/flutter-apk/app-debug.apk` y `app-release.apk` (78,5 MB; lleva las tres ABI). `build/` no se versiona.
 
-**APK para la mini sesión (M-6, M-7 y M-8)**, compilados con el árbol de `3bcee92` (el commit del TESTER con la prueba del no-store, encima de mi `36d174a`; el código de la app es el de `0724e88`) y copiados fuera del repositorio a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (verificado con `sha256sum -c`):
+**APK de la M-13 (contrato v1.5, los vigentes)**, compilados con el árbol de `29617a7` y copiados a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` nuevo (verificado con `sha256sum -c`). Reemplazan a los de abajo:
+
+| APK | sha256 | Tamaño (antes → después) |
+|---|---|---|
+| `movil-buscador-debug.apk` | `6d6b040554204fc603665dad8246c605df327a3855d0f748785a42b995bef3c8` | 236 872 366 → 236 277 571 bytes |
+| `movil-buscador-release.apk` | `48f8117a841e4dbbbd735c95062c9ce5f2ff5b1f4f5ce779d6852e991d2ed008` | 82 266 821 → 82 177 616 bytes |
+
+**APK anteriores (M-6, M-7 y M-8, reemplazados por la M-13)**, compilados con el árbol de `3bcee92` (el commit del TESTER con la prueba del no-store, encima de mi `36d174a`; el código de la app es el de `0724e88`) y copiados fuera del repositorio a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (verificado con `sha256sum -c`):
 
 | APK | sha256 |
 |---|---|
@@ -293,3 +301,25 @@ Con la autorización del humano, bajé el compose de la carpeta principal con el
 - Desde `0a1d93e`, las etiquetas de los campos con ayuda son exactas: "Placa", "Describa el motivo *", "Desde" y "Hasta" (antes llevaban la ayuda sumada).
 - La app importa `package:material_ui/material_ui.dart`; los widgets de `package:flutter/widgets.dart` son los mismos.
 - No hay variables de entorno nuevas aparte de `--dart-define=API_URL`. No hay migraciones.
+
+## 12. M-13 (contrato v1.5): cliente `ok_http`
+
+**Por qué:** ROJO del paso 1.2 en la S23 (M-12). `http.Client()` es `dart:io` y su TLS (BoringSSL) no lee el `network_security_config` ni las CA de usuario. Caddy registró `http: TLS handshake error from 172.20.0.1:48884: EOF` y no llegó ningún acceso a `/v1/auth/login`.
+
+**Commits:** `a15535f` (pubspec, lock, `main.dart`, `android/build.gradle.kts`) y `29617a7` (`android/app/proguard-rules.pro`). Opción A. No hizo falta el plan B.
+
+| Qué | Cómo |
+|---|---|
+| Versión | `ok_http: 0.1.0` exacta. Es la **única** publicada en pub.dev (agosto de 2024) y pide `jni ^0.10.1`. Licencia BSD-3-Clause (`LICENSE` del paquete: "Copyright 2014, the Dart project authors") |
+| Cambios transitivos en `pubspec.lock` | Entran `ok_http` 0.1.0, `http_profile` 0.1.0 y `web_socket` 0.1.6. Bajan `jni` (1.2.1 → 0.10.1), `path_provider_android` (2.3.1 → 2.2.23) y `package_config` (3.0.0 → 2.2.0) para cumplir `jni ^0.10.1`. Salen `jni_flutter` 1.1.0 y `jni_util` 1.0.0. Ninguna dependencia directa cambia de versión |
+| El cliente sin caché | `lib/main.dart`: `clienteHttp: OkHttpClient()`. El constructor de `ok_http` 0.1.0 hace `bindings.OkHttpClient.new1()`, es decir, `new OkHttpClient()` de OkHttp con su configuración por defecto, que **no tiene `Cache`** (en el paquete, `cache` solo aparece en `close()`, para cerrarla si existiera). No se llama a `newBuilder().cache(...)` en ningún lado. La interfaz `clienteHttp` (§2) y el `network_security_config` no cambian |
+| `compileSdk` de los módulos `jni` y `ok_http` | `android/build.gradle.kts`: solo para esos dos módulos, `compileSdkVersion(37)` en `afterEvaluate`. Sin eso falla `checkDebugAarMetadata`: "`androidx.window.extensions.core:core:1.0.0` requires … compile against version 33 or later … `:jni` is currently compiled against android-31". No cambia `minSdk` ni `targetSdk` |
+| R8 (release) | `proguard-rules.pro`: `-keep class okhttp3.** { *; }`, `-keep class okio.** { *; }` y `-keep class com.example.ok_http.** { *; }`. `ok_http` busca esas clases **por nombre** desde Dart por JNI (`okhttp3/OkHttpClient`, …). En el primer release, sin las reglas, el `classes.dex` no tenía `Lokhttp3/OkHttpClient;` (solo la nombraba `libapp.so`): el release habría fallado al arrancar. Con las reglas, las tres familias están en el dex de los dos APK |
+| Aviso de Flutter | `WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): ok_http … Future versions of Flutter will fail to build`. Con 3.50.1 compila. Queda como riesgo si se cambia de Flutter (la versión está fijada hasta el cierre del MVP, ADR-0017 regla 5) |
+| Comprobaciones | `flutter analyze`: sin avisos. `flutter test`: 137/137 (lo pide la M-13). `aapt dump badging` del release: sin `application-debuggable`, `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'`. `apksigner`: `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE`. `unzip -l` del release: 21 entradas en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en las tres ABI |
+| **Ninguna CA en un APK** | `unzip -l` de los dos APK: ningún `.crt`, `.pem`, `.der`, `.cer`, `.p12` ni `.bks`. Además, dentro de **cada** entrada descomprimida de los dos APK (574 del de depuración y 339 del de release), busqué el DER de `C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt`, los primeros 64 caracteres de su base64 y el texto "Caddy Local Authority": **ninguna coincidencia** |
+
+**Cómo se prueba a mano (en el S23, cuando el PM lo pida):** desde el paso 0.8 del guion. Con el de depuración (`6d6b0405…`), iniciar sesión con `agente1` entra (la CA de usuario ya está instalada) y Caddy registra un acceso a `/v1/auth/login`. Con el de release (`48f8117a…`), el inicio de sesión muestra "No se pudo completar la operación; intente nuevamente" (falla el TLS). **NO VERIFICADO todavía en el teléfono**, porque la M-13 no pide instalarlo.
+
+**Para el arnés:** no cambia ninguna prueba (siguen inyectando `MockClient`). El paso 8 del guion (caché de OkHttp en `cache/` y `files/`) y el paso 11 (login con el release) los pone el TESTER. No hay variables de entorno nuevas ni migraciones.
+
