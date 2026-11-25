@@ -5,6 +5,23 @@
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
 
+## 0-25nov. Preparación de la mini sesión S23 (2026-11-25, tras el reinicio; encargo del PM)
+
+Sin teléfono. Compose arriba desde `Movil_Buscador-flutter/infra` (proxy, api, auth, db, simuladores; los cuatro últimos `healthy`). No es la suite completa.
+
+| Qué | Resultado |
+|---|---|
+| Guion al día (`dc742aa`): contrato v1.4, APK de la M-7/M-8, paso 0.5c del no-store, cómo registrar resultados | Hecho |
+| SHA-256 de los dos APK contra `SHA256SUMS.txt` (paso 0.9) | Coinciden: debug `987be377…40cc1`, release `3528cb54…950381` |
+| Paso 11 (release): `aapt` badging/xmltree, modelo de ML Kit, firma | `pe.prototipo.movilbuscador`, "Movil Buscador", sin `application-debuggable`; `allowBackup` y `usesCleartextTraffic` en `0x0`, `networkSecurityConfig` presente; modelo dentro; `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE`. Control: el debug sí es depurable |
+| Pasos 0.5b y 0.5c | `/v1/salud` 200 con `Cache-Control: no-store` |
+| `test_hu04_sin_cache.py` (venv M-10) | 28/28 |
+| Humo del recorrido §2 por la API (script fuera del repositorio; no imprime clave ni tokens) | `agente1` 200; motivos con `no-store` (5 códigos); `zza-101` → `con_requisitoria` (placa normalizada `ZZA-101`); `ZZB-201` → `sin_requisitoria`; `ZZZ-999` → `placa_no_registrada`; sin motivo → 422 `MOTIVO_REQUERIDO`; bitácora como agente → 403 `SIN_PERMISO`; `supervisor1` → bitácora 200 con `CONSULTA_PLACA` y sin "identificado" |
+| Paso 0.6 (CA de Caddy) | `root.crt` existe en el proxy; la copia la hace el PM en la sesión |
+| Placas de la hoja impresa | `ZZA-101`, `ZZB-201`, `ZZZ-999`: las tres que usa el guion |
+
+Todo lo del teléfono (pasos 0.3 en adelante salvo 0.9 y 11) sigue `NO VERIFICADO` hasta que el PM pase `resultados-s23.md`.
+
 ## 0. Corrida M-9 (2026-11-24, sobre `6790594`)
 
 | Paso de la M-9 | Comando | Resultado |
@@ -296,4 +313,4 @@ Tools • Dart 3.14.0 • DevTools 2.61.0
 - **Qué hace en la red `play-services-mlkit-*`** (§7 v1.2): NO VERIFICADO por decisión del humano (opción A).
 - **PLA-02 "con el foco ahí"** (HU-03 §6): no lo verificaba Jest; con un selector de motivo, el foco no es observable de forma estable en `flutter_test`. Queda para la revisión del UX.
 - **PLA-07 "ícono y color distintos"** y **PLA-06 "gris, sin verde"**: se verifica la ausencia de ✓; el color queda para el UX.
-- **Safe area (§4)** y **todo lo del teléfono** (HU-04 v6 §6 y §8): guion de la mini sesión del 4-dic.
+- **Safe area (§4)** y **todo lo del teléfono** (HU-04 v6 §6 y §8): guion de la mini sesión del 25-nov.
