@@ -67,6 +67,6 @@ Reemplaza: la §1.2 ("Retomar la sesión") y la §5 (fila "Pruebas de la app") d
 Reemplaza: el punto 1 de "Qué entrega cada uno" de los dos roles, en lo que respecta a la versión.
 
 - **Versión:** **Flutter 3.50.1** (stable) con **Dart 3.14.0**, anotada en el changelog del contrato (§6). No se cambia hasta el cierre.
-- **SDK compartido:** el DEV lo instala en `C:\Programas_Portableslutter_3.50.1lutter` y el Android SDK en `C:\Android`. **El TESTER usa esa misma instalación** y no descarga otra copia. Espera a que el DEV confirme que terminó la instalación (`flutter --version` muestra 3.50.1) antes de correr `flutter test`.
+- **SDK compartido:** el DEV lo instala en `C:\Programas_Portables\flutter_3.50.1\flutter` y el Android SDK en `C:\Android`. **El TESTER usa esa misma instalación** y no descarga otra copia. Espera a que el DEV confirme que terminó la instalación (`flutter --version` muestra 3.50.1) antes de correr `flutter test`.
 - Los dos anotan en su informe la salida de `flutter --version` y de `flutter doctor -v`.
 
