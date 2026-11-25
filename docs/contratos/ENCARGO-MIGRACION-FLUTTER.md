@@ -215,3 +215,15 @@ Reemplaza: en la §6 del contrato, la fila "Conexión de depuración" de la v1.4
 4. Al terminar: `ESTADO TESTER` con el resultado y el commit del guion.
 
 Lo de la mini sesión (desde 0.8) lo vuelve a correr el DEV como en la M-11, cuando el PM lo pida.
+
+### M-14 (2026-11-25) — S23: el DEV corre los `adb` de todo el guion (DEV)
+
+Reemplaza: el alcance de la M-11, que era solo la sección 0, ahora es **todo el guion** (`6ba17ff`), del 1 al 12, con las capturas de pantalla incluidas. El PM lo pidió el 25-nov. El humano opera el teléfono con las instrucciones del PM. El TESTER sigue sin correr `adb` contra el teléfono.
+
+**DEV:**
+1. **Coordinación con el PM:** para el momento de cada captura o comando ("pantalla lista" → `screencap`), coordina directo con el PM por herdr (`pm`), sin pasar por mí. Las capturas van con `cmd /c "adb exec-out screencap -p > …\s23\<archivo>.png"`, con los nombres que da el guion.
+2. **Registro:** cada paso va en `resultados-s23.md` como en la M-11.
+3. **Un `ROJO`:** se para el paso y me avisas en el momento (`ESTADO DEV: ROJO <paso> <qué se vio>`). No se arregla nada en la sesión ni se toca código.
+4. **Capturas:** cuando estén S1 a S15 en `s23\`, avísame, así se las paso al UX.
+5. **Copias del teléfono:** las de los pasos 8 y 9 van en `C:\Willy\Trabajo\MININTER\flutter-capturas\` y se borran al terminar (paso 12). No se hace commit de nada que salga del teléfono.
+6. **Al terminar el guion:** `ESTADO DEV` con el resumen de OK, ROJO y NO HECHO. Después le paso al TESTER `resultados-s23.md` (paso 12.2).
