@@ -252,7 +252,7 @@ Ese mismo paquete genera las capturas para el UX.
 
 ## 8. Capturas para el UX (fuera del repositorio)
 
-**`flutter_test`** (390 × 844 dp, ×3): `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\flutter_test\` — 30 PNG:
+**`flutter_test`** (390 × 844 dp, ×3): `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\flutter_test\` — 32 PNG (M-7: se agregaron PLA-01-sin-catalogo y BIT-01-fecha-invalida, y se regeneraron OCR-01-leyendo y BIT-01-filtros con las correcciones; el resto se regeneró igual). Las 30 originales:
 
 AUTH-01, AUTH-01-vacios, AUTH-02, AUTH-03, AUTH-04, AUTH-otro-error · HOME-01-agente, HOME-revisor, HOME-supervisor · ERR-01 · PLA-01, PLA-02-sin-motivo, PLA-02-otro-corto-y-PLA-03-formato, PLA-04-consultando, PLA-05-con-requisitoria, PLA-06-sin-requisitoria, PLA-07-error, PLA-08-no-registrada, PLA-01-con-placa-leida · OCR-01-aviso-mlkit, OCR-01, OCR-01-leyendo, OCR-02, OCR-03, OCR-04 · BIT-01, BIT-01-filtros, BIT-01-vacia, BIT-01-error, BIT-02.
 
