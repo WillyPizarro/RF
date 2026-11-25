@@ -1,6 +1,6 @@
 # ENCARGO LEAD → TESTER y DEV — MIGRACION-FLUTTER
 
-**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.2** (M-1 y M-3), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
+**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (M-1, M-3 y M-4), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
 **Rama:** `migracion-flutter` (rebasada sobre `main` `1204a77`, que ya tiene los ADR-0017 a 0020), en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
 **Plazo:** del 26-nov al 5-dic. Mini sesión física el **jueves 4-dic** o antes. Veredicto el 5 y 6-dic.
 **Pasa por UX:** sí, todas las pantallas (contrato §10).
@@ -77,4 +77,8 @@ Reemplaza: la §7 de la v1.1 y el punto 6 del DEV en "Qué entrega cada uno". De
 - **DEV:** no excluyes nada. En tu informe van: la línea del `build.gradle` del plugin (variante empaquetada `com.google.mlkit:text-recognition`), el fragmento de `releaseRuntimeClasspath` con `play-services-mlkit-text-recognition` y `-common` (dependencia transitiva del POM de Google), y la lista de archivos del modelo **dentro del APK** (`assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`). Lo que esa dependencia haga en la red queda `NO VERIFICADO`. Para Face Detection (HU-05) solo reportas lo que ves, sin agregarlo.
 - **TESTER:** sobre el APK de release, comprueba con `unzip -l` (o `apkanalyzer`) que esos archivos del modelo están. **No** marques en rojo la presencia de `play-services-mlkit-*`. La revisión de la cola `datatransport` sigue en el guion de la mini sesión del 4-dic.
 - **La §5 (`grep -riw`) sigue pendiente de aprobación** en una v1.3. Mientras tanto vale lo que ya les dije: se evalúa con palabra completa.
+
+### M-4 (2026-11-24) — Contrato v1.3: §5 con palabra completa (TESTER)
+
+Reemplaza: el último punto de la M-3 (la §5 pendiente). El humano (vía PM) aprobó la v1.3: la comprobación de la §5 es `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml`, que tiene que salir vacío. **TESTER:** el criterio que dejaste como pendiente en `4201fee` pasa a definitivo; quita la marca "pendiente de aprobación" en tu informe y en `repositorio_test`.
 

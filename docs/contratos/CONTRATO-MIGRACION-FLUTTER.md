@@ -1,8 +1,8 @@
 # CONTRATO — MIGRACION-FLUTTER La app móvil en Flutter (HU-01, 02, 03 y 07, más HU-04)
 
 **Tipo:** Refactor (HU-01, HU-02, HU-03 y HU-07 en la app: el comportamiento no cambia) + Feature (HU-04, construida directo en Flutter)
-**Versión:** v1.2
-**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1 y v1.2 aprobadas (humano vía PM, 2026-11-24)
+**Versión:** v1.3
+**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1, v1.2 y v1.3 aprobadas (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
 **Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `main` `1204a77` (con los ADR-0017 a 0020). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
@@ -205,7 +205,7 @@ abstract class LectorPlaca {
 |---|---|---|---|
 | Código Expo en `apps/movil/` | `App.tsx`, `index.ts`, `package.json`, `package-lock.json`, `tsconfig.json`, `app.json`, `src/` (unas 2.400 líneas de TypeScript) | Ninguno de esos archivos. Ningún `.ts` ni `.tsx` en `apps/movil/` | `git ls-files apps/movil` |
 | Pruebas Jest | `apps/movil/__tests__/` (7 archivos en la referencia) | No existe | `git ls-files apps/movil/__tests__` vacío |
-| Dependencias de Expo | `expo`, `react-native` y los paquetes `@react-native-*` / `expo-*` | Ninguna mención en `apps/movil/pubspec.yaml` ni en `apps/movil/android/` | `grep -ri "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` vacío |
+| Dependencias de Expo | `expo`, `react-native` y los paquetes `@react-native-*` / `expo-*` | Ninguna mención en `apps/movil/pubspec.yaml` ni en `apps/movil/android/` | `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml` vacío (palabra completa, **v1.3**: `android:exported` no cuenta) |
 | Análisis estático | — | `flutter analyze` sin errores ni avisos en `apps/movil/` | Comando |
 | Pruebas de la app | Jest: 111/111 en el veredicto parcial de HU-04 | Cada caso de las pruebas Jest de la referencia tiene su equivalente en `flutter_test` (los casos se mantienen; el código no). **Excepción (v1.1):** `PantallaEstado.test.tsx` no se porta y queda en la matriz como "no se porta: pantalla del Sprint 0 que la app no monta", más los de M-9 a M-12 que faltaban | Matriz del TESTER en `informes/TESTER-MIGRACION-FLUTTER.md`: caso Jest → prueba Dart |
 
@@ -340,3 +340,4 @@ Respuestas del humano (vía PM, 2026-11-24):
 | v1.1 | 2026-11-24 | §1.2: "Retomar la sesión" con la secuencia exacta de la referencia (`POST /v1/auth/refresh` con el token de renovación guardado, después `GET /v1/me` con el token nuevo; sin token, AUTH-01). §5 y §9: `PantallaEstado` y su prueba no se portan | Huecos que reportó el TESTER al armar la matriz (la §1.2 no coincidía con la referencia; la §5 no decía qué hacer con una pantalla que la app no monta) | Humano (vía PM), 2026-11-24 |
 | v1.1 (anotación) | 2026-11-24 | §6: versión fijada **Flutter 3.50.1** (canal stable, publicada el 2026-11-20) con **Dart 3.14.0**, en `apps/movil/pubspec.yaml` (`environment`: `sdk` 3.14.0, `flutter` 3.50.1). SDK en `C:\Programas_Portables\flutter_3.50.1\flutter` y Android SDK en `C:\Android` (cmdline-tools 16111833). No se cambia hasta el cierre del MVP | Decisión 5: la fija el DEV y el LEAD la anota sin vuelta de aprobación (no cambia nada observable) | — (decisión 5 aprobada por el humano, 2026-11-24) |
 | v1.2 | 2026-11-24 | §7: se pide el modelo de ML Kit **dentro del APK** (`assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so`, o lo equivalente) y no la ausencia de `play-services-mlkit-text-recognition`, que llega como dependencia transitiva del POM de Google y no se excluye; lo que esa dependencia haga en la red queda `NO VERIFICADO`; la cola `datatransport` se sigue revisando en la mini sesión del 4-dic; el mismo criterio vale para Face Detection en HU-05 | Hueco que reportó el DEV: el árbol del APK trae `play-services-mlkit-text-recognition` 19.0.1 por el POM oficial del artefacto empaquetado 16.0.1 | Humano (vía PM), 2026-11-24, opción A |
+| v1.3 | 2026-11-24 | §5: la búsqueda de `expo` y `react-native` pasa a `grep -riw` (palabra completa). La intención no cambia: ninguna mención de Expo ni de react-native | Falso positivo que reportó el DEV: `android:exported` (obligatorio desde Android 12) contiene "expo" | Humano (vía PM), 2026-11-24 |
