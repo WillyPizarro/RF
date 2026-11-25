@@ -66,7 +66,7 @@ Contra el VPS (fase B2): `URL_VPS=https://<DOMINIO>`, `CLAVE_USUARIOS_PRUEBA`, `
 | `test_hu04_sin_cache.py` (red interna y proxy) | 28 de 28 |
 | `test_hu01_bitacora_config.py::test_la_clave_no_queda_en_los_logs_del_proxy` | Verde, sobre NGINX |
 
-`movil-buscador-descargas` quedó vacía, como estaba. El guion quedó completo con el informe del DEV (sin marcas `[DEV B1]`): APK de depuración de `main` `5f62f6a4…`, PCAPdroid 2.0.5, mitmproxy 12.3.1, `protoc` 36.2, el proxy del teléfono en el **8090** y cómo se deshace, la CA de mitmproxy en `flutter-capturased\mitm-conf`, las huellas esperadas de las dos CA y, en (a), el borrado de `ca-local` y de los volúmenes `movil-buscador_caddy-datos` y `_caddy-config` (los borra el DEV; van al acta). **Diferencia con el informe del DEV:** el guion no guarda los flujos de mitmproxy con `-w` (llevarían el login con la clave); solo guarda los cuerpos de las subidas con `mitm_guardar_subidas.py`.
+`movil-buscador-descargas` quedó vacía, como estaba. El guion quedó completo con el informe del DEV (sin marcas `[DEV B1]`): APK de depuración de `main` `5f62f6a4…`, PCAPdroid 2.0.5, mitmproxy 12.3.1, `protoc` 36.2, el proxy del teléfono en el **8090** y cómo se deshace, la CA de mitmproxy en `C:/Willy/Trabajo/MININTER/flutter-capturas/red/mitm-conf`, las huellas esperadas de las dos CA y, en (a), el borrado de `ca-local` y de los volúmenes `movil-buscador_caddy-datos` y `_caddy-config` (los borra el DEV; van al acta). **Diferencia con el informe del DEV:** el guion no guarda los flujos de mitmproxy con `-w` (llevarían el login con la clave); solo guarda los cuerpos de las subidas con `mitm_guardar_subidas.py`.
 
 ### Corridas anteriores (M-3)
 
