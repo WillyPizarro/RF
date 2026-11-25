@@ -136,3 +136,19 @@ Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `HU-04.md`).
 1. Las capturas S1 a S5 (§4).
 2. La corrección de las observaciones 1 y 2 y las dos capturas de la observación 3; se confirman con capturas nuevas de `flutter_test` (y S8 y S14 en el teléfono, si la corrección llega antes del miércoles).
 3. S6 a S15 cierran los pendientes de la etapa 2 de HU-04 y el aviso 2 del DEV.
+
+## Confirmación (entrega DEV `0724e88`, M-7, 2026-11-24)
+
+**Resultado: observaciones 1 a 3 cerradas.** Las capturas de `flutter_test` quedan aprobadas. La §4 (safe area) sigue **pendiente** de las capturas S1 a S5 del S23 Ultra (mini sesión del miércoles 25-nov).
+
+- **Qué se revisó:** las capturas nuevas OCR-01-leyendo, BIT-01-filtros, PLA-01-sin-catalogo y BIT-01-fecha-invalida (ahora son 32), y el diff de `0724e88` (`pantalla_ocr.dart` y `pantalla_bitacora.dart`).
+- **Contra qué:** las observaciones 1 a 3 de esta revisión, CONTRATO-HU-03 v5 y HU-07 v5, y las capturas de Expo aprobadas.
+
+| # | Observación | Estado | Comprobación |
+|---|---|---|---|
+| 1 | Círculo del indicador en OCR-01 leyendo | ✔ Resuelta | El círculo mide 76 × 76 dp y queda centrado dentro del marco, sin taparlo ni cubrir el visor. "Capturar" queda desactivado e "Ingresar manualmente" sigue activo. Sin texto nuevo |
+| 2 | Opciones de filtro en BIT-01 | ✔ Resuelta | Cada opción mide lo que su texto y caben dos por fila, como en Expo. Además subieron a 48 dp de alto (lo que se pidió "si se puede"). Con 48 dp el panel queda algo más largo que en Expo, así que "Aplicar filtros" se alcanza con un desplazamiento corto (se ve en BIT-01-fecha-invalida). Se acepta: el alto táctil vale más para el uso con guantes. Sin texto nuevo |
+| 3 | Capturas que faltaban | ✔ Resuelta | **PLA-01 sin catálogo:** ⚠, "No se pudo completar la consulta; intente nuevamente", "Reintentar" y "Volver", sin el formulario, en ámbar. Coincide con HU-03 v4 y con Expo, y cumple la regla 7. **BIT-01 con fecha inválida:** "31/02/2026" en "Desde", con borde de foco y "Use fechas con el formato dd/mm/aaaa." en rojo bajo el campo. Coincide con HU-07 v3 |
+
+- **Regresiones:** no se ven en las pantallas recapturadas. El resto del diff de `0724e88` es solo formato (cortes de línea en `pantalla_bitacora.dart`) y no cambia nada visible.
+- **Para el teléfono:** S8 y S14 de la lista confirman estas dos correcciones sobre la cámara real y con el teclado abierto.
