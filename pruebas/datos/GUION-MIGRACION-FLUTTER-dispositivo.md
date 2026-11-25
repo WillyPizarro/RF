@@ -1,6 +1,6 @@
 # Guion de la mini sesión física — app Flutter en el Samsung Galaxy S23 Ultra (Android 16)
 
-**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (§4 safe area, §6 build) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
+**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (§4 safe area, §6 build, §1.3 no-store de la API) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
 **Cuándo:** el **miércoles 25-nov** (M-6 del encargo; antes era el jueves 4-dic), con el PM y el humano. **El TESTER no corre `adb` contra el teléfono**: el PM corre los comandos y el humano opera el teléfono. El TESTER escribe este guion y después pasa los resultados a `informes/TESTER-MIGRACION-FLUTTER.md`.
 **Reemplaza** a `GUION-HU-04-dispositivo.md` de la referencia `hu-04-expo-referencia` (Expo, dev build con Metro). Los pasos son los mismos, adaptados al APK de Flutter: sin Metro, sin EAS y sin `http-cache` de OkHttp.
 
@@ -33,7 +33,8 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 - **Clave de los usuarios de prueba:** la dicta el humano (`CLAVE_USUARIOS_PRUEBA` de `infra/.env`); no se escribe en ningún archivo.
 - **Comandos:** PowerShell 5.1, desde la raíz del worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`, con `adb` en `C:\Android\platform-tools` (en el `PATH`). En PowerShell 5.1 el `>` corrompe la salida binaria: las copias binarias van con `cmd /c "… > archivo"`.
 - **Paquete de la app:** `pe.prototipo.movilbuscador` (CONTRATO-MIGRACION-FLUTTER §6).
-- **APK de la sesión:** los de la `ENTREGA DEV` (`1382d13`, código `0a1d93e`), **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`: `movil-buscador-debug.apk`, `movil-buscador-release.apk` y `SHA256SUMS.txt` (M-6). En la sesión **no se compila nada**.
+- **APK de la sesión:** los de la entrega M-7/M-8 del DEV (árbol de `3bcee92`, código de la app `0724e88`; informe del DEV §4), **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`: `movil-buscador-debug.apk` (`987be377…40cc1`), `movil-buscador-release.apk` (`3528cb54…950381`) y `SHA256SUMS.txt`. El TESTER los comprobó el 25-nov antes de la sesión. En la sesión **no se compila nada**.
+- **Cómo se registran los resultados:** el PM anota en la columna "Resultado" de cada paso `OK`, `ROJO: <qué se vio>` o `NO HECHO: <por qué>`, en una copia de este guion **fuera del repositorio** (`C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`), sin datos de la clave ni imágenes pegadas. Para las capturas basta el nombre del archivo. Al terminar se la pasa al TESTER (paso 12.2), que la vuelca al informe; un `ROJO` se avisa al LEAD en el momento, no se arregla en la sesión.
 - **CA de Caddy:** los pasos son los de la §9 del informe del DEV (`informes/DEV-MIGRACION-FLUTTER.md`). La copia de la CA va en `C:\Willy\Trabajo\MININTER\ca-local\`, fuera del repositorio.
 - **Flutter:** `C:\Programas_Portables\flutter_3.50.1\flutter\bin\flutter.bat` (M-2). Si `flutter` no está en el `PATH`, usar esa ruta completa.
 
@@ -48,6 +49,7 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 | 0.4 | `adb shell getprop ro.build.version.release` | `16` | |
 | 0.5 | Sistema arrancado **solo desde esta carpeta** (`Movil_Buscador-flutter`; nunca dos carpetas a la vez), con `infra/.env` copiado de la carpeta principal (nunca versionado) y `PROXY_PUERTO_HTTPS=8443`: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d --build` | Contenedores arriba | |
 | 0.5b | `curl.exe -k -s -o NUL -w "%{http_code}" https://localhost:8443/v1/salud` | `200` | |
+| 0.5c | `curl.exe -k -s -D - -o NUL https://localhost:8443/v1/salud \| Select-String -SimpleMatch "no-store"` (v1.4 §1.3) | Una línea `Cache-Control: no-store` | |
 | 0.6 | Sacar la CA de Caddy (§9 paso 2 del DEV): `New-Item -ItemType Directory -Force C:\Willy\Trabajo\MININTER\ca-local \| Out-Null` y `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env cp proxy:/data/caddy/pki/authorities/local/root.crt C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt` | El archivo existe, fuera del repositorio | |
 | 0.6b | Instalarla como certificado del usuario (§9 paso 3): `adb push C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › Certificado de CA; después `adb shell rm /sdcard/Download/caddy-root.crt` | La CA aparece en Ver certificados de seguridad › Usuario; `Download/` sin el archivo | |
 | 0.7 | `adb reverse tcp:8443 tcp:8443` y `adb reverse --list` | `tcp:8443 tcp:8443` | |
