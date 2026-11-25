@@ -173,12 +173,12 @@ class ServidorFalso {
     tokensAcceso.clear();
     rutas
       ..clear()
-      ..['POST /v1/auth/login'] = (_) => Resp(200, darSesion(rol, inactividadS: inactividadS))
-      ..['POST /v1/auth/refresh'] = (_) => Resp(200, darSesion(rol, inactividadS: inactividadS))
-      ..['POST /v1/auth/logout'] = (_) => const Resp(204)
-      ..['GET /v1/me'] = (ll) => (ll.token != null && tokensAcceso.contains(ll.token))
+      ..['POST /v1/auth/login'] = ((_) => Resp(200, darSesion(rol, inactividadS: inactividadS)))
+      ..['POST /v1/auth/refresh'] = ((_) => Resp(200, darSesion(rol, inactividadS: inactividadS)))
+      ..['POST /v1/auth/logout'] = ((_) => const Resp(204))
+      ..['GET /v1/me'] = ((ll) => (ll.token != null && tokensAcceso.contains(ll.token))
           ? Resp(200, personas[me]!.json)
-          : errorApi(401, 'NO_AUTENTICADO', 'Inicie sesión nuevamente')
-      ..['GET /v1/motivos'] = (_) => Resp(200, {'motivos': motivos, 'formato_placa': formato});
+          : errorApi(401, 'NO_AUTENTICADO', 'Inicie sesión nuevamente'))
+      ..['GET /v1/motivos'] = ((_) => Resp(200, {'motivos': motivos, 'formato_placa': formato}));
   }
 }

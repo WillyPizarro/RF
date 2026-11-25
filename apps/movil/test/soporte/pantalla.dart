@@ -3,7 +3,7 @@
 // accesibilidad, los textos con `find.text`, la vista raíz con `Key('app-raiz')` y el "atrás"
 // del sistema con `handlePopRoute`.
 import 'package:clock/clock.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movil_buscador/app.dart';
@@ -236,9 +236,15 @@ EditableText editable(WidgetTester t, String etiqueta) {
 
 // --- Botones y textos ----------------------------------------------------------------------
 
-/// Toca el texto visible `texto` (el último a la vista, como en Jest).
+/// Toca el texto visible `texto` (el último a la vista, como en Jest). Si está en la pantalla
+/// pero fuera de la vista (la de `flutter_test` mide 800 × 600), primero se desplaza hasta él,
+/// como haría el usuario.
 Future<void> tocar(WidgetTester t, String texto) async {
   final f = find.text(texto).hitTestable();
+  if (f.evaluate().isEmpty && find.text(texto).evaluate().isNotEmpty) {
+    await t.ensureVisible(find.text(texto).last);
+    await t.pump();
+  }
   expect(f, findsWidgets, reason: 'texto tocable "$texto"');
   await t.tap(f.last, warnIfMissed: false);
   await t.pump();
@@ -257,7 +263,7 @@ void esperaHabilitado(WidgetTester t, Finder f, bool habilitado) {
   expect(f, findsWidgets);
   expect(
     t.getSemantics(f.first),
-    containsSemantics(hasEnabledState: true, isEnabled: habilitado),
+    isSemantics(hasEnabledState: true, isEnabled: habilitado),
     reason: habilitado ? 'debería estar habilitado' : 'debería estar deshabilitado',
   );
 }

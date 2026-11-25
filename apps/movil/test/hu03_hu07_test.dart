@@ -4,7 +4,7 @@
 // indicador "Cargando" de la §1.2.
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'soporte/dobles.dart';
