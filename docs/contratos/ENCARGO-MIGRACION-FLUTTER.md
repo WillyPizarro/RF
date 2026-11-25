@@ -161,3 +161,18 @@ Reemplaza: la regla 7 del encargo, solo para este caso. El humano (vía PM) auto
 3. Anota en tu informe la ruta del venv, la versión y que **se borra al cierre de la migración** (`Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\venv-pruebas`).
 
 Al terminar: `ESTADO TESTER` con el resultado.
+
+### M-11 (2026-11-25) — Mini sesión S23: el DEV corre los `adb` de la preparación (DEV)
+
+Reemplaza: en el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` (`dc742aa`), "el PM corre los comandos", **solo para los pasos de la sección 0 que se listan aquí**. El PM lo pidió el 25-nov. El teléfono es el S23 Ultra `R5CW21ERL2L` (SM-S918B), ya autorizado. El humano opera el teléfono con las instrucciones que le pasa el PM. El TESTER sigue sin correr `adb` contra el teléfono.
+
+**DEV**, en este orden, desde la raíz del worktree `-flutter`, en PowerShell 5.1:
+1. **Registro:** si no existe `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`, créalo como copia del guion (fuera del repositorio). En la columna "Resultado" de cada paso que corras anota `OK`, `ROJO: <qué se vio>` o `NO HECHO: <por qué>`. No escribas la clave ni pegues imágenes.
+2. Pasos **0.2, 0.3, 0.4 y 0.5c** del guion. El compose no se baja ni se reconstruye: el 0.5 queda `OK` con lo que está arriba.
+3. Paso **0.6**: saca la CA a `C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt` y anota en el registro su huella SHA-256 y su vigencia (`certutil -dump`). No la copies al repositorio.
+4. Paso **0.7** (`adb reverse tcp:8443 tcp:8443` y `--list`).
+5. Pasos **0.8 a 0.13**: desinstala lo que haya con el paquete `pe.prototipo.movilbuscador` (Expo o un Flutter anterior), comprueba los SHA, instala el APK de depuración `987be377…` y anota versión, flags y G0/P0. Si un SHA no coincide, **no instales** y avísame.
+6. **0.6b**, solo si el humano no encuentra en el teléfono una CA de usuario de Caddy con la misma huella SHA-256 del punto 3: `adb push` de la CA a `/sdcard/Download/`, espera el aviso de que el humano la instaló y después `adb shell rm /sdcard/Download/caddy-root.crt`.
+7. No compiles nada ni toques código. Tampoco abras la app: desde la sección 1 en adelante lo hace el humano.
+
+Al terminar, `ESTADO DEV` con: pasos OK/ROJO, huella de la CA, versionName y flags, G0/P0, y si hace falta el 0.6b.
