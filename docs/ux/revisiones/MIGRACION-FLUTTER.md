@@ -8,6 +8,8 @@ Rol: UX. Fecha: 2026-11-24. Encargo: LEAD → UX (CONTRATO-MIGRACION-FLUTTER v1.
 
 **Actualización 2026-11-25: §4 (safe area) aprobada** con S1 a S5 del S23 Ultra. Ver la sección "Confirmación §4 (S23 Ultra)" al final.
 
+**Aprobación final del UX (2026-11-25, tercera vuelta del S23, M-15):** MIGRACION-FLUTTER queda **aprobada** por UX. Las observaciones 1 a 7 están cerradas y no queda nada que bloquee. Ver la sección "Confirmación M-15" al final.
+
 ## Qué se revisó
 
 - **Capturas de `flutter_test`** (390 × 844 dp, ×3), en `Movil_Buscador_capturas/MIGRACION-FLUTTER/flutter_test` (fuera del repositorio). Son 30: AUTH-01, AUTH-01-vacios, AUTH-02, AUTH-03, AUTH-04, AUTH-otro-error, HOME-01-agente, HOME-revisor, HOME-supervisor, ERR-01, PLA-01, PLA-02-sin-motivo, PLA-02-otro-corto-y-PLA-03-formato, PLA-04-consultando, PLA-05-con-requisitoria, PLA-06-sin-requisitoria, PLA-07-error, PLA-08-no-registrada, PLA-01-con-placa-leida, OCR-01-aviso-mlkit, OCR-01, OCR-01-leyendo, OCR-02, OCR-03, OCR-04, BIT-01, BIT-01-filtros, BIT-01-vacia, BIT-01-error y BIT-02.
@@ -217,3 +219,27 @@ Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `HU-04.md`).
 **Qué falta para el aprobado final de MIGRACION-FLUTTER:**
 1. La corrección de la observación 7 en la M-15, confirmada con una captura nueva de S14 desde el APK nuevo (teclado con "/", o la fecha 25/11/2026 escrita completa en el campo).
 2. Las observaciones 5 y 6, si entran en la M-15, se confirman con capturas nuevas de S7 y S7b con la letra al máximo. Si no entran, quedan anotadas como MEJORA y no frenan el aprobado.
+
+## Confirmación M-15 (tercera vuelta del S23 Ultra, 25-nov)
+
+**Resultado: observaciones 5, 6 y 7 cerradas, ninguna BLOQUEA. Aprobación final del UX de MIGRACION-FLUTTER.**
+
+- **Qué se revisó:** `S07-ocr-01-aviso-letra-maxima-v3.png`, `S07b-ocr-01-aviso-letra-maxima-desplazado-v3.png`, `S14-bit-01-filtros-teclado-v3.png` y `S14b-bit-01-fechas-escritas-v3.png`, en la misma carpeta y sin pisar las anteriores. Son del APK de depuración `5f62f6a4` (código `d81c6f9`), en modo Botones. S7 y S7b se tomaron con la letra a 2.0. También se revisó el diff de `d81c6f9` (`comunes.dart`, `pantalla_ocr.dart` y `pantalla_bitacora.dart`).
+- **Contra qué:** las observaciones 5, 6 y 7 de la sección anterior, `HU-04.md` (accesibilidad del aviso), `HU-03-07.md` (observación 4) y CONTRATO-HU-07 v3 (formato dd/mm/aaaa y su error).
+
+| # | Observación | Estado | Comprobación |
+|---|---|---|---|
+| 5 | Desplazamiento oculto en el aviso con la letra al máximo | ✔ Resuelta, sin BLOQUEA | Con la letra a 2.0 se ve una barra de desplazamiento fina y gris en el borde derecho del visor, sin tocar nada. Arriba en S7 y abajo en S7b, así que también indica cuánto falta. El texto completo y "Entendido" se alcanzan desplazando, y los textos no cambiaron. La barra queda en el borde del visor y no en el de la tarjeta, y tiene poco contraste. Se acepta: el criterio era que el desplazamiento no quedara oculto, y ya no lo está |
+| 6 | Franja en dos líneas pegada al borde | ✔ Resuelta, sin BLOQUEA | Con la letra a 2.0 "DATOS SINTÉTICOS · / PROTOTIPO" sale en dos líneas centradas y con margen a los dos lados. Con la letra normal (S14 y S14b) sigue en una línea, igual que antes. Diff: `textAlign: TextAlign.center` y relleno lateral de 16 dp, sin limitar el tamaño de la letra |
+| 7 | Filtro de fechas inusable en el S23 (teclado sin "/") | ✔ Resuelta, sin BLOQUEA | El teclado de Samsung sigue sin "/" (S14-v3), pero la app la pone sola. Tecleando solo dígitos, "Desde" y "Hasta" quedan en `25/11/2026` (S14b-v3), y según el DEV "Aplicar filtros" muestra la lista sin error. Cumple el criterio de la M-15: se escribe dd/mm/aaaa sin cambiar de teclado. En el diff, el formateador `_BarraDeFecha` solo actúa cuando se agrega un dígito al final. Borrar, escribir la "/" a mano o pegar quedan igual, y una fecha mal escrita sigue mostrando el error de HU-07 v3. Las opciones de "Tipo" siguen agrupadas. No hay texto nuevo |
+
+- **Regresiones:** no se ven. En las cuatro capturas la barra de estado y la franja siguen como en la §4.
+- **Nota sin observación:** si en la fase de pruebas del 16 al 26-dic algún agente no nota la barra del aviso con la letra grande, se puede subir su contraste o pasarla al borde de la tarjeta. Hoy no hace falta.
+
+**Estado final del UX en MIGRACION-FLUTTER:**
+- capturas de `flutter_test` aprobadas (observaciones 1 a 3);
+- §4 (safe area) aprobada con S1 a S5;
+- símbolos y etapa 2 de HU-04 cerrados con S6 a S15;
+- observaciones 5, 6 y 7 cerradas con la M-15.
+
+**Nada pendiente del UX.** Sigue fuera del UX el aviso de ML Kit que vuelve a salir al recrearse la actividad: el humano lo resolvió con CONTRATO-HU-04 v7, que solo cambia texto y no cambia ninguna pantalla.
