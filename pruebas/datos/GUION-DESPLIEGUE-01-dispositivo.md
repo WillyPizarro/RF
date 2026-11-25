@@ -15,7 +15,7 @@
 - **Comandos:** PowerShell 5.1 desde la raíz del worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`; `adb` en `C:\Android\platform-tools`. Las copias binarias van con `cmd /c "… > archivo"`.
 - **Compose:** uno solo arriba, desde `-despliegue` (con NGINX). Nunca dos carpetas a la vez.
 - **APK:** el de **depuración de `main`** (`pe.prototipo.movilbuscador`, contrato de la migración v1.5) para (a) a (c), fuera del repositorio. Su SHA-256 lo anota el DEV en 0.2. El de **release** solo en (d).
-- **Lo que depende de la ENTREGA DEV B1** (ruta de la CA local de NGINX, versiones de mitmproxy, `protoc` y PCAPdroid, cómo pasa el tráfico por mitmproxy y cómo se deshace) está marcado **`[DEV B1]`**: se completa con el informe `informes/DEV-DESPLIEGUE-01.md` (sección v2.1) antes de la sesión.
+- **Datos de la ENTREGA DEV B1** (`71b5ef0`, `informes/DEV-DESPLIEGUE-01.md`, sección "Contrato v2.1"): versiones de mitmproxy, `protoc` y PCAPdroid; el proxy del teléfono en el **8090**; la CA de mitmproxy en `C:\Willy\Trabajo\MININTER\flutter-capturas\red\mitm-conf`; la CA de NGINX con `infra/exportar-ca-local.ps1`.
 
 # Sesión 1 — local, con el cable (partes (a), (b), (c) y la limpieza (e))
 
@@ -24,7 +24,7 @@
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
 | 0.1 | `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env ps` | `proxy` (NGINX), `api`, `auth`, `db` y `simuladores` arriba, **desde `-despliegue`** | |
-| 0.2 | APK de depuración de `main`: `Get-FileHash -Algorithm SHA256 <ruta del APK de depuración de main>` `[DEV B1]` | Anotar el SHA-256 y el commit de `main` del que salió | |
+| 0.2 | APK de depuración de `main`: `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` (el de la M-15 de la migración, que es `main`; informe del DEV de DESPLIEGUE-01). `(Get-FileHash -Algorithm SHA256 C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk).Hash.ToLower()` | `5f62f6a4c8eb192e38bddd3895409a84325f12e914c69b1fc1801ad08b997085`. Si no coincide, **no se instala** y se avisa al LEAD | |
 | 0.3 | `curl.exe -k -s -o NUL -w "%{http_code}" https://localhost:8443/v1/salud` | `200` | |
 | 0.4 | `adb devices` | El S23 Ultra (`R5CW21ERL2L`) como `device` | |
 | 0.5 | `adb reverse tcp:8443 tcp:8443` y `adb reverse --list` | `tcp:8443 tcp:8443` | |
@@ -35,8 +35,8 @@
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
 | a.1 | En el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › **Usuario** › la CA de Caddy (`Caddy Local Authority - 2026 ECC Root`) › **Quitar** | Ya no está en la lista de Usuario | |
-| a.2 | En la PC: `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\ca-local` | `Test-Path C:\Willy\Trabajo\MININTER\ca-local` → `False`. Va al acta (§8 v2.1) | |
-| a.3 | La CA local de NGINX: `.\infra\exportar-ca-local.ps1` la exporta a `C:\Willy\Trabajo\MININTER\ca-local-nginx\movil-buscador-ca-local.crt` (fuera del repositorio; aviso del DEV, 25-nov). Anotar su **huella SHA-256** con `certutil -dump <archivo>` («Hash de cert(sha256)») | El archivo existe **fuera** del repositorio; huella anotada | |
+| a.2 | En la PC: `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\ca-local`. Después, **el DEV** borra los volúmenes viejos de Docker que guardan la **llave de la CA de Caddy**: `docker volume rm movil-buscador_caddy-datos movil-buscador_caddy-config` (pedido del LEAD, 25-nov) | `Test-Path C:\Willy\Trabajo\MININTER\ca-local` → `False`; `docker volume ls --format '{{.Name}}' \| Select-String caddy` → sin salida. Los dos van al **acta de eliminación** (§8 v2.1) | |
+| a.3 | La CA local de NGINX: `.\infra\exportar-ca-local.ps1` la exporta a `C:\Willy\Trabajo\MININTER\ca-local-nginx\movil-buscador-ca-local.crt` (fuera del repositorio; aviso del DEV, 25-nov). Anotar su **huella SHA-256** con `certutil -dump <archivo>` («Hash de cert(sha256)») | El archivo existe **fuera** del repositorio; huella anotada: empieza en `14:74:99:F3` y termina en `98:D2` (informe del DEV). Si es otra, la CA se regeneró: se avisa al LEAD antes de instalarla | |
 | a.4 | `adb push C:\Willy\Trabajo\MININTER\ca-local-nginx\movil-buscador-ca-local.crt /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › **Certificado de CA**; después `adb shell rm /sdcard/Download/movil-buscador-ca-local.crt` | La CA aparece en Ver certificados de seguridad › Usuario, con la **misma huella** de a.3; `Download/` sin el archivo | |
 | a.5 | Desinstalar lo que haya: `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package`) | |
 | a.6 | `adb install <APK de depuración de main>` y `adb shell dumpsys package pe.prototipo.movilbuscador \| Select-String "flags="` | `Success`; `DEBUGGABLE`, sin `ALLOW_BACKUP` | |
@@ -52,7 +52,7 @@ Requiere **Wi-Fi real** en el teléfono: el túnel de `adb reverse` no sirve par
 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
-| b.1 | Instalar **PCAPdroid** (GPL-3.0) `[DEV B1: APK de F-Droid con su SHA-256, o el enlace de Google Play]`. Anotar la versión | Instalada; versión anotada | |
+| b.1 | Instalar **PCAPdroid 2.0.5** (GPL-3.0; `com.emanuelef.remote_capture`) desde F-Droid <https://f-droid.org/packages/com.emanuelef.remote_capture/> o Google Play <https://play.google.com/store/apps/details?id=com.emanuelef.remote_capture> (informe del DEV). Lo instala el humano | Instalada; versión anotada (Ajustes › Aplicaciones › PCAPdroid) | |
 | b.2 | Cola antes: `adb shell run-as pe.prototipo.movilbuscador ls -la databases` y copia de `com.google.android.datatransport.events` a `C:\Willy\Trabajo\MININTER\flutter-capturas\red\cola-antes\` (como el paso 9.4 de la migración); `python -I pruebas\datos\revisar_datatransport.py C:\Willy\Trabajo\MININTER\flutter-capturas\red\cola-antes` | Anotar **la cantidad de eventos** de `events` (no su contenido); código 0 | |
 | b.3 | Id de la tarea de subida: `adb shell dumpsys jobscheduler \| Select-String -Context 0,3 "pe.prototipo.movilbuscador"` | Anotar el id del job de `com.google.android.datatransport` (si no aparece, anotarlo: la cola puede no tener nada pendiente) | |
 | b.4 | **Corrida 1, la app:** PCAPdroid › filtro de app = Movil Buscador (`pe.prototipo.movilbuscador`) › iniciar; aceptar el diálogo de VPN de Android | Captura en marcha | |
@@ -69,10 +69,10 @@ El APK de depuración confía en las CA de usuario (`<debug-overrides>`, MIGRACI
 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
-| c.1 | Versiones: `mitmdump --version` y `protoc --version` `[DEV B1]` | Anotadas (mitmproxy es MIT; protoc, BSD-3) | |
-| c.2 | En la PC: `mitmdump --listen-port 8888 --ssl-insecure -s pruebas\datos\mitm_guardar_subidas.py --set salida=C:\Willy\Trabajo\MININTER\flutter-capturas\red\cuerpos` (`--ssl-insecure` porque, hacia la API local, mitmproxy no conoce la CA de NGINX) | Escuchando en 8888 (no en 8080: ese puerto es el HTTP del NGINX local, `PROXY_PUERTO_HTTP`) | |
-| c.3 | El tráfico del teléfono por mitmproxy `[DEV B1: método probado y cómo se deshace]`. Por ejemplo: `adb reverse tcp:8888 tcp:8888` y `adb shell settings put global http_proxy 127.0.0.1:8888` | En el teléfono, el navegador a `http://mitm.it` muestra la página de mitmproxy | |
-| c.4 | CA de mitmproxy como **CA de usuario**: desde `http://mitm.it` (Android) o con `adb push` de `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer` a `/sdcard/Download/` e Instalar desde el almacenamiento › Certificado de CA; después borrar de `Download/` | Aparece en Usuario | |
+| c.1 | Versiones: `C:\Programas_Portables\mitmproxy-12.3.1\mitmdump.exe --version` y `C:\Programas_Portables\protoc-36.2\bin\protoc.exe --version` | mitmproxy **12.3.1** (MIT) y `libprotoc 36.2` (BSD-3) | |
+| c.2 | En la PC: `C:\Programas_Portables\mitmproxy-12.3.1\mitmdump.exe --listen-port 8090 --set confdir=C:\Willy\Trabajo\MININTER\flutter-capturas\red\mitm-conf --ssl-insecure -s pruebas\datos\mitm_guardar_subidas.py --set salida=C:\Willy\Trabajo\MININTER\flutter-capturas\red\cuerpos`. **Sin `-w`:** el informe del DEV sugiere guardar los flujos con `-w nivel2.mitm`, pero esos flujos llevarían el login con la clave; aquí solo se guardan los cuerpos de las subidas a Google (regla de arriba). `--ssl-insecure` porque, hacia `https://localhost:8443`, mitmproxy no conoce la CA de NGINX | Escuchando en **8090** (no en 8080: es el HTTP del NGINX local) | |
+| c.3 | El tráfico del teléfono por mitmproxy (método del DEV, probado sin el teléfono): `adb reverse tcp:8090 tcp:8090` y `adb shell settings put global http_proxy 127.0.0.1:8090` | `adb shell settings get global http_proxy` → `127.0.0.1:8090`; en el teléfono, el navegador a `http://mitm.it` muestra la página de mitmproxy | |
+| c.4 | CA de mitmproxy como **CA de usuario**: `adb push C:\Willy\Trabajo\MININTER\flutter-capturas\red\mitm-conf\mitmproxy-ca-cert.cer /sdcard/Download/`; en el teléfono: Instalar desde el almacenamiento › Certificado de CA; después `adb shell rm /sdcard/Download/mitmproxy-ca-cert.cer`. Huella con `certutil -dump C:\Willy\Trabajo\MININTER\flutter-capturas\red\mitm-conf\mitmproxy-ca-cert.cer` | Aparece en Usuario como `mitmproxy`, con la huella SHA-256 que empieza en `95:E3:03:AC` y termina en `BD:AC` (informe del DEV) | |
 | c.5 | En la app: iniciar sesión (si hace falta) y leer `ZZA-101` impresa con 📷 (como b.5) | OCR-02. En la consola de mitmdump se ven las solicitudes a la API local (no se guardan) | |
 | c.6 | Forzar la subida como b.6 y esperar hasta 5 minutos | En `…\red\cuerpos\resumen.tsv`, al menos una línea a `firebaselogging.googleapis.com` | |
 | c.7 | `python -I pruebas\datos\revisar_datatransport.py --cuerpos C:\Willy\Trabajo\MININTER\flutter-capturas\red\cuerpos` | Código 0: "Ninguna imagen … y ningún texto de placa ZZ en las subidas". **Si aparece una imagen o un texto `ZZ…`, es un `ROJO` y la decisión se reabre** | |
@@ -83,7 +83,7 @@ El APK de depuración confía en las CA de usuario (`<debug-overrides>`, MIGRACI
 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
-| e.1 | Quitar el proxy del teléfono `[DEV B1]`, por ejemplo `adb shell settings put global http_proxy :0` y `adb reverse --remove tcp:8888` | `adb shell settings get global http_proxy` → `:0` o `null`; el navegador ya no va a `mitm.it` | |
+| e.1 | Quitar el proxy del teléfono, en este orden (informe del DEV): `adb shell settings put global http_proxy :0`, `adb shell settings delete global http_proxy` y `adb reverse --remove tcp:8090` | `adb shell settings get global http_proxy` → `null`; el navegador ya no va a `mitm.it` | |
 | e.2 | En el teléfono: Ver certificados de seguridad › Usuario › **quitar la CA de mitmproxy** | Ya no está; la de NGINX **sigue** (se quita al cierre, §8) | |
 | e.3 | Desinstalar **PCAPdroid** | No está en Ajustes › Aplicaciones | |
 | e.4 | Cerrar `mitmdump` (Ctrl+C) | — | |

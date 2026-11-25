@@ -3,7 +3,7 @@
 **Contrato:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1** (aprobado el 25-nov), con la anotación `1cb361a` (`DESCARGA_APK_DIR`).
 **Encargo:** `docs/contratos/ENCARGO-DESPLIEGUE-01.md`, **M-3** (fase B1, sin VPS).
 **Rama:** `despliegue-01`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`, rebasada sobre `main` `889a91b`.
-**Estado:** pruebas y guion escritos (`1e7e41f`); **regresión local con NGINX corrida** el 25-nov sobre el árbol de trabajo del DEV (sin commit todavía), con el compose quieto desde `-despliegue`: **76 pasan, 2 fallan** por la misma regla (imagen del `proxy`, §4), que espera el arbitraje del LEAD. No se miró el código del DEV.
+**Estado:** sobre la ENTREGA DEV B1 (`71b5ef0`): **regresión local con NGINX 78 de 78 en verde**, con la regla de la imagen ajustada por la M-4 (se apartó la prueba, vuelta 1). Guion de las dos sesiones completo. No se miró el código del DEV (del `Dockerfile` solo se leen las líneas `FROM`, M-4).
 
 La fase A (v1, `ef8917d`) dejó `test_despliegue_vps.py`, `test_compose_vps.py` y `pruebas/despliegue/COMANDOS-VPS.md` sin informe propio; quedan descritos aquí con sus cambios de la v2.1.
 
@@ -56,6 +56,19 @@ PROXY_DISPONIBLE=1 C:/Willy/Trabajo/MININTER/venv-pruebas/Scripts/python.exe -m 
 Contra el VPS (fase B2): `URL_VPS=https://<DOMINIO>`, `CLAVE_USUARIOS_PRUEBA`, `DESCARGA_APK_USUARIO`, `DESCARGA_APK_CLAVE` y `APK_SHA256` en el entorno, y `pytest services/api/tests/test_despliegue_vps.py`.
 
 ## 4. Resultados
+
+**Corrida sobre la ENTREGA DEV B1 (`71b5ef0`, 25-nov), una vez, ~31 s**, con el compose arriba desde `-despliegue` (comando del §3, más `test_compose_vps.py`): **78 de 78 en verde**.
+
+| Archivo | Resultado |
+|---|---|
+| `test_proxy_nginx.py` | 32 de 32, incluida `test_proxy_es_nginx_con_version_fijada` con la regla de la M-4 (`build:` con `FROM nginx:1.30.8-alpine`; `nginx -v` en marcha = 1.30.8) |
+| `test_compose_vps.py` | Todo en verde, incluida `test_proxy_del_vps_es_nginx_fijado` (M-4) |
+| `test_hu04_sin_cache.py` (red interna y proxy) | 28 de 28 |
+| `test_hu01_bitacora_config.py::test_la_clave_no_queda_en_los_logs_del_proxy` | Verde, sobre NGINX |
+
+`movil-buscador-descargas` quedó vacía, como estaba. El guion quedó completo con el informe del DEV (sin marcas `[DEV B1]`): APK de depuración de `main` `5f62f6a4…`, PCAPdroid 2.0.5, mitmproxy 12.3.1, `protoc` 36.2, el proxy del teléfono en el **8090** y cómo se deshace, la CA de mitmproxy en `flutter-capturased\mitm-conf`, las huellas esperadas de las dos CA y, en (a), el borrado de `ca-local` y de los volúmenes `movil-buscador_caddy-datos` y `_caddy-config` (los borra el DEV; van al acta). **Diferencia con el informe del DEV:** el guion no guarda los flujos de mitmproxy con `-w` (llevarían el login con la clave); solo guarda los cuerpos de las subidas con `mitm_guardar_subidas.py`.
+
+### Corridas anteriores (M-3)
 
 **Regresión local con NGINX** (25-nov, una vez, ~30 s; comando del §3), con el compose recreado por el DEV a las ~17:47 (`proxy` de `infra/nginx/`, `PROXY_PUERTO_HTTP=8080`, `PROXY_PUERTO_HTTPS=8443`, `DESCARGA_APK_DIR` = `C:\Willy\Trabajo\MININTER\movil-buscador-descargas`):
 
