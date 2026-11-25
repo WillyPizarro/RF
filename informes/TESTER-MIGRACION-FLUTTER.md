@@ -200,9 +200,29 @@ C:\Programas_Portables\flutter_3.50.1\flutter\bin\flutter.bat test
 
 | Qué | Valor |
 |---|---|
-| Flutter | 3.50.1 (stable), Dart 3.14.0, instalación compartida del DEV en `C:\Programas_Portables\flutter_3.50.1\flutter` (M-2). **Todavía no instalado** al escribir este informe |
+| Flutter | 3.50.1 (stable), Dart 3.14.0, instalación compartida del DEV en `C:\Programas_Portables\flutter_3.50.1\flutter` (M-2). El TESTER no instaló nada propio |
 | Android SDK | `C:\Android` (del DEV) |
-| `flutter --version` y `flutter doctor -v` | Pendientes |
+
+`flutter --version` (2026-11-24):
+
+```
+Flutter 3.50.1 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision ae9b586f34 (6 days ago) • 2026-11-18 17:01:07 -0800
+Engine • hash 51379e6df48ea8ee7205623b90fe66491cad8df3 (revision 4d35714800) (6 days ago) • 2026-11-18 01:50:07.000Z
+Tools • Dart 3.14.0 • DevTools 2.61.0
+```
+
+`flutter doctor -v` (2026-11-24), resumen:
+
+| Categoría | Resultado |
+|---|---|
+| Flutter | `[!]` 3.50.1 stable en `C:\Programas_Portables\flutter_3.50.1\flutter`, Dart 3.14.0. Avisa solo que `flutter` y `dart` no están en el `PATH` (se usa la ruta completa) |
+| Windows | `[√]` Windows 11 25H2 |
+| **Android toolchain** | **`[!]` "Android SDK at C:\Android" pero "Unable to locate Android SDK" y "No valid Android SDK platforms found in C:\Android\platforms. Directory was empty."** No afecta a `flutter test`; **sí bloquea** el APK (`flutter build apk`), `aapt` (build-tools) y la mini sesión. Avisado al LEAD |
+| Chrome | `[√]` (no se usa) |
+| Visual Studio | `[!]` faltan los componentes de C++ (solo para apps de Windows; no se usa) |
+| Dispositivos | `[√]` Windows, Chrome y Edge (sin teléfono conectado; normal) |
+| Red | `[√]` |
 
 ## 7. NO VERIFICADO (por diseño o por ahora)
 
