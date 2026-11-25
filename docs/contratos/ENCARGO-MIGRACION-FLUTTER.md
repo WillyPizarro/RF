@@ -61,3 +61,12 @@ Reemplaza: la §1.2 ("Retomar la sesión") y la §5 (fila "Pruebas de la app") d
 
 1. **`PantallaEstado` no se porta.** Ni el DEV la construye ni el TESTER porta `PantallaEstado.test.tsx`. En la matriz queda como "no se porta: pantalla del Sprint 0 que la app no monta".
 2. **"Retomar la sesión" (§1.2) con la secuencia exacta de la referencia:** al abrir la app con un token de renovación guardado, **primero** `POST /v1/auth/refresh` con ese token y **después** `GET /v1/me` con el token de acceso nuevo, y se va al inicio del rol. **Sin token guardado: AUTH-01**, sin enviar ninguna solicitud de sesión. El TESTER lo prueba con el orden de las solicitudes del `MockClient`; el DEV lo implementa así.
+
+### M-2 (2026-11-24) — Versión de Flutter fijada (TESTER y DEV)
+
+Reemplaza: el punto 1 de "Qué entrega cada uno" de los dos roles, en lo que respecta a la versión.
+
+- **Versión:** **Flutter 3.50.1** (stable) con **Dart 3.14.0**, anotada en el changelog del contrato (§6). No se cambia hasta el cierre.
+- **SDK compartido:** el DEV lo instala en `C:\Programas_Portableslutter_3.50.1lutter` y el Android SDK en `C:\Android`. **El TESTER usa esa misma instalación** y no descarga otra copia. Espera a que el DEV confirme que terminó la instalación (`flutter --version` muestra 3.50.1) antes de correr `flutter test`.
+- Los dos anotan en su informe la salida de `flutter --version` y de `flutter doctor -v`.
+
