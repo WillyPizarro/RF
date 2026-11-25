@@ -3,7 +3,25 @@
 **Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.1** (con la M-1 y la M-2 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
 **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 y M-2).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
-**Estado:** **ENTREGA PARCIAL 0 (sin ejecutar).** Las pruebas están escritas contra la interfaz de la §2 y **todavía no se compilaron ni corrieron**: falta la interfaz del DEV (`lib/app.dart`, `lib/bordes/bordes.dart`) y la instalación del SDK compartido (M-2). Todo queda `NO EJECUTADO` hasta la entrega del DEV.
+**Estado:** **corrida temprana contra la interfaz del DEV (`dd08a54`), antes de la `ENTREGA DEV`.** Las pruebas de la app (`flutter_test`) compilan y pasan: **120/120**. `repositorio_test` se corrió sobre el árbol de trabajo, con el `android/` del DEV todavía sin commit y el código Expo sin borrar: sus rojos son trabajo en curso, no hallazgos (§8). Esta no es la suite completa del cierre (§10 del contrato, con orden del LEAD).
+
+## 0. Corrida 1 (2026-11-24, contra `dd08a54`)
+
+| Qué | Resultado |
+|---|---|
+| `flutter analyze test` | `No issues found!` |
+| `flutter test test/hu01_hu02_test.dart test/hu01_retomar_test.dart test/hu03_hu07_test.dart test/hu04_ocr_test.dart test/red_sin_cache_test.dart` | **`+120: All tests passed!`** |
+| `flutter test test/repositorio_test.dart` (árbol de trabajo) | 11 verdes, 5 rojos de trabajo en curso: quedan `.tsx` en `__tests__/` (los borra el TESTER), y en `android/` (plantilla de `flutter create` sin commit del DEV) falta `applicationId`, `allowBackup`, `network_security_config.xml`, y el manifiesto menciona `expo`. Se vuelve a correr con la `ENTREGA DEV` |
+| Sanidad de las ayudas (prueba temporal, no versionada) | Verde: lo inverso falla (`habilitado("Verificar rostro")`, `deshabilitado("Consultar placa")`, un texto sin estado no cuenta como deshabilitado) |
+
+**Ajustes de las pruebas al compilar (ninguno cambia lo que se verifica, y ninguno vino de leer `lib/`):**
+
+1. `package:flutter/material.dart` está obsoleto en Flutter 3.50 (aviso de `flutter analyze`); las ayudas usan `package:material_ui/material_ui.dart` 1.11.1, la dependencia que declara `pubspec.yaml`, para `TextField` e `Icons`. El DEV lo avisó vía el LEAD.
+2. `containsSemantics` está obsoleto desde 3.40; se usa `isSemantics`, que en el SDK es el mismo emparejamiento parcial.
+3. Errores míos de compilación: una cascada del servidor falso y un import (`TextCapitalization`).
+4. `tocar()` se desplaza hasta el botón si está en la pantalla pero fuera de la vista de 800 × 600 de `flutter_test` (con "Describa el motivo *" abierto, "Consultar" queda abajo). Es lo que hace el usuario; Jest no tenía diseño en pantalla.
+
+Ningún nombre de la §2 difirió de lo que escribí: `MovilBuscadorApp(dependencias:)`, `Dependencias`, `AlmacenSeguro`, `LectorPlaca`, `PermisoCamara`, `LecturaPlaca`, `Key('app-raiz')` y las etiquetas de accesibilidad se usaron tal cual.
 
 ## 1. Qué hay
 
@@ -39,7 +57,7 @@
 
 ## 3. Matriz caso Jest → prueba Dart (§5)
 
-Referencia: `apps/movil/__tests__/` en `hu-04-expo-referencia` (7 archivos, **121 casos** contando cada fila de `test.each`). Estado de todas las filas: **NO EJECUTADO** (falta la entrega del DEV).
+Referencia: `apps/movil/__tests__/` en `hu-04-expo-referencia` (7 archivos, **121 casos** contando cada fila de `test.each`). Estado: los 111 casos que se portan y los nuevos están **en verde en la corrida 1** (contra `dd08a54`, antes de la `ENTREGA DEV`); se vuelven a correr con la entrega. Las filas 99 a 101 (borde) están en `repositorio_test`, también en verde.
 
 ### 3.1 `HU01_HU02.test.tsx` (23) → `hu01_hu02_test.dart`
 
@@ -226,7 +244,7 @@ Tools • Dart 3.14.0 • DevTools 2.61.0
 
 ## 7. NO VERIFICADO (por diseño o por ahora)
 
-- **Todo lo de este informe está `NO EJECUTADO`** hasta la interfaz del DEV y el SDK.
+- **Comprobaciones del repositorio, `flutter analyze` de `apps/movil` y APK:** se cierran con la `ENTREGA DEV` (§4).
 - **PLA-02 "con el foco ahí"** (HU-03 §6): no lo verificaba Jest; con un selector de motivo, el foco no es observable de forma estable en `flutter_test`. Queda para la revisión del UX.
 - **PLA-07 "ícono y color distintos"** y **PLA-06 "gris, sin verde"**: se verifica la ausencia de ✓; el color queda para el UX.
 - **Safe area (§4)** y **todo lo del teléfono** (HU-04 v6 §6 y §8): guion de la mini sesión del 4-dic.
