@@ -56,6 +56,8 @@ class PantallaOcr extends StatefulWidget {
 class _EstadoPantallaOcr extends State<PantallaOcr> {
   late PasoOcr _paso = widget.inicio;
   final _leida = TextEditingController();
+  // Barra de desplazamiento siempre visible en la tarjeta del aviso (obs. 5 del UX, S23 con letra máxima).
+  final _desplazamientoAviso = ScrollController();
   bool _leyendo = false;
   int _intento = 0;
 
@@ -63,6 +65,7 @@ class _EstadoPantallaOcr extends State<PantallaOcr> {
   void dispose() {
     _intento += 1; // una lectura en curso ya no se usa
     _leida.dispose();
+    _desplazamientoAviso.dispose();
     super.dispose();
   }
 
@@ -167,39 +170,44 @@ class _EstadoPantallaOcr extends State<PantallaOcr> {
                     ColoredBox(
                       color: const Color(0x99000000),
                       child: Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(20),
-                          child: Semantics(
-                            liveRegion: true,
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colores.fondo,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  const Text(
-                                    'Antes de leer la placa',
-                                    style: TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colores.texto,
+                        child: Scrollbar(
+                          controller: _desplazamientoAviso,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            controller: _desplazamientoAviso,
+                            padding: const EdgeInsets.all(20),
+                            child: Semantics(
+                              liveRegion: true,
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colores.fondo,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const Text(
+                                      'Antes de leer la placa',
+                                      style: TextStyle(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colores.texto,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    _textoAviso,
-                                    style: TextStyle(fontSize: 16, height: 1.44, color: Colores.texto),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Boton(
-                                    texto: 'Entendido',
-                                    alTocar: AmbitoSesion.leer(context).marcarAvisoMlkitVisto,
-                                  ),
-                                ],
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      _textoAviso,
+                                      style: TextStyle(fontSize: 16, height: 1.44, color: Colores.texto),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Boton(
+                                      texto: 'Entendido',
+                                      alTocar: AmbitoSesion.leer(context).marcarAvisoMlkitVisto,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

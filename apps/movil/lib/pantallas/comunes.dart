@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Colores del prototipo (los mismos de la app Expo).
@@ -40,10 +41,12 @@ class FranjaPrototipo extends StatelessWidget {
       child: Container(
         width: double.infinity,
         color: Colores.franja,
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        // Relleno lateral y texto centrado: con la letra al máximo la franja ocupa dos líneas (obs. 6).
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
         alignment: Alignment.center,
         child: const Text(
           'DATOS SINTÉTICOS · PROTOTIPO',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Color(0xFFFFD54F),
             fontSize: 12,
@@ -263,6 +266,7 @@ class CampoTexto extends StatelessWidget {
     this.pista,
     this.estilo,
     this.teclado,
+    this.formateadores,
     this.alEnviar,
     this.alCambiar,
   });
@@ -277,6 +281,7 @@ class CampoTexto extends StatelessWidget {
   final String? pista;
   final TextStyle? estilo;
   final TextInputType? teclado;
+  final List<TextInputFormatter>? formateadores;
   final VoidCallback? alEnviar;
   final ValueChanged<String>? alCambiar;
 
@@ -300,6 +305,7 @@ class CampoTexto extends StatelessWidget {
         enableSuggestions: !ocultar && !mayusculas,
         textCapitalization: mayusculas ? TextCapitalization.characters : TextCapitalization.none,
         keyboardType: teclado,
+        inputFormatters: formateadores,
         onSubmitted: alEnviar == null ? null : (_) => alEnviar!(),
         onChanged: alCambiar,
         style: estilo ?? const TextStyle(fontSize: 17, color: Colores.texto),

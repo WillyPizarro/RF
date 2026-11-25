@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../api/modelos.dart';
@@ -353,6 +354,7 @@ class _EstadoPantallaBitacora extends State<PantallaBitacora> {
                         controlador: _desde,
                         pista: 'dd/mm/aaaa',
                         teclado: TextInputType.datetime,
+                        formateadores: const [_BarraDeFecha()],
                       ),
                     ],
                   ),
@@ -369,6 +371,7 @@ class _EstadoPantallaBitacora extends State<PantallaBitacora> {
                         controlador: _hasta,
                         pista: 'dd/mm/aaaa',
                         teclado: TextInputType.datetime,
+                        formateadores: const [_BarraDeFecha()],
                       ),
                     ],
                   ),
@@ -687,6 +690,38 @@ class _Campo extends StatelessWidget {
         ),
         style: const TextStyle(fontSize: 16, color: Colores.texto),
       ),
+    );
+  }
+}
+
+/// Pone la "/" de `dd/mm/aaaa` sola mientras se escribe la fecha con dígitos (obs. 7 del UX, S23):
+/// el teclado de fechas de Samsung (`TextInputType.datetime`) no tiene "/".
+///
+/// Solo actúa cuando se agrega **un dígito al final** y con eso quedan `ddd` o `dd/mmm`: entonces
+/// inserta la barra antes de ese dígito (`251` → `25/1`, `25/112` → `25/11/2`). Todo lo demás pasa
+/// sin cambios: borrar, escribir la "/" uno mismo (los teclados que la tienen), letras, otros
+/// formatos o pegar un texto entero. Así, una fecha que no cumple `dd/mm/aaaa` sigue mostrando
+/// "Use fechas con el formato dd/mm/aaaa." (CONTRATO-HU-07 v3).
+class _BarraDeFecha extends TextInputFormatter {
+  const _BarraDeFecha();
+
+  static final _diaYDigito = RegExp(r'^(\d{2})(\d)$');
+  static final _mesYDigito = RegExp(r'^(\d{2}/\d{2})(\d)$');
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue anterior, TextEditingValue nuevo) {
+    final antes = anterior.text;
+    final ahora = nuevo.text;
+    final unDigitoAlFinal = ahora.length == antes.length + 1 &&
+        ahora.startsWith(antes) &&
+        RegExp(r'\d$').hasMatch(ahora);
+    if (!unDigitoAlFinal) return nuevo;
+    final m = _diaYDigito.firstMatch(ahora) ?? _mesYDigito.firstMatch(ahora);
+    if (m == null) return nuevo;
+    final texto = '${m.group(1)}/${m.group(2)}';
+    return TextEditingValue(
+      text: texto,
+      selection: TextSelection.collapsed(offset: texto.length),
     );
   }
 }
