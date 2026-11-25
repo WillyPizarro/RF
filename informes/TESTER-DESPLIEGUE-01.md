@@ -3,7 +3,7 @@
 **Contrato:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1** (aprobado el 25-nov), con la anotación `1cb361a` (`DESCARGA_APK_DIR`).
 **Encargo:** `docs/contratos/ENCARGO-DESPLIEGUE-01.md`, **M-3** (fase B1, sin VPS).
 **Rama:** `despliegue-01`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`, rebasada sobre `main` `889a91b`.
-**Estado:** pruebas y guion **escritos**. La regresión local con NGINX (punto 4 de la M-3) queda **NO EJECUTADA** hasta que el DEV avise que el compose con NGINX está arriba desde `-despliegue`: las pruebas nuevas no se corrieron contra el código del DEV, ni se miró ese código.
+**Estado:** pruebas y guion escritos (`1e7e41f`); **regresión local con NGINX corrida** el 25-nov sobre el árbol de trabajo del DEV (sin commit todavía), con el compose quieto desde `-despliegue`: **76 pasan, 2 fallan** por la misma regla (imagen del `proxy`, §4), que espera el arbitraje del LEAD. No se miró el código del DEV.
 
 La fase A (v1, `ef8917d`) dejó `test_despliegue_vps.py`, `test_compose_vps.py` y `pruebas/despliegue/COMANDOS-VPS.md` sin informe propio; quedan descritos aquí con sus cambios de la v2.1.
 
@@ -57,13 +57,27 @@ Contra el VPS (fase B2): `URL_VPS=https://<DOMINIO>`, `CLAVE_USUARIOS_PRUEBA`, `
 
 ## 4. Resultados
 
-**Regresión local con NGINX: NO EJECUTADA** (espera el aviso del DEV). Solo se comprobó, sin el sistema: los archivos compilan (`py_compile` con `-W error`), `test_despliegue_vps.py` se omite entero sin `URL_VPS` (21 omitidas) y el modo `--cuerpos` (§1).
+**Regresión local con NGINX** (25-nov, una vez, ~30 s; comando del §3), con el compose recreado por el DEV a las ~17:47 (`proxy` de `infra/nginx/`, `PROXY_PUERTO_HTTP=8080`, `PROXY_PUERTO_HTTPS=8443`, `DESCARGA_APK_DIR` = `C:\Willy\Trabajo\MININTER\movil-buscador-descargas`):
+
+| Archivo | Resultado |
+|---|---|
+| `test_proxy_nginx.py` | **31 de 32** en verde: 404 (11 rutas y 6 con credencial), `/v1` llega a la API, HTTP → HTTPS (`/v1/salud` y la ruta del APK, sin `WWW-Authenticate`), TLS 1.2 y 1.3 sí y 1.0 y 1.1 no (el OpenSSL 3.0.16 de la PC sí los ofrece, así que no quedó omitida), HSTS y `nosniff` en las cinco respuestas, `413` sin traza y el cuerpo menor con traza, la descarga (`401` con Basic, `401` con usuario, clave o las dos incorrectas, `200` con el mismo SHA-256), volumen de solo lectura y la credencial fuera de los logs. **ROJO:** `test_proxy_es_nginx_con_version_fijada` |
+| `test_hu04_sin_cache.py` (red interna y proxy) | **28 de 28** |
+| `test_hu01_bitacora_config.py::test_la_clave_no_queda_en_los_logs_del_proxy` | Verde (sobre NGINX) |
+| `test_compose_vps.py` | **ROJO:** `test_proxy_del_vps_es_nginx_fijado`; el resto en verde (`certbot` sin puertos, volumen de solo lectura, sin credenciales de administración en la API) |
+
+Después de la corrida, `movil-buscador-descargas` quedó como estaba (vacía).
+
+**El rojo, para el arbitraje del LEAD:** el contrato §1 dice "`proxy` (**NGINX, imagen oficial `nginx` con versión estable fijada por el DEV**)". El compose del DEV no declara `image:` sino `build:` de `infra/nginx/` (aviso del DEV: `nginx:1.30.8-alpine` más `openssl`). La imagen construida, `movil-buscador-proxy`, trae `NGINX_VERSION=1.30.8` (`docker image inspect`). La prueba exige `image: nginx:<versión>` y no se aflojó. Puede ser que el código se apartó (el contrato pide la imagen oficial tal cual), que se apartó la prueba (si "imagen oficial" incluye una imagen propia `FROM nginx:<versión fijada>`) o que el contrato no lo dice. No se miró el `Dockerfile`.
+
+Antes de esta corrida hubo una que **no cuenta**: coincidió con un reinicio del compose por el DEV (`service "api" is not running`) y con un error de alcance de fixture mío en `test_proxy_nginx.py` (`https` de módulo sobre `sistema_sano` de función), ya corregido.
+
+Sin el sistema también se comprobó: los archivos compilan (`py_compile` con `-W error`), `test_despliegue_vps.py` se omite entero sin `URL_VPS` (21 omitidas) y el modo `--cuerpos` (§1).
 
 ## 5. NO VERIFICADO
 
 | Qué | Motivo |
 |---|---|
-| Todo `test_proxy_nginx.py`, `test_compose_vps.py` v2 y la regresión | Falta el compose con NGINX del DEV (M-3, DEV 1 a 6) |
 | §2 `/.well-known/acme-challenge/` sin redirección | Solo existe en el VPS con `certbot` (fase B2) |
 | §2 `X-Forwarded-For` y `X-Forwarded-Proto` | No es observable desde afuera; el contrato pide que la API siga respondiendo igual, y eso lo cubre la regresión |
 | Lo del VPS (`test_despliegue_vps.py`, `COMANDOS-VPS.md`) | No hay VPS (fase B2) |

@@ -87,7 +87,7 @@ def basica(usuario: str, clave: str) -> dict[str, str]:
 
 # --- Fixtures --------------------------------------------------------------------------------
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def https(sistema_sano) -> str:
     return sistema_sano.url_base
 

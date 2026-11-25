@@ -36,15 +36,15 @@
 |---|---|---|---|
 | a.1 | En el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › **Usuario** › la CA de Caddy (`Caddy Local Authority - 2026 ECC Root`) › **Quitar** | Ya no está en la lista de Usuario | |
 | a.2 | En la PC: `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\ca-local` | `Test-Path C:\Willy\Trabajo\MININTER\ca-local` → `False`. Va al acta (§8 v2.1) | |
-| a.3 | La CA local de NGINX que genera el script de `infra/` (fuera del repositorio) `[DEV B1: ruta del archivo]`. Anotar su **huella SHA-256** con `certutil -dump <archivo>` («Hash de cert(sha256)») | El archivo existe **fuera** del repositorio; huella anotada | |
-| a.4 | `adb push <archivo de la CA de NGINX> /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › **Certificado de CA**; después `adb shell rm /sdcard/Download/<archivo>` | La CA aparece en Ver certificados de seguridad › Usuario, con la **misma huella** de a.3; `Download/` sin el archivo | |
+| a.3 | La CA local de NGINX: `.\infra\exportar-ca-local.ps1` la exporta a `C:\Willy\Trabajo\MININTER\ca-local-nginx\movil-buscador-ca-local.crt` (fuera del repositorio; aviso del DEV, 25-nov). Anotar su **huella SHA-256** con `certutil -dump <archivo>` («Hash de cert(sha256)») | El archivo existe **fuera** del repositorio; huella anotada | |
+| a.4 | `adb push C:\Willy\Trabajo\MININTER\ca-local-nginx\movil-buscador-ca-local.crt /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › **Certificado de CA**; después `adb shell rm /sdcard/Download/movil-buscador-ca-local.crt` | La CA aparece en Ver certificados de seguridad › Usuario, con la **misma huella** de a.3; `Download/` sin el archivo | |
 | a.5 | Desinstalar lo que haya: `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package`) | |
 | a.6 | `adb install <APK de depuración de main>` y `adb shell dumpsys package pe.prototipo.movilbuscador \| Select-String "flags="` | `Success`; `DEBUGGABLE`, sin `ALLOW_BACKUP` | |
 | a.7 | Abrir "Movil Buscador" e iniciar sesión con `agente1` | **HOME-01** de agente1. En la API: `POST /v1/auth/login` 200 y `GET /v1/me` 200 (`docker compose … logs api --since 2m`) | |
 | a.8 | "Consultar placa", `ZZA-101`, "Control vehicular", "Consultar" | PLA-05 "TIENE REQUISITORIA" | |
 | a.9 | Control: la API **no** ve la clave. `docker compose … logs proxy --since 5m` y `logs api --since 5m`, buscando la clave que dicta el humano **sin escribirla en un archivo** (por ejemplo, `Select-String -SimpleMatch` con la clave tecleada en la consola) | Ninguna línea | |
 
-> Si en a.7 la app muestra "No se pudo completar la operación; intente nuevamente", es TLS: se revisa que la huella de a.4 sea la de a.3 y que el `proxy` sirva un certificado firmado por esa CA (`[DEV B1]`: cómo ver el error de TLS en el log de NGINX). Es un `ROJO` y se avisa al LEAD.
+> Si en a.7 la app muestra "No se pudo completar la operación; intente nuevamente", es TLS: se revisa que la huella de a.4 sea la de a.3 y que el `proxy` sirva un certificado firmado por esa CA. El rechazo del certificado por el cliente queda en el log de errores de NGINX, que está en nivel `info` (no hace falta nada en caliente, a diferencia de Caddy): `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env logs proxy --since 2m | Select-String handshake` (con `curl` sin `-k` sale `peer closed connection in SSL handshake`; con OkHttp, probablemente `SSL_do_handshake() failed … alert …`). Es un `ROJO` y se avisa al LEAD.
 
 ## (b) Nivel 1: a quién se conecta (PCAPdroid)
 
@@ -70,8 +70,8 @@ El APK de depuración confía en las CA de usuario (`<debug-overrides>`, MIGRACI
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
 | c.1 | Versiones: `mitmdump --version` y `protoc --version` `[DEV B1]` | Anotadas (mitmproxy es MIT; protoc, BSD-3) | |
-| c.2 | En la PC: `mitmdump --listen-port 8080 --ssl-insecure -s pruebas\datos\mitm_guardar_subidas.py --set salida=C:\Willy\Trabajo\MININTER\flutter-capturas\red\cuerpos` (`--ssl-insecure` porque, hacia la API local, mitmproxy no conoce la CA de NGINX) | Escuchando en 8080 | |
-| c.3 | El tráfico del teléfono por mitmproxy `[DEV B1: método probado y cómo se deshace]`. Por ejemplo: `adb reverse tcp:8080 tcp:8080` y `adb shell settings put global http_proxy 127.0.0.1:8080` | En el teléfono, el navegador a `http://mitm.it` muestra la página de mitmproxy | |
+| c.2 | En la PC: `mitmdump --listen-port 8888 --ssl-insecure -s pruebas\datos\mitm_guardar_subidas.py --set salida=C:\Willy\Trabajo\MININTER\flutter-capturas\red\cuerpos` (`--ssl-insecure` porque, hacia la API local, mitmproxy no conoce la CA de NGINX) | Escuchando en 8888 (no en 8080: ese puerto es el HTTP del NGINX local, `PROXY_PUERTO_HTTP`) | |
+| c.3 | El tráfico del teléfono por mitmproxy `[DEV B1: método probado y cómo se deshace]`. Por ejemplo: `adb reverse tcp:8888 tcp:8888` y `adb shell settings put global http_proxy 127.0.0.1:8888` | En el teléfono, el navegador a `http://mitm.it` muestra la página de mitmproxy | |
 | c.4 | CA de mitmproxy como **CA de usuario**: desde `http://mitm.it` (Android) o con `adb push` de `%USERPROFILE%\.mitmproxy\mitmproxy-ca-cert.cer` a `/sdcard/Download/` e Instalar desde el almacenamiento › Certificado de CA; después borrar de `Download/` | Aparece en Usuario | |
 | c.5 | En la app: iniciar sesión (si hace falta) y leer `ZZA-101` impresa con 📷 (como b.5) | OCR-02. En la consola de mitmdump se ven las solicitudes a la API local (no se guardan) | |
 | c.6 | Forzar la subida como b.6 y esperar hasta 5 minutos | En `…\red\cuerpos\resumen.tsv`, al menos una línea a `firebaselogging.googleapis.com` | |
@@ -83,7 +83,7 @@ El APK de depuración confía en las CA de usuario (`<debug-overrides>`, MIGRACI
 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
-| e.1 | Quitar el proxy del teléfono `[DEV B1]`, por ejemplo `adb shell settings put global http_proxy :0` y `adb reverse --remove tcp:8080` | `adb shell settings get global http_proxy` → `:0` o `null`; el navegador ya no va a `mitm.it` | |
+| e.1 | Quitar el proxy del teléfono `[DEV B1]`, por ejemplo `adb shell settings put global http_proxy :0` y `adb reverse --remove tcp:8888` | `adb shell settings get global http_proxy` → `:0` o `null`; el navegador ya no va a `mitm.it` | |
 | e.2 | En el teléfono: Ver certificados de seguridad › Usuario › **quitar la CA de mitmproxy** | Ya no está; la de NGINX **sigue** (se quita al cierre, §8) | |
 | e.3 | Desinstalar **PCAPdroid** | No está en Ajustes › Aplicaciones | |
 | e.4 | Cerrar `mitmdump` (Ctrl+C) | — | |
