@@ -10,7 +10,7 @@
 
 ## Resultado
 
-**VERDE.** Todos los casos del contrato tienen evidencia en verde o un `NO VERIFICADO` con su motivo. Los dos rojos de la suite completa se arbitraron como **"se apartó la prueba"** (vuelta 1). Los corrigió el TESTER y el LEAD verificó la corrección sobre `2bb50b3`.
+**VERDE.** Los `NO VERIFICADO` están aceptados por el humano (vía PM, 2026-11-25). Todos los casos del contrato tienen evidencia en verde o un `NO VERIFICADO` con su motivo. Los dos rojos de la suite completa se arbitraron como **"se apartó la prueba"** (vuelta 1). Los corrigió el TESTER y el LEAD verificó la corrección sobre `2bb50b3`.
 
 ## Corridas
 
@@ -93,7 +93,7 @@ Los casos "— (refactor)" vienen del contrato de migración, no de una HU. El n
 | Qué | Motivo | Aceptado por |
 |---|---|---|
 | Qué hace en la red `play-services-mlkit-*` | Contrato v1.2 §7, opción A | Humano (2026-11-24) |
-| 27 pruebas de los simuladores que corren desde el anfitrión, y `--reinicio` | Sin cambios en `services/simuladores/`, `contratos/` ni `infra/` desde `main` (diff vacío); cubiertas en veredictos anteriores | LEAD (decisión M-16). **El humano lo confirma con el OK del PR** |
+| 27 pruebas de los simuladores que corren desde el anfitrión, y `--reinicio` | Sin cambios en `services/simuladores/`, `contratos/` ni `infra/` desde `main` (diff vacío); cubiertas en veredictos anteriores | LEAD (decisión M-16) y **humano (vía PM), 2026-11-25** |
 | API: `test_hu01_bitacora_config.py:88` y `test_hu02_perfil_roles.py:55` | Omitidas por contrato (HU-01 decisión 2, HU-02 decisión 3) | Contratos aprobados |
 | `integration_test` | No existe en el proyecto | — |
 | PLA-02 "con el foco ahí"; colores de PLA-06 y PLA-07 | No es observable de forma estable en `flutter_test`; revisión visual del UX | UX |
