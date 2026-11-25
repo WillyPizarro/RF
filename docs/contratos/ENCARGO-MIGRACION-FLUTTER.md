@@ -96,3 +96,18 @@ Reemplaza: el paso 2 de "Orden del cierre" (concreta qué corres). La `ENTREGA D
 Al terminar: `ENTREGA TESTER` parcial con el informe actualizado. La suite completa es una M-n aparte, después de la aprobación del UX.
 
 **Nota del DEV para todos:** `compileSdk` 37 (por `permission_handler_android`), con `targetSdk` 36 y `minSdk` 24. No cambia nada observable.
+
+### M-6 (2026-11-24) — Mini sesión física adelantada al miércoles 25-nov (DEV y TESTER)
+
+Reemplaza: la fecha de la mini sesión (jueves 4-dic) del encabezado y del paso 4 de "Orden del cierre". El humano (vía PM) la hace el **miércoles 25-nov**.
+
+**DEV**, hoy:
+1. Compila desde el último commit de código (`0a1d93e`; el informe `1382d13` no cambia el código) el **APK de depuración** con `--dart-define=API_URL=https://localhost:8443` y el **APK de release** firmado, con los comandos de tu informe.
+2. Los copia, **fuera del repositorio**, a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\` como `movil-buscador-debug.apk` y `movil-buscador-release.apk`, con un `SHA256SUMS.txt` al lado.
+3. Comprueba que el compose local arranca desde esta carpeta con `infra/.env` (copiado de la carpeta principal, nunca versionado) y `PROXY_PUERTO_HTTPS=8443`, que `https://localhost:8443/v1/salud` responde `200` y que la CA de Caddy se puede copiar (paso 2 de tu §9). Después baja el compose (`down`) y deja Docker libre.
+4. Avisa con `herdr agent prompt lead "PREGUNTA DEV: APK listos <sha256 de los dos>"`. No necesitas un commit si no cambias nada del repositorio.
+
+**TESTER**, hoy, después de la M-5:
+1. Pone el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` al día con la entrega del DEV: el paso 0.9 ya no compila, sino que instala `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` y comprueba su SHA-256 contra `SHA256SUMS.txt`; los pasos de la CA y de la desinstalación coinciden con la §9 del informe del DEV; y el paso 11 usa `movil-buscador-release.apk`.
+2. Cuando llegue la revisión del UX (`docs/ux/revisiones/MIGRACION-FLUTTER.md`), suma al paso 3 (safe area) las capturas que pida el UX. El LEAD te avisa.
+3. Avisa con `herdr agent prompt lead "ESTADO TESTER: guion al día <commit>"`.
