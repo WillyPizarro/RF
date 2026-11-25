@@ -1,7 +1,7 @@
 # Guion de la mini sesión física — app Flutter en el Samsung Galaxy S23 Ultra (Android 16)
 
-**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.1** (§4 safe area, §6 build) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
-**Cuándo:** el **jueves 4-dic** o antes, con el PM y el humano. **El TESTER no corre `adb` contra el teléfono**: el PM corre los comandos y el humano opera el teléfono. El TESTER escribe este guion y después pasa los resultados a `informes/TESTER-MIGRACION-FLUTTER.md`.
+**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (§4 safe area, §6 build) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
+**Cuándo:** el **miércoles 25-nov** (M-6 del encargo; antes era el jueves 4-dic), con el PM y el humano. **El TESTER no corre `adb` contra el teléfono**: el PM corre los comandos y el humano opera el teléfono. El TESTER escribe este guion y después pasa los resultados a `informes/TESTER-MIGRACION-FLUTTER.md`.
 **Reemplaza** a `GUION-HU-04-dispositivo.md` de la referencia `hu-04-expo-referencia` (Expo, dev build con Metro). Los pasos son los mismos, adaptados al APK de Flutter: sin Metro, sin EAS y sin `http-cache` de OkHttp.
 
 **Qué cubre:**
@@ -11,7 +11,7 @@
 | Desinstalar la app de Expo e instalar el APK de depuración | CONTRATO-MIGRACION-FLUTTER, avisos de contexto | 0 |
 | Conexión con la API local (CA de Caddy, `adb reverse`) | HU-04 v6 §8 | 1 |
 | Recorrido de login, placa y bitácora, una vez | CONTRATO-MIGRACION-FLUTTER §8 | 2 |
-| Safe area: capturas de OCR-01 (con el visor), OCR-02, PLA-01 y HOME-01 | CONTRATO-MIGRACION-FLUTTER §4 | 3 |
+| Capturas S1 a S15 del UX: S1 a S5 aprueban la safe area; S6 a S15 cierran la etapa 2 de HU-04 y los símbolos | CONTRATO-MIGRACION-FLUTTER §4, revisión del UX (M-7) | 3 |
 | Permiso real del sistema | HU-04 v6 §6 | 4 |
 | Sin lectura continua (30 s) | HU-04 v6 §6, regla 6 | 5 |
 | La placa impresa se lee y el paso a paso del §5, una vez | HU-04 v6 §5 y §6 | 6 |
@@ -27,11 +27,14 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 ## Reglas durante la prueba
 
 - **Placas:** solo las de `pruebas/datos/hoja-placas-prueba.html`, impresas, con prefijo `ZZ` y la leyenda "PRUEBA — NO VÁLIDA". **Nunca** se apunta la cámara a un vehículo real.
-- **Capturas de pantalla y copias del teléfono:** van **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\flutter-capturas\`. Nunca se hace commit de imágenes, fotos, bases ni copias.
+- **Capturas de pantalla para el UX:** pantalla completa del teléfono (con la barra de estado y la de navegación), **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23\` (revisión del UX, `docs/ux/revisiones/MIGRACION-FLUTTER.md`). **Copias del teléfono** (caché, cola de telemetría): en `C:\Willy\Trabajo\MININTER\flutter-capturas\`, y se borran al terminar. Nunca se hace commit de imágenes, fotos, bases ni copias.
+- **Cómo se saca una captura:** `cmd /c "adb exec-out screencap -p > C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23\<archivo>.png"` (en PowerShell 5.1 el `>` directo corrompe el PNG).
 - **Certificados y llaves:** la CA de Caddy y la llave de firma del APK no se copian nunca dentro del repositorio.
 - **Clave de los usuarios de prueba:** la dicta el humano (`CLAVE_USUARIOS_PRUEBA` de `infra/.env`); no se escribe en ningún archivo.
 - **Comandos:** PowerShell 5.1, desde la raíz del worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`, con `adb` en `C:\Android\platform-tools` (en el `PATH`). En PowerShell 5.1 el `>` corrompe la salida binaria: las copias binarias van con `cmd /c "… > archivo"`.
 - **Paquete de la app:** `pe.prototipo.movilbuscador` (CONTRATO-MIGRACION-FLUTTER §6).
+- **APK de la sesión:** los de la `ENTREGA DEV` (`1382d13`, código `0a1d93e`), **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`: `movil-buscador-debug.apk`, `movil-buscador-release.apk` y `SHA256SUMS.txt` (M-6). En la sesión **no se compila nada**.
+- **CA de Caddy:** los pasos son los de la §9 del informe del DEV (`informes/DEV-MIGRACION-FLUTTER.md`). La copia de la CA va en `C:\Willy\Trabajo\MININTER\ca-local\`, fuera del repositorio.
 - **Flutter:** `C:\Programas_Portables\flutter_3.50.1\flutter\bin\flutter.bat` (M-2). Si `flutter` no está en el `PATH`, usar esa ruta completa.
 
 ## 0. Preparación (una vez)
@@ -39,15 +42,18 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
 | 0.1 | Imprimir `pruebas/datos/hoja-placas-prueba.html` en A4 horizontal al 100 % | 8 hojas, una placa por hoja | |
-| 0.2 | `New-Item -ItemType Directory -Force C:\Willy\Trabajo\MININTER\flutter-capturas \| Out-Null` | Carpeta fuera del repositorio | |
+| 0.2 | `New-Item -ItemType Directory -Force C:\Willy\Trabajo\MININTER\flutter-capturas, C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23 \| Out-Null` | Carpetas fuera del repositorio | |
+| 0.2b | **Anotar el modo de navegación del teléfono** (Ajustes › Pantalla › Barra de navegación): "Gestos de deslizar" o "Botones" (lo pide el UX antes de empezar; S5 se hace en el otro) | Modo anotado: ________ | |
 | 0.3 | `adb devices` | El S23 Ultra aparece como `device` (no `unauthorized`) | |
 | 0.4 | `adb shell getprop ro.build.version.release` | `16` | |
-| 0.5 | Sistema arrancado (una sola carpeta a la vez): `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d --build` | `proxy` sano en `https://localhost:8443` | |
-| 0.6 | La CA de Caddy instalada en el teléfono como certificado del usuario (pasos del DEV en `informes/DEV-MIGRACION-FLUTTER.md`) | — | |
+| 0.5 | Sistema arrancado **solo desde esta carpeta** (`Movil_Buscador-flutter`; nunca dos carpetas a la vez), con `infra/.env` copiado de la carpeta principal (nunca versionado) y `PROXY_PUERTO_HTTPS=8443`: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d --build` | Contenedores arriba | |
+| 0.5b | `curl.exe -k -s -o NUL -w "%{http_code}" https://localhost:8443/v1/salud` | `200` | |
+| 0.6 | Sacar la CA de Caddy (§9 paso 2 del DEV): `New-Item -ItemType Directory -Force C:\Willy\Trabajo\MININTER\ca-local \| Out-Null` y `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env cp proxy:/data/caddy/pki/authorities/local/root.crt C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt` | El archivo existe, fuera del repositorio | |
+| 0.6b | Instalarla como certificado del usuario (§9 paso 3): `adb push C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › Certificado de CA; después `adb shell rm /sdcard/Download/caddy-root.crt` | La CA aparece en Ver certificados de seguridad › Usuario; `Download/` sin el archivo | |
 | 0.7 | `adb reverse tcp:8443 tcp:8443` y `adb reverse --list` | `tcp:8443 tcp:8443` | |
-| 0.8 | **Desinstalar la app de Expo** (otra firma): `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package` si ya no estaba) | |
-| 0.9 | Compilar el APK de depuración (comando exacto del informe del DEV; se espera): `cd apps\movil; flutter build apk --debug --dart-define=API_URL=https://localhost:8443; cd ..\..` | `build\app\outputs\flutter-apk\app-debug.apk` | |
-| 0.10 | `adb install apps\movil\build\app\outputs\flutter-apk\app-debug.apk` | `Success` | |
+| 0.8 | **Desinstalar la app de Expo** (otra firma; §9 paso 1): `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package` si ya no estaba) | |
+| 0.9 | Comprobar los APK contra `SHA256SUMS.txt` (M-6): `Get-FileHash -Algorithm SHA256 C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-*.apk \| ForEach-Object { $h = $_.Hash.ToLower(); Select-String -Path C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\SHA256SUMS.txt -SimpleMatch $h }` | Dos líneas, una por APK (`… movil-buscador-debug.apk` y `… movil-buscador-release.apk`). Si falta alguna, **no se instala** y se avisa al LEAD. Los valores salen del `SHA256SUMS.txt` de la entrega de la M-7 (los APK se recompilan después de las observaciones del UX) | |
+| 0.10 | Instalar el APK de depuración (§9 paso 5): `adb install C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` | `Success` | |
 | 0.11 | `adb shell pm list packages pe.prototipo.movilbuscador` | `package:pe.prototipo.movilbuscador` | |
 | 0.12 | `adb shell dumpsys package pe.prototipo.movilbuscador \| Select-String "versionName\|flags="` | Anotar la versión. En `flags=` aparece `DEBUGGABLE` (es el de depuración) y **no** `ALLOW_BACKUP` | |
 | 0.13 | Contar las fotos de la galería: `adb shell "ls /sdcard/DCIM/Camera 2>/dev/null \| wc -l"` y `adb shell "ls /sdcard/Pictures 2>/dev/null \| wc -l"` | Anotar G0 y P0 | |
@@ -73,18 +79,40 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 | 2.7 | "Salir". Cerrar la app desde recientes y volver a abrirla | AUTH-01 (sin sesión guardada, no retoma nada) | |
 | 2.8 | Iniciar sesión con `agente1`, cerrar la app desde recientes **sin** "Salir" y volver a abrirla | Va directo a HOME-01 del agente, sin pasar por AUTH-01 (retomar, §1.2) | |
 
-## 3. Safe area (CONTRATO-MIGRACION-FLUTTER §4)
+## 3. Capturas del S23 Ultra para el UX (S1 a S15; M-7)
 
-Capturas con `cmd /c "adb exec-out screencap -p > C:\Willy\Trabajo\MININTER\flutter-capturas\<nombre>.png"`. Una captura de `flutter_test` no sirve (no hay barra de estado).
+Lista y condiciones de `docs/ux/revisiones/MIGRACION-FLUTTER.md`. Todas con el APK de depuración contra la API local, datos sintéticos y placas `ZZ…`, **pantalla completa** (barra de estado y barra de navegación incluidas), en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23\`. Una captura de `flutter_test` no sirve para la §4 (no hay barra de estado).
 
-| Paso | Pantalla | Esperado | Archivo | Resultado |
+### 3.A Para aprobar la §4 (safe area) — obligatorias
+
+Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `docs/ux/revisiones/HU-04.md`). Se hacen en el modo de navegación anotado en 0.2b, salvo S5.
+
+| # | Cómo llegar | Archivo | Qué tiene que verse | Resultado |
 |---|---|---|---|---|
-| 3.1 | HOME-01 | La franja "DATOS SINTÉTICOS · PROTOTIPO" empieza **debajo** de la barra de estado; la barra se lee entera (íconos claros sobre fondo oscuro, u oscuros sobre blanco) | `home-01.png` | |
-| 3.2 | PLA-01 | Igual arriba; abajo, "Consultar" no queda bajo la barra de navegación ni la línea de gestos | `pla-01.png` | |
-| 3.3 | OCR-01 con el visor (después de "Entendido") | Igual arriba; "Capturar" e "Ingresar manualmente" enteros, sobre la línea de gestos | `ocr-01.png` | |
-| 3.4 | OCR-02 | Igual arriba y abajo | `ocr-02.png` | |
+| S1 | Sesión de `agente1`, HOME-01 | `S01-home-01.png` | La hora, la señal y la batería completas y legibles en claro sobre el fondo oscuro; la franja "DATOS SINTÉTICOS · PROTOTIPO" entera, justo debajo, sin superponerse | |
+| S2 | "Consultar placa" → PLA-01, **sin** teclado | `S02-pla-01.png` | Lo mismo arriba; "Consultar" lejos de la barra de abajo | |
+| S3 | 📷 → aviso → "Entendido" → OCR-01 con el visor de la cámara | `S03-ocr-01.png` | Lo mismo arriba; "Capturar" e "Ingresar manualmente" enteros y por encima de la línea de gestos o de los botones de navegación | |
+| S4 | "Capturar" sobre una placa impresa → OCR-02 | `S04-ocr-02.png` | Lo mismo arriba; "Usar esta placa" y "Volver a capturar" visibles | |
+| S5 | Cambiar al **otro** modo de navegación (Ajustes › Pantalla › Barra de navegación), volver a la app y abrir OCR-01 | `S05-ocr-01-otro-modo.png` | Los botones de abajo no quedan bajo la barra de navegación (en modo botones es más alta). **Después, volver al modo anotado en 0.2b** | |
 
-Las capturas se pasan al LEAD para el UX (no al repositorio).
+### 3.B Otras pantallas — no bloquean la §4; cierran la etapa 2 de HU-04 y los símbolos
+
+| # | Cómo llegar | Archivo | Qué se mira | Resultado |
+|---|---|---|---|---|
+| S6 | "Salir", volver a entrar con `agente1` (sesión nueva) → PLA-01 → 📷 | `S06-ocr-01-aviso.png` | La tarjeta del aviso de ML Kit sobre el visor atenuado; el cuerpo completo. **No tocar "Entendido" todavía** | |
+| S7 | Con el aviso a la vista: Ajustes › Pantalla › Tamaño y estilo de fuente › **letra al máximo**; volver a la app | `S07-ocr-01-aviso-letra-maxima.png` | El cuerpo del aviso se lee completo, sin cortes; "Entendido" a la vista o alcanzable desplazando. **Después, volver la letra a su tamaño anterior** | |
+| S8 | "Entendido"; apuntar a una placa impresa, de día, y tocar "Capturar"; sacar la captura **mientras lee** (si no se llega a tiempo, repetir) | `S08-ocr-01-leyendo.png` | El indicador de carga sobre la imagen real; con la obs. 1 del UX resuelta, **chico y centrado en el marco** | |
+| S9 | OCR-01 con el visor sobre una placa impresa a 1 o 2 m | `S09-ocr-01-placa-1-2m.png` | El contraste del marco blanco sobre la imagen real y que la placa entre en el marco | |
+| S10 | Pasos 4.1 a 4.3 (permiso denegado) → OCR-04; después "Abrir ajustes" | `S10a-ocr-04.png` y `S10b-ajustes.png` | El 📷✕ se dibuja; "Abrir ajustes" abre la información de la app, con "Permisos" a mano | |
+| S11 | Con el permiso concedido otra vez (paso 4.5): PLA-01, elegir un motivo y tocar "Placa" (teclado abierto) | `S11-pla-01-teclado.png` | Se dibujan ←, 📷 y ○/◉; el teclado sale en mayúsculas; "Consultar" se alcanza desplazando | |
+| S12 | PLA-01: escribir `HOLA`, **sin** motivo, "Consultar" | `S12-pla-02-pla-03.png` | Se dibuja el ⚠ en los dos mensajes | |
+| S13 | "Salir"; en AUTH-01, `agente1` con una clave errada | `S13-auth-02.png` | Se dibuja el ⚠ | |
+| S14 | Sesión de `supervisor1` → "Bitácora" → abrir "Filtros" → tocar "Desde" | `S14-bit-01-filtros-teclado.png` | El teclado es numérico con "/" (obs. 4 de `HU-03-07.md`); con la obs. 2 resuelta, las opciones de "Tipo" **agrupadas** varias por fila | |
+| S15 | Tocar un registro → BIT-02 | `S15-bit-02.png` | Se dibuja el 🔒 | |
+
+Si en S10 a S15 algún símbolo sale como un cuadrado, se avisa al LEAD: entonces el UX revisa también AUTH-03, AUTH-04, ERR-01 y PLA-05 a PLA-08 en el teléfono.
+
+**No hace falta en el teléfono:** AUTH-03, AUTH-04, ERR-01 ni PLA-05 a PLA-08 (aprobadas con `flutter_test`).
 
 ## 4. Permiso real del sistema (HU-04 v6 §6)
 
@@ -108,7 +136,7 @@ Empezar con una sesión nueva (después de "Salir" y volver a entrar), para ver 
 
 | Paso | Acción | Esperado | Resultado |
 |---|---|---|---|
-| 6.1 | En PLA-01, **sin** elegir motivo, tocar 📷 | OCR-01 con la tarjeta "Antes de leer la placa", su texto y "Entendido"; "Capturar" desactivado; "Ingresar manualmente" activo. Captura `ocr-01-aviso.png` para el UX | |
+| 6.1 | En PLA-01, **sin** elegir motivo, tocar 📷 | OCR-01 con la tarjeta "Antes de leer la placa", su texto y "Entendido"; "Capturar" desactivado; "Ingresar manualmente" activo. La captura del aviso ya es S6 (paso 3.B); aquí no se repite | |
 | 6.2 | Tocar el visor fuera de la tarjeta | No pasa nada | |
 | 6.3 | "Entendido" | La tarjeta desaparece y "Capturar" se activa | |
 | 6.4 | Apuntar a `ZZA-101` de frente, con buena luz, y "Capturar" | Mientras lee, "Capturar" desactivado; después OCR-02 "Placa leída" con `ZZA-101`. **Ninguna imagen** | |
@@ -164,15 +192,18 @@ Después de leer al menos una placa (pasos 6 o 7). La copia va fuera del reposit
 
 ## 11. APK de release no depurable (CONTRATO-MIGRACION-FLUTTER §6, HU-04 v6 §8)
 
-No necesita el teléfono. Lo puede correr el TESTER cuando el DEV entregue el APK de release.
+No necesita el teléfono. El TESTER ya lo corrió sobre la entrega (informe, corrida M-5): en la sesión se repite solo si el PM quiere confirmarlo.
 
 | Paso | Comando | Esperado | Resultado |
 |---|---|---|---|
-| 11.1 | El APK de release que entrega el DEV (comando exacto en su informe), en `apps\movil\build\app\outputs\flutter-apk\app-release.apk` | El archivo existe | |
-| 11.2 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump badging apps\movil\build\app\outputs\flutter-apk\app-release.apk \| Select-String "package:\|application-label:\|debuggable"` | `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `application-debuggable` | |
-| 11.3 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump xmltree apps\movil\build\app\outputs\flutter-apk\app-release.apk AndroidManifest.xml \| Select-String "allowBackup\|networkSecurityConfig"` | `android:allowBackup` en `0x0` (false) y `android:networkSecurityConfig` presente | |
-| 11.4 | El mismo `dump badging` sobre `app-debug.apk` | Aparece `application-debuggable` (control: el de depuración sí lo es) | |
-| 11.5 | Modelo de ML Kit dentro del APK (contrato v1.2 §7, M-3): `python -I pruebas\datos\revisar_modelo_apk.py apps\movil\build\app\outputs\flutter-apk\app-release.apk` (equivale a `unzip -l`) | Archivos en `assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`; termina con "El modelo de ML Kit está dentro del APK." (código 0). Si aparecen `play-services-mlkit-*.properties`, **no** es un rojo (v1.2: dependencia transitiva; lo que hace en la red queda NO VERIFICADO) | |
+| 11.1 | El APK de release de la entrega: `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk`, ya comprobado en 0.9 | El archivo existe y su SHA-256 coincide | |
+| 11.2 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump badging C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk \| Select-String "package:\|application-label:\|debuggable"` | `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `application-debuggable` | |
+| 11.3 | `& (Get-ChildItem C:\Android\build-tools\*\aapt.exe \| Sort-Object FullName \| Select-Object -Last 1).FullName dump xmltree C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk AndroidManifest.xml \| Select-String "allowBackup\|usesCleartextTraffic\|networkSecurityConfig"` | `android:allowBackup` y `android:usesCleartextTraffic` en `0x0` (false) y `android:networkSecurityConfig` presente | |
+| 11.4 | El mismo `dump badging` sobre `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` | Aparece `application-debuggable` (control: el de depuración sí lo es) | |
+| 11.5 | Modelo de ML Kit dentro del APK (contrato v1.2 §7, M-3): `python -I pruebas\datos\revisar_modelo_apk.py C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk` (equivale a `unzip -l`) | Archivos en `assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`; termina con "El modelo de ML Kit está dentro del APK." (código 0). Si aparecen `play-services-mlkit-*.properties`, **no** es un rojo (v1.2: dependencia transitiva; lo que hace en la red queda NO VERIFICADO) | |
+| 11.6 | Firma: `C:\Android\build-tools\36.0.0\apksigner.bat verify --print-certs C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk \| Select-String "certificate DN"` | `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE` (la llave del proyecto, fuera del repositorio; **no** `CN=Android Debug`, que es la del APK de depuración) | |
+
+> El APK de release **no** confía en la CA del usuario: contra la API local con Caddy no conecta, y es lo esperado (informe del DEV, §9). No se instala en esta sesión.
 
 ## 12. Al terminar
 
@@ -180,4 +211,5 @@ No necesita el teléfono. Lo puede correr el TESTER cuando el DEV entregue el AP
 |---|---|---|
 | 12.1 | `adb reverse --remove-all` | Sin error |
 | 12.2 | Pasar los resultados (sin imágenes) al TESTER para `informes/TESTER-MIGRACION-FLUTTER.md` y las capturas al LEAD para el UX | — |
-| 12.3 | La CA de Caddy queda instalada hasta el cierre del proyecto y se borra según el acta de eliminación (`docs/contratos/PENDIENTES.md`); lo mismo la llave de firma (informe del DEV) | — |
+| 12.3 | La CA de Caddy queda instalada hasta el cierre del proyecto. **Al cierre** (§9 paso 6 del DEV): en el teléfono, Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Ver certificados de seguridad › Usuario › quitar la CA de Caddy; y en la PC `Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\ca-local`. La llave de firma se borra según el informe del DEV (§4, "La llave de firma"). Las dos van en el acta de eliminación (`docs/contratos/PENDIENTES.md`) | — |
+| 12.4 | Bajar el compose: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env down` | Docker libre para las otras carpetas |
