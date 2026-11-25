@@ -11,7 +11,7 @@
 |---|---|
 | `flutter analyze test` | `No issues found!` |
 | `flutter test test/hu01_hu02_test.dart test/hu01_retomar_test.dart test/hu03_hu07_test.dart test/hu04_ocr_test.dart test/red_sin_cache_test.dart` | **`+120: All tests passed!`** |
-| `flutter test test/repositorio_test.dart` (árbol de trabajo) | 11 verdes, 5 rojos de trabajo en curso: quedan `.tsx` en `__tests__/` (los borra el TESTER), y en `android/` (plantilla de `flutter create` sin commit del DEV) falta `applicationId`, `allowBackup`, `network_security_config.xml`, y el manifiesto menciona `expo`. Se vuelve a correr con la `ENTREGA DEV` |
+| `flutter test test/repositorio_test.dart` (árbol de trabajo) | 11 verdes, 5 rojos de trabajo en curso: quedan `.tsx` en `__tests__/` (los borra el TESTER), y en `android/` (plantilla de `flutter create` sin commit del DEV) falta `applicationId`, `allowBackup`, `network_security_config.xml`, y el manifiesto menciona `expo`. Se vuelve a correr con la `ENTREGA DEV`. Tras `cd9c3d2` y `7132e10`: las 120 de la app siguen en verde y "ningún archivo Expo ni TypeScript" pasa |
 | Sanidad de las ayudas (prueba temporal, no versionada) | Verde: lo inverso falla (`habilitado("Verificar rostro")`, `deshabilitado("Consultar placa")`, un texto sin estado no cuenta como deshabilitado) |
 
 **Ajustes de las pruebas al compilar (ninguno cambia lo que se verifica, y ninguno vino de leer `lib/`):**
@@ -197,8 +197,8 @@ Automatizadas en `repositorio_test.dart` (corren con `flutter test`) y, por coma
 | `startImageStream` no aparece en `lib/` | `repositorio_test` y `grep -r startImageStream apps/movil/lib` | NO EJECUTADO |
 | Ningún paquete de caché | `repositorio_test` | NO EJECUTADO |
 | Flutter 3.50.1 en `environment`, dependencias exactas, `pubspec.lock` | `repositorio_test` | NO EJECUTADO |
-| Sin Expo: ni `.ts`/`.tsx`, ni `package.json`, ni menciones en `pubspec.yaml` y `android/` | `repositorio_test` y `git ls-files apps/movil` | NO EJECUTADO |
-| `apps/movil/__tests__/` borrado | `git ls-files apps/movil/__tests__` vacío (commit del TESTER, cuando la matriz esté en verde) | PENDIENTE |
+| Sin Expo: ni `.ts`/`.tsx`, ni `package.json`, ni menciones en `pubspec.yaml` y `android/` | `repositorio_test` y `git ls-files apps/movil` | Archivos: **VERDE** tras `cd9c3d2` (DEV) y `7132e10` (TESTER). Menciones en `android/`: espera la `ENTREGA DEV` |
+| `apps/movil/__tests__/` borrado | `git ls-files apps/movil/__tests__` vacío | **HECHO** (`7132e10`, TESTER; los 5 archivos que había en la rama) |
 | `applicationId`, nombre visible, `allowBackup`, `network_security_config.xml` | `repositorio_test` | NO EJECUTADO |
 | `.gitignore` con `key.properties`, `*.jks`, `*.keystore`; `git ls-files` sin `.crt`, `.pem`, `.key`, `.der`, `.jks`, `.keystore` | `repositorio_test` y `git ls-files \| grep -E '\.(crt\|pem\|key\|der\|jks\|keystore)$'` | NO EJECUTADO |
 | `flutter analyze` sin errores ni avisos | Comando en `apps/movil` | NO EJECUTADO |
