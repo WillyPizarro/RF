@@ -297,7 +297,11 @@ class _EstadoPantallaBitacora extends State<PantallaBitacora> {
                   children: [
                     const Text(
                       'Filtros',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colores.texto),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colores.texto,
+                      ),
                     ),
                     Expanded(
                       child: ExcludeSemantics(
@@ -318,7 +322,11 @@ class _EstadoPantallaBitacora extends State<PantallaBitacora> {
                       ),
                       child: const Text(
                         'PA 24',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colores.tenue),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colores.tenue,
+                        ),
                       ),
                     ),
                   ],
@@ -423,21 +431,27 @@ class _Chips extends StatelessWidget {
             child: Material(
               color: elegido == valor ? Colores.primario : Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
                 side: BorderSide(color: elegido == valor ? Colores.primario : Colores.borde),
               ),
               child: InkWell(
-                customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 onTap: () => alElegir(elegido == valor ? null : valor),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  alignment: Alignment.center,
-                  child: Text(
-                    etiqueta,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: elegido == valor ? Colors.white : Colores.texto,
+                // Mide lo que su texto (varias por fila en el Wrap) y 48 dp de alto (UX obs. 2).
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Align(
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: Text(
+                        etiqueta,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: elegido == valor ? Colors.white : Colores.texto,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -623,7 +637,8 @@ class _DetalleRegistro extends StatelessWidget {
                   _Campo('Fecha y hora', fechaHoraCompleta(r.ocurridoEn)),
                   _Campo('Tipo', _tipo(r.tipoEvento)),
                   if (r.placa != null) _Campo('Placa', r.placa!),
-                  if (r.motivo != null && r.motivo!.isNotEmpty) _Campo('Motivo', _textoMotivo(r.motivo!)),
+                  if (r.motivo != null && r.motivo!.isNotEmpty)
+                    _Campo('Motivo', _textoMotivo(r.motivo!)),
                   if (r.resultado != null && r.resultado!.isNotEmpty)
                     _Campo('Resultado', _resultado(r.resultado!)),
                   if (r.codigoError != null && r.codigoError!.isNotEmpty)
@@ -663,7 +678,10 @@ class _Campo extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: '$nombre: ', style: const TextStyle(fontWeight: FontWeight.w700)),
+            TextSpan(
+              text: '$nombre: ',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             TextSpan(text: valor),
           ],
         ),

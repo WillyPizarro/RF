@@ -210,8 +210,10 @@ class _EstadoPantallaOcr extends State<PantallaOcr> {
                   if (_leyendo)
                     IgnorePointer(
                       child: Center(
+                        // Círculo chico y fijo, centrado en el marco: no tapa el visor (UX obs. 1).
                         child: Container(
-                          padding: const EdgeInsets.all(18),
+                          width: 76,
+                          height: 76,
                           decoration: const BoxDecoration(
                             color: Color(0x8C000000),
                             shape: BoxShape.circle,
