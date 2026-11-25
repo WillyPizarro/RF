@@ -6,6 +6,8 @@ Rol: UX. Fecha: 2026-11-24. Encargo: LEAD → UX (CONTRATO-MIGRACION-FLUTTER v1.
 
 **§4 (safe area): pendiente.** Se aprueba solo con las capturas del S23 Ultra de la mini sesión del **miércoles 25-nov** (adelantada por el LEAD). La lista de capturas está en la sección "Capturas del S23 Ultra para el guion del TESTER".
 
+**Actualización 2026-11-25: §4 (safe area) aprobada** con S1 a S5 del S23 Ultra. Ver la sección "Confirmación §4 (S23 Ultra)" al final.
+
 ## Qué se revisó
 
 - **Capturas de `flutter_test`** (390 × 844 dp, ×3), en `Movil_Buscador_capturas/MIGRACION-FLUTTER/flutter_test` (fuera del repositorio). Son 30: AUTH-01, AUTH-01-vacios, AUTH-02, AUTH-03, AUTH-04, AUTH-otro-error, HOME-01-agente, HOME-revisor, HOME-supervisor, ERR-01, PLA-01, PLA-02-sin-motivo, PLA-02-otro-corto-y-PLA-03-formato, PLA-04-consultando, PLA-05-con-requisitoria, PLA-06-sin-requisitoria, PLA-07-error, PLA-08-no-registrada, PLA-01-con-placa-leida, OCR-01-aviso-mlkit, OCR-01, OCR-01-leyendo, OCR-02, OCR-03, OCR-04, BIT-01, BIT-01-filtros, BIT-01-vacia, BIT-01-error y BIT-02.
@@ -152,3 +154,28 @@ Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `HU-04.md`).
 
 - **Regresiones:** no se ven en las pantallas recapturadas. El resto del diff de `0724e88` es solo formato (cortes de línea en `pantalla_bitacora.dart`) y no cambia nada visible.
 - **Para el teléfono:** S8 y S14 de la lista confirman estas dos correcciones sobre la cámara real y con el teclado abierto.
+
+## Confirmación §4 (S23 Ultra, mini sesión del 25-nov)
+
+**Resultado: §4 (safe area) aprobada.** Las cinco capturas obligatorias cumplen. 0 BLOQUEA y ninguna observación nueva.
+
+- **Qué se revisó:** S1 a S5 en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23\` (fuera del repositorio). Son capturas a pantalla completa (1080 × 2316) tomadas por el DEV con `adb exec-out screencap` desde el APK de depuración `6d6b0405` (CONTRATO-MIGRACION-FLUTTER v1.5, cliente `ok_http`; según el LEAD no hay cambios visibles frente a `987be377`).
+- **Modo de navegación (paso 0.2b del guion):** el teléfono estaba en **Botones**. S1 a S4 se tomaron en Botones, que es el caso más exigente porque la barra de abajo es más alta. S5 se tomó en **Gestos de deslizar** y después se volvió a Botones.
+- **Contra qué:** CONTRATO-MIGRACION-FLUTTER v1.5 §4 (arriba, abajo, una sola vez, cómo se verifica) y la observación 2 de `HU-04.md`.
+
+| # | Captura | Arriba | Abajo | Estado |
+|---|---|---|---|---|
+| S1 | HOME-01 (`agente1`), Botones | La hora, los íconos, la señal y la batería se ven enteros y en claro sobre el fondo oscuro. La franja "DATOS SINTÉTICOS · PROTOTIPO" está entera, justo debajo y del mismo fondo, sin superponerse | Nada de la app llega a la barra de botones. "Mis verificaciones" termina muy por encima | ✔ |
+| S2 | PLA-01 sin teclado, Botones | Igual que S1 | "Consultar" está entero y lejos de la barra (queda en el tercio inferior, con margen) | ✔ |
+| S3 | OCR-01 con visor, Botones | Igual que S1. El visor empieza debajo de la cabecera y no invade la franja | "Capturar" e "Ingresar manualmente" están enteros y por encima de los tres botones del sistema, con separación | ✔ |
+| S4 | OCR-02, Botones | Igual que S1 | "Usar esta placa" y "Volver a capturar" se ven enteros | ✔ |
+| S5 | OCR-01 con visor, Gestos | Igual que S1 | "Ingresar manualmente" termina por encima de la línea de gestos, sin tocarla. El visor crece al alto que libera la barra, y no aparece ninguna franja vacía ni ningún botón tapado | ✔ |
+
+- **Una sola vez:** en las cinco pantallas la barra de estado y la franja quedan a la misma altura y con el mismo fondo, y el margen de abajo se ajusta solo al modo de navegación. Concuerda con el doble `SafeArea` de la raíz que ya se había visto en `lib/app.dart`.
+- **Símbolos (adelanto, no cierra el aviso 2 del DEV):** en el teléfono se dibujan bien 🚗 (S1), ← y 📷 (S2), ○ (S2), ✕ (S3 a S5) y ◉ en "Capturar" (S3 y S5). Los demás (⚠, ⓘ, 🔒, ⛔, 📷✕, ▾) se confirman con S10 a S15.
+- **Notas sin observación:**
+  - En S1 se ve una pestaña gris fina en el borde derecho, a media altura. Es el panel Edge de Samsung, del sistema y no de la app.
+  - En S3 el visor apunta al piso. Para la §4 alcanza; el contraste del marco sobre una placa se revisa con S8 y S9.
+- **Fuera de la §4 (no lo decide el UX):** el LEAD avisó que el aviso de ML Kit volvió a salir en OCR-01 al regresar de Ajustes, porque Android recreó la actividad. Es un hueco de HU-04 que decide el humano. Si la decisión cambia cuándo sale el aviso, el UX revisa el texto y la pantalla que resulten.
+
+**Qué falta:** S6 a S15, que no bloquean la §4. Cierran la etapa 2 de HU-04 (aviso, letra al máximo, indicador sobre la cámara real, marco a 1 o 2 m y OCR-04) y el aviso 2 del DEV sobre los símbolos.
