@@ -1,11 +1,28 @@
 # Informe TESTER — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (con la M-1 a la M-4 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
-**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-4).
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (con la M-1 a la M-9 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
+**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-9).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
-**Estado:** **ENTREGA TESTER parcial (M-5)** sobre la `ENTREGA DEV` (`1382d13`; código en `0a1d93e`; corrida sobre `fb3869b`, que no cambia nada de `apps/movil/` del DEV). Solo lo tocado: **no** es la suite completa del cierre (§10 del contrato; va con otra M-n después de la aprobación del UX). Todo lo de `flutter_test` y del repositorio está en **verde**; lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov (M-6).
+**Estado:** **corrida M-9** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado: `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 en verde y los dos APK nuevos en verde. **Pendiente:** `test_hu04_sin_cache.py` contra el compose, **bloqueado** porque pytest no está instalado en el anfitrión (escalado al humano por el LEAD; llega como M-n). Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. Antes: `ENTREGA TESTER` parcial M-5.
 
-## 0. Corrida M-5 (2026-11-24, sobre la ENTREGA DEV)
+## 0. Corrida M-9 (2026-11-24, sobre `6790594`)
+
+| Paso de la M-9 | Comando | Resultado |
+|---|---|---|
+| 1 | `PROXY_DISPONIBLE=1 python -m pytest services/api/tests/test_hu04_sin_cache.py --integracion --url-base https://localhost:8443` (14 casos por la red interna y 14 por el proxy), con el compose arriba desde esta carpeta (`https://localhost:8443/v1/salud` → `200`) | **NO EJECUTADO, bloqueado:** `No module named pytest` en el Python del anfitrión (`Python313`); no hay venv en las carpetas del proyecto. Pregunté al LEAD; lo escaló al humano con la propuesta de un venv en `C:\Willy\Trabajo\MININTER\venv-pruebas` (fuera del repositorio) con solo `pytest==9.2.0`. No instalé nada |
+| 2 | `flutter analyze` en `apps/movil` | **`No issues found!`** |
+| 2 | `flutter test` en `apps/movil` | **`+137: All tests passed!`** (120 de la app y 17 de `repositorio_test`) |
+| 2 | §1.3 v1.4: `git diff --stat main...HEAD -- services/ contratos/` | Solo `services/api/app/traza.py` (DEV, `36d174a`) y `services/api/tests/test_hu04_sin_cache.py` (TESTER, `3bcee92`). Las líneas cambiadas de `traza.py` son **las mismas** que en `0ccd8fb` (comparadas con `diff`) |
+| 3 | `sha256sum -c SHA256SUMS.txt` en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\` | `movil-buscador-debug.apk: OK` (`987be377…40cc1`), `movil-buscador-release.apk: OK` (`3528cb54…50381`) |
+| 3 | `aapt dump badging` (build-tools 36.0.0) | Los dos: `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'`. Líneas `debuggable`: **release 0**, debug 1 (control) |
+| 3 | `aapt dump xmltree <apk> AndroidManifest.xml` | Los dos: `allowBackup` 0x0, `usesCleartextTraffic` 0x0, `networkSecurityConfig` presente |
+| 3 | `python -I pruebas/datos/revisar_modelo_apk.py <apk>` (§7 v1.2) | Los dos: **modelo dentro** (21 archivos en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en 3 ABI); `play-services-mlkit-*` sin rojo (v1.2), red `NO VERIFICADO` |
+| 3 | `apksigner verify --print-certs` | Release: `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE`. Debug: `CN=Android Debug` |
+| 4 | El compose | **Quedó arriba**, como pide la M-9. No lo toqué |
+
+**Control propio sobre el APK de release.** Su tamaño (82 266 821 bytes) es igual al del release anterior a la M-7, aunque su SHA-256 cambió. Compilé un release sin firmar desde `6790594` en un worktree temporal, fuera del repositorio y ya borrado: pesa 82 254 533 bytes, **igual** que el que compilé desde `fb3869b` en la M-5. La M-7 no cambia el tamaño del APK, así que el tamaño igual no es una señal de problema. Comparar `libapp.so` byte a byte con el entregado no sirve: el binario guarda la ruta de compilación (`…\wt-m9\…` en el mío, `…\Movil_Buscador-flutter\…` en el del DEV). Que el entregado sale de `0724e88` queda respaldado por el informe del DEV (`20761dd`) y el `SHA256SUMS` que verificó el LEAD.
+
+## 0 bis. Corrida M-5 (2026-11-24, sobre la ENTREGA DEV)
 
 | Paso de la M-5 | Comando | Resultado |
 |---|---|---|
@@ -27,7 +44,7 @@
 
 **Arreglos de mis pruebas en esta corrida (`95741fa`):** `repositorio_test` recorría `build/` con `listSync(recursive: true)` y se rompía con una ruta de Gradle que Windows no puede listar (`PathNotFoundException`, 2 rojos que no eran de la app). Ahora no entra en `build/`, `.dart_tool/`, `.gradle/` ni `node_modules/`, que no son del repositorio. No cambia lo que se verifica.
 
-## 0 bis. Corrida 1 (2026-11-24, contra `dd08a54`)
+## 0 ter. Corrida 1 (2026-11-24, contra `dd08a54`)
 
 | Qué | Resultado |
 |---|---|
