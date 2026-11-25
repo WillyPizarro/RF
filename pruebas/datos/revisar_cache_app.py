@@ -10,6 +10,9 @@ borra al terminar. Este script no escribe nada: solo lee la copia e imprime un r
 Qué busca (HU-04 v6 §6): ningún archivo que contenga `/v1/` ni una respuesta de la API, por
 ejemplo `"resultado"`, `token_acceso`, `token_renovacion`, `consulta_id` o `formato_placa`.
 Además (regla 8 y HU-04 §6, "La foto se borra"): ninguna imagen JPEG o PNG.
+Desde CONTRATO-MIGRACION-FLUTTER v1.5 §6 ("Sin caché HTTP con OkHttp"): ningún directorio ni
+archivo con `http-cache`, `http_cache` u `okhttp` en la ruta, y ningún diario de `DiskLruCache`
+(`libcore.io.DiskLruCache`, la primera línea del `journal` de la caché de OkHttp).
 
 Sale con código 1 si encuentra algo. Imprime solo la ruta del archivo y qué marca encontró, nunca
 el contenido.
@@ -22,6 +25,8 @@ import tarfile
 from pathlib import Path
 
 MARCAS = [b"/v1/", b'"resultado"', b"token_acceso", b"token_renovacion", b"consulta_id", b"formato_placa"]
+DISKLRU = b"libcore.io.DiskLruCache"
+RUTAS_OKHTTP = ("http-cache", "http_cache", "okhttp")
 IMAGENES = {"JPEG": b"\xff\xd8\xff", "PNG": b"\x89PNG\r\n\x1a\n"}
 
 
@@ -37,6 +42,10 @@ def main() -> int:
     archivos = 0
     with tarfile.open(copia) as tar:
         for miembro in tar.getmembers():
+            ruta = miembro.name.lower()
+            for parte in RUTAS_OKHTTP:
+                if parte in ruta:
+                    hallazgos.append(f"{miembro.name}: ruta con {parte} (caché de OkHttp)")
             if not miembro.isfile():
                 continue
             archivos += 1
@@ -47,6 +56,8 @@ def main() -> int:
             for marca in MARCAS:
                 if marca in datos:
                     hallazgos.append(f"{miembro.name}: contiene {marca.decode()}")
+            if datos.startswith(DISKLRU):
+                hallazgos.append(f"{miembro.name}: diario de DiskLruCache (caché de OkHttp)")
             for nombre, firma in IMAGENES.items():
                 if datos.startswith(firma):
                     hallazgos.append(f"{miembro.name}: es una imagen {nombre}")
@@ -57,7 +68,7 @@ def main() -> int:
         for h in hallazgos:
             print(f"  {h}")
         return 1
-    print("Ningún archivo con /v1/, respuestas de la API ni imágenes en cache/, files/ ni app_flutter/.")
+    print("Ningún archivo con /v1/, respuestas de la API, caché de OkHttp ni imágenes en cache/, files/ ni app_flutter/.")
     return 0
 
 

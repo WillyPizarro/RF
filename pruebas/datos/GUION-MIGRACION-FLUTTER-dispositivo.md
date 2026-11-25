@@ -1,8 +1,8 @@
 # Guion de la mini sesión física — app Flutter en el Samsung Galaxy S23 Ultra (Android 16)
 
-**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.4** (§4 safe area, §6 build, §1.3 no-store de la API) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
-**Cuándo:** el **miércoles 25-nov** (M-6 del encargo; antes era el jueves 4-dic), con el PM y el humano. **El TESTER no corre `adb` contra el teléfono**: el PM corre los comandos y el humano opera el teléfono. El TESTER escribe este guion y después pasa los resultados a `informes/TESTER-MIGRACION-FLUTTER.md`.
-**Reemplaza** a `GUION-HU-04-dispositivo.md` de la referencia `hu-04-expo-referencia` (Expo, dev build con Metro). Los pasos son los mismos, adaptados al APK de Flutter: sin Metro, sin EAS y sin `http-cache` de OkHttp.
+**Contratos:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.5** (§4 safe area, §6 build y cliente `ok_http`, §1.3 no-store de la API, §8 login con los dos APK) y `docs/contratos/CONTRATO-HU-04.md` **v6** (§3 sin red, §6 dispositivo, §8 conexión). **Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md`, punto 7 del TESTER.
+**Cuándo:** el **miércoles 25-nov** (M-6 del encargo; antes era el jueves 4-dic), con el PM y el humano. **El TESTER no corre `adb` contra el teléfono**: los `adb` los corre el DEV (M-11 y M-13 del encargo), el PM dirige y el humano opera el teléfono. El TESTER escribe este guion y después pasa los resultados a `informes/TESTER-MIGRACION-FLUTTER.md`.
+**Reemplaza** a `GUION-HU-04-dispositivo.md` de la referencia `hu-04-expo-referencia` (Expo, dev build con Metro). Los pasos son los mismos, adaptados al APK de Flutter: sin Metro ni EAS. Desde la v1.5 la app vuelve a usar OkHttp (`package:ok_http`), así que el paso 8 vuelve a buscar su caché.
 
 **Qué cubre:**
 
@@ -17,10 +17,10 @@
 | La placa impresa se lee y el paso a paso del §5, una vez | HU-04 v6 §5 y §6 | 6 |
 | Aviso de telemetría en OCR-01, una vez | HU-04 v6 §3 ("Qué se prueba dónde") | 6 |
 | La foto se borra (10 capturas) | HU-04 v6 §6 | 7 |
-| Sin caché HTTP en disco (`cache/` y `files/`) | HU-04 v6 §6 | 8 |
+| Sin caché HTTP en disco (`cache/` y `files/`), incluida la de OkHttp | HU-04 v6 §6, CONTRATO-MIGRACION-FLUTTER v1.5 §6 | 8 |
 | Cola de telemetría de ML Kit | HU-04 v6 §6 | 9 |
 | Sin red (modo avión) | HU-04 v6 §3 | 10 |
-| APK de release no depurable | CONTRATO-MIGRACION-FLUTTER §6, HU-04 v6 §8 | 11 |
+| APK de release no depurable, sin CA de desarrollo y sin login contra el Caddy local | CONTRATO-MIGRACION-FLUTTER §6 y §8 (v1.5), HU-04 v6 §8 | 11 |
 
 La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 al 26-dic, con `pruebas/datos/ocr-precision.csv`.
 
@@ -33,12 +33,14 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 - **Clave de los usuarios de prueba:** la dicta el humano (`CLAVE_USUARIOS_PRUEBA` de `infra/.env`); no se escribe en ningún archivo.
 - **Comandos:** PowerShell 5.1, desde la raíz del worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`, con `adb` en `C:\Android\platform-tools` (en el `PATH`). En PowerShell 5.1 el `>` corrompe la salida binaria: las copias binarias van con `cmd /c "… > archivo"`.
 - **Paquete de la app:** `pe.prototipo.movilbuscador` (CONTRATO-MIGRACION-FLUTTER §6).
-- **APK de la sesión:** los de la entrega M-7/M-8 del DEV (árbol de `3bcee92`, código de la app `0724e88`; informe del DEV §4), **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`: `movil-buscador-debug.apk` (`987be377…40cc1`), `movil-buscador-release.apk` (`3528cb54…950381`) y `SHA256SUMS.txt`. El TESTER los comprobó el 25-nov antes de la sesión. En la sesión **no se compila nada**.
+- **APK de la sesión:** los de la `ENTREGA DEV` de la M-13 (cliente `ok_http`, contrato v1.5): commit `PENDIENTE`, debug `PENDIENTE`, release `PENDIENTE` (los completa el TESTER cuando el LEAD avise la entrega). Están **fuera del repositorio**, en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`: `movil-buscador-debug.apk`, `movil-buscador-release.apk` y `SHA256SUMS.txt`. Reemplazan a los de la M-7/M-8 (debug `987be377…`, release `3528cb54…`), que fallaron el login en el paso 1.2 (M-12). En la sesión **no se compila nada**.
 - **Cómo se registran los resultados:** el PM anota en la columna "Resultado" de cada paso `OK`, `ROJO: <qué se vio>` o `NO HECHO: <por qué>`, en una copia de este guion **fuera del repositorio** (`C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`), sin datos de la clave ni imágenes pegadas. Para las capturas basta el nombre del archivo. Al terminar se la pasa al TESTER (paso 12.2), que la vuelca al informe; un `ROJO` se avisa al LEAD en el momento, no se arregla en la sesión.
 - **CA de Caddy:** los pasos son los de la §9 del informe del DEV (`informes/DEV-MIGRACION-FLUTTER.md`). La copia de la CA va en `C:\Willy\Trabajo\MININTER\ca-local\`, fuera del repositorio.
 - **Flutter:** `C:\Programas_Portables\flutter_3.50.1\flutter\bin\flutter.bat` (M-2). Si `flutter` no está en el `PATH`, usar esa ruta completa.
 
 ## 0. Preparación (una vez)
+
+> **Retomar el 25-nov (M-13).** Los pasos **0.1 a 0.7 quedaron `OK`** en la primera vuelta del 25-nov (registro `resultados-s23.md`): hoja impresa, carpetas, modo de navegación anotado, el S23 Ultra autorizado, Android 16, compose arriba con el no-store, la CA sacada a `ca-local\` y la **CA de usuario de Caddy ya instalada** en el teléfono (no se repite el 0.6b). Se retoma **desde 0.8**. Si se desconectó el cable, repetir solo el 0.3 y el 0.7 (`adb reverse` se pierde al desconectar).
 
 | Paso | Comando o acción | Esperado | Resultado |
 |---|---|---|---|
@@ -53,8 +55,8 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 | 0.6 | Sacar la CA de Caddy (§9 paso 2 del DEV): `New-Item -ItemType Directory -Force C:\Willy\Trabajo\MININTER\ca-local \| Out-Null` y `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env cp proxy:/data/caddy/pki/authorities/local/root.crt C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt` | El archivo existe, fuera del repositorio | |
 | 0.6b | Instalarla como certificado del usuario (§9 paso 3): `adb push C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt /sdcard/Download/`; en el teléfono: Ajustes › Seguridad y privacidad › Más ajustes de seguridad › Instalar desde el almacenamiento › Certificado de CA; después `adb shell rm /sdcard/Download/caddy-root.crt` | La CA aparece en Ver certificados de seguridad › Usuario; `Download/` sin el archivo | |
 | 0.7 | `adb reverse tcp:8443 tcp:8443` y `adb reverse --list` | `tcp:8443 tcp:8443` | |
-| 0.8 | **Desinstalar la app de Expo** (otra firma; §9 paso 1): `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package` si ya no estaba) | |
-| 0.9 | Comprobar los APK contra `SHA256SUMS.txt` (M-6): `Get-FileHash -Algorithm SHA256 C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-*.apk \| ForEach-Object { $h = $_.Hash.ToLower(); Select-String -Path C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\SHA256SUMS.txt -SimpleMatch $h }` | Dos líneas, una por APK (`… movil-buscador-debug.apk` y `… movil-buscador-release.apk`). Si falta alguna, **no se instala** y se avisa al LEAD. Los valores salen del `SHA256SUMS.txt` de la entrega de la M-7 (los APK se recompilan después de las observaciones del UX) | |
+| 0.8 | **Desinstalar lo que haya con el paquete** (Expo, o el Flutter `987be377…` de la primera vuelta; §9 paso 1): `adb uninstall pe.prototipo.movilbuscador` | `Success` (o `Unknown package` si ya no estaba) | |
+| 0.9 | Comprobar los APK contra `SHA256SUMS.txt` (M-6): `Get-FileHash -Algorithm SHA256 C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-*.apk \| ForEach-Object { $h = $_.Hash.ToLower(); Select-String -Path C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\SHA256SUMS.txt -SimpleMatch $h }` | Dos líneas, una por APK (`… movil-buscador-debug.apk` y `… movil-buscador-release.apk`). Si falta alguna, **no se instala** y se avisa al LEAD. Los valores son los de la entrega M-13 (ver "APK de la sesión" arriba); si sale `987be377…` o `3528cb54…`, son los APK viejos: **no se instala** y se avisa al LEAD | |
 | 0.10 | Instalar el APK de depuración (§9 paso 5): `adb install C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` | `Success` | |
 | 0.11 | `adb shell pm list packages pe.prototipo.movilbuscador` | `package:pe.prototipo.movilbuscador` | |
 | 0.12 | `adb shell dumpsys package pe.prototipo.movilbuscador \| Select-String "versionName\|flags="` | Anotar la versión. En `flags=` aparece `DEBUGGABLE` (es el de depuración) y **no** `ALLOW_BACKUP` | |
@@ -65,7 +67,7 @@ La **precisión del OCR (HU-04 §7) no entra**: va en la fase de pruebas del 16 
 | Paso | Acción | Esperado | Resultado |
 |---|---|---|---|
 | 1.1 | Abrir "Movil Buscador" (el nombre visible) | AUTH-01 con "Usuario", "Clave", "Ingresar" y la franja "DATOS SINTÉTICOS · PROTOTIPO" | |
-| 1.2 | Iniciar sesión con `agente1` | HOME-01: "Hola, …", "Rol: Agente", "Salir"; "Consultar placa" habilitada, "Verificar rostro" y "Mis verificaciones" deshabilitadas | |
+| 1.2 | Iniciar sesión con `agente1` (era el ROJO de la primera vuelta; v1.5 §8: con el APK de depuración **debe entrar**) | HOME-01: "Hola, …", "Rol: Agente", "Salir"; "Consultar placa" habilitada, "Verificar rostro" y "Mis verificaciones" deshabilitadas | |
 | 1.3 | Tocar "Consultar placa" | PLA-01 con el catálogo de motivos (llegó `GET /v1/motivos`) y el botón 📷 habilitado | |
 
 ## 2. Recorrido de login, placa y bitácora (CONTRATO-MIGRACION-FLUTTER §8), una vez
@@ -165,7 +167,8 @@ Empezar con una sesión nueva (después de "Salir" y volver a entrar), para ver 
 | 8.2 | Abrir la app, iniciar sesión con `agente1`, "Consultar placa" (carga los motivos) y consultar `ZZA-101` con un motivo | PLA-05 "TIENE REQUISITORIA" | |
 | 8.3 | `adb shell run-as pe.prototipo.movilbuscador ls -laR cache files app_flutter` | Anotar qué hay (sin abrir el contenido) | |
 | 8.4 | Copia fuera del repositorio: `cmd /c "adb exec-out run-as pe.prototipo.movilbuscador tar -cf - cache files app_flutter > C:\Willy\Trabajo\MININTER\flutter-capturas\cache-app.tar"` (si una carpeta no existe, `tar` lo avisa y sigue) | Archivo `.tar` con tamaño mayor que 0 | |
-| 8.5 | `python -I pruebas\datos\revisar_cache_app.py C:\Willy\Trabajo\MININTER\flutter-capturas\cache-app.tar` | Termina con "Ningún archivo con /v1/, respuestas de la API ni imágenes …" (código 0). Si encuentra algo, imprime solo la ruta y la marca | |
+| 8.3b | Caché de OkHttp (v1.5 §6): `adb shell run-as pe.prototipo.movilbuscador find cache files app_flutter -iname "*http*cache*" -o -iname "*okhttp*" -o -name journal` | **Nada** (ningún directorio `http-cache` ni similar, ningún `journal` de `DiskLruCache`). Si aparece algo, anotar la ruta | |
+| 8.5 | `python -I pruebas\datos\revisar_cache_app.py C:\Willy\Trabajo\MININTER\flutter-capturas\cache-app.tar` | Termina con "Ningún archivo con /v1/, respuestas de la API, caché de OkHttp ni imágenes …" (código 0). Además de las marcas de la API y las imágenes, busca rutas con `http-cache`, `http_cache` u `okhttp` y el diario `libcore.io.DiskLruCache`. Si encuentra algo, imprime solo la ruta y la marca | |
 | 8.6 | `Remove-Item -Force C:\Willy\Trabajo\MININTER\flutter-capturas\cache-app.tar` | La copia borrada | |
 
 ## 9. Cola de telemetría de ML Kit (HU-04 v6 §6)
@@ -192,9 +195,9 @@ Después de leer al menos una placa (pasos 6 o 7). La copia va fuera del reposit
 
 > `adb reverse` va por USB y sigue funcionando en modo avión; por eso se quita en 10.1.
 
-## 11. APK de release no depurable (CONTRATO-MIGRACION-FLUTTER §6, HU-04 v6 §8)
+## 11. APK de release (CONTRATO-MIGRACION-FLUTTER §6 y §8 v1.5, HU-04 v6 §8)
 
-No necesita el teléfono. El TESTER ya lo corrió sobre la entrega (informe, corrida M-5): en la sesión se repite solo si el PM quiere confirmarlo.
+Los pasos 11.1 a 11.6b no necesitan el teléfono: el TESTER los corre sobre la entrega M-13 (informe); en la sesión se repiten solo si el PM quiere confirmarlo. Los pasos **11.7 a 11.11 sí van en el teléfono**, al final (después del paso 10, con la red y el `adb reverse` de vuelta).
 
 | Paso | Comando | Esperado | Resultado |
 |---|---|---|---|
@@ -205,7 +208,14 @@ No necesita el teléfono. El TESTER ya lo corrió sobre la entrega (informe, cor
 | 11.5 | Modelo de ML Kit dentro del APK (contrato v1.2 §7, M-3): `python -I pruebas\datos\revisar_modelo_apk.py C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk` (equivale a `unzip -l`) | Archivos en `assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`; termina con "El modelo de ML Kit está dentro del APK." (código 0). Si aparecen `play-services-mlkit-*.properties`, **no** es un rojo (v1.2: dependencia transitiva; lo que hace en la red queda NO VERIFICADO) | |
 | 11.6 | Firma: `C:\Android\build-tools\36.0.0\apksigner.bat verify --print-certs C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk \| Select-String "certificate DN"` | `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE` (la llave del proyecto, fuera del repositorio; **no** `CN=Android Debug`, que es la del APK de depuración) | |
 
-> El APK de release **no** confía en la CA del usuario: contra la API local con Caddy no conecta, y es lo esperado (informe del DEV, §9). No se instala en esta sesión.
+| 11.6b | Ninguna CA de desarrollo dentro de los APK (v1.5 §6): búsqueda del TESTER sobre los dos APK, como la del informe del DEV | Ninguno lleva la CA de Caddy (con el plan B, el de release no la lleva) | |
+| 11.7 | Con la red de vuelta (10.4) y `adb reverse --list` mostrando `tcp:8443`: `adb uninstall pe.prototipo.movilbuscador` (el de release tiene otra firma) y `adb install C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-release.apk` | `Success` las dos veces | |
+| 11.8 | `adb shell dumpsys package pe.prototipo.movilbuscador \| Select-String "flags="` | **Sin** `DEBUGGABLE` (es el de release) | |
+| 11.9 | Abrir la app e iniciar sesión con `agente1` | **No entra**: AUTH-01 sigue a la vista con un **mensaje de error** (por ejemplo "No se pudo completar la operación, intente nuevamente"). **Nunca** HOME-01 ni un resultado negativo ("sin requisitoria", "sin coincidencia"; regla 7). Anotar el texto exacto | |
+| 11.10 | Evidencia del servidor: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env logs proxy --since 2m \| Select-String "handshake"` | Una línea de error de TLS del intento de 11.9 (el release confía solo en las CA del sistema); a `/v1/auth/login` no llegó nada | |
+| 11.11 | Si quedan pasos con la app: `adb uninstall pe.prototipo.movilbuscador` y volver a instalar el de depuración (0.10) | `Success` | |
+
+> El APK de release **no** confía en la CA del usuario (Android ignora `<debug-overrides>`): contra la API local con Caddy no conecta, y es lo esperado (v1.5 §6). Con DESPLIEGUE-01 usará un certificado público.
 
 ## 12. Al terminar
 
