@@ -17,6 +17,27 @@ List<File> _dart(String dir) => Directory(dir)
     .where((f) => f.path.endsWith('.dart'))
     .toList();
 
+/// Archivos bajo `dir`, sin entrar en carpetas generadas (`build/`, `.dart_tool/`, `.gradle/`,
+/// `node_modules/`): ahí Gradle deja rutas que Windows no puede listar, y no son del repositorio.
+List<File> _archivos(String dir) {
+  const generadas = {'build', '.dart_tool', '.gradle', 'node_modules', '.idea', '.kotlin'};
+  final salida = <File>[];
+  void recorrer(Directory d) {
+    for (final e in d.listSync(followLinks: false)) {
+      final nombre = e.uri.pathSegments.where((x) => x.isNotEmpty).last;
+      if (e is Directory) {
+        if (!generadas.contains(nombre)) recorrer(e);
+      } else if (e is File) {
+        salida.add(e);
+      }
+    }
+  }
+
+  final raiz = Directory(dir);
+  if (raiz.existsSync()) recorrer(raiz);
+  return salida;
+}
+
 bool _enBordes(File f) => _ruta(f).startsWith('lib/bordes/');
 
 /// Líneas `import`/`export` de un archivo.
@@ -107,7 +128,7 @@ void main() {
       }
       if (Directory('src').existsSync()) restos.add('src/');
       if (Directory('plugins').existsSync()) restos.add('plugins/');
-      for (final f in Directory('.').listSync(recursive: true).whereType<File>()) {
+      for (final f in _archivos('.')) {
         final r = _ruta(f);
         if (RegExp(r'(^|/)(build|\.dart_tool|node_modules|\.gradle)/').hasMatch(r)) continue;
         if (RegExp(r'\.tsx?$').hasMatch(r)) restos.add(r);
@@ -119,7 +140,7 @@ void main() {
       final archivos = <File>[
         if (pubspecArchivo.existsSync()) pubspecArchivo,
         if (Directory('android').existsSync())
-          ...Directory('android').listSync(recursive: true).whereType<File>().where((f) {
+          ..._archivos('android').where((f) {
             final r = _ruta(f);
             return !RegExp(r'/(build|\.gradle)/').hasMatch(r) &&
                 RegExp(r'\.(gradle|kts|xml|yaml|properties)$').hasMatch(r);
@@ -228,7 +249,7 @@ void main() {
       final archivos = [
         ..._dart('lib'),
         if (Directory('android').existsSync())
-          ...Directory('android').listSync(recursive: true).whereType<File>().where((f) =>
+          ..._archivos('android').where((f) =>
               !RegExp(r'/(build|\.gradle)/').hasMatch(_ruta(f)) && RegExp(r'\.(xml|kts|gradle|kt|java)$').hasMatch(_ruta(f))),
       ];
       final con = archivos.where((f) => f.readAsStringSync().toLowerCase().contains(raizProhibida)).map(_ruta).toList();
@@ -237,7 +258,7 @@ void main() {
 
     test('regla 8: ninguna imagen fuera de los íconos de la app, ni certificados ni llaves en apps/movil', () {
       final malos = <String>[];
-      for (final f in Directory('.').listSync(recursive: true).whereType<File>()) {
+      for (final f in _archivos('.')) {
         final r = _ruta(f);
         if (RegExp(r'(^|/)(build|\.dart_tool|\.gradle|node_modules)/').hasMatch(r)) continue;
         if (RegExp(r'\.(crt|pem|key|der|jks|keystore|p12)$', caseSensitive: false).hasMatch(r)) malos.add(r);
