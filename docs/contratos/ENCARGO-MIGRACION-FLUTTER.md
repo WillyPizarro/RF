@@ -138,3 +138,15 @@ Reemplaza: la §1.3 y la fila "Nadie" de las rutas de la v1.3, y el punto 3 de l
 **TESTER:**
 1. Porta `services/api/tests/test_hu04_sin_cache.py` de `773d1be` (`git show 773d1be:services/api/tests/test_hu04_sin_cache.py`). Commit `[TESTER]` aparte.
 2. Cuando el DEV avise que el compose está arriba desde esta carpeta, córrela con el no-store del DEV (solo esa prueba; la suite completa va en otra M-n). Antes de eso, no levantes Docker.
+
+### M-9 (2026-11-24) — M-7 y M-8 entregadas: corrida del TESTER antes de la mini sesión (TESTER)
+
+Reemplaza: el punto 2 de la M-7 y el punto 2 de la M-8 del TESTER. El DEV entregó la M-7 (`0724e88`) y la M-8 (`36d174a`). Su informe está en `20761dd` y `6790594`. Los APK, recompilados con la M-7 y la M-8, están en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (el LEAD lo verificó): debug `987be377…40cc1`, release `3528cb54…50381`. El compose está levantado desde esta carpeta.
+
+**TESTER**, sobre `6790594`, solo lo tocado:
+1. `services/api/tests/test_hu04_sin_cache.py` contra el compose (los 14 casos por la red interna y los 14 por el proxy).
+2. `flutter test` de la app y `repositorio_test` (§1.3 v1.4: `git diff` de `services/` con solo `traza.py` y tu prueba).
+3. Sobre los dos APK nuevos: `SHA256SUMS`, `aapt`, el modelo y la firma, como en el paso 11 del guion.
+4. **No bajes el compose:** queda arriba para la mini sesión del 25-nov.
+
+Al terminar: `ESTADO TESTER` con el resultado.
