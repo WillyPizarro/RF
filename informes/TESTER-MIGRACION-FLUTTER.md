@@ -1,9 +1,53 @@
 # Informe TESTER — MIGRACION-FLUTTER
 
-**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.5** (con la M-1 a la M-13 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6.
-**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-13).
+**Contrato:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.5** (con la M-1 a la M-15 del encargo), CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v7.
+**Encargo:** `docs/contratos/ENCARGO-MIGRACION-FLUTTER.md` (M-1 a M-15).
 **Rama:** `migracion-flutter`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`.
 **Estado:** **corrida M-9 completa** sobre `6790594` (M-7 del DEV en `0724e88`, M-8 en `36d174a`), solo lo tocado, todo en **verde**: `test_hu04_sin_cache.py` 28/28 contra el compose (con el venv de la M-10), `flutter test` 137/137, `repositorio_test` 17/17, §1.3 v1.4 y los dos APK nuevos. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión del miércoles 25-nov. No es la suite completa del cierre (va con otra M-n). Antes: `ENTREGA TESTER` parcial M-5.
+
+## 0-S23. Resultados de la mini sesión S23 (2026-11-25; paso 12.2, M-15)
+
+Fuente: `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md` (fuera del repositorio; los `adb` los corrió el DEV por la M-11 y la M-14, el PM dirigió y el humano operó el S23 Ultra `R5CW21ERL2L`, Android 16). El registro se copió del guion de la M-11: el 8.3b y los 11.6b a 11.11 estaban al final del archivo y aquí van cada uno en su paso (aviso del LEAD). Primera vuelta con el debug `987be377…` (ROJO en 1.2, M-12); desde 0.8 con el debug `6d6b0405…` y el release `48f8117a…` (contrato v1.5, M-13). Las capturas están en `…\s23\` y las juzga el UX (`docs/ux/revisiones/MIGRACION-FLUTTER.md`).
+
+**Resumen:** todo `OK` salvo **un ROJO (S14, teclado de fechas sin "/")**, que corrige la M-15; dos `NO HECHO` arbitrados (10.2 y 10.3 de la primera vuelta, repetidos en `OK`) y el 11.11 `NO HECHO` porque no quedaban pasos con la app.
+
+| Paso | Resultado |
+|---|---|
+| 0.1 a 0.7 | OK. Modo de navegación: Botones. CA de Caddy `CN=Caddy Local Authority - 2026 ECC Root`, huella `2d87078e…`, instalada como CA de usuario. `adb reverse` `UsbFfs tcp:8443 tcp:8443`. Compose arriba, `/v1/salud` 200 con `no-store` |
+| 0.8 a 0.13 (retoma M-13) | OK. Instalado el debug `6d6b0405…` (SHA comprobado); `flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]`, sin `ALLOW_BACKUP`; G0 = 1065, P0 = 5 |
+| 1.1 a 1.3 | OK. **1.2:** `agente1` entra a HOME-01 (`POST /v1/auth/login` 200 y `GET /v1/me` 200): el ROJO de la primera vuelta queda resuelto con `ok_http` (v1.5) |
+| 2.1 a 2.8 | OK: `ZZA-101` monoespaciada → PLA-05; `ZZB-201` → PLA-06 gris; "Salir" → AUTH-01; BIT-01 y BIT-02 de `supervisor1`; sin sesión tras "Salir"; retoma HOME-01 sin un login nuevo |
+| S1 a S5 (§4) | TOMADAS (S1 a S4 en Botones, S5 en Gestos). El UX aprobó la §4 con 0 BLOQUEA (`7a16428`) |
+| S6, S8 a S13, S15 | TOMADAS: el aviso completo, el indicador de carga chico y centrado, el marco a 1 o 2 m, OCR-04 y la ficha de Ajustes (S10a y S10b), los símbolos ←, 📷, ○/◉, ⚠ y 🔒 bien dibujados. El UX los cerró (`65c3606`) |
+| S7 / S7b | TOMADAS con `font_scale` 2.0: la tarjeta queda cortada pero **se alcanza desplazando** (S7b con el final del texto y "Entendido"). No es un ROJO. Para el UX: no se ve que se pueda desplazar (obs. 5) y la franja pasa a dos líneas pegada al borde (obs. 6). Las dos son MEJORA y las corrige la M-15 |
+| **S14** | **ROJO**: "Desde" abre en Samsung Keyboard un teclado numérico **sin "/"**; al escribir `25/11/2026` queda `25112026`. Arbitraje del LEAD: **se apartó el código** (regresión del refactor §1.1; en Expo era `numbers-and-punctuation`). UX obs. 7, BLOQUEA (`e2356dd`). Lo corrige la M-15; se repite en la tercera vuelta (T.4). Las opciones de "Tipo" están agrupadas varias por fila (obs. 2 resuelta) y se ve "PA 24" |
+| 4.1 a 4.5 | OK: el diálogo del sistema; OCR-04 con los textos exactos y **sin** el aviso de telemetría; "Abrir ajustes" → `com.android.settings/.applications.InstalledAppDetails`; con el permiso, el visor en vivo. Al revocar el permiso, Android cierra la app |
+| 5.1 | OK: 30 s sin "Capturar", el visor sigue en vivo |
+| 6.1 a 6.10 | OK: el aviso, "Capturar" desactivado, tocar fuera no hace nada; `ZZA-101` leída sin imagen; corregida a `ZZB-201` sin consulta; "Indique el motivo de la consulta." sin envío; PLA-06; OCR-01 sin la tarjeta; `ZZZ-999` → PLA-08; OCR-03 con la cámara tapada |
+| Antes de S5 (HU-04 v7) | El aviso salió otra vez al volver de Ajustes: Android recreó la actividad (`changed={CONFIG_ASSETS_PATHS}`, `wm_relaunch_activity`) y la app retomó la sesión (`refresh` y `/v1/me`). Era un hueco del contrato y lo cerró **HU-04 v7** (`45f19d2`): **es lo esperado**, la marca de visto vive solo en memoria. Nota agregada al guion junto a S5 y al 6.8 |
+| 7.1 a 7.3 | OK: 11 capturas (10 en OCR-02, 1 en OCR-03), sin reiniciar la app; ningún `.jpg`, `.jpeg` ni `.png` en el directorio de la app; G y P iguales a G0 y P0 |
+| 8.1 a 8.4 | OK: después de consultar, `cache/` vacío, `files/` solo `profileInstalled` y `app_flutter/` con `res_timestamp-…` y `flutter_assets/`; la copia tar es de 112 262 144 B |
+| 8.3b | OK: `find … -iname "*http*cache*" -o -iname "*okhttp*" -o -name journal` vacío: no hay caché de OkHttp (v1.5 §6) |
+| 8.5 | OK por arbitraje: el script marcó `/v1/` y otras marcas **solo** en `app_flutter/flutter_assets/kernel_blob.bin`, que tiene el mismo SHA-256 que el del APK (`e2db7382…`): es el código Dart compilado copiado del APK de depuración y no algo que escribió la app. Arbitraje del LEAD: **se apartó la prueba**. `cache/` y `files/` están limpios. Corregido en la M-15: `revisar_cache_app.py --apk` excluye un archivo de `flutter_assets/` solo si su SHA-256 es igual al del APK |
+| 8.6 | OK: copia borrada |
+| 9.1 a 9.6 | OK: cola `com.google.android.datatransport.events` (y `-journal` vacío). `revisar_datatransport.py` termina con código 0: **ninguna imagen ni texto de placa ZZ**. 5 eventos `FIREBASE_ML_SDK` sin enviar, backend `firebaselogging.googleapis.com`. Datos legibles: el paquete, las versiones del SDK, un **identificador de instalación** (el "código de esta instalación" del aviso) y metadatos del equipo (país, idioma, fabricante, modelo, SDK, huella del build, zona horaria, tipo de red). Va al ARCH. La copia se borró |
+| 10.1 | OK: modo avión y Wi-Fi apagado |
+| 10.2 y 10.3, primera vuelta | **NO HECHO** por arbitraje: la red no estaba cortada y llegaron tres consultas `okhttp/4.12.0` a la API después de `adb reverse --remove`, porque OkHttp reutilizó una conexión keep-alive por el túnel. Arbitraje del LEAD: **se apartó la prueba** y no el código. Corregido en el guion (M-15): el 10.1 desconecta el cable USB y se agrega el 10.3b |
+| 10.2 y 10.3, repetición con el cable fuera | **OK:** `ZZA-101` se leyó sin red; PLA-07 "No se pudo completar la consulta; intente nuevamente", **no** "sin requisitoria" (regla 7). Entre las 21:23:04 y las 21:23:54 UTC hubo 0 solicitudes de la app en la API y 0 en el proxy |
+| 10.4 | OK: cable de vuelta, `R5CW21ERL2L device`, sin modo avión, `adb reverse` de vuelta |
+| 11.1 | OK: el SHA del release `48f8117a…` coincide |
+| 11.2 a 11.6b | No se repitieron en la sesión; los corrió el TESTER sobre la entrega M-13 (§0-M13, en verde) |
+| 11.7 | OK: desinstalado el debug `6d6b0405`, instalado el release `48f8117a` |
+| 11.8 | OK: `flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]`, **sin** `DEBUGGABLE` ni `ALLOW_BACKUP` |
+| 11.9 | OK: con el release **no entra**. AUTH-01 sigue a la vista con **"No se pudo completar la operación; intente nuevamente"** (con punto y coma; lo confirmó el humano vía PM). No aparecieron HOME-01 ni "sin requisitoria" (regla 7). Cumple la v1.5 §6 y §8 |
+| 11.10 | OK: en el proxy, `TLS handshake error … remote error: tls: unknown certificate` a las 21:26:32 UTC (el release rechaza la CA local) y **0** accesos a `/v1/auth/login` |
+| 11.11 | NO HECHO: no quedaban pasos con la app. Queda instalado el release `48f8117a`; la tercera vuelta reinstala el debug (T.1) |
+| 12.1 | OK: `adb reverse --remove-all` |
+| 12.4 | No se baja: la M-15 deja el compose arriba para la suite completa (corregido en el guion) |
+
+**Cambios del TESTER por la M-15:** `revisar_cache_app.py --apk` (probado con tres copias: igual al APK → excluido y código 0; sin `--apk` → marcado; SHA distinto → marcado); el guion con el 10.1 y el 10.4 usando el cable USB y el porqué; la nota de HU-04 v7 junto a S5 y al 6.8; la sección "11 bis. Tercera vuelta corta" (T.0 a T.10: debug nuevo, 1.2, S7/S7b, S14 con `25/11/2026`, release con 11.7 a 11.10 y reinstalar el debug), con el commit y los SHA `PENDIENTE` de la `ENTREGA DEV` de la M-15; el texto del 11.9 con punto y coma.
+
+**Sigue `NO VERIFICADO` hasta la tercera vuelta:** S14 con la corrección, y S7/S7b con las obs. 5 y 6.
 
 ## 0-M13. Corrida M-13 (2026-11-25, contrato v1.5, sobre `c237762`: código del DEV `a15535f` y `29617a7`, informe `9c80864`)
 
