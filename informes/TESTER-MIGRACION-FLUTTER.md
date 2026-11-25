@@ -21,6 +21,13 @@
 3. Errores míos de compilación: una cascada del servidor falso y un import (`TextCapitalization`).
 4. `tocar()` se desplaza hasta el botón si está en la pantalla pero fuera de la vista de 800 × 600 de `flutter_test` (con "Describa el motivo *" abierto, "Consultar" queda abajo). Es lo que hace el usuario; Jest no tenía diseño en pantalla.
 
+**Corrida 2 (contra `0a1d93e`): etiquetas exactas.** El DEV avisó (vía el LEAD) que en `dd08a54` la etiqueta de accesibilidad de "Placa", "Describa el motivo *", "Desde", "Hasta" y "Placa leída" llevaba sumada la ayuda (por ejemplo "Placa" + "ABC-123"), y que mis 120 pasaban igual porque `campo()` aceptaba la etiqueta seguida de un salto de línea y además leía `labelText`/`hintText` del widget. **Era una prueba floja:** la §2 fija la etiqueta exacta. `campo()` ahora exige que la etiqueta del árbol de semántica sea **exactamente** el nombre de la §2, sin leer las propiedades del widget. Resultado:
+
+| Contra | Resultado |
+|---|---|
+| `0a1d93e` (etiquetas exactas) | **`+120: All tests passed!`**; `flutter analyze test` sin avisos |
+| `dd08a54` (etiqueta + ayuda), en un worktree temporal fuera del repositorio, ya borrado | **+86 −34**: todos los rojos son "campo con la etiqueta de accesibilidad exacta" no encontrado (27 de "Placa", 5 de "Desde", el resto de los otros campos con ayuda). La prueba estricta detecta lo que la anterior dejaba pasar |
+
 Ningún nombre de la §2 difirió de lo que escribí: `MovilBuscadorApp(dependencias:)`, `Dependencias`, `AlmacenSeguro`, `LectorPlaca`, `PermisoCamara`, `LecturaPlaca`, `Key('app-raiz')` y las etiquetas de accesibilidad se usaron tal cual.
 
 ## 1. Qué hay

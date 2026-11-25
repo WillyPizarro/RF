@@ -167,52 +167,28 @@ Future<void> dormir(WidgetTester t, Duration d) async {
 
 // --- Campos --------------------------------------------------------------------------------
 
-bool _coincide(String? etiqueta, String buscada) {
-  if (etiqueta == null) return false;
-  final e = etiqueta.trim();
-  return e == buscada || e.startsWith('$buscada\n');
-}
-
-/// Las etiquetas que la app le da a un campo: la etiqueta de accesibilidad (`Semantics`) y, en
-/// un `TextField`, su `labelText` o `hintText`.
-List<String> _etiquetasDe(Element editable) {
-  final etiquetas = <String>[];
-  var niveles = 0;
-  editable.visitAncestorElements((a) {
-    niveles += 1;
-    final w = a.widget;
-    if (w is TextField) {
-      final d = w.decoration;
-      if (d?.labelText != null) etiquetas.add(d!.labelText!);
-      if (d?.hintText != null) etiquetas.add(d!.hintText!);
-      if (d?.semanticCounterText != null) etiquetas.add(d!.semanticCounterText!);
-    }
-    if (w is Semantics && w.properties.label != null) {
-      etiquetas.add(w.properties.label!);
-      return false; // la etiqueta de accesibilidad más cercana manda
-    }
-    return niveles < 25;
+bool _esAncestro(Element posibleAncestro, Element de) {
+  var es = false;
+  de.visitAncestorElements((a) {
+    if (identical(a, posibleAncestro)) es = true;
+    return !es;
   });
-  return etiquetas;
+  return es;
 }
 
-/// El campo de texto con la etiqueta de accesibilidad `etiqueta` (`find.bySemanticsLabel`).
+/// El campo de texto cuya etiqueta de accesibilidad es **exactamente** `etiqueta`
+/// (CONTRATO-MIGRACION-FLUTTER §2, `find.bySemanticsLabel`). Se mira solo el árbol de semántica,
+/// como un lector de pantalla: no cuentan el `labelText` ni el `hintText` del widget, ni una
+/// etiqueta con más texto detrás (por ejemplo, "Placa" seguida de la ayuda "ABC-123").
 Finder campo(String etiqueta) {
-  final porSemantica = find.bySemanticsLabel(RegExp('^${RegExp.escape(etiqueta)}(\n|\$)'));
+  final exacta = find.bySemanticsLabel(RegExp('^${RegExp.escape(etiqueta)}\$'));
   return find.byElementPredicate((e) {
     if (e.widget is! EditableText) return false;
-    if (_etiquetasDe(e).any((x) => _coincide(x, etiqueta))) return true;
-    for (final s in porSemantica.evaluate()) {
-      if (identical(s, e)) return true;
-      var dentro = false;
-      e.visitAncestorElements((a) {
-        if (identical(a, s)) dentro = true;
-        return !dentro;
-      });
-      if (dentro) return true;
+    for (final s in exacta.evaluate()) {
+      if (identical(s, e) || _esAncestro(s, e) || _esAncestro(e, s)) return true;
     }
     return false;
-  }, description: 'campo con la etiqueta "$etiqueta"');
+  }, description: 'campo con la etiqueta de accesibilidad exacta "$etiqueta"');
 }
 
 Future<void> escribir(WidgetTester t, String etiqueta, String texto) async {
