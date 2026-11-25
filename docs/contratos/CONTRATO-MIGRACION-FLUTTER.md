@@ -1,8 +1,8 @@
 # CONTRATO — MIGRACION-FLUTTER La app móvil en Flutter (HU-01, 02, 03 y 07, más HU-04)
 
 **Tipo:** Refactor (HU-01, HU-02, HU-03 y HU-07 en la app: el comportamiento no cambia) + Feature (HU-04, construida directo en Flutter)
-**Versión:** v1.3
-**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1, v1.2 y v1.3 aprobadas (humano vía PM, 2026-11-24)
+**Versión:** v1.4
+**Estado:** Aprobado (humano vía PM, 2026-11-24) · v1.1 a v1.4 aprobadas (humano vía PM, 2026-11-24)
 **Origen:** encargo PM → LEAD (2026-11-24, tarea 2). Decisiones del humano del 2026-11-24: escenario 1, migrar ya (PRD PA #37 y #38, `7cec298`); ADR-0017 aceptado; decisiones 1 a 6 de la evaluación del stack (`docs/arch/evaluaciones/PA-37-39-stack-mininter.md` §6)
 **Rama de trabajo:** `migracion-flutter`, desde `main` `47ace7b`, rebasada sobre `main` `1204a77` (con los ADR-0017 a 0020). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas
 **Plazo (plan decidido, evaluación §5):** contrato el 25 y 26-nov · DEV y TESTER del 26-nov al 5-dic · veredicto el 5 y 6-dic · después, DESPLIEGUE-01 v2 (6 al 8-dic) y la demo con APK del 10-dic
@@ -97,7 +97,7 @@ Estas suites tienen que seguir en verde **sin cambiar una línea** de `services/
 - `services/api/tests/` (pytest, con el compose local), con el mismo número de casos que en el cierre de la Iteración 1 más los de HU-04 v4 (`Cache-Control: no-store`);
 - `services/simuladores/tests/`.
 
-`git diff main...migracion-flutter -- services/ contratos/` tiene que salir vacío, salvo las pruebas nuevas del TESTER en `services/api/tests/` si hicieran falta (no se espera ninguna).
+`git diff main...migracion-flutter -- services/ contratos/` tiene que mostrar **solo** (**v1.4**): el cambio de `services/api/app/traza.py` que agrega la cabecera `Cache-Control: no-store` a toda respuesta de `/v1/*` (el mismo de `0ccd8fb` en la rama `hu-04`, que porta el DEV) y `services/api/tests/test_hu04_sin_cache.py` (el de `773d1be`, que porta el TESTER). Es lo que exige CONTRATO-HU-04 v6 §6 ("Sin caché HTTP: la API") y que de `hu-04` no pasó a `main`. Nada más en `services/` ni en `contratos/`.
 
 ### 2. Interfaz de la app para las pruebas (reemplaza CONTRATO-HU-01 §4 bis v2) — DECISIÓN PROPUESTA 1
 
@@ -290,7 +290,7 @@ Lo que necesite el teléfono y no se pueda hacer a tiempo queda `NO VERIFICADO` 
 |---|---|---|
 | TESTER | `apps/movil/test/`, `apps/movil/integration_test/`, `apps/movil/.maestro/` (si lo usa), `pruebas/datos/` (guion de la mini sesión y `revisar_datatransport.py`, sin imágenes), `services/api/tests/` (solo si hiciera falta), `informes/TESTER-*.md`. **Borra** `apps/movil/__tests__/` en un commit suyo | AGENTS.md (`d6d97dd`) |
 | DEV | `apps/movil/` (salvo `test/`, `integration_test/` y `.maestro/`), incluidos `pubspec.yaml`, `pubspec.lock`, `android/`, `lib/` y la configuración del análisis; `.gitignore` (solo agregar); `informes/DEV-*.md`. **Borra** el código Expo de `apps/movil/` (§5) | AGENTS.md |
-| Nadie | `services/`, `contratos/`, `infra/` (no hace falta tocarlos en este ciclo; si alguien cree que sí, es un hueco del contrato) | §1.3 |
+| Nadie | `services/` (salvo lo de la §1.3, **v1.4**: `services/api/app/traza.py` para el DEV y `services/api/tests/test_hu04_sin_cache.py` para el TESTER), `contratos/` e `infra/` (si alguien cree que hace falta tocar algo más, es un hueco del contrato) | §1.3 |
 
 Las capturas, las placas impresas y la llave de firma quedan **fuera del repositorio**.
 
@@ -341,3 +341,4 @@ Respuestas del humano (vía PM, 2026-11-24):
 | v1.1 (anotación) | 2026-11-24 | §6: versión fijada **Flutter 3.50.1** (canal stable, publicada el 2026-11-20) con **Dart 3.14.0**, en `apps/movil/pubspec.yaml` (`environment`: `sdk` 3.14.0, `flutter` 3.50.1). SDK en `C:\Programas_Portables\flutter_3.50.1\flutter` y Android SDK en `C:\Android` (cmdline-tools 16111833). No se cambia hasta el cierre del MVP | Decisión 5: la fija el DEV y el LEAD la anota sin vuelta de aprobación (no cambia nada observable) | — (decisión 5 aprobada por el humano, 2026-11-24) |
 | v1.2 | 2026-11-24 | §7: se pide el modelo de ML Kit **dentro del APK** (`assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so`, o lo equivalente) y no la ausencia de `play-services-mlkit-text-recognition`, que llega como dependencia transitiva del POM de Google y no se excluye; lo que esa dependencia haga en la red queda `NO VERIFICADO`; la cola `datatransport` se sigue revisando en la mini sesión del 4-dic; el mismo criterio vale para Face Detection en HU-05 | Hueco que reportó el DEV: el árbol del APK trae `play-services-mlkit-text-recognition` 19.0.1 por el POM oficial del artefacto empaquetado 16.0.1 | Humano (vía PM), 2026-11-24, opción A |
 | v1.3 | 2026-11-24 | §5: la búsqueda de `expo` y `react-native` pasa a `grep -riw` (palabra completa). La intención no cambia: ninguna mención de Expo ni de react-native | Falso positivo que reportó el DEV: `android:exported` (obligatorio desde Android 12) contiene "expo" | Humano (vía PM), 2026-11-24 |
+| v1.4 | 2026-11-24 | §1.3 y rutas: la API recibe solo el `Cache-Control: no-store` de `traza.py` (de `0ccd8fb`, lo porta el DEV) y su prueba `test_hu04_sin_cache.py` (de `773d1be`, la porta el TESTER); nada más en `services/` | Hueco que reportó el DEV: HU-04 v6 §6 exige la cabecera, pero ese cambio estaba solo en la rama `hu-04`, de la que a `main` pasaron solo documentos | Humano (vía PM), 2026-11-24 |

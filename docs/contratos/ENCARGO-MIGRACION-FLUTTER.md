@@ -125,3 +125,16 @@ Reemplaza: el paso 1 de la M-6 del DEV, en cuanto a **desde qué commit** se com
 **TESTER:**
 1. Suma al guion (M-6, punto 2) las capturas del S23 Ultra que pide el UX: **S1 a S5 son obligatorias para la §4** y S6 a S15 cierran la etapa 2 de HU-04 y los símbolos. Todas van a la carpeta de capturas fuera del repositorio. Respeta el orden y las condiciones que pide el UX (S5 en el otro modo de navegación; S7 con la letra del sistema al máximo).
 2. Cuando el DEV entregue la M-7, corre `flutter test` sobre ese commit (solo lo tocado).
+
+### M-8 (2026-11-24) — Contrato v1.4: el no-store de la API, y Docker (DEV y TESTER)
+
+Reemplaza: la §1.3 y la fila "Nadie" de las rutas de la v1.3, y el punto 3 de la M-6 del DEV. El humano (vía PM) aprobó la v1.4 y autorizó el comando de Docker.
+
+**DEV:**
+1. **Docker (autorización del humano):** en `C:\Willy\Trabajo\MININTER\Movil_Buscador` corre **exactamente** `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env down`, **sin `-v`** y sin tocar volúmenes ni contenedores de otros proyectos. Después levanta el compose desde `Movil_Buscador-flutter` (regla 8) y comprueba `https://localhost:8443/v1/salud` = `200` y que la CA de Caddy se puede copiar.
+2. **No-store:** porta **solo** el cambio de `services/api/app/traza.py` de `0ccd8fb` (rama `hu-04`; `git show 0ccd8fb -- services/api/app/traza.py`). Nada más en `services/`. Commit `[DEV]` aparte.
+3. Sigue con la M-7 (observaciones del UX) y compila los APK de la M-6 desde el commit que tenga la M-7 y el no-store. Avisa con `PREGUNTA DEV: M-7 y M-8 en <commit>; APK listos <sha256>`. Deja el compose levantado desde `Movil_Buscador-flutter` para la mini sesión.
+
+**TESTER:**
+1. Porta `services/api/tests/test_hu04_sin_cache.py` de `773d1be` (`git show 773d1be:services/api/tests/test_hu04_sin_cache.py`). Commit `[TESTER]` aparte.
+2. Cuando el DEV avise que el compose está arriba desde esta carpeta, córrela con el no-store del DEV (solo esa prueba; la suite completa va en otra M-n). Antes de eso, no levantes Docker.
