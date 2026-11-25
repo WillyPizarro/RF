@@ -1,8 +1,8 @@
 # CONTRATO — HU-01 Iniciar sesión y mantener una sesión segura
 
 **Tipo:** Feature
-**Versión:** v5
-**Estado:** Aprobado (v1 a v5: 2026-11-19, humano)
+**Versión:** v6
+**Estado:** Aprobado (v1 a v5: 2026-11-19, humano) · **v6 aprobada (humano vía PM, 2026-11-24)** (migración a Flutter, CONTRATO-MIGRACION-FLUTTER v1)
 **Origen:** `docs/hus/HU-01-iniciar-sesion.md` · encargo PM → LEAD (2026-11-19), Iteración 1, contrato 2 de 5
 **Rama de trabajo:** `hu-01`, desde `main` después de que el humano mergee `hu-08`
 **Pasa por UX:** Sí. Pantallas AUTH-01 a AUTH-04 (`docs/ux/wireframes/HU-01-iniciar-sesion.md`).
@@ -20,7 +20,8 @@
 | ADR-0011 | Valores provisionales: 10 min de inactividad, token de 15 min, 5 intentos y bloqueo de 15 min (PA #18, #19). Todos configurables |
 | ADR-0005 | Bitácora: contenido mínimo y fail-closed |
 | ADR-0007 | Rutas `/v1/auth/*`, formato de error `{codigo, mensaje, id_traza}` |
-| ADR-0013 | Token en `expo-secure-store`; caché solo en memoria |
+| ADR-0013, ADR-0017 | Token en almacenamiento seguro (`flutter_secure_storage` desde la v6; antes `expo-secure-store`); caché solo en memoria |
+| CONTRATO-MIGRACION-FLUTTER v1 | Interfaz de la app para las pruebas en Flutter (§2), que reemplaza al §4 bis (**v6**) |
 | Wireframes AUTH-01 a AUTH-04 | Textos visibles y comportamiento de la pantalla |
 | `docs/contratos/PENDIENTES.md` | La prueba del 422 `SOLICITUD_INVALIDA` (SPRINT0 M-2) |
 
@@ -29,7 +30,7 @@
 ## Interfaz observable
 
 1. **API:** `POST /v1/auth/login`, `POST /v1/auth/refresh`, `POST /v1/auth/logout`, y cualquier ruta autenticada (para el 401).
-2. **App:** pantallas AUTH-01 a AUTH-04 y el almacenamiento del dispositivo (SecureStore, caché y store).
+2. **App:** pantallas AUTH-01 a AUTH-04 y el almacenamiento seguro del dispositivo (`AlmacenSeguro`, CONTRATO-MIGRACION-FLUTTER §2; **v6**).
 3. **Base de datos:** filas de la tabla `bitacora`, leídas directamente por las pruebas (DECISIÓN PROPUESTA 2).
 4. **Configuración:** variables de entorno de la API y el comando de carga de usuarios.
 
@@ -86,20 +87,14 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 | AUTH-01 vacío | "Ingresar" con el usuario o la clave vacíos (o solo con espacios) | Muestra "Ingrese su usuario y su clave" y **no envía** la solicitud | Revisión UX #5 · **v4** |
 | AUTH-02 | `401 CREDENCIALES_INVALIDAS` | Muestra "Usuario o clave incorrectos". El usuario queda escrito y la clave se vacía. No muestra los intentos restantes | Gherkin esc. 2, AUTH-02 |
 | AUTH-04 | `423 CUENTA_BLOQUEADA` | Muestra "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min).", con la hora local calculada desde `bloqueado_hasta`. Vacía la clave y "Ingresar" sigue activo | Gherkin esc. 4, AUTH-04 |
-| AUTH-03 | `inactividad_s` sin que el usuario toque la pantalla, o un `401 SESION_VENCIDA` | Vuelve al login con "Su sesión se cerró por inactividad. Ingrese de nuevo.". El almacenamiento simulado de `expo-secure-store` queda sin ninguna clave; si después inicia sesión otro usuario, no aparece ningún dato del anterior (nombre, rol, pantallas); la app no vuelve a enviar el token anterior en ninguna solicitud; y "atrás" (`hardwareBackPress` de `BackHandler`) no vuelve a la pantalla anterior | Gherkin esc. 3, AUTH-03, TDD · **v2** |
-| Sesión activa | El usuario interactúa con la app | La sesión no vence mientras haya interacción (la app renueva a tiempo; cómo lo hace es libre). **Cuenta como interacción** un `touchStart` sobre la vista raíz de la app, que lleva `testID="app-raiz"` | ADR-0011 · **v2** |
+| AUTH-03 | `inactividad_s` sin que el usuario toque la pantalla, o un `401 SESION_VENCIDA` | Vuelve al login con "Su sesión se cerró por inactividad. Ingrese de nuevo.". El almacenamiento seguro queda sin ninguna clave (`almacen.leerTodo()` vacío, **v6**); si después inicia sesión otro usuario, no aparece ningún dato del anterior (nombre, rol, pantallas); la app no vuelve a enviar el token anterior en ninguna solicitud; y "atrás" del sistema (`handlePopRoute`, **v6**) no vuelve a la pantalla anterior | Gherkin esc. 3, AUTH-03, TDD · **v2** · **v6** |
+| Sesión activa | El usuario interactúa con la app | La sesión no vence mientras haya interacción (la app renueva a tiempo; cómo lo hace es libre). **Cuenta como interacción** un toque que empieza dentro de la vista raíz de la app, que lleva `Key('app-raiz')` (**v6**) | ADR-0011 · **v2** · **v6** |
 | Otro error | Error de red o `5xx` en el login | Muestra "No se pudo completar la operación; intente nuevamente". Nunca muestra un mensaje de credenciales | AGENTS.md regla 7 · DECISIÓN PROPUESTA 7 |
 | Valor de inactividad | — | La app toma el tiempo de `inactividad_s` del login; no lo tiene fijo en el código | ADR-0011 ("sin cambiar código") |
 
-### 4 bis. Interfaz de la app para las pruebas (v2)
+### 4 bis. Interfaz de la app para las pruebas (v6: Flutter)
 
-| Caso | Valor exacto | Origen |
-|---|---|---|
-| Montaje | La app completa es el export por defecto de `apps/movil/App.tsx`. **Sin expo-router.** Renderizarlo muestra AUTH-01 si no hay sesión | SPRINT0 M-1 D · v2 |
-| API | La app llama a `EXPO_PUBLIC_API_URL` + `/v1/...` con el `fetch` global, como en el Sprint 0 | SPRINT0 M-1 D · v2 |
-| Vista raíz | Elemento con `testID="app-raiz"` que envuelve todas las pantallas | v2 |
-| Atrás | El botón atrás de Android es `BackHandler` (`hardwareBackPress`) | v2 |
-| Token | Se guarda en `expo-secure-store` (ADR-0013); el nombre de la clave es libre | ADR-0013 |
+**Desde la v6, la interfaz es la de CONTRATO-MIGRACION-FLUTTER §2**: `MovilBuscadorApp(dependencias:)` en `apps/movil/lib/app.dart`, la red por `clienteHttp` (`MockClient` en las pruebas), el token en `AlmacenSeguro`, `Key('app-raiz')`, el "atrás" con `handlePopRoute` y la hora con `clock.now()`. El nombre de la clave del token sigue siendo libre (ADR-0013). Lo de Expo (v2: `App.tsx`, `fetch` global, `testID`, `BackHandler`, `expo-secure-store`) queda solo como historia, en la etiqueta `hu-04-expo-referencia`.
 
 ### 5. Bitácora y seguridad
 
@@ -137,13 +132,13 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 
 | Rol | Rutas | Origen |
 |---|---|---|
-| TESTER | `services/api/tests/`, `apps/movil/__tests__/`, `apps/movil/.maestro/` (si hay dev build), `pruebas/datos/` | AGENTS.md |
-| DEV | `services/api/` (salvo `tests/`, incluida la migración), `apps/movil/` (salvo `__tests__/` y `.maestro/`), `infra/`, `contratos/api/openapi.json` (regenerado) | AGENTS.md |
+| TESTER | `services/api/tests/`, `apps/movil/test/`, `apps/movil/integration_test/`, `apps/movil/.maestro/`, `pruebas/datos/` (**v6**) | AGENTS.md |
+| DEV | `services/api/` (salvo `tests/`, incluida la migración), `apps/movil/` (salvo `test/`, `integration_test/` y `.maestro/`; **v6**), `infra/`, `contratos/api/openapi.json` (regenerado) | AGENTS.md |
 
 ## Avisos de contexto
 
-- Patrones: formato de error, `X-Id-Traza` y logs JSON del Sprint 0; `PantallaEstado` como referencia de pantalla y de prueba Jest.
-- El OpenAPI de `contratos/api/openapi.json` y los tipos de la app se regeneran (SPRINT0 criterio 9).
+- Patrones: formato de error, `X-Id-Traza` y logs JSON del Sprint 0; en la app Flutter, la interfaz de CONTRATO-MIGRACION-FLUTTER §2 (**v6**).
+- El OpenAPI de `contratos/api/openapi.json` y los modelos de la app se regeneran (SPRINT0 criterio 9; en Dart desde la v6).
 - La palabra prohibida (AGENTS.md regla 1) no puede aparecer en ningún texto nuevo.
 
 ## Decisiones propuestas (no venían en la tarea)
@@ -163,7 +158,7 @@ POST /v1/auth/logout    (con Authorization: Bearer <token_acceso>)
 
 - Cómo se valida la clave contra Supabase Auth, cómo se firman y verifican los JWT, y dónde se guarda la última actividad de la sesión.
 - El esquema exacto de `control_acceso` y la estrategia de renovación en la app (siempre que la sesión no venza con el usuario interactuando).
-- La navegación interna de la app, siempre sin expo-router (v2) y montada desde `App.tsx`.
+- La navegación interna de la app, montada desde `MovilBuscadorApp` (CONTRATO-MIGRACION-FLUTTER §2, **v6**).
 
 ## Preguntas abiertas para el humano
 
@@ -171,7 +166,7 @@ Respondidas por el humano el 2026-11-19:
 
 1. **Decisiones 1 a 8:** aprobadas.
 2. **Rama:** `hu-01` sale de `main` después del merge de `hu-08`.
-3. **UX:** confirmada por el humano (vía PM, 2026-11-19). El UX revisa con capturas de Jest y del emulador, contra los wireframes, antes del veredicto. **Ajuste del humano (2026-11-19):** bastan las capturas de Jest; las del emulador quedan `NO VERIFICADO`, como el dev build.
+3. **UX:** confirmada por el humano (vía PM, 2026-11-19). El UX revisa con capturas de Jest y del emulador, contra los wireframes, antes del veredicto. **Ajuste del humano (2026-11-19):** bastan las capturas de Jest; las del emulador quedan `NO VERIFICADO`, como el dev build. **v6:** en Flutter, el UX revisa con capturas de `flutter_test` y del S23 Ultra (CONTRATO-MIGRACION-FLUTTER §4 y §10).
 
 ## Changelog
 
@@ -182,3 +177,4 @@ Respondidas por el humano el 2026-11-19:
 | v3 | 2026-11-19 | §3: una renovación exitosa cuenta como actividad en el servidor | Aviso del DEV: el contrato no lo decía, y sin eso la sesión vencería en pantallas que no llaman a la API aunque el usuario las esté tocando | Humano, 2026-11-19 |
 | v4 | 2026-11-19 | §4: AUTH-01 con campos vacíos muestra "Ingrese su usuario y su clave" y no envía la solicitud | Revisión UX #5 (`docs/ux/revisiones/HU-01-02.md`) | Humano, 2026-11-19 |
 | v5 | 2026-11-19 | §2: un fallo después de `bloqueado_hasta` es el fallo 1 (el contador empieza de nuevo al terminar el bloqueo) | Hueco que apareció al arbitrar el veredicto de la vuelta 0 (A2): el contrato solo fijaba la clave correcta después del bloqueo | Humano, 2026-11-19 |
+| v6 | 2026-11-24 | §4 y §4 bis: la interfaz de la app para las pruebas es la de CONTRATO-MIGRACION-FLUTTER §2 (`MovilBuscadorApp`, `MockClient`, `AlmacenSeguro`, `Key('app-raiz')`, `handlePopRoute`); rutas del TESTER en `apps/movil/test/` e `integration_test/`. Ningún comportamiento ni texto cambia | Migración de la app a Flutter (ADR-0017, decisión del humano del 2026-11-24) | Humano (vía PM), 2026-11-24 (con CONTRATO-MIGRACION-FLUTTER v1) |

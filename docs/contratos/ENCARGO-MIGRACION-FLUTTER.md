@@ -1,0 +1,303 @@
+# ENCARGO LEAD → TESTER y DEV — MIGRACION-FLUTTER
+
+**Documento de trabajo:** `docs/contratos/CONTRATO-MIGRACION-FLUTTER.md` **v1.3** (M-1, M-3 y M-4), aprobado por el humano (vía PM) el 2026-11-24, junto con CONTRATO-HU-01 **v6**, HU-02 **v4**, HU-03 **v5**, HU-07 **v5** y HU-04 **v6**. Es la única spec: lo que no dice no se supone, se pregunta. CONTRATO-HU-08 v4 y todo lo de la API siguen vigentes y no se pueden romper.
+**Rama:** `migracion-flutter` (rebasada sobre `main` `1204a77`, que ya tiene los ADR-0017 a 0020), en la carpeta **`C:\Willy\Trabajo\MININTER\Movil_Buscador-flutter`** (worktree). TESTER y DEV trabajan en la misma rama, cada uno en sus rutas. No trabajes en la carpeta principal (`Movil_Buscador`, rama `hu-04`).
+**Plazo:** del 26-nov al 5-dic. Mini sesión física el **jueves 4-dic** o antes. Veredicto el 5 y 6-dic.
+**Pasa por UX:** sí, todas las pantallas (contrato §10).
+
+## Reglas
+
+1. Solo tocas las rutas que `AGENTS.md` asigna a tu rol (las repite el contrato en "Rutas de cada rol"). El TESTER ahora es dueño de `apps/movil/test/` y `apps/movil/integration_test/`.
+2. Commits solo de tus rutas, con prefijo `[TESTER]` o `[DEV]` y **sin** la línea `Co-Authored-By`. Sin push y sin merge.
+3. Las dudas van al LEAD: `herdr agent prompt lead "PREGUNTA <ROL>: <pregunta>"`. Si el contrato no dice algo, es un hueco: no lo completes, avísalo.
+4. No toques `Empezar.txt` ni lo incluyas en commits.
+5. **Ninguna foto de placa ni de rostro en el repositorio ni guardada en el dispositivo.** Solo placas sintéticas con el prefijo `ZZ`. Ningún secreto en el repositorio: ni la llave de firma del APK, ni la CA del proxy, ni claves.
+6. Reglas de negocio de `AGENTS.md`: la 1 (la palabra prohibida no aparece en ningún texto, nombre ni comentario), la 2 (motivo obligatorio), la 6 (sin lectura continua: nunca `startImageStream`), la 7 (ningún error se convierte en un negativo) y la 8.
+7. **Instalación autorizada por el humano (2026-11-24):** puedes instalar el **Flutter SDK** (la versión que fija el DEV, contrato §6) y el **Android SDK (command-line tools)** en esta PC. Anota versiones y rutas en tu informe. `adb` ya está en `C:\Android\platform-tools`. No instales nada más sin preguntar.
+8. Arranque de la API, si lo necesitas: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env up -d --build`, desde esta carpeta. **Las carpetas `Movil_Buscador`, `Movil_Buscador-despliegue` y `Movil_Buscador-flutter` comparten el proyecto de compose: nunca levantes Docker en dos a la vez.** `infra/.env` no se versiona; si falta en esta carpeta, cópialo de `C:\Willy\Trabajo\MININTER\Movil_Buscador\infra\.env` (nunca lo agregues a un commit).
+9. **Referencia de Expo:** el código y las pruebas Jest aceptadas están en la etiqueta `hu-04-expo-referencia` (por ejemplo, `git show hu-04-expo-referencia:apps/movil/src/camara/placaLeida.ts`). Se leen, no se mergean.
+
+## Qué entrega cada uno
+
+- **DEV:**
+  1. **Primero, y avisando al LEAD antes de seguir:** la versión estable de Flutter (y de Dart) que fijas, escrita en `apps/movil/pubspec.yaml` (contrato §6, decisión 5). Mándala con `herdr agent prompt lead "PREGUNTA DEV: versión de Flutter <x.y.z>"`. El LEAD la anota en el changelog y te confirma. Así el TESTER instala la misma.
+  2. **La app Flutter en `apps/movil/`**, con la interfaz exacta del contrato §2 (paquete `movil_buscador`, `MovilBuscadorApp`, `Dependencias`, `AlmacenSeguro`, `LectorPlaca`, `Key('app-raiz')`, etiquetas de accesibilidad, `clock`, `--dart-define=API_URL`). **Publica la interfaz (§2) en un commit temprano**, aunque las pantallas no estén, para que el TESTER pueda compilar sus pruebas contra ella.
+  3. Todas las pantallas y flujos de HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6, más lo que se conserva de Expo (§1.2) y la safe area (§4).
+  4. Borrar el código Expo de `apps/movil/` (§5), sin tocar `apps/movil/__tests__/` (lo borra el TESTER).
+  5. Build y secretos (§6): versiones exactas y `pubspec.lock`, `applicationId`, `allowBackup`, `network_security_config.xml`, APK de release firmado con la llave **fuera del repositorio**, `.gitignore` (solo agregar).
+  6. Variante empaquetada de ML Kit (§7): las líneas del `build.gradle` de los dos plugins y el árbol de dependencias del APK.
+  7. **Informe** en `informes/DEV-MIGRACION-FLUTTER.md`, con: las versiones y rutas de los SDK instalados; los paquetes y sus versiones; la §7; cómo se compilan el APK de depuración y el de release (comandos exactos); dónde vive la llave de firma (sin la clave) y cómo se borra al cierre; los **pasos para el humano** de HU-04 v6 §8 (desinstalar la app de Expo, CA de Caddy, `adb reverse tcp:8443 tcp:8443`, borrar la CA al cierre); y la ruta de las capturas para el UX.
+  8. **Capturas para el UX**, fuera del repositorio: de `flutter_test` (o del emulador) de todas las pantallas del contrato, y del S23 Ultra las de la §4 cuando haya teléfono.
+- **TESTER:**
+  1. Instalar la versión de Flutter que fije el DEV (el LEAD te avisa). Mientras tanto, prepara la matriz.
+  2. **Matriz** caso Jest → prueba Dart (contrato §5): cada caso de `apps/movil/__tests__/` de la referencia `hu-04-expo-referencia`, más los de M-9 a M-12 de HU-04 que faltaban (safe area queda para el teléfono; sin caché, origen de la telemetría y el aviso de OCR-01).
+  3. **Pruebas en `apps/movil/test/`** (`flutter_test`) contra la interfaz §2: todo lo que el contrato §8 marca en la primera columna, con `MockClient`, dobles de `AlmacenSeguro` y `LectorPlaca`, `handlePopRoute`, `withClock` / `pump`.
+  4. **Confirmar la §1.2 contra la referencia** y fijar en tu informe qué muestra hoy "retomar con todo vencido" (AUTH-01 o AUTH-03). Si algo de la §1.2 no coincide con Expo, avísalo al LEAD: se corrige el contrato.
+  5. **Comprobaciones del repositorio** (§2, §5, §6 y HU-04 v6 §1 y §6): las búsquedas con `grep` de los imports fuera de `lib/bordes/`, de `startImageStream` y de los paquetes de caché, `git ls-files` sin Expo ni secretos, `flutter analyze` y `aapt dump badging` sobre el APK de release.
+  6. **Borrar `apps/movil/__tests__/`** en un commit tuyo, cuando tus pruebas Dart cubran la matriz.
+  7. **Para la mini sesión del 4-dic, sin ejecutarla:** el guion actualizado en `pruebas/datos/` (HU-04 v6 §6 y §8, la §4 del contrato y un recorrido de login, placa y bitácora), con los comandos `adb` exactos para el APK de Flutter. `integration_test` es opcional (§8).
+  8. **Informe** en `informes/TESTER-MIGRACION-FLUTTER.md`, con la matriz, cada caso en verde, rojo o `NO VERIFICADO`, y la evidencia.
+
+## Orden del cierre (contrato §10)
+
+1. `ENTREGA DEV` con el informe y las capturas.
+2. El TESTER corre las pruebas de lo tocado contra la entrega y manda su `ENTREGA TESTER` parcial.
+3. El LEAD pasa las capturas al UX. Las correcciones vuelven al DEV como una M-n.
+4. Mini sesión física con el PM y el humano (4-dic o antes).
+5. Con la aprobación del UX, el LEAD da la orden (en una M-n) de **la suite completa, una sola vez**, sobre el commit definitivo: pytest de la API y de los simuladores, `flutter test` e `integration_test` si existe.
+6. `ENTREGA TESTER` final y veredicto.
+
+## Aviso de vuelta
+
+`herdr agent prompt lead "ENTREGA <ROL>: <resumen corto> — informes/<ROL>-MIGRACION-FLUTTER.md"`.
+
+## Secciones M-n
+
+Las aclaraciones de este ciclo se agregan abajo como `M-1`, `M-2`, … Cada una dice qué reemplaza. Los mensajes de herdr solo dicen "lee M-n del encargo".
+
+### M-1 (2026-11-24) — Contrato v1.1 (TESTER y DEV)
+
+Reemplaza: la §1.2 ("Retomar la sesión") y la §5 (fila "Pruebas de la app") de la v1. El humano (vía PM) aprobó la v1.1 por los dos huecos que reportó el TESTER:
+
+1. **`PantallaEstado` no se porta.** Ni el DEV la construye ni el TESTER porta `PantallaEstado.test.tsx`. En la matriz queda como "no se porta: pantalla del Sprint 0 que la app no monta".
+2. **"Retomar la sesión" (§1.2) con la secuencia exacta de la referencia:** al abrir la app con un token de renovación guardado, **primero** `POST /v1/auth/refresh` con ese token y **después** `GET /v1/me` con el token de acceso nuevo, y se va al inicio del rol. **Sin token guardado: AUTH-01**, sin enviar ninguna solicitud de sesión. El TESTER lo prueba con el orden de las solicitudes del `MockClient`; el DEV lo implementa así.
+
+### M-2 (2026-11-24) — Versión de Flutter fijada (TESTER y DEV)
+
+Reemplaza: el punto 1 de "Qué entrega cada uno" de los dos roles, en lo que respecta a la versión.
+
+- **Versión:** **Flutter 3.50.1** (stable) con **Dart 3.14.0**, anotada en el changelog del contrato (§6). No se cambia hasta el cierre.
+- **SDK compartido:** el DEV lo instala en `C:\Programas_Portables\flutter_3.50.1\flutter` y el Android SDK en `C:\Android`. **El TESTER usa esa misma instalación** y no descarga otra copia. Espera a que el DEV confirme que terminó la instalación (`flutter --version` muestra 3.50.1) antes de correr `flutter test`.
+- Los dos anotan en su informe la salida de `flutter --version` y de `flutter doctor -v`.
+
+### M-3 (2026-11-24) — Contrato v1.2: §7, el modelo dentro del APK (DEV y TESTER)
+
+Reemplaza: la §7 de la v1.1 y el punto 6 del DEV en "Qué entrega cada uno". Decisión del humano (vía PM): **opción A**.
+
+- **DEV:** no excluyes nada. En tu informe van: la línea del `build.gradle` del plugin (variante empaquetada `com.google.mlkit:text-recognition`), el fragmento de `releaseRuntimeClasspath` con `play-services-mlkit-text-recognition` y `-common` (dependencia transitiva del POM de Google), y la lista de archivos del modelo **dentro del APK** (`assets/mlkit-google-ocr-models/` y `lib/*/libmlkit_google_ocr_pipeline.so`). Lo que esa dependencia haga en la red queda `NO VERIFICADO`. Para Face Detection (HU-05) solo reportas lo que ves, sin agregarlo.
+- **TESTER:** sobre el APK de release, comprueba con `unzip -l` (o `apkanalyzer`) que esos archivos del modelo están. **No** marques en rojo la presencia de `play-services-mlkit-*`. La revisión de la cola `datatransport` sigue en el guion de la mini sesión del 4-dic.
+- **La §5 (`grep -riw`) sigue pendiente de aprobación** en una v1.3. Mientras tanto vale lo que ya les dije: se evalúa con palabra completa.
+
+### M-4 (2026-11-24) — Contrato v1.3: §5 con palabra completa (TESTER)
+
+Reemplaza: el último punto de la M-3 (la §5 pendiente). El humano (vía PM) aprobó la v1.3: la comprobación de la §5 es `grep -riw "expo\|react-native" apps/movil --include=*.yaml --include=*.gradle* --include=*.xml`, que tiene que salir vacío. **TESTER:** el criterio que dejaste como pendiente en `4201fee` pasa a definitivo; quita la marca "pendiente de aprobación" en tu informe y en `repositorio_test`.
+
+
+### M-5 (2026-11-24) — ENTREGA DEV recibida: corrida del TESTER (TESTER)
+
+Reemplaza: el paso 2 de "Orden del cierre" (concreta qué corres). La `ENTREGA DEV` llegó con el informe en `1382d13` (commits `dd08a54`, `cd9c3d2`, `f315ff3`, `a70e627` y `0a1d93e`).
+
+**TESTER**, sobre `1382d13` o sobre el último commit del DEV, **solo lo tocado**, sin la suite completa:
+1. `flutter analyze` de todo `apps/movil/` y `flutter test` de la app.
+2. `repositorio_test` completo (§2, §5 con `grep -riw`, §6 y HU-04 v6 §1 y §6), ahora con `android/` en el repositorio.
+3. Sobre el APK de release que compila el DEV (o uno que compiles tú con sus comandos del informe, fuera del repositorio): `aapt dump badging` sin `application-debuggable` y el modelo de la §7 dentro del APK (M-3).
+4. Lo del teléfono queda `NO VERIFICADO` hasta la mini sesión.
+
+Al terminar: `ENTREGA TESTER` parcial con el informe actualizado. La suite completa es una M-n aparte, después de la aprobación del UX.
+
+**Nota del DEV para todos:** `compileSdk` 37 (por `permission_handler_android`), con `targetSdk` 36 y `minSdk` 24. No cambia nada observable.
+
+### M-6 (2026-11-24) — Mini sesión física adelantada al miércoles 25-nov (DEV y TESTER)
+
+Reemplaza: la fecha de la mini sesión (jueves 4-dic) del encabezado y del paso 4 de "Orden del cierre". El humano (vía PM) la hace el **miércoles 25-nov**.
+
+**DEV**, hoy:
+1. Compila desde el último commit de código (`0a1d93e`; el informe `1382d13` no cambia el código) el **APK de depuración** con `--dart-define=API_URL=https://localhost:8443` y el **APK de release** firmado, con los comandos de tu informe.
+2. Los copia, **fuera del repositorio**, a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\` como `movil-buscador-debug.apk` y `movil-buscador-release.apk`, con un `SHA256SUMS.txt` al lado.
+3. Comprueba que el compose local arranca desde esta carpeta con `infra/.env` (copiado de la carpeta principal, nunca versionado) y `PROXY_PUERTO_HTTPS=8443`, que `https://localhost:8443/v1/salud` responde `200` y que la CA de Caddy se puede copiar (paso 2 de tu §9). Después baja el compose (`down`) y deja Docker libre.
+4. Avisa con `herdr agent prompt lead "PREGUNTA DEV: APK listos <sha256 de los dos>"`. No necesitas un commit si no cambias nada del repositorio.
+
+**TESTER**, hoy, después de la M-5:
+1. Pone el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` al día con la entrega del DEV: el paso 0.9 ya no compila, sino que instala `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\movil-buscador-debug.apk` y comprueba su SHA-256 contra `SHA256SUMS.txt`; los pasos de la CA y de la desinstalación coinciden con la §9 del informe del DEV; y el paso 11 usa `movil-buscador-release.apk`.
+2. Cuando llegue la revisión del UX (`docs/ux/revisiones/MIGRACION-FLUTTER.md`), suma al paso 3 (safe area) las capturas que pida el UX. El LEAD te avisa.
+3. Avisa con `herdr agent prompt lead "ESTADO TESTER: guion al día <commit>"`.
+
+### M-7 (2026-11-24) — Revisión del UX (DEV y TESTER)
+
+Reemplaza: el paso 1 de la M-6 del DEV, en cuanto a **desde qué commit** se compilan los APK. La revisión del UX está en `docs/ux/revisiones/MIGRACION-FLUTTER.md` (`6e5111a`): aprueba las 30 capturas con 3 observaciones, ninguna BLOQUEA, sin cambios de contrato. Los botones se quedan como están escritos (sin mayúsculas).
+
+**DEV**, **antes** de compilar los APK de la M-6, para que el teléfono pruebe la versión definitiva:
+1. **Obs. 1 (OCR-01 leyendo):** el círculo del indicador de carga vuelve a ser chico y centrado en el marco, sin tapar el visor. Sin texto nuevo.
+2. **Obs. 2 (BIT-01 filtros):** las opciones de "Tipo" y "Resultado" miden lo que su texto y se agrupan varias por fila, para que "Aplicar filtros" quede a la vista. Mantén el alto mínimo (36 dp, o 48 dp si se puede). Sin texto nuevo.
+3. **Obs. 3:** agrega a tu paquete de capturas PLA-01 sin catálogo (falla `GET /v1/motivos`) y BIT-01 con una fecha inválida, y regenera las capturas de OCR-01 leyendo y de BIT-01 con los filtros abiertos. Todas fuera del repositorio, en la misma carpeta.
+4. Compila los APK de la M-6 **desde ese commit**, y avisa con `PREGUNTA DEV: M-7 en <commit>; APK listos <sha256>`.
+
+**TESTER:**
+1. Suma al guion (M-6, punto 2) las capturas del S23 Ultra que pide el UX: **S1 a S5 son obligatorias para la §4** y S6 a S15 cierran la etapa 2 de HU-04 y los símbolos. Todas van a la carpeta de capturas fuera del repositorio. Respeta el orden y las condiciones que pide el UX (S5 en el otro modo de navegación; S7 con la letra del sistema al máximo).
+2. Cuando el DEV entregue la M-7, corre `flutter test` sobre ese commit (solo lo tocado).
+
+### M-8 (2026-11-24) — Contrato v1.4: el no-store de la API, y Docker (DEV y TESTER)
+
+Reemplaza: la §1.3 y la fila "Nadie" de las rutas de la v1.3, y el punto 3 de la M-6 del DEV. El humano (vía PM) aprobó la v1.4 y autorizó el comando de Docker.
+
+**DEV:**
+1. **Docker (autorización del humano):** en `C:\Willy\Trabajo\MININTER\Movil_Buscador` corre **exactamente** `docker compose -f infra/docker-compose.yml -f infra/docker-compose.fotos.yml --env-file infra/.env down`, **sin `-v`** y sin tocar volúmenes ni contenedores de otros proyectos. Después levanta el compose desde `Movil_Buscador-flutter` (regla 8) y comprueba `https://localhost:8443/v1/salud` = `200` y que la CA de Caddy se puede copiar.
+2. **No-store:** porta **solo** el cambio de `services/api/app/traza.py` de `0ccd8fb` (rama `hu-04`; `git show 0ccd8fb -- services/api/app/traza.py`). Nada más en `services/`. Commit `[DEV]` aparte.
+3. Sigue con la M-7 (observaciones del UX) y compila los APK de la M-6 desde el commit que tenga la M-7 y el no-store. Avisa con `PREGUNTA DEV: M-7 y M-8 en <commit>; APK listos <sha256>`. Deja el compose levantado desde `Movil_Buscador-flutter` para la mini sesión.
+
+**TESTER:**
+1. Porta `services/api/tests/test_hu04_sin_cache.py` de `773d1be` (`git show 773d1be:services/api/tests/test_hu04_sin_cache.py`). Commit `[TESTER]` aparte.
+2. Cuando el DEV avise que el compose está arriba desde esta carpeta, córrela con el no-store del DEV (solo esa prueba; la suite completa va en otra M-n). Antes de eso, no levantes Docker.
+
+### M-9 (2026-11-24) — M-7 y M-8 entregadas: corrida del TESTER antes de la mini sesión (TESTER)
+
+Reemplaza: el punto 2 de la M-7 y el punto 2 de la M-8 del TESTER. El DEV entregó la M-7 (`0724e88`) y la M-8 (`36d174a`). Su informe está en `20761dd` y `6790594`. Los APK, recompilados con la M-7 y la M-8, están en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (el LEAD lo verificó): debug `987be377…40cc1`, release `3528cb54…50381`. El compose está levantado desde esta carpeta.
+
+**TESTER**, sobre `6790594`, solo lo tocado:
+1. `services/api/tests/test_hu04_sin_cache.py` contra el compose (los 14 casos por la red interna y los 14 por el proxy).
+2. `flutter test` de la app y `repositorio_test` (§1.3 v1.4: `git diff` de `services/` con solo `traza.py` y tu prueba).
+3. Sobre los dos APK nuevos: `SHA256SUMS`, `aapt`, el modelo y la firma, como en el paso 11 del guion.
+4. **No bajes el compose:** queda arriba para la mini sesión del 25-nov.
+
+Al terminar: `ESTADO TESTER` con el resultado.
+
+### M-10 (2026-11-24) — pytest en un venv aparte (TESTER)
+
+Reemplaza: la regla 7 del encargo, solo para este caso. El humano (vía PM) autoriza **un venv aparte** en `C:\Willy\Trabajo\MININTER\venv-pruebas`, **fuera del repositorio**, con **solo `pytest==9.2.0`** (la versión de `services/api/pyproject.toml`). No toques el Python del sistema ni instales nada más.
+
+**TESTER:**
+1. Crea el venv con el Python 3.13 del anfitrión (`python -m venv C:\Willy\Trabajo\MININTER\venv-pruebas`) e instala solo `pytest==9.2.0` con el `pip` de ese venv.
+2. Con ese `pytest`, corre el punto 1 de la M-9: `services/api/tests/test_hu04_sin_cache.py` contra el compose (14 casos por la red interna y 14 por el proxy), como en HU-04 (`PROXY_DISPONIBLE=1 … --integracion`). No bajes el compose.
+3. Anota en tu informe la ruta del venv, la versión y que **se borra al cierre de la migración** (`Remove-Item -Recurse -Force C:\Willy\Trabajo\MININTER\venv-pruebas`).
+
+Al terminar: `ESTADO TESTER` con el resultado.
+
+### M-11 (2026-11-25) — Mini sesión S23: el DEV corre los `adb` de la preparación (DEV)
+
+Reemplaza: en el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md` (`dc742aa`), "el PM corre los comandos", **solo para los pasos de la sección 0 que se listan aquí**. El PM lo pidió el 25-nov. El teléfono es el S23 Ultra `R5CW21ERL2L` (SM-S918B), ya autorizado. El humano opera el teléfono con las instrucciones que le pasa el PM. El TESTER sigue sin correr `adb` contra el teléfono.
+
+**DEV**, en este orden, desde la raíz del worktree `-flutter`, en PowerShell 5.1:
+1. **Registro:** si no existe `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`, créalo como copia del guion (fuera del repositorio). En la columna "Resultado" de cada paso que corras anota `OK`, `ROJO: <qué se vio>` o `NO HECHO: <por qué>`. No escribas la clave ni pegues imágenes.
+2. Pasos **0.2, 0.3, 0.4 y 0.5c** del guion. El compose no se baja ni se reconstruye: el 0.5 queda `OK` con lo que está arriba.
+3. Paso **0.6**: saca la CA a `C:\Willy\Trabajo\MININTER\ca-local\caddy-root.crt` y anota en el registro su huella SHA-256 y su vigencia (`certutil -dump`). No la copies al repositorio.
+4. Paso **0.7** (`adb reverse tcp:8443 tcp:8443` y `--list`).
+5. Pasos **0.8 a 0.13**: desinstala lo que haya con el paquete `pe.prototipo.movilbuscador` (Expo o un Flutter anterior), comprueba los SHA, instala el APK de depuración `987be377…` y anota versión, flags y G0/P0. Si un SHA no coincide, **no instales** y avísame.
+6. **0.6b**, solo si el humano no encuentra en el teléfono una CA de usuario de Caddy con la misma huella SHA-256 del punto 3: `adb push` de la CA a `/sdcard/Download/`, espera el aviso de que el humano la instaló y después `adb shell rm /sdcard/Download/caddy-root.crt`.
+7. No compiles nada ni toques código. Tampoco abras la app: desde la sección 1 en adelante lo hace el humano.
+
+Al terminar, `ESTADO DEV` con: pasos OK/ROJO, huella de la CA, versionName y flags, G0/P0, y si hace falta el 0.6b.
+
+### M-12 (2026-11-25) — ROJO en el paso 1.2 de la S23: diagnóstico (DEV)
+
+Reemplaza: nada; amplía la M-11. En el S23, al iniciar sesión con `agente1` la app muestra "No se pudo completar la operación, intente nuevamente". Lo que se vio, solo leyendo:
+- PM: `adb reverse --list` muestra `UsbFfs tcp:8443 tcp:8443`; api, auth, db y simuladores están healthy y el proxy running. A la api no llegó ninguna solicitud del teléfono y auth no tiene logs. En logcat no hay nada con handshake, certif ni SocketException.
+- LEAD: desde el teléfono, `nc -z 127.0.0.1 8443` abre el puerto. Al arrancar, Caddy **renovó el certificado de `localhost`**, que había vencido durante la pausa, y la raíz sigue siendo la misma (`2d87078e…3e2ae30e`).
+
+**DEV**, solo diagnóstico. **No se cambia código, configuración versionada ni el APK en la sesión**:
+1. Comprueba qué hosts y puertos usa la app para la API y para auth (la `API_URL` del build y la ruta de login), y si todo pasa por `https://localhost:8443`.
+2. Desde el teléfono: `adb shell` con `curl` o `toybox`, si está, contra `https://localhost:8443/v1/salud`, y anota el resultado.
+3. Mira los logs del proxy y, si hace falta, súbeles el detalle **solo en el contenedor en marcha**, sin tocar el Caddyfile versionado. Así ves si llega el ClientHello del teléfono y qué error de TLS hay.
+4. Con `adb logcat` filtrado por el proceso de `pe.prototipo.movilbuscador`, reproduce el login y busca la excepción real (por ejemplo `HandshakeException`, `CERTIFICATE_VERIFY_FAILED` o `Connection refused`).
+5. Si el problema es la CA, prepara el 0.6b (`adb push` a `/sdcard/Download/`) y avísame con los pasos para el humano. Si es otra cosa, dime la causa y qué hace falta, sin aplicarlo, salvo que sea solo de entorno (reverse o contenedores) y no cambie archivos del repositorio.
+
+Al terminar, `ESTADO DEV` con: la causa y su evidencia (la línea del log), lo que hiciste y lo que necesitas del humano o de una decisión.
+
+### M-13 (2026-11-25) — Contrato v1.5: cliente `ok_http` y APK nuevos para retomar la S23 (DEV y TESTER)
+
+Reemplaza: en la §6 del contrato, la fila "Conexión de depuración" de la v1.4 queda **completada** con las filas nuevas de la v1.5. El contrato **v1.5** (`docs/contratos/CONTRATO-MIGRACION-FLUTTER.md`) está aprobado por el humano vía PM (2026-11-25). Las filas nuevas de la §6 son: Paquetes con `ok_http`, Cliente HTTP de la app, Sin caché HTTP con OkHttp, Ninguna CA de desarrollo dentro de un APK y Plan B. La §8 tiene una fila nueva. La nota del ARCH está en ADR-0017 regla 4 (`ad57ee3`). La causa es el ROJO del paso 1.2 de la S23 (M-12). Rama `migracion-flutter`. Cada uno toca solo sus rutas y hace commits con su prefijo. Sin push.
+
+**DEV** (primero):
+1. Implementa la §6 v1.5 **opción A**: `ok_http` con versión exacta en `pubspec.yaml` y `pubspec.lock`, y el `OkHttpClient` en el arranque real de `lib/main.dart`, **sin `Cache`** de OkHttp. No cambies la interfaz `clienteHttp` (§2) ni el `network_security_config`.
+2. **Plan B:** si `ok_http` se traba en **menos de medio día desde que empiezas** (no compila con Flutter 3.50.1 / Dart 3.14.0, no corre en el S23 o deja caché en disco sin forma de apagarla), pasa a la opción B de la §6 sin escalar y avísame con `ESTADO DEV`, el motivo y la evidencia.
+3. `flutter analyze` sin avisos y `flutter test` 137/137 antes de entregar. No es la suite completa del cierre.
+4. Recompila los **dos APK** (depuración y release) desde tu commit y déjalos en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, reemplazando los de `987be377` y `3528cb54`, con `SHA256SUMS.txt` nuevo. Comprueba con `unzip -l` y una búsqueda del texto de la CA que **ningún APK lleva la CA de Caddy**. Con B, el de release no la lleva.
+5. Informe (`informes/DEV-MIGRACION-FLUTTER.md`): versión y licencia de `ok_http`, cómo armas el cliente sin caché, tamaño de los dos APK antes y después, los SHA nuevos y la búsqueda de la CA.
+6. Al terminar: `ENTREGA DEV: M-13 <commit>, SHA debug/release`.
+
+**TESTER** (cuando el DEV entregue; te aviso yo):
+1. `flutter test` sobre el commit del DEV: 137/137, o los que correspondan si cambió algún caso, con el motivo.
+2. Comprueba los SHA de los APK nuevos contra `SHA256SUMS.txt`.
+3. Pon al día el guion `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`:
+   - el commit y los SHA de los APK nuevos;
+   - **retomar desde 0.8**: los pasos 0.1 a 0.7 quedan `OK` del 25-nov y la CA de usuario ya está instalada;
+   - **paso 8**: vuelve la búsqueda de un `http-cache` (o similar) de OkHttp en `cache/` y `files/`;
+   - **paso 11**: con el APK de release instalado, iniciar sesión con `agente1` contra el Caddy local **falla con un mensaje de error** (TLS) y nunca muestra un resultado negativo (regla 7). Después se vuelve a instalar el de depuración si quedan pasos.
+4. Al terminar: `ESTADO TESTER` con el resultado y el commit del guion.
+
+Lo de la mini sesión (desde 0.8) lo vuelve a correr el DEV como en la M-11, cuando el PM lo pida.
+
+### M-14 (2026-11-25) — S23: el DEV corre los `adb` de todo el guion (DEV)
+
+Reemplaza: el alcance de la M-11, que era solo la sección 0, ahora es **todo el guion** (`6ba17ff`), del 1 al 12, con las capturas de pantalla incluidas. El PM lo pidió el 25-nov. El humano opera el teléfono con las instrucciones del PM. El TESTER sigue sin correr `adb` contra el teléfono.
+
+**DEV:**
+1. **Coordinación con el PM:** para el momento de cada captura o comando ("pantalla lista" → `screencap`), coordina directo con el PM por herdr (`pm`), sin pasar por mí. Las capturas van con `cmd /c "adb exec-out screencap -p > …\s23\<archivo>.png"`, con los nombres que da el guion.
+2. **Registro:** cada paso va en `resultados-s23.md` como en la M-11.
+3. **Un `ROJO`:** se para el paso y me avisas en el momento (`ESTADO DEV: ROJO <paso> <qué se vio>`). No se arregla nada en la sesión ni se toca código.
+4. **Capturas:** cuando estén S1 a S15 en `s23\`, avísame, así se las paso al UX.
+5. **Copias del teléfono:** las de los pasos 8 y 9 van en `C:\Willy\Trabajo\MININTER\flutter-capturas\` y se borran al terminar (paso 12). No se hace commit de nada que salga del teléfono.
+6. **Al terminar el guion:** `ESTADO DEV` con el resumen de OK, ROJO y NO HECHO. Después le paso al TESTER `resultados-s23.md` (paso 12.2).
+
+### M-15 (2026-11-25) — Lo que dejó la S23: teclado de fechas, observaciones 5 y 6 del UX, HU-04 v7 y el guion (DEV y TESTER)
+
+Reemplaza: nada; suma lo que dejó la mini sesión S23 (M-14, registro en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\resultados-s23.md`). Contratos vigentes: **CONTRATO-MIGRACION-FLUTTER v1.5** y **CONTRATO-HU-04 v7** (`45f19d2`, solo texto en la §3: para el aviso de telemetría, una sesión retomada después de reiniciar la app cuenta como sesión nueva). Revisión del UX: `docs/ux/revisiones/MIGRACION-FLUTTER.md`, obs. 5, 6 y 7 (`65c3606`, `e2356dd`). Rama `migracion-flutter`. Cada uno toca solo sus rutas y hace commits con su prefijo. Sin push.
+
+**DEV** (primero):
+1. **Obs. 7, BLOQUEA (S14):** regresión del refactor (§1.1). En Expo, la obs. 4 de HU-03-07 se resolvió con `numbers-and-punctuation`. Lo observable: en el S23 con Samsung Keyboard, "Desde" y "Hasta" de BIT-01 dejan escribir `dd/mm/aaaa` (por ejemplo `25/11/2026`) **sin cambiar de teclado**. Los textos, la ayuda "dd/mm/aaaa" y el error "Use fechas con el formato dd/mm/aaaa." no cambian (CONTRATO-HU-07). El cómo lo decides tú y lo justificas en el informe.
+2. **Obs. 5, MEJORA:** en la tarjeta del aviso de OCR-01, una barra de desplazamiento **siempre visible** (`Scrollbar` con `thumbVisibility: true` en su `SingleChildScrollView`), sin texto nuevo.
+3. **Obs. 6, MEJORA:** la franja "DATOS SINTÉTICOS · PROTOTIPO" centrada (`textAlign: center`) y con relleno lateral de 16 dp, sin limitar el tamaño de la letra.
+4. Nada más. HU-04 v7 no cambia el código.
+5. `flutter analyze` sin avisos y `flutter test` antes de entregar. Si una prueba del TESTER se pone roja por el punto 1, no la toques: anótala en el informe y yo la arbitro.
+6. APK nuevos (depuración y release) en `Movil_Buscador_apk\MIGRACION-FLUTTER\`, que reemplazan a `6d6b0405` y `48f8117a`, con su `SHA256SUMS.txt` nuevo y la búsqueda de la CA, como en la M-13. **No los instales** en el teléfono.
+7. **Entorno:** vuelve el log del proxy al nivel normal por la API de administración de Caddy, solo en el contenedor y sin tocar el Caddyfile. **No bajes el compose** (12.4): lo necesita el TESTER y la suite completa.
+8. Informe y `ENTREGA DEV: M-15 <commit>, SHA debug/release`.
+
+**TESTER:**
+1. **Ya, sin esperar al DEV:**
+   - **12.2:** pasa `resultados-s23.md` a `informes/TESTER-MIGRACION-FLUTTER.md`, con los OK, el ROJO S14, los NO HECHO con su motivo y los arbitrajes del LEAD:
+     - **8.5:** se apartó la prueba. Las marcas están solo en `app_flutter/flutter_assets/kernel_blob.bin`, que tiene el mismo SHA-256 que el del APK.
+     - **Primera vuelta de 10.2 y 10.3:** se apartó la prueba. El keep-alive de OkHttp sobrevive a `adb reverse --remove`. La repetición con el cable USB fuera dio OK.
+   - **`revisar_cache_app.py`:** excluye `app_flutter/flutter_assets/` **solo** cuando el SHA-256 de cada archivo coincide con el del mismo archivo dentro del APK de depuración. Si no coincide, lo marca.
+   - **Guion, 10.1:** se corta la red desconectando el cable USB (con el modo avión y el Wi-Fi apagados). En 10.4 se reconecta, se comprueba con `adb devices` y se vuelve a poner `adb reverse`. El guion dice por qué no alcanza con `adb reverse --remove`.
+   - **HU-04 v7:** una nota en el guion (junto a S5 y al paso del aviso) y en el informe: el aviso vuelve a salir tras recrear la actividad y eso es lo esperado.
+   - **Guion de la tercera vuelta,** corto, desde 0.8, con el debug nuevo:
+     - 1.2: login;
+     - S7 y S7b, con la letra al máximo;
+     - S14, que tiene que dejar escribir `25/11/2026`;
+     - instalar el release y repetir 11.7 a 11.10;
+     - reinstalar el debug.
+2. **Cuando yo avise de la ENTREGA DEV:** `flutter test` sobre ese commit, los SHA, `revisar_ca_apk.py` sobre los dos APK, y el guion de la tercera vuelta con el commit y los SHA nuevos.
+3. Al terminar: `ESTADO TESTER`.
+
+Después: tercera vuelta corta en el teléfono (DEV con el PM, como en la M-14) → el UX revisa S7, S7b y S14 → M-n de la suite completa, una sola vez → veredicto.
+
+### M-16 (2026-11-25) — Suite completa, una sola vez, sobre el commit definitivo (TESTER; DEV congelado)
+
+Reemplaza: nada. Es el punto 5 de la §10 del contrato. El UX dio la **aprobación final** (`54906c3`). La S23 terminó: segunda vuelta y tercera vuelta en verde, con el único ROJO (S14) resuelto en la M-15. Contratos: **MIGRACION-FLUTTER v1.5** y **HU-04 v7**. Código definitivo de la app: `d81c6f9`, APK debug `5f62f6a4…` y release `65799fb6…`.
+
+**DEV:** **congelado**. No hay más commits en `apps/movil/`, `services/` ni en tu informe salvo orden mía. Si ves algo, avísame sin tocarlo.
+
+**TESTER**, en este orden:
+1. **Solo documentos** (`informes/TESTER-MIGRACION-FLUTTER.md` y `pruebas/datos/GUION-MIGRACION-FLUTTER-dispositivo.md`):
+   - vuelca la tercera vuelta (sección "Tercera vuelta" de `resultados-s23.md`);
+   - corrige en el guion el 11.10/T.8: el proxy tiene que estar en DEBUG, puesto en caliente, y al terminar se recarga el Caddyfile versionado.
+   
+   Haz commit. **Ese commit es el definitivo** de la suite.
+2. **Suite completa, una sola vez**, sobre ese commit, con el compose arriba desde `-flutter` (no lo bajes ni lo reconstruyas) y el venv `C:\Willy\Trabajo\MININTER\venv-pruebas` (M-10):
+   - `pytest` de `services/api/tests/` completo, incluido `test_hu04_sin_cache.py` con la integración por la red interna y por el proxy, como en la M-10;
+   - `pytest` de `services/simuladores/tests/`;
+   - `flutter analyze` y `flutter test` en `apps/movil/` (138 esperados);
+   - `integration_test`: hoy no existe, anótalo como "no aplica".
+3. Si algo da rojo, **no lo arregles ni vuelvas a correr**: anota el caso exacto y avísame. Lo arbitro yo con el contrato.
+4. Informe: el commit de la corrida, los comandos, los totales por suite, la duración y la **matriz final** (caso → prueba → resultado), con los `NO VERIFICADO` que queden, cada uno con su motivo.
+5. Al terminar: `ENTREGA TESTER: suite completa <commit>, totales`.
+
+Después: veredicto (skill `veredicto`) y PR con `gh pr create`. Sin merge ni push a `main`.
+
+### M-17 (2026-11-25) — Arbitraje de los dos rojos de la suite completa: se apartó la prueba (TESTER, vuelta 1)
+
+Reemplaza: nada. Viene de la suite completa de la M-16, sobre `ebe8e5d` (informe `d16e831`). Los dos rojos se apartan de la prueba; el código cumple el contrato. Es la **vuelta 1** de cada desacuerdo.
+
+1. **`services/api/tests/test_hu04_sin_cache.py` [login-401], por la red interna y por el proxy.**
+   - **Qué esperaba la prueba:** `401`.
+   - **Qué llegó:** `423 CUENTA_BLOQUEADA`.
+   - **Qué dice el contrato:** HU-01 bloquea la cuenta tras los intentos fallidos, también para un usuario que no existe (AUTH-04).
+   - **Por qué se apartó la prueba:** usa un usuario **fijo** (`noexiste-cache`) y su contador persiste en la base entre corridas. Al quinto fallo acumulado, el `423` es lo correcto. La prueba deja de ser repetible.
+   - **Corrección:** que cada corrida use un usuario único (por ejemplo, con un sufijo aleatorio) o que acepte el desenlace correcto según el estado. Lo que se verifica no cambia: el `Cache-Control: no-store` en la respuesta de error.
+2. **`apps/movil/test/hu01_hu02_test.dart:112` AUTH-04.**
+   - **Qué hace la prueba:** usa el reloj real (`clock.now()` sin `withClock`) y calcula los minutos **después** de que la app los calculó.
+   - **Qué pasa en el borde:** cuando quedan 900 s exactos, la prueba admite solo "en 15 min", mientras la app, con `ceil` sobre un instante anterior (`pantalla_login.dart:18`), ya mostró 16.
+   - **Por qué se apartó la prueba:** el código cumple el contrato (hora local HH:MM y los minutos que faltan). El resultado depende del reloj.
+   - **Corrección:** fijar la hora con `withClock` (CONTRATO-MIGRACION-FLUTTER §2, fila "Hora y temporizadores") para que el texto esperado sea uno solo y determinista.
+
+**TESTER:** corrige solo esas dos pruebas, en tus rutas, sin tocar lo que verifican. Haz commit y avísame con `ESTADO TESTER: M-17 <commit>`. **No vuelvas a correr la suite**: la verificación final la corro yo, con las pruebas afectadas más `flutter test` completo sobre tu commit.

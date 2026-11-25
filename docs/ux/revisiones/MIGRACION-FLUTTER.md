@@ -1,0 +1,245 @@
+# Revisión UX — Migración a Flutter (rama `migracion-flutter`, entrega DEV `1382d13`)
+
+Rol: UX. Fecha: 2026-11-24. Encargo: LEAD → UX (CONTRATO-MIGRACION-FLUTTER v1.3 §4 y §10).
+
+**Resultado de las capturas de `flutter_test`: aprobado, con 3 observaciones (0 BLOQUEA).** Dos son regresiones de presentación frente a la app Expo y la tercera pide dos capturas que faltan. Ningún texto cambia y ninguna observación pide una versión nueva de contrato.
+
+**§4 (safe area): pendiente.** Se aprueba solo con las capturas del S23 Ultra de la mini sesión del **miércoles 25-nov** (adelantada por el LEAD). La lista de capturas está en la sección "Capturas del S23 Ultra para el guion del TESTER".
+
+**Actualización 2026-11-25: §4 (safe area) aprobada** con S1 a S5 del S23 Ultra. Ver la sección "Confirmación §4 (S23 Ultra)" al final.
+
+**Aprobación final del UX (2026-11-25, tercera vuelta del S23, M-15):** MIGRACION-FLUTTER queda **aprobada** por UX. Las observaciones 1 a 7 están cerradas y no queda nada que bloquee. Ver la sección "Confirmación M-15" al final.
+
+## Qué se revisó
+
+- **Capturas de `flutter_test`** (390 × 844 dp, ×3), en `Movil_Buscador_capturas/MIGRACION-FLUTTER/flutter_test` (fuera del repositorio). Son 30: AUTH-01, AUTH-01-vacios, AUTH-02, AUTH-03, AUTH-04, AUTH-otro-error, HOME-01-agente, HOME-revisor, HOME-supervisor, ERR-01, PLA-01, PLA-02-sin-motivo, PLA-02-otro-corto-y-PLA-03-formato, PLA-04-consultando, PLA-05-con-requisitoria, PLA-06-sin-requisitoria, PLA-07-error, PLA-08-no-registrada, PLA-01-con-placa-leida, OCR-01-aviso-mlkit, OCR-01, OCR-01-leyendo, OCR-02, OCR-03, OCR-04, BIT-01, BIT-01-filtros, BIT-01-vacia, BIT-01-error y BIT-02.
+- **Comparadas con las capturas de Expo** ya aprobadas (`Movil_Buscador_capturas/HU-01-02`, `HU-01-02-v4`, `HU-03-07` y `HU-04`), para encontrar regresiones.
+- **Referencias:**
+  - Wireframes: `docs/ux/wireframes/HU-01-iniciar-sesion.md`, `HU-02-acceso-por-rol.md`, `HU-03-consultar-placa.md`, `HU-07-bitacora-consultas.md` y `HU-04-capturar-placa-ocr.md` (con el aviso de telemetría de OCR-01).
+  - Revisiones anteriores: `HU-01-02.md`, `HU-03-07.md` y `HU-04.md` de esta carpeta.
+  - Contratos: CONTRATO-HU-01 v6, HU-02 v4, HU-03 v5, HU-07 v5 y HU-04 v6, más CONTRATO-MIGRACION-FLUTTER v1.3 §4 y §10.
+  - Avisos del DEV: `informes/DEV-MIGRACION-FLUTTER.md` §3.
+- **Fuente, solo como apoyo** para ubicar la causa de las observaciones: `apps/movil/lib/app.dart`, `lib/pantallas/pantalla_ocr.dart`, `pantalla_bitacora.dart` y `comunes.dart`.
+
+## Avisos del DEV (§3 del informe)
+
+### 1. Mayúsculas de los botones: se aceptan como están escritos
+
+**Decisión UX: no se piden mayúsculas.** Los botones quedan con el texto del contrato tal cual ("Ingresar", "Consultar", "Entendido", "Capturar"…).
+
+- Es el estilo por defecto de Material 3 en Android, así que se ve como el resto del teléfono.
+- Un texto en mayúscula y minúscula se lee más rápido que uno en mayúsculas sostenidas, sobre todo al sol y de un vistazo.
+- No hace falta tocar el texto ni las pruebas (`find.text('Ingresar')` sigue igual).
+- Los botones primarios se siguen distinguiendo por el fondo azul lleno, el alto y la negrita; los secundarios, por el borde. La jerarquía no dependía de las mayúsculas.
+- **Wireframes:** las mayúsculas de los dibujos ASCII (`[ INGRESAR ]`, `[ ENTENDIDO ]`) son solo una notación de "botón". No se cambian; esta decisión deja constancia de que la app los muestra con el texto del contrato.
+
+Si más adelante alguien pide mayúsculas, la única forma sin romper el contrato es mostrar `texto.toUpperCase()` y dejar el texto original en `Semantics(label: …)`. **No se recomienda:** las pruebas que buscan el texto visible tendrían que cambiar.
+
+### 2. Símbolos que salen como cuadrados en `flutter_test`
+
+Se acepta la explicación (sin fuentes de respaldo en `flutter_test`). En todas las capturas los símbolos están **en su lugar** (←, ✕, 📷, 🚗, ○/◉, ◉, ⚠, ⓘ, 🔒, ⛔, 📷✕, ▾), con el tamaño y el color esperados, pero su dibujo queda **NO VERIFICADO**. Se confirma con las capturas del S23 Ultra (lista abajo). Mientras tanto, el estado elegido de las opciones del motivo y de los filtros se distingue igual por el fondo celeste, así que la captura alcanza para revisar el resto.
+
+### 3. Margen seguro simulado
+
+Se acepta como vista previa, **no como aprobación de la §4**. Lo que sí se ve en las capturas y en `lib/app.dart`:
+
+- La franja "DATOS SINTÉTICOS · PROTOTIPO" empieza debajo de la barra simulada de 40 dp, y la barra se pinta del mismo fondo oscuro, con íconos claros (`statusBarIconBrightness: Brightness.light`). Es la opción que pidió la obs. 2 de `HU-04.md`.
+- El margen se resuelve **una sola vez** en la raíz (dos `SafeArea`: arriba sobre el fondo de la franja y abajo sobre el fondo de la app). Cumple "Una sola vez" de la §4.
+- En OCR-01, "Capturar" e "Ingresar manualmente" quedan por encima de la franja simulada de gestos.
+
+## Textos contra los contratos
+
+Todos los textos visibles coinciden carácter por carácter con los contratos vigentes y con lo aprobado en Expo. **Ningún texto pide un cambio de contrato.**
+
+| Pantalla | Qué pide el contrato o el wireframe | En la captura |
+|---|---|---|
+| Todas | "DATOS SINTÉTICOS · PROTOTIPO" | ✔ |
+| AUTH-01 | "Movil Buscador" · "Usuario" · "Clave" · "Ingresar" | ✔ |
+| AUTH-01 vacío | "Ingrese su usuario y su clave", ámbar, sin ícono | ✔ Igual que Expo v4 |
+| AUTH-02 | ⚠ "Usuario o clave incorrectos"; usuario escrito, clave vacía | ✔ Rojo, con el ícono (cuadrado en `flutter_test`) |
+| AUTH-03 | ⓘ "Su sesión se cerró por inactividad. Ingrese de nuevo." | ✔ Azul informativo, usuario vacío |
+| AUTH-04 | 🔒 "Cuenta bloqueada temporalmente. Podrá volver a intentar a las HH:MM (en N min)." | ✔ "a las 21:26 (en 15 min)", ámbar |
+| Otro error | "No se pudo completar la operación; intente nuevamente", gris neutro | ✔ |
+| HOME-01 | "Hola, <nombre>" · "Rol: Agente" · "Salir" · 🚗 "Consultar placa" · "Verificar rostro" y "Mis verificaciones" deshabilitadas | ✔ "Salir" y "Mis verificaciones" de 48 dp de alto |
+| Inicio del revisor / supervisor | "Rol: Revisor" · "Pendientes de revisión" (deshabilitada) / "Rol: Supervisor" · "Bitácora" | ✔ |
+| ERR-01 | ⛔ · "No tiene permiso para usar esta función." · "El intento quedó registrado." · "Volver al inicio" | ✔ |
+| PLA-01 | ← "Consultar placa" · "Placa" monoespaciada · 📷 habilitado · "Motivo de consulta *" como lista de opciones · "Consultar" | ✔ |
+| PLA-02 / PLA-03 | "Indique el motivo de la consulta." · "Describa el motivo *" · "Describa el motivo (mínimo 10 caracteres)." · "El formato de placa no es válido. Formato esperado: …" · los dos mensajes juntos | ✔ Borde rojo y ⚠ bajo cada campo. El "Formato esperado: ABC-123" sale corto porque así viene la descripción en el catálogo simulado de la captura; la app la toma de la API |
+| PLA-04 | "Consultando…" con la placa; el botón desactivado | ✔ |
+| PLA-05 | ← "Resultado" · bloque rojo, placa y "TIENE REQUISITORIA" · "Motivo:" · "Consultado: dd/mm/aaaa hh:mm" · "Nueva consulta" | ✔ |
+| PLA-06 | Gris neutro, "Sin requisitoria registrada en la fuente consultada", sin verde ni ✓ | ✔ |
+| PLA-07 | ⚠ "No se pudo completar la consulta; intente nuevamente" · "Reintentar" · "Volver" | ✔ Ámbar, distinto de los resultados |
+| PLA-08 | Gris azulado, "Placa no registrada en la fuente consultada. Verifique la placa." · solo "Volver" | ✔ Distinto de PLA-06 |
+| OCR-01 aviso | "Antes de leer la placa" · el cuerpo de HU-04 v5 · "Entendido" · "Capturar" desactivado · "Ingresar manualmente" activo | ✔ El cuerpo se ve completo |
+| OCR-01 | ✕ "Leer placa" · visor con marco · "Encuadre la placa y toque Capturar" · ◉ "Capturar" · "Ingresar manualmente" | ✔ |
+| OCR-01 leyendo | Indicador "Cargando" sobre el visor; "Capturar" desactivado | ✔ con la observación 1 |
+| OCR-02 | "Placa leída" · campo editable · "Confirme o corrija la placa antes de consultar." · "Usar esta placa" · "Volver a capturar" · ninguna imagen | ✔ |
+| OCR-03 | ⚠ "No se pudo leer la placa. Pruebe de frente y con más luz." · "Volver a intentar" · "Ingresar manualmente" | ✔ |
+| OCR-04 | 📷✕ "La app no tiene permiso para usar la cámara." · "Para darlo: Ajustes › Aplicaciones › Movil Buscador › Permisos › Cámara." · "Abrir ajustes" · "Ingresar manualmente" | ✔ |
+| BIT-01 | `dd/mm hh:mm · usuario` · tipo · placa · resultado · "SINTÉTICO" · "Filtros" con "PA 24" · "Cargar más" | ✔ |
+| BIT-01 filtros | "Usuario" · "Desde" · "Hasta" · "dd/mm/aaaa" · "Tipo" (9) · "Resultado" (4) · "Aplicar filtros" | ✔ los textos; la presentación tiene la observación 2 |
+| BIT-01 vacía | "No hay registros para estos filtros." | ✔ |
+| BIT-01 error | ⚠ "No se pudo cargar la bitácora; intente nuevamente" · "Reintentar" | ✔ Distinto de la lista vacía (regla 7) |
+| BIT-02 | "Registro #<8 caracteres>" · 🔒 "Registro de solo lectura" · "ID:" completo · usuario, fecha y hora, tipo, placa, motivo y resultado · "Origen: datos sintéticos" | ✔ Igual que HU-07 v3 |
+
+La palabra prohibida no aparece en ninguna captura.
+
+## Observaciones
+
+| # | Gravedad | Pantalla | Observación | Quién la resuelve |
+|---|---|---|---|---|
+| 1 | No bloquea (MEJORA, regresión) | OCR-01 leyendo | **El círculo oscuro del indicador de carga ocupa todo el visor** (unos 390 dp de diámetro) y tapa parte del marco. En Expo era un círculo chico, centrado en el marco (obs. 1 de `HU-04.md`, resuelta en `3367787`). Causa probable: `Espera` envuelve el indicador en un `Center`, que se expande, y el `Container` circular de `pantalla_ocr.dart` (~l. 212) toma todo el espacio. Basta con fijarle un tamaño al círculo (por ejemplo, 76 × 76 dp: 40 del indicador más 18 de margen por lado) o sacar el `Center` de `Espera` en ese uso. Sin texto nuevo | DEV |
+| 2 | No bloquea (MEJORA, regresión) | BIT-01 filtros | **Las opciones de "Tipo" y "Resultado" ocupan cada una todo el ancho, una por fila.** En Expo se agrupaban varias por fila, como etiquetas. Ahora el panel crece hasta casi dos pantallas y "Aplicar filtros" queda fuera de la vista: el supervisor tiene que desplazarse para aplicar. Causa probable: en `_Chips` (`pantalla_bitacora.dart`, ~l. 430), el `Container` con `alignment: Alignment.center` se estira al ancho disponible dentro del `Wrap`. Basta con quitar el `alignment` (o envolver el texto en un `Center(widthFactor: 1)`) para que cada opción mida lo que su texto. Sin texto nuevo. Mantener el alto mínimo de 36 dp y, si se puede, subirlo a 48 dp para uso con guantes | DEV |
+| 3 | No bloquea | PLA-01 sin catálogo y BIT-01 fecha inválida | **Faltan dos capturas de `flutter_test`** de estados que fija el contrato y que se aprobaron en Expo: PLA-01 cuando falla `GET /v1/motivos` (HU-03 v4: ⚠, "No se pudo completar la consulta; intente nuevamente", "Reintentar" y "Volver", sin formulario) y BIT-01 con una fecha que no existe (HU-07 v3: "Use fechas con el formato dd/mm/aaaa."). Pido las dos para cerrar la revisión de textos | DEV (las genera su paquete de capturas) |
+
+## Notas (sin observación)
+
+- **PLA-02 con la placa vacía** muestra también "El formato de placa no es válido…". Es igual que en Expo (`PantallaPlaca.tsx` validaba la placa vacía con la misma expresión) y cumple el contrato ("Si faltan el motivo y el formato, se muestran los dos mensajes").
+- **OCR-01 leyendo:** el degradado gris sobre "Capturar" es la animación del toque (*ripple*) congelada en la captura. No es un estado de la pantalla.
+- **OCR-01:** el visor de `flutter_test` es gris oscuro y el de Expo era negro. Sin cámara no hay imagen en ninguno de los dos; en el teléfono se ve la cámara.
+- **BIT-01:** el borde del panel de filtros pasó de punteado (Expo) a continuo. Se acepta.
+- **Accesibilidad** (no se ve en una captura; según el informe del DEV, §3): etiquetas exactas en los campos, "Atrás", "Cerrar" y "Leer con cámara" en los botones de un símbolo, y "Ingresando" y "Cargando" en los indicadores. Las comprueba el TESTER con `find.bySemanticsLabel`.
+
+## Capturas del S23 Ultra para el guion del TESTER (mini sesión del miércoles 25-nov)
+
+Van a `Movil_Buscador_capturas/MIGRACION-FLUTTER/s23/` (fuera del repositorio), con el APK de depuración contra la API local, **datos sintéticos** y placas `ZZ…`. Captura de pantalla completa del teléfono (con la barra de estado y la de navegación), no del área de la app.
+
+**Antes de empezar:** anotar en el guion el modo de navegación del teléfono (Ajustes › Pantalla › Barra de navegación: "Gestos de deslizar" o "Botones").
+
+### A. Para aprobar la §4 (safe area) — obligatorias
+
+Si alguna falla, la §4 queda **BLOQUEA** (misma observación 2 de `HU-04.md`).
+
+| # | Pantalla | Qué tiene que verse |
+|---|---|---|
+| S1 | HOME-01 (agente) | La hora, la señal y la batería completas y legibles en claro sobre el fondo oscuro; la franja "DATOS SINTÉTICOS · PROTOTIPO" entera, justo debajo, sin superponerse |
+| S2 | PLA-01 (sin teclado) | Lo mismo arriba; "Consultar" lejos de la barra de abajo |
+| S3 | OCR-01 con el visor de la cámara (después de "Entendido") | Lo mismo arriba; "Capturar" e "Ingresar manualmente" enteros y por encima de la línea de gestos o de los botones de navegación |
+| S4 | OCR-02 | Lo mismo arriba; "Usar esta placa" y "Volver a capturar" visibles |
+| S5 | OCR-01 en el **otro** modo de navegación (si el teléfono estaba en gestos, cambiar a botones, o al revés) | Los botones de abajo no quedan bajo la barra de navegación, que en modo botones es más alta |
+
+### B. Otras pantallas en el teléfono — no bloquean la §4, cierran puntos pendientes
+
+| # | Pantalla | Qué se mira | Pendiente que cierra |
+|---|---|---|---|
+| S6 | OCR-01 con el aviso de ML Kit | La tarjeta sobre el visor atenuado; el cuerpo completo | Aviso de telemetría (HU-04 v5) |
+| S7 | OCR-01 con el aviso y la **letra del sistema al máximo** (Ajustes › Pantalla › Tamaño y estilo de fuente) | El cuerpo del aviso se lee completo, sin cortes; "Entendido" a la vista o alcanzable desplazando | Accesibilidad del aviso (`HU-04.md`) |
+| S8 | OCR-01 leyendo, con la cámara apuntando a una placa impresa, de día | El indicador de carga se ve sobre la imagen real (y con la observación 1 ya resuelta, chico y centrado en el marco) | Etapa 2 de `HU-04.md` |
+| S9 | OCR-01 con el visor sobre una placa impresa a la distancia habitual (1 a 2 m) | El contraste del marco blanco sobre la imagen real y que la placa entre en el marco | Etapa 2 de `HU-04.md` |
+| S10 | OCR-04 y la pantalla a la que lleva "Abrir ajustes" (dos capturas) | El 📷✕ se dibuja; "Abrir ajustes" abre la información de la app, con "Permisos" a mano | Etapa 2 de `HU-04.md` y aviso 2 del DEV |
+| S11 | PLA-01 con una opción de motivo elegida y el teclado abierto en "Placa" | Se dibujan ←, 📷 y ○/◉; el teclado sale en mayúsculas; "Consultar" se alcanza desplazando | Aviso 2 del DEV |
+| S12 | PLA-02 + PLA-03 (placa inválida y sin motivo) | Se dibuja el ⚠ en los dos mensajes | Aviso 2 del DEV |
+| S13 | AUTH-02 (clave errada) | Se dibuja el ⚠ | Aviso 2 del DEV |
+| S14 | BIT-01 con los filtros abiertos y el teclado de "Desde" (supervisor) | El teclado es numérico con "/" (obs. 4 de `HU-03-07.md`); las opciones de "Tipo" agrupadas (con la observación 2 resuelta) | `HU-03-07.md` obs. 4 y observación 2 |
+| S15 | BIT-02 | Se dibuja el 🔒 | Aviso 2 del DEV |
+
+**No hace falta en el teléfono:** AUTH-03, AUTH-04, ERR-01 ni PLA-05 a PLA-08. Sus textos y colores ya se aprobaron con `flutter_test`, y sus símbolos usan la misma fuente de respaldo que los de S10 a S15. Si en S10 a S15 algún símbolo sale como cuadrado, entonces sí hay que revisar todos.
+
+## Qué falta para el aprobado final
+
+1. Las capturas S1 a S5 (§4).
+2. La corrección de las observaciones 1 y 2 y las dos capturas de la observación 3; se confirman con capturas nuevas de `flutter_test` (y S8 y S14 en el teléfono, si la corrección llega antes del miércoles).
+3. S6 a S15 cierran los pendientes de la etapa 2 de HU-04 y el aviso 2 del DEV.
+
+## Confirmación (entrega DEV `0724e88`, M-7, 2026-11-24)
+
+**Resultado: observaciones 1 a 3 cerradas.** Las capturas de `flutter_test` quedan aprobadas. La §4 (safe area) sigue **pendiente** de las capturas S1 a S5 del S23 Ultra (mini sesión del miércoles 25-nov).
+
+- **Qué se revisó:** las capturas nuevas OCR-01-leyendo, BIT-01-filtros, PLA-01-sin-catalogo y BIT-01-fecha-invalida (ahora son 32), y el diff de `0724e88` (`pantalla_ocr.dart` y `pantalla_bitacora.dart`).
+- **Contra qué:** las observaciones 1 a 3 de esta revisión, CONTRATO-HU-03 v5 y HU-07 v5, y las capturas de Expo aprobadas.
+
+| # | Observación | Estado | Comprobación |
+|---|---|---|---|
+| 1 | Círculo del indicador en OCR-01 leyendo | ✔ Resuelta | El círculo mide 76 × 76 dp y queda centrado dentro del marco, sin taparlo ni cubrir el visor. "Capturar" queda desactivado e "Ingresar manualmente" sigue activo. Sin texto nuevo |
+| 2 | Opciones de filtro en BIT-01 | ✔ Resuelta | Cada opción mide lo que su texto y caben dos por fila, como en Expo. Además subieron a 48 dp de alto (lo que se pidió "si se puede"). Con 48 dp el panel queda algo más largo que en Expo, así que "Aplicar filtros" se alcanza con un desplazamiento corto (se ve en BIT-01-fecha-invalida). Se acepta: el alto táctil vale más para el uso con guantes. Sin texto nuevo |
+| 3 | Capturas que faltaban | ✔ Resuelta | **PLA-01 sin catálogo:** ⚠, "No se pudo completar la consulta; intente nuevamente", "Reintentar" y "Volver", sin el formulario, en ámbar. Coincide con HU-03 v4 y con Expo, y cumple la regla 7. **BIT-01 con fecha inválida:** "31/02/2026" en "Desde", con borde de foco y "Use fechas con el formato dd/mm/aaaa." en rojo bajo el campo. Coincide con HU-07 v3 |
+
+- **Regresiones:** no se ven en las pantallas recapturadas. El resto del diff de `0724e88` es solo formato (cortes de línea en `pantalla_bitacora.dart`) y no cambia nada visible.
+- **Para el teléfono:** S8 y S14 de la lista confirman estas dos correcciones sobre la cámara real y con el teclado abierto.
+
+## Confirmación §4 (S23 Ultra, mini sesión del 25-nov)
+
+**Resultado: §4 (safe area) aprobada.** Las cinco capturas obligatorias cumplen. 0 BLOQUEA y ninguna observación nueva.
+
+- **Qué se revisó:** S1 a S5 en `C:\Willy\Trabajo\MININTER\Movil_Buscador_capturas\MIGRACION-FLUTTER\s23\` (fuera del repositorio). Son capturas a pantalla completa (1080 × 2316) tomadas por el DEV con `adb exec-out screencap` desde el APK de depuración `6d6b0405` (CONTRATO-MIGRACION-FLUTTER v1.5, cliente `ok_http`; según el LEAD no hay cambios visibles frente a `987be377`).
+- **Modo de navegación (paso 0.2b del guion):** el teléfono estaba en **Botones**. S1 a S4 se tomaron en Botones, que es el caso más exigente porque la barra de abajo es más alta. S5 se tomó en **Gestos de deslizar** y después se volvió a Botones.
+- **Contra qué:** CONTRATO-MIGRACION-FLUTTER v1.5 §4 (arriba, abajo, una sola vez, cómo se verifica) y la observación 2 de `HU-04.md`.
+
+| # | Captura | Arriba | Abajo | Estado |
+|---|---|---|---|---|
+| S1 | HOME-01 (`agente1`), Botones | La hora, los íconos, la señal y la batería se ven enteros y en claro sobre el fondo oscuro. La franja "DATOS SINTÉTICOS · PROTOTIPO" está entera, justo debajo y del mismo fondo, sin superponerse | Nada de la app llega a la barra de botones. "Mis verificaciones" termina muy por encima | ✔ |
+| S2 | PLA-01 sin teclado, Botones | Igual que S1 | "Consultar" está entero y lejos de la barra (queda en el tercio inferior, con margen) | ✔ |
+| S3 | OCR-01 con visor, Botones | Igual que S1. El visor empieza debajo de la cabecera y no invade la franja | "Capturar" e "Ingresar manualmente" están enteros y por encima de los tres botones del sistema, con separación | ✔ |
+| S4 | OCR-02, Botones | Igual que S1 | "Usar esta placa" y "Volver a capturar" se ven enteros | ✔ |
+| S5 | OCR-01 con visor, Gestos | Igual que S1 | "Ingresar manualmente" termina por encima de la línea de gestos, sin tocarla. El visor crece al alto que libera la barra, y no aparece ninguna franja vacía ni ningún botón tapado | ✔ |
+
+- **Una sola vez:** en las cinco pantallas la barra de estado y la franja quedan a la misma altura y con el mismo fondo, y el margen de abajo se ajusta solo al modo de navegación. Concuerda con el doble `SafeArea` de la raíz que ya se había visto en `lib/app.dart`.
+- **Símbolos (adelanto, no cierra el aviso 2 del DEV):** en el teléfono se dibujan bien 🚗 (S1), ← y 📷 (S2), ○ (S2), ✕ (S3 a S5) y ◉ en "Capturar" (S3 y S5). Los demás (⚠, ⓘ, 🔒, ⛔, 📷✕, ▾) se confirman con S10 a S15.
+- **Notas sin observación:**
+  - En S1 se ve una pestaña gris fina en el borde derecho, a media altura. Es el panel Edge de Samsung, del sistema y no de la app.
+  - En S3 el visor apunta al piso. Para la §4 alcanza; el contraste del marco sobre una placa se revisa con S8 y S9.
+- **Fuera de la §4 (no lo decide el UX):** el LEAD avisó que el aviso de ML Kit volvió a salir en OCR-01 al regresar de Ajustes, porque Android recreó la actividad. Es un hueco de HU-04 que decide el humano. Si la decisión cambia cuándo sale el aviso, el UX revisa el texto y la pantalla que resulten.
+
+**Qué falta:** S6 a S15, que no bloquean la §4. Cierran la etapa 2 de HU-04 (aviso, letra al máximo, indicador sobre la cámara real, marco a 1 o 2 m y OCR-04) y el aviso 2 del DEV sobre los símbolos.
+
+## Confirmación S6 a S15 (S23 Ultra, mini sesión del 25-nov)
+
+**Resultado: los símbolos quedan aprobados y la etapa 2 de HU-04 se cierra con 2 observaciones MEJORA.** Además, S14 tiene una observación que **BLOQUEA el filtro de fechas de BIT-01**. No toca la §4 ni HU-04, y ya está en la M-15.
+
+- **Qué se revisó:** S6 a S15 y la captura de apoyo S07b, en la misma carpeta, con el APK de depuración `6d6b0405`, en modo Botones. También las notas del DEV en `resultados-s23.md` (fuera del repositorio). Del código se revisaron `comunes.dart` (la franja), `pantalla_ocr.dart` (la tarjeta del aviso) y `pantalla_bitacora.dart` (líneas 351 a 371).
+- **Contra qué:** CONTRATO-HU-04 v6 (§3, texto del aviso de la v5), `docs/ux/revisiones/HU-04.md` (aviso, accesibilidad y observación 1), `HU-03-07.md` (observación 4) y la lista de la sección "Capturas del S23 Ultra".
+
+| # | Pantalla | Qué se vio | Estado |
+|---|---|---|---|
+| S6 | OCR-01 con el aviso | La tarjeta va sobre el visor atenuado. El título y el cuerpo coinciden letra por letra con el texto de la v5, y "Entendido" se ve entero. "Capturar" está desactivado e "Ingresar manualmente" sigue activo | ✔ |
+| S7 y S7b | El aviso con la letra al máximo (`font_scale` 2.0) | La tarjeta se corta en "…una herramienta de". Desplazando dentro del visor se llega al final del cuerpo y a "Entendido" (S7b), pero **nada indica que se puede desplazar**. La franja pasa a dos líneas pegadas al borde izquierdo | Observaciones 5 y 6 |
+| S8 | OCR-01 leyendo | El indicador es chico, circular y está centrado en el marco, sobre la imagen real. "Capturar" está desactivado. La observación 1 queda confirmada en el teléfono | ✔ |
+| S9 | OCR-01 con la placa a 1 o 2 m | El marco blanco contrasta bien sobre el piso y sobre la hoja. La placa entra en el marco con margen | ✔ |
+| S10a | OCR-04 | El 📷✕ se dibuja bien. Los textos coinciden con HU-04 y no aparece el aviso de telemetría | ✔ |
+| S10b | Ajustes | "Abrir ajustes" abre "Información de la aplicación" de Movil Buscador, con "Permisos" a la vista | ✔ |
+| S11 | PLA-01 con el teclado | ←, 📷, ◉ y ○ se dibujan bien. El teclado sale con las mayúsculas activas. "Consultar" queda debajo del teclado y se alcanza desplazando (lo confirmó el humano) | ✔ |
+| S12 | PLA-02 y PLA-03 | El ⚠ se dibuja en los dos mensajes. Los textos y el rojo coinciden con lo aprobado | ✔ |
+| S13 | AUTH-02 | El ⚠ se dibuja. "Usuario o clave incorrectos" aparece y el usuario se conserva | ✔ |
+| S14 | BIT-01 con los filtros y el teclado de "Desde" | Las opciones de "Tipo" van agrupadas, varias por fila (la observación 2 queda confirmada en el teléfono). El ▴ de "Filtros" se dibuja. **El teclado es numérico y no tiene "/"** | Observación 7 |
+| S15 | BIT-02 | El 🔒 se dibuja. "Registro de solo lectura" y los campos coinciden con lo aprobado | ✔ |
+
+- **Símbolos (aviso 2 del DEV): cerrado.** En el teléfono se dibujan 🚗, ←, 📷, ○, ◉, ✕, ⚠, 📷✕, 🔒 y ▴, y ninguno sale como cuadrado. Por la regla de la lista, no hace falta revisar AUTH-03, AUTH-04, ERR-01 ni PLA-05 a PLA-08 en el teléfono. ⓘ y ⛔ no aparecen en S6 a S15; se aceptan por la misma fuente de respaldo.
+- **Etapa 2 de HU-04: cerrada** con S6 a S10 y las observaciones 5 y 6.
+
+### Observaciones nuevas
+
+| # | Tipo | Pantalla | Observación | ¿M-15? |
+|---|---|---|---|---|
+| 5 | MEJORA | OCR-01 con el aviso y la letra al máximo (S7, S7b) | `HU-04.md` pide que el cuerpo se vea completo "sin cortes ni desplazamiento oculto, aun con la letra del sistema agrandada". Con la letra al 200 % la tarjeta se corta y el desplazamiento existe, pero no se ve. La lista del S23 aceptaba "alcanzable desplazando", así que se cumple a medias. No bloquea por tres razones: el texto entero y "Entendido" se alcanzan, "Ingresar manualmente" y "✕" siguen activos, y no se lee ninguna placa antes del aviso. Propuesta: que la barra de desplazamiento se vea siempre en la tarjeta (por ejemplo, `Scrollbar` con `thumbVisibility: true` sobre el `SingleChildScrollView` de `pantalla_ocr.dart`). No cambia ningún texto | Sí, recomendada: es barata y cierra un criterio de `HU-04.md`. Si no entra, queda para la fase de pruebas |
+| 6 | MEJORA | La franja, en todas las pantallas, con la letra al máximo (S7, S7b) | Con la letra al 200 % "DATOS SINTÉTICOS · PROTOTIPO" pasa a dos líneas alineadas a la izquierda y pegadas al borde de la pantalla, sin margen. Con la letra normal sale centrada en una línea. La franja sigue entera y legible, así que no bloquea. En `comunes.dart` el `Container` centra el bloque, pero el `Text` no tiene `textAlign` y el relleno es solo vertical. Propuesta: `textAlign: TextAlign.center` y un relleno lateral de 16 dp. No se limita el tamaño de la letra. No cambia ningún texto | Sí, recomendada: son dos líneas en un solo widget |
+| 7 | **BLOQUEA (filtro de fechas de BIT-01)** | BIT-01, "Desde" y "Hasta" (S14) | La observación 4 de `HU-03-07.md` era MEJORA porque en Expo el teclado alfabético dejaba escribir la fecha con un cambio de teclado, y quedó resuelta con `numbers-and-punctuation`. En Flutter, `TextInputType.datetime` abre en Samsung Keyboard un teclado de solo dígitos sin "/". Los campos no tienen formateador que agregue la barra, y la fecha se exige como dd/mm/aaaa. Si no se puede escribir "/", **el filtro de fechas no se puede usar en el S23**: es una regresión frente a lo aprobado en Expo y no una mejora de comodidad. **Confirmado por el humano (25-nov):** al escribir 25/11/2026 queda `25112026`, porque con Samsung Keyboard no hay forma de poner "/". El LEAD la clasificó como regresión funcional del refactor, que bloquea el veredicto. No bloquea la §4 ni HU-04. Criterio para la M-15: en el S23, con Samsung Keyboard, "Desde" y "Hasta" dejan escribir dd/mm/aaaa sin cambiar de teclado (el mismo criterio del arbitraje del LEAD) | Sí (ya está en la M-15, arbitraje del LEAD) |
+
+- **Fuera de estas observaciones:** el aviso de ML Kit que vuelve a salir cuando Android recrea la actividad sigue siendo un hueco de HU-04 que decide el humano (ver la confirmación de la §4).
+
+**Qué falta para el aprobado final de MIGRACION-FLUTTER:**
+1. La corrección de la observación 7 en la M-15, confirmada con una captura nueva de S14 desde el APK nuevo (teclado con "/", o la fecha 25/11/2026 escrita completa en el campo).
+2. Las observaciones 5 y 6, si entran en la M-15, se confirman con capturas nuevas de S7 y S7b con la letra al máximo. Si no entran, quedan anotadas como MEJORA y no frenan el aprobado.
+
+## Confirmación M-15 (tercera vuelta del S23 Ultra, 25-nov)
+
+**Resultado: observaciones 5, 6 y 7 cerradas, ninguna BLOQUEA. Aprobación final del UX de MIGRACION-FLUTTER.**
+
+- **Qué se revisó:** `S07-ocr-01-aviso-letra-maxima-v3.png`, `S07b-ocr-01-aviso-letra-maxima-desplazado-v3.png`, `S14-bit-01-filtros-teclado-v3.png` y `S14b-bit-01-fechas-escritas-v3.png`, en la misma carpeta y sin pisar las anteriores. Son del APK de depuración `5f62f6a4` (código `d81c6f9`), en modo Botones. S7 y S7b se tomaron con la letra a 2.0. También se revisó el diff de `d81c6f9` (`comunes.dart`, `pantalla_ocr.dart` y `pantalla_bitacora.dart`).
+- **Contra qué:** las observaciones 5, 6 y 7 de la sección anterior, `HU-04.md` (accesibilidad del aviso), `HU-03-07.md` (observación 4) y CONTRATO-HU-07 v3 (formato dd/mm/aaaa y su error).
+
+| # | Observación | Estado | Comprobación |
+|---|---|---|---|
+| 5 | Desplazamiento oculto en el aviso con la letra al máximo | ✔ Resuelta, sin BLOQUEA | Con la letra a 2.0 se ve una barra de desplazamiento fina y gris en el borde derecho del visor, sin tocar nada. Arriba en S7 y abajo en S7b, así que también indica cuánto falta. El texto completo y "Entendido" se alcanzan desplazando, y los textos no cambiaron. La barra queda en el borde del visor y no en el de la tarjeta, y tiene poco contraste. Se acepta: el criterio era que el desplazamiento no quedara oculto, y ya no lo está |
+| 6 | Franja en dos líneas pegada al borde | ✔ Resuelta, sin BLOQUEA | Con la letra a 2.0 "DATOS SINTÉTICOS · / PROTOTIPO" sale en dos líneas centradas y con margen a los dos lados. Con la letra normal (S14 y S14b) sigue en una línea, igual que antes. Diff: `textAlign: TextAlign.center` y relleno lateral de 16 dp, sin limitar el tamaño de la letra |
+| 7 | Filtro de fechas inusable en el S23 (teclado sin "/") | ✔ Resuelta, sin BLOQUEA | El teclado de Samsung sigue sin "/" (S14-v3), pero la app la pone sola. Tecleando solo dígitos, "Desde" y "Hasta" quedan en `25/11/2026` (S14b-v3), y según el DEV "Aplicar filtros" muestra la lista sin error. Cumple el criterio de la M-15: se escribe dd/mm/aaaa sin cambiar de teclado. En el diff, el formateador `_BarraDeFecha` solo actúa cuando se agrega un dígito al final. Borrar, escribir la "/" a mano o pegar quedan igual, y una fecha mal escrita sigue mostrando el error de HU-07 v3. Las opciones de "Tipo" siguen agrupadas. No hay texto nuevo |
+
+- **Regresiones:** no se ven. En las cuatro capturas la barra de estado y la franja siguen como en la §4.
+- **Nota sin observación:** si en la fase de pruebas del 16 al 26-dic algún agente no nota la barra del aviso con la letra grande, se puede subir su contraste o pasarla al borde de la tarjeta. Hoy no hace falta.
+
+**Estado final del UX en MIGRACION-FLUTTER:**
+- capturas de `flutter_test` aprobadas (observaciones 1 a 3);
+- §4 (safe area) aprobada con S1 a S5;
+- símbolos y etapa 2 de HU-04 cerrados con S6 a S15;
+- observaciones 5, 6 y 7 cerradas con la M-15.
+
+**Nada pendiente del UX.** Sigue fuera del UX el aviso de ML Kit que vuelve a salir al recrearse la actividad: el humano lo resolvió con CONTRATO-HU-04 v7, que solo cambia texto y no cambia ninguna pantalla.

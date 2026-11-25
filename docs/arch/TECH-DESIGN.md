@@ -47,7 +47,7 @@ Las políticas de seguridad avanzadas se documentan, pero no se construyen. El p
 
 | Componente | Responsabilidad | ADR |
 |---|---|---|
-| App móvil (Flutter) | Captura, OCR, calidad facial, pantallas por rol (agente, revisor, supervisor). Solo habla con la API. | 0001, 0017, 0010, 0013 |
+| App móvil (Flutter) | Captura, OCR, calidad facial, pantallas por rol (agente, revisor, supervisor). Solo habla con la API, por un `http.Client` de `package:ok_http` (TLS de Android, con el `network_security_config`; ADR-0017 regla 4). | 0001, 0017, 0010, 0013 |
 | API (FastAPI) | Único punto de entrada: sesión, roles, consultas, adaptadores de fuente y del motor, bitácora, borrado de capturas. | 0001, 0003, 0004, 0005, 0007, 0012, 0014, 0019 |
 | Motor biométrico (Python, OpenCV) | Calidad y comparación contra la galería; servicio interno sin puerto público, sin guardar nada; reemplazable detrás de su contrato. | 0004, 0019 |
 | Simuladores (FastAPI) | Placas, requisitorias de personas y galería, con contrato OpenAPI y modos de falla. | 0006 |
@@ -86,7 +86,7 @@ Diagramas HTML interactivos generados con `archify`. Sus fuentes JSON están en 
 | [ADR-0014](adrs/0014-resiliencia-errores.md) | Timeout, un reintento en lecturas, errores controlados | Aceptado |
 | [ADR-0015](adrs/0015-foto-varias-personas-rostro-elegido.md) | Foto con varias personas: se compara solo el rostro elegido, recortado en el dispositivo (C6) | Aceptado (supuestos PA #33) |
 | [ADR-0016](adrs/0016-ubicacion-aviso-105-simulado.md) | Ubicación del dispositivo para el aviso simulado al 105 (PA #32 y #34) | Aceptado (supuestos PA #32 y #34) |
-| [ADR-0017](adrs/0017-app-movil-flutter-mlkit.md) | App con Flutter y ML Kit en el dispositivo (PA #37); reemplaza al ADR-0002 | Aceptado (2026-11-24) |
+| [ADR-0017](adrs/0017-app-movil-flutter-mlkit.md) | App con Flutter y ML Kit en el dispositivo (PA #37); reemplaza al ADR-0002. Regla 4 precisada: la red de la app va por `package:ok_http` para que rija el `network_security_config` | Aceptado (2026-11-24); regla 4 precisada (2026-11-25) |
 | [ADR-0018](adrs/0018-proxy-nginx.md) | NGINX en lugar de Caddy (PA #37), con la descarga protegida del APK; reemplaza el `proxy` del ADR-0009 | Aceptado (2026-11-24) |
 | [ADR-0019](adrs/0019-servicios-python-motor-aislado.md) | API y simuladores en Python; motor biométrico como servicio interno aislado (PA #37); precisa el punto 2 del ADR-0004 | Aceptado (2026-11-24); Python a negociar con el MININTER |
 | [ADR-0020](adrs/0020-keycloak-al-final.md) | Keycloak documentado, sin construir en el MVP; Supabase Auth sigue (PA #38) | Aceptado con ajuste (2026-11-24) |
