@@ -143,7 +143,7 @@ Para un teléfono conectado: `flutter run --debug --dart-define=API_URL=https://
 
 Salida: `apps/movil/build/app/outputs/flutter-apk/app-debug.apk` y `app-release.apk` (78,5 MB; lleva las tres ABI). `build/` no se versiona.
 
-**APK de la M-13 (contrato v1.5, los vigentes)**, compilados con el árbol de `29617a7` y copiados a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` nuevo (verificado con `sha256sum -c`). Reemplazan a los de abajo:
+**APK de la M-13 (contrato v1.5; reemplazados por los de la M-15, §13)**, compilados con el árbol de `29617a7` y copiados a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` nuevo (verificado con `sha256sum -c`). Reemplazan a los de abajo:
 
 | APK | sha256 | Tamaño (antes → después) |
 |---|---|---|
@@ -322,4 +322,43 @@ Con la autorización del humano, bajé el compose de la carpeta principal con el
 **Cómo se prueba a mano (en el S23, cuando el PM lo pida):** desde el paso 0.8 del guion. Con el de depuración (`6d6b0405…`), iniciar sesión con `agente1` entra (la CA de usuario ya está instalada) y Caddy registra un acceso a `/v1/auth/login`. Con el de release (`48f8117a…`), el inicio de sesión muestra "No se pudo completar la operación; intente nuevamente" (falla el TLS). **NO VERIFICADO todavía en el teléfono**, porque la M-13 no pide instalarlo.
 
 **Para el arnés:** no cambia ninguna prueba (siguen inyectando `MockClient`). El paso 8 del guion (caché de OkHttp en `cache/` y `files/`) y el paso 11 (login con el release) los pone el TESTER. No hay variables de entorno nuevas ni migraciones.
+
+## 13. M-15: lo que dejó la S23 (obs. 7, 5 y 6 del UX)
+
+**Commit:** `d81c6f9` (`lib/pantallas/pantalla_bitacora.dart`, `lib/pantallas/pantalla_ocr.dart` y `lib/pantallas/comunes.dart`). HU-04 v7 no cambia el código.
+
+### Obs. 7 (BLOQUEA): "Desde" y "Hasta" con "/" en el S23
+
+- **Qué pasaba:** los dos campos pedían `TextInputType.datetime`. En el S23, Samsung Keyboard da para ese tipo un teclado de solo dígitos, sin "/", y `25/11/2026` quedaba `25112026` (M-14, S14).
+- **Qué hice:** el teclado queda igual (los dígitos grandes son lo cómodo, y en Gboard ese teclado sí trae "/"). A los dos campos les agregué un formateador, `_BarraDeFecha`, que pone la "/" solo mientras se escribe la fecha: cuando se agrega **un dígito al final** y con eso quedan `ddd` o `dd/mmm`, inserta la barra antes de ese dígito (`251` → `25/1`, `25/112` → `25/11/2`). Así, tocando 2-5-1-1-2-0-2-6 queda `25/11/2026`, sin cambiar de teclado.
+- **Por qué así y no otro teclado:** no hay un `TextInputType` que garantice "/" en todos los teclados de Android (`numbers-and-punctuation` de Expo no existe en Android: allí cae al teclado de texto, donde la "/" está en la página de símbolos). Lo único que no depende del teclado es poner la barra desde la app. Además, `CampoTexto` acepta ahora una lista opcional `formateadores` (`inputFormatters` del `TextField`); los demás campos no la usan.
+- **Lo que no cambia (CONTRATO-HU-07 v3):** el formateador **no toca** nada más. Borrar, escribir uno mismo la "/" (en los teclados que la tienen), letras, otros formatos o pegar el texto entero pasan tal cual, así que una fecha que no cumple `dd/mm/aaaa` sigue mostrando "Use fechas con el formato dd/mm/aaaa." y no envía la solicitud. La ayuda "dd/mm/aaaa" y los textos tampoco cambian.
+- **Cómo lo comprobé, sin teléfono** (la M-15 dice que no se instala): con una copia de la lógica en un script de Dart fuera del repositorio, tecla por tecla: `25112026` → `25/11/2026`; `25/11/2026` escrito con "/" → igual; borrar hasta `25/1` y seguir funciona, sin trabarse en la barra; `ayer` → `ayer`; pegar `2026-11-25`, `25/11/2026` o `25112026` → sin cambios; un noveno dígito → `25/11/20261` (inválido, muestra el error). **NO VERIFICADO en el S23:** queda para la tercera vuelta (S14).
+
+### Obs. 5 (MEJORA): barra de desplazamiento en la tarjeta del aviso
+
+En OCR-01, el `SingleChildScrollView` de la tarjeta "Antes de leer la placa" va dentro de un `Scrollbar` con `thumbVisibility: true` y su propio `ScrollController` (se libera en `dispose`). Sin texto nuevo. Con la letra normal la tarjeta entra entera y la barra no se nota; con la letra al máximo (S7) se ve que hay más abajo.
+
+### Obs. 6 (MEJORA): la franja con la letra al máximo
+
+`FranjaPrototipo`: `textAlign: TextAlign.center` y relleno lateral de 16 dp (`EdgeInsets.symmetric(vertical: 6, horizontal: 16)`). No se limita el tamaño de la letra.
+
+### Comprobaciones
+
+- `flutter analyze`: sin avisos. `flutter test`: **137/137** (ninguna prueba se puso roja).
+- **APK nuevos** (árbol de `d81c6f9`), en `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` nuevo (`sha256sum -c`: OK). Reemplazan a `6d6b0405` y `48f8117a`. **No se instalaron.**
+
+| APK | sha256 | Tamaño (M-13 → M-15) |
+|---|---|---|
+| `movil-buscador-debug.apk` | `5f62f6a4c8eb192e38bddd3895409a84325f12e914c69b1fc1801ad08b997085` | 236 277 571 → 236 279 013 bytes |
+| `movil-buscador-release.apk` | `65799fb64635fc424efab1c255f5202a729a6da68a8d28aa0c16d67184c6bdc6` | 82 177 616 → 82 325 072 bytes |
+
+- **Ninguna CA en un APK:** ningún `.crt`, `.pem`, `.der`, `.cer`, `.p12` ni `.bks`; ni el DER, ni el base64 ni "Caddy Local Authority" en ninguna entrada descomprimida (574 y 339) ni en el archivo crudo.
+- **Release:** sin `application-debuggable`; `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'`; firma `CN=Movil Buscador (prototipo con datos sinteticos), O=Prototipo, C=PE`; 21 entradas en `assets/mlkit-google-ocr-models/` y `libmlkit_google_ocr_pipeline.so` en las tres ABI; `Lokhttp3/OkHttpClient;`, `Lokio/Buffer;` y `Lcom/example/ok_http/` en el dex (las reglas `-keep` de la M-13 siguen sirviendo). El de depuración sí es depurable.
+
+### Entorno (M-15 punto 7)
+
+El log del proxy volvió a lo normal: dentro del contenedor, `caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile` recargó la configuración versionada, que no tiene `logging` ni log de acceso (la API de administración devuelve `null` en los dos). No se tocó el Caddyfile. Después de la recarga, `/v1/salud` da 200 y no aparecen líneas `debug` ni de acceso. **El compose sigue arriba** (no se corrió el 12.4).
+
+**Para el arnés:** ninguna prueba cambia. El S14 de la tercera vuelta tiene que dejar `25/11/2026` tocando solo dígitos. En el teléfono quedó el release `48f8117a` de la M-14: para la tercera vuelta hay que desinstalarlo e instalar el de depuración `5f62f6a4` (desde el 0.8).
 
