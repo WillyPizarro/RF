@@ -261,7 +261,7 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - **Expresión regular de placa** no verificada contra la normativa (PA #20).
 - **Contratos de las fuentes** diseñados sin conocer las reales (PA #6): pueden requerir reescribir los adaptadores.
 - **Planes de terceros:** Supabase gratis puede pausarse en la semana de validación; conviene evaluar un mes del plan Pro.
-- **Diagramas:** regenerados el 2026-11-24 (ADR-0017 a 0019). Pasaron `validate`, `deliver` y `check` de `archify`. El `browser-check` no corrió en esta sesión porque Chrome no expone su canal de depuración desde aquí; hay que correrlo desde una PowerShell normal, como el 2026-11-18.
+- **Diagramas:** regenerados el 2026-11-24 (ADR-0017 a 0019). Pasaron `validate`, `deliver`, `check` y `browser-check` de `archify` (el `browser-check` lo corrió el humano desde una PowerShell normal; recibos en `diagramas/evidencia-2026-11-24/`).
 
 ### Estado de los conflictos y puntos abiertos encargados al ARCH
 
