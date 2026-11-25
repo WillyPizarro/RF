@@ -283,3 +283,21 @@ Reemplaza: nada. Es el punto 5 de la §10 del contrato. El UX dio la **aprobaci�
 5. Al terminar: `ENTREGA TESTER: suite completa <commit>, totales`.
 
 Después: veredicto (skill `veredicto`) y PR con `gh pr create`. Sin merge ni push a `main`.
+
+### M-17 (2026-11-25) — Arbitraje de los dos rojos de la suite completa: se apartó la prueba (TESTER, vuelta 1)
+
+Reemplaza: nada. Viene de la suite completa de la M-16, sobre `ebe8e5d` (informe `d16e831`). Los dos rojos se apartan de la prueba; el código cumple el contrato. Es la **vuelta 1** de cada desacuerdo.
+
+1. **`services/api/tests/test_hu04_sin_cache.py` [login-401], por la red interna y por el proxy.**
+   - **Qué esperaba la prueba:** `401`.
+   - **Qué llegó:** `423 CUENTA_BLOQUEADA`.
+   - **Qué dice el contrato:** HU-01 bloquea la cuenta tras los intentos fallidos, también para un usuario que no existe (AUTH-04).
+   - **Por qué se apartó la prueba:** usa un usuario **fijo** (`noexiste-cache`) y su contador persiste en la base entre corridas. Al quinto fallo acumulado, el `423` es lo correcto. La prueba deja de ser repetible.
+   - **Corrección:** que cada corrida use un usuario único (por ejemplo, con un sufijo aleatorio) o que acepte el desenlace correcto según el estado. Lo que se verifica no cambia: el `Cache-Control: no-store` en la respuesta de error.
+2. **`apps/movil/test/hu01_hu02_test.dart:112` AUTH-04.**
+   - **Qué hace la prueba:** usa el reloj real (`clock.now()` sin `withClock`) y calcula los minutos **después** de que la app los calculó.
+   - **Qué pasa en el borde:** cuando quedan 900 s exactos, la prueba admite solo "en 15 min", mientras la app, con `ceil` sobre un instante anterior (`pantalla_login.dart:18`), ya mostró 16.
+   - **Por qué se apartó la prueba:** el código cumple el contrato (hora local HH:MM y los minutos que faltan). El resultado depende del reloj.
+   - **Corrección:** fijar la hora con `withClock` (CONTRATO-MIGRACION-FLUTTER §2, fila "Hora y temporizadores") para que el texto esperado sea uno solo y determinista.
+
+**TESTER:** corrige solo esas dos pruebas, en tus rutas, sin tocar lo que verifican. Haz commit y avísame con `ESTADO TESTER: M-17 <commit>`. **No vuelvas a correr la suite**: la verificación final la corro yo, con las pruebas afectadas más `flutter test` completo sobre tu commit.
