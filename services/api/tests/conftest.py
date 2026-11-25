@@ -146,7 +146,7 @@ class Respuesta:
 
 
 class ClienteHttp:
-    """Cliente mínimo sobre urllib. El TLS local de Caddy usa una CA propia: no se verifica."""
+    """Cliente mínimo sobre urllib. El TLS local del proxy (NGINX) usa una CA propia: no se verifica."""
 
     def __init__(self, url_base: str) -> None:
         self.url_base = url_base.rstrip("/")

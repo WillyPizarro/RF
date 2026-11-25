@@ -1,20 +1,27 @@
-"""CONTRATO-DESPLIEGUE-01 v1 — Lo que se ve del VPS desde afuera (fase B).
+"""CONTRATO-DESPLIEGUE-01 v2.1 — Lo que se ve del VPS desde afuera (fase B2). Proxy: NGINX.
 
 Se omite entero si no está `URL_VPS` (por ejemplo `URL_VPS=https://demo.ejemplo.pe`). No depende
 de `--integracion`: el arnés deja correr este archivo sin esa opción.
 
-    URL_VPS=https://<DOMINIO> CLAVE_USUARIOS_PRUEBA=<clave del VPS> pytest services/api/tests/test_despliegue_vps.py
+    URL_VPS=https://<DOMINIO> CLAVE_USUARIOS_PRUEBA=<clave> DESCARGA_APK_USUARIO=<usuario> \n        DESCARGA_APK_CLAVE=<clave> APK_SHA256=<sha256 que mostró publicar-apk.ps1> \n        pytest services/api/tests/test_despliegue_vps.py
 
 - Puertos (§1): 22, 80 y 443 responden; 8000, 8001 y 5432, no.
 - Certificado (§2): se valida con las CA del sistema (`ssl.create_default_context()`, sin
   desactivar la verificación) y lo emite Let's Encrypt.
-- Salud y rutas (§1): `/v1/salud` → 200 con `bd` y `simuladores` en `ok`; `/openapi.json` y `/`
-  → 404.
+- Salud y rutas (§1): `/v1/salud` → 200 con `bd` y `simuladores` en `ok`; `/openapi.json`, `/` y
+  el resto de `/descargas/` → 404.
+- HTTP → HTTPS (§2, §5): `/v1/salud` y la ruta del APK redirigen (301 o 308) a `https://`, sin
+  pedir la credencial por HTTP.
+- Descarga del APK (§5, v2): sin credencial → 401 con `WWW-Authenticate: Basic`; con
+  `DESCARGA_APK_USUARIO` y `DESCARGA_APK_CLAVE` → 200 y el SHA-256 es `APK_SHA256`; el APK
+  descargado no es depurable (`aapt`, si está el Android SDK en esta PC). Se omiten sin esas
+  variables. No se manda ninguna credencial incorrecta de la descarga a propósito: con la
+  correcta y sin ninguna alcanza (la incorrecta se prueba en local, `test_proxy_nginx.py`).
 - Flujo (§1 "Mismo comportamiento"): login de agente1, las 3 placas del demo, la bitácora del
   supervisor con esas consultas, y el 403 por rol.
 
-La clave de los usuarios se lee SOLO de la variable de entorno `CLAVE_USUARIOS_PRUEBA` y nunca
-se escribe: no va en mensajes de error, en archivos ni en la salida. Las pruebas no mandan claves
+Las claves (`CLAVE_USUARIOS_PRUEBA` y `DESCARGA_APK_CLAVE`) se leen SOLO de variables de entorno
+y nunca se escriben: no va en mensajes de error, en archivos ni en la salida. Las pruebas no mandan claves
 incorrectas, para no sumar intentos al bloqueo de usuarios que se comparten en el demo.
 """
 
@@ -114,9 +121,11 @@ def test_certificado_valido_con_las_ca_del_sistema():
     assert "Let's Encrypt" in emisor.get("organizationName", ""), emisor
 
 
-def test_http_80_lleva_a_https():
-    """§2: el puerto 80 lo usa Caddy para Let's Encrypt y para redirigir a HTTPS."""
-    url = URL_VPS.replace("https://", "http://", 1) + "/v1/salud"
+@pytest.mark.parametrize("ruta", ["/v1/salud", "/descargas/movil-buscador.apk"])
+def test_http_80_lleva_a_https(ruta):
+    """§2 'HTTP → HTTPS' y §5 'Solo por HTTPS': el puerto 80 lo usa NGINX para el desafío de
+    certbot y para redirigir a HTTPS; la ruta del APK redirige antes de pedir la credencial."""
+    url = URL_VPS.replace("https://", "http://", 1) + ruta
 
     class SinSeguir(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, *a, **k):
@@ -125,10 +134,11 @@ def test_http_80_lleva_a_https():
     abridor = urllib.request.build_opener(SinSeguir)
     try:
         r = abridor.open(url, timeout=15)
-        estado, destino = r.status, r.headers.get("Location", "")
+        estado, destino, basic = r.status, r.headers.get("Location", ""), r.headers.get("WWW-Authenticate")
     except urllib.error.HTTPError as e:
-        estado, destino = e.code, e.headers.get("Location", "")
-    assert estado in (301, 302, 307, 308) and destino.startswith("https://"), (estado, destino)
+        estado, destino, basic = e.code, e.headers.get("Location", ""), e.headers.get("WWW-Authenticate")
+    assert estado in (301, 308) and destino.startswith("https://"), (estado, destino)
+    assert not basic, "la credencial se pide por HTTP"
 
 
 # --- §1 Salud y solo /v1/* -------------------------------------------------------------------
@@ -141,10 +151,83 @@ def test_salud():
     assert d.get("bd") == "ok" and d.get("simuladores") == "ok", d
 
 
-@pytest.mark.parametrize("ruta", ["/openapi.json", "/"])
-def test_solo_v1(ruta):
-    """§1 'Solo /v1/*': /openapi.json y / → 404."""
+@pytest.mark.parametrize("ruta", ["/openapi.json", "/", "/descargas/", "/descargas/otro.apk",
+                                  "/descargas/movil-buscador.apk/"])
+def test_solo_v1_y_el_apk(ruta):
+    """§1 'Solo /v1/* y el APK' y §5 'Otras rutas': → 404."""
     assert pedir("GET", ruta).estado == 404
+
+
+# --- §5 Descarga del APK (v2) ----------------------------------------------------------------
+
+RUTA_APK = "/descargas/movil-buscador.apk"
+
+
+def _basica(usuario: str, clave: str) -> str:
+    import base64
+    return "Basic " + base64.b64encode(f"{usuario}:{clave}".encode()).decode()
+
+
+def pedir_crudo(ruta: str, autorizacion: str | None = None) -> Resp:
+    cab = {"Authorization": autorizacion} if autorizacion else {}
+    req = urllib.request.Request(URL_VPS + ruta, headers=cab)
+    try:
+        with urllib.request.urlopen(req, timeout=120, context=ssl.create_default_context()) as r:
+            return Resp(r.status, dict(r.headers.items()), r.read())
+    except urllib.error.HTTPError as e:
+        return Resp(e.code, dict(e.headers.items()), e.read())
+
+
+@pytest.fixture(scope="module")
+def credencial_descarga() -> tuple[str, str]:
+    u, c = os.environ.get("DESCARGA_APK_USUARIO"), os.environ.get("DESCARGA_APK_CLAVE")
+    if not (u and c):
+        pytest.skip("Sin DESCARGA_APK_USUARIO y DESCARGA_APK_CLAVE en el entorno: la descarga se omite")
+    return u, c
+
+
+@pytest.fixture(scope="module")
+def apk_descargado(credencial_descarga) -> bytes:
+    r = pedir_crudo(RUTA_APK, _basica(*credencial_descarga))
+    assert r.estado == 200, f"descarga con credencial: {r.estado}"  # sin la credencial
+    return r.cuerpo
+
+
+def test_descarga_sin_credencial_401():
+    """§5 'Sin credencial' → 401 con WWW-Authenticate: Basic."""
+    r = pedir_crudo(RUTA_APK)
+    assert r.estado == 401, r.estado
+    cab = {k.lower(): v for k, v in r.cabeceras.items()}
+    assert cab.get("www-authenticate", "").lower().startswith("basic"), cab.get("www-authenticate")
+
+
+def test_descarga_con_credencial_mismo_sha256(apk_descargado):
+    """§5 'Con credencial' → 200 y el cuerpo es exactamente el APK publicado (APK_SHA256)."""
+    import hashlib
+    esperado = os.environ.get("APK_SHA256", "").strip().lower()
+    if not esperado:
+        pytest.skip("Sin APK_SHA256 (el que mostró scripts/publicar-apk.ps1): no se puede comparar")
+    assert hashlib.sha256(apk_descargado).hexdigest() == esperado
+
+
+def test_apk_descargado_no_es_depurable(apk_descargado, tmp_path):
+    """§5 'No es de depuración', sobre el APK descargado de la ruta: `aapt dump badging` sin
+    `application-debuggable`, con el paquete y el nombre del contrato."""
+    import glob
+    import subprocess
+    candidatos = sorted(glob.glob("C:/Android/build-tools/*/aapt.exe"))
+    if not candidatos:
+        pytest.skip("NO VERIFICADO (entorno): sin aapt del Android SDK en esta PC")
+    apk = tmp_path / "descargado.apk"
+    apk.write_bytes(apk_descargado)
+    try:
+        salida = subprocess.run([candidatos[-1], "dump", "badging", str(apk)], capture_output=True,
+                                text=True, encoding="utf-8", errors="replace", timeout=120).stdout
+    finally:
+        apk.unlink(missing_ok=True)  # la copia no se queda en la PC
+    assert "package: name='pe.prototipo.movilbuscador'" in salida
+    assert "application-label:'Movil Buscador'" in salida
+    assert "application-debuggable" not in salida
 
 
 # --- §1 Mismo comportamiento: el flujo del demo ----------------------------------------------

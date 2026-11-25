@@ -1,7 +1,7 @@
 # Comandos para correr DENTRO del VPS — DESPLIEGUE-01 (fase B)
 
-**Contrato:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` v1 (§3, §4 y §5). **Quién:** quien tenga el SSH con la llave dedicada (el humano, o el TESTER o el DEV si el humano los autoriza).
-**Estos comandos no se corrieron todavía:** no hay VPS hasta la fase B.
+**Contrato:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1** (§2, §3, §4 y §5; proxy NGINX y `certbot`). **Quién:** quien tenga el SSH con la llave dedicada (el humano, o el TESTER o el DEV si el humano los autoriza).
+**Estos comandos no se corrieron todavía:** no hay VPS hasta la fase B2.
 
 Lo que se ve desde afuera (puertos, certificado, `/v1/salud`, el flujo del demo y el 403) lo cubre `services/api/tests/test_despliegue_vps.py`, que se corre desde la PC con `URL_VPS`.
 
@@ -107,19 +107,52 @@ $C --profile herramientas run --rm herramientas python -m app.cargar_usuarios   
 | Comando | Esperado |
 |---|---|
 | `sudo ss -tlnp \| awk 'NR>1 {print $4}' \| sort -u` | Hacia afuera, solo `:22`, `:80` y `:443` (más lo que escuche solo en `127.0.0.1`) |
-| `$C ps --format '{{.Service}} {{.Ports}}'` | Solo `proxy` con `0.0.0.0:80` y `0.0.0.0:443` |
+| `$C ps --format '{{.Service}} {{.Ports}}'` | Solo `proxy` con `0.0.0.0:80` y `0.0.0.0:443`; `certbot` sin puertos |
 
-## 8. El APK de `preview` no es depurable (§5) — en la PC, sobre el APK descargado del enlace
+## 8. El APK de release no es depurable (§5, v2) — en la PC, sobre el APK descargado de la ruta
+
+Lo hace también `test_despliegue_vps.py::test_apk_descargado_no_es_depurable` (con `DESCARGA_APK_USUARIO`, `DESCARGA_APK_CLAVE` y el `aapt` de `C:\Android\build-tools`). A mano, con el APK descargado de `https://<DOMINIO>/descargas/movil-buscador.apk` en una carpeta **fuera del repositorio**:
 
 ```powershell
-# Con Android build-tools en el PATH (aapt o apkanalyzer)
-aapt dump badging .\movil-preview.apk | Select-String -Pattern 'debuggable'          # sin salida
-apkanalyzer manifest debuggable .\movil-preview.apk                                   # false
-aapt dump xmltree .\movil-preview.apk AndroidManifest.xml | Select-String -Pattern 'debuggable|networkSecurityConfig'
+$aapt = (Get-ChildItem C:\Android\build-tools\*\aapt.exe | Sort-Object FullName | Select-Object -Last 1).FullName
+& $aapt dump badging <APK descargado> | Select-String "package:|application-label:|debuggable"
+& $aapt dump xmltree <APK descargado> AndroidManifest.xml | Select-String "allowBackup|usesCleartextTraffic|networkSecurityConfig"
+(Get-FileHash -Algorithm SHA256 <APK descargado>).Hash.ToLower()
 ```
 
 **Esperado:**
-- **`aapt dump badging`:** no sale `application-debuggable`.
-- **`apkanalyzer`:** responde `false`.
-- **El manifiesto:** no tiene `android:debuggable=true`. Si aparece `networkSecurityConfig`, sus `debug-overrides` no se aplican en un APK no depurable (CONTRATO-HU-04 v3 §8).
-- **El archivo:** el APK queda **fuera del repositorio**.
+- **`dump badging`:** `package: name='pe.prototipo.movilbuscador'`, `application-label:'Movil Buscador'` y **ninguna** línea `application-debuggable`.
+- **El manifiesto:** `allowBackup` y `usesCleartextTraffic` en `0x0`; `networkSecurityConfig` presente (sus `debug-overrides` no se aplican en un APK no depurable).
+- **El SHA-256:** el mismo que mostró `scripts/publicar-apk.ps1`.
+- **El archivo:** queda **fuera del repositorio** y se borra al terminar.
+
+## 9. Renovación del certificado en seco (§2, v2; "Qué prueba quién")
+
+```bash
+$C run --rm certbot renew --dry-run    # o el comando que indique el manual del DEV para el servicio certbot
+```
+
+**Esperado:** termina con "Congratulations, all simulated renewals succeeded" (o equivalente, sin errores), y no cambia el certificado en uso.
+
+## 10. La credencial de la descarga no queda en los logs (§5, v2)
+
+Hacer antes una descarga con la credencial desde la PC o el teléfono. La clave se toma del `.env` del VPS y no se muestra.
+
+```bash
+DU=$(grep -E '^DESCARGA_APK_USUARIO=' infra/.env | cut -d= -f2-)
+DC=$(grep -E '^DESCARGA_APK_CLAVE=' infra/.env | cut -d= -f2-)
+B64=$(printf '%s:%s' "$DU" "$DC" | base64 -w0)
+$C logs --no-color proxy 2>&1 | grep -cF -- "$DC"              # → 0
+$C logs --no-color proxy 2>&1 | grep -cF -- "$B64"             # → 0
+$C logs --no-color proxy 2>&1 | grep -ciE 'authorization[:=]'  # → 0
+unset DU DC B64
+```
+
+**Esperado:** `0`, `0` y `0`.
+
+## 11. El `htpasswd` y el APK no están en el repositorio (§5, v2)
+
+| Comando | Esperado |
+|---|---|
+| `git ls-files \| grep -iE '\.(apk\|aab)$\|htpasswd'` | Sin salida |
+| `git check-ignore -v <ruta del APK en el volumen>` (si el volumen está dentro de la carpeta del repositorio) | La regla de `.gitignore` que lo excluye |

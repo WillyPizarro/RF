@@ -17,6 +17,18 @@ Qué busca (M-11):
    recortan; no se vuelcan cargas binarias completas.
 
 Sale con código 1 si encuentra una imagen o un texto de placa (la decisión se reabre, M-11).
+
+**Modo red (DESPLIEGUE-01 M-3, nivel 2 de la verificación de red de ML Kit):**
+
+    python -I pruebas/datos/revisar_datatransport.py --cuerpos <carpeta con los cuerpos>
+
+La carpeta tiene los cuerpos de las subidas que guardó mitmproxy con el complemento
+`pruebas/datos/mitm_guardar_subidas.py` (un archivo `.bin` por solicitud), **fuera del
+repositorio** (`C:\\Willy\\Trabajo\\MININTER\\flutter-capturas\\red\\`). Para cada cuerpo:
+lo descomprime si viene en gzip o zlib (también los flujos gzip incrustados en el protobuf) y le
+pasa la misma búsqueda de imágenes y de texto de placa `ZZ…`. Imprime **solo** el nombre del
+archivo, el tamaño, si estaba comprimido y los hallazgos; nunca el contenido ni identificadores.
+Sale con código 1 si encuentra una imagen o un texto de placa.
 """
 
 from __future__ import annotations
@@ -24,6 +36,7 @@ from __future__ import annotations
 import re
 import sqlite3
 import sys
+import zlib
 from pathlib import Path
 
 NOMBRE = "com.google.android.datatransport.events"
@@ -41,8 +54,59 @@ def buscar(datos: bytes, donde: str, hallazgos: list[str]) -> None:
         hallazgos.append(f"{donde}: texto de placa {m.group().decode('ascii', 'replace')!r}")
 
 
+GZIP = b"\x1f\x8b\x08"
+
+
+def descomprimidos(datos: bytes) -> list[tuple[str, bytes]]:
+    """Las versiones legibles de un cuerpo: el original, el cuerpo entero descomprimido (gzip o
+    zlib) y cada flujo gzip incrustado que se pueda descomprimir."""
+    salida = [("original", datos)]
+    for nombre, wbits in (("gzip", 16 + zlib.MAX_WBITS), ("zlib", zlib.MAX_WBITS)):
+        try:
+            salida.append((nombre, zlib.decompress(datos, wbits)))
+        except zlib.error:
+            pass
+    inicio = datos.find(GZIP, 1)
+    while inicio != -1:
+        try:
+            d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+            salida.append((f"gzip incrustado en {inicio}", d.decompress(datos[inicio:])))
+        except zlib.error:
+            pass
+        inicio = datos.find(GZIP, inicio + 1)
+    return salida
+
+
+def revisar_cuerpos(carpeta: Path) -> int:
+    if not carpeta.is_dir():
+        print(f"No existe la carpeta {carpeta}")
+        return 2
+    archivos = sorted(p for p in carpeta.iterdir() if p.is_file() and p.suffix == ".bin")
+    if not archivos:
+        print(f"No hay cuerpos (.bin) en {carpeta}")
+        return 2
+    hallazgos: list[str] = []
+    for archivo in archivos:
+        datos = archivo.read_bytes()
+        versiones = descomprimidos(datos)
+        formas = [n for n, _ in versiones if n != "original"]
+        print(f"cuerpo {archivo.name}: {len(datos)} bytes; descomprimido: {formas or 'no'}")
+        for nombre, contenido in versiones:
+            buscar(contenido, f"{archivo.name} ({nombre})", hallazgos)
+    print(f"\n== Resultado: {len(archivos)} cuerpos revisados")
+    if hallazgos:
+        print("HALLAZGOS (la decisión de la M-11 se reabre):")
+        for h in sorted(set(hallazgos)):
+            print("  - " + h)
+        return 1
+    print("Ninguna imagen (JPEG/PNG, crudas o en base64) y ningún texto de placa ZZ en las subidas.")
+    return 0
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if len(sys.argv) == 3 and sys.argv[1] == "--cuerpos":
+        return revisar_cuerpos(Path(sys.argv[2]))
     if len(sys.argv) != 2:
         print(__doc__)
         return 2

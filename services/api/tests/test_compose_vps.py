@@ -1,4 +1,4 @@
-"""CONTRATO-DESPLIEGUE-01 v1 §1, §3 y §4 — Configuración del compose del VPS, en local (fase A).
+"""CONTRATO-DESPLIEGUE-01 v2.1 §1, §2, §3, §4 y §5 — Configuración del compose del VPS, en local.
 
 `docker compose -f infra/docker-compose.yml -f infra/docker-compose.vps.yml config` (no levanta
 nada). El `.env` que se usa se arma desde `infra/.env.example` (solo nombres y valores de ejemplo,
@@ -58,9 +58,40 @@ def vps(env_vps) -> dict:
     return _config(env_vps)["services"]
 
 
-def test_solo_api_simuladores_y_proxy(vps):
-    """§1 'Servicios': en el VPS corren api, simuladores y proxy; db y auth quedan fuera."""
-    assert set(vps) == {"api", "simuladores", "proxy"}, sorted(vps)
+SERVICIOS_VPS = {"api", "simuladores", "proxy", "certbot"}  # v2: certbot solo en el VPS
+
+
+def test_solo_api_simuladores_proxy_y_certbot(vps):
+    """§1 'Servicios' (v2): en el VPS corren api, simuladores, proxy (NGINX) y certbot; db y auth
+    quedan fuera."""
+    assert set(vps) == SERVICIOS_VPS, sorted(vps)
+
+
+def test_certbot_no_publica_puertos(vps):
+    """§1 'Puertos' (v2): certbot no publica puertos."""
+    assert _publicados(vps["certbot"]) == set(), vps["certbot"].get("ports")
+
+
+def test_proxy_del_vps_es_nginx_fijado(vps):
+    """§1 'Servicios' y §2 'Caddy desaparece': imagen oficial nginx con versión fijada."""
+    import re
+    imagen = str(vps["proxy"].get("image", ""))
+    m = re.fullmatch(r"(?:docker\.io/)?(?:library/)?nginx:([^@\s]+)(?:@sha256:[0-9a-f]{64})?", imagen)
+    assert m and m.group(1) not in ("latest", "stable", "mainline"), imagen
+    assert not [n for n, x in vps.items() if "caddy" in str(x.get("image", "")).lower()]
+
+
+def test_descarga_del_apk_de_solo_lectura_en_el_proxy(vps, env_vps):
+    """§5 'Ruta exacta' (anotación 1cb361a): el proxy monta DESCARGA_APK_DIR de solo lectura."""
+    from pathlib import Path
+    valores = dict(l.split("=", 1) for l in env_vps.read_text(encoding="utf-8").splitlines() if "=" in l)
+    carpeta = valores.get("DESCARGA_APK_DIR", "")
+    assert carpeta, "infra/.env.example no documenta DESCARGA_APK_DIR"
+    nombre = Path(carpeta).name
+    montajes = [v for v in vps["proxy"].get("volumes") or []
+                if Path(str(v.get("source", ""))).name == nombre]
+    assert montajes, (carpeta, vps["proxy"].get("volumes"))
+    assert all(v.get("read_only") for v in montajes), montajes
 
 
 def test_proxy_publica_80_y_443(vps):
@@ -92,7 +123,7 @@ def test_herramientas_solo_con_su_perfil(env_vps):
     """Decisión 1: la credencial de administración la recibe solo el servicio que se corre a mano
     para migrar y cargar usuarios; no arranca con `up` (tiene perfil)."""
     servicios = _config(env_vps, "herramientas")["services"]
-    otros = {n: s for n, s in servicios.items() if n not in ("api", "simuladores", "proxy")}
+    otros = {n: s for n, s in servicios.items() if n not in SERVICIOS_VPS}
     assert otros, "no hay un servicio aparte para migrar y cargar usuarios"
     for nombre, s in otros.items():
         assert s.get("profiles"), f"{nombre} arrancaría con `up` (sin perfil)"
