@@ -13,7 +13,7 @@
 | `a70e627` | Comentarios de `android/` sin mencionar la app anterior por nombre |
 | `0a1d93e` | Etiquetas de accesibilidad exactas en los campos con texto de ayuda |
 | `0724e88` | M-7 (revisión del UX): obs. 1, círculo de carga de OCR-01 de 76 dp y centrado en el marco; obs. 2, opciones de filtro de BIT-01 a la medida de su texto, varias por fila y 48 dp de alto |
-| `3bcee92` | M-8 (contrato v1.4): `Cache-Control: no-store` en la API, portado tal cual de `0ccd8fb` (solo `services/api/app/traza.py`) |
+| `36d174a` | M-8 (contrato v1.4): `Cache-Control: no-store` en la API, portado tal cual de `0ccd8fb` (solo `services/api/app/traza.py`) |
 
 Sin push ni merge. Ningún commit lleva `Co-Authored-By`.
 
@@ -142,7 +142,7 @@ Para un teléfono conectado: `flutter run --debug --dart-define=API_URL=https://
 
 Salida: `apps/movil/build/app/outputs/flutter-apk/app-debug.apk` y `app-release.apk` (78,5 MB; lleva las tres ABI). `build/` no se versiona.
 
-**APK para la mini sesión (M-6, M-7 y M-8)**, compilados desde `3bcee92` y copiados fuera del repositorio a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (verificado con `sha256sum -c`):
+**APK para la mini sesión (M-6, M-7 y M-8)**, compilados con el árbol de `3bcee92` (el commit del TESTER con la prueba del no-store, encima de mi `36d174a`; el código de la app es el de `0724e88`) y copiados fuera del repositorio a `C:\Willy\Trabajo\MININTER\Movil_Buscador_apk\MIGRACION-FLUTTER\`, con `SHA256SUMS.txt` (verificado con `sha256sum -c`):
 
 | APK | sha256 |
 |---|---|
