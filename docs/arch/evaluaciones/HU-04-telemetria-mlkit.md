@@ -13,6 +13,19 @@
 3. **Contra el diseño:** no contradice la decisión de fondo del ADR-0002 (la foto de la placa nunca sale). **Sí contradice el texto** de tres documentos: el control "Dispositivo" de TECH-DESIGN ("nada en disco salvo el token"), la matriz de tratamiento (falta una fila) y el título de CONTRATO-HU-04 v3 §6 ("Nada se guarda ni sale del dispositivo"). Además, los términos de ML Kit **obligan a informar al usuario**, y eso hoy no está previsto.
 4. **Recomendación ARCH:** opción A para el MVP (mantener ML Kit, documentar e informar) y llevar el tema a producción como brecha. La decisión es del humano (punto abierto al final).
 
+## Actualización 2026-11-24: app en Flutter y dependencia transitiva de Google Play services
+
+Lo encontró el DEV en la migración a Flutter (ADR-0017). El humano lo aceptó (opción A, vía PM) y el LEAD lo recoge en CONTRATO-MIGRACION-FLUTTER v1.2 §7.
+
+| Afirmación | Evidencia |
+|---|---|
+| `google_mlkit_text_recognition` 1.0.3 declara la variante **empaquetada** `com.google.mlkit:text-recognition:16.0.1`, y el modelo **sí viene dentro del APK** | Hallazgo del DEV en el árbol del APK (CONTRATO-MIGRACION-FLUTTER v1.2 §7). El ARCH no lo reprodujo |
+| Según el POM que publica Google, ese artefacto empaquetado depende de `com.google.android.gms:play-services-mlkit-text-recognition:19.0.1` y de `play-services-mlkit-text-recognition-common:19.1.0`. La dependencia es **transitiva** y no se excluye | POM oficial del artefacto, según el DEV. El ARCH no lo reprodujo |
+| `com.google.mlkit:face-detection:16.1.7` (HU-05) tiene la misma forma: variante empaquetada con dependencias transitivas de `play-services-mlkit-*` | Hallazgo del DEV. El ARCH no lo reprodujo |
+| Qué hacen esas dependencias de Google Play services **en la red**: si agregan tráfico, si mandan otro identificador (la página de divulgación dice que las funciones *thin* agregan un identificador del dispositivo) o si quedan sin uso porque el modelo está empaquetado | **NO VERIFICADO.** No se capturó tráfico ni se revisó qué clases se cargan en tiempo de ejecución |
+
+**Qué cambia:** nada en la decisión. Sigue la opción A: el aviso de OCR-01 y la revisión de la cola `datatransport` en el teléfono, que **se mantiene igual en la mini sesión del 4-dic** (CONTRATO-HU-04 v6 §6, fila "Cola de telemetría"). Lo único que cambia es el criterio del contrato: se pide que el modelo esté dentro del APK, no que falte `play-services-mlkit-*`. La tabla de identificadores de la sección 1 ("para funciones empaquetadas, solo identificadores por instalación") pasa a ser **lo que dice Google para la variante empaquetada**: con la dependencia transitiva presente, no hay evidencia de que no se sumen los datos de la variante *thin*. Para producción, esto se agrega a la brecha 10 de TECH-DESIGN (control de red, opción E).
+
 ## 1. Qué envía el transporte a Google
 
 ### Evidencia en el repositorio
