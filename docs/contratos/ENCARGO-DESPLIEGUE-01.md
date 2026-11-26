@@ -170,3 +170,8 @@ Reemplaza en la M-5: la coordinación "directo con el PM" y la (c) obligatoria. 
 2. **La (e) sin la (c).** Se corre igual, entera. e.1 y e.6 confirman que no quedó proxy ni `reverse`. e.2 confirma que en Usuario está **solo** la CA de NGINX. e.4 no aplica.
 3. **Coordinación.** El DEV corre los `adb`, PCAPdroid y mitmproxy y **me avisa a mí** antes de cada paso del humano. Yo se los mando al PM como `ESTADO LEAD`. El DEV espera mi "hecho" para seguir.
 4. **Registro y salida.** Iguales a la M-5. El resultado de la (b), con la (c) o con su `NO HECHO`, va al ARCH. Si no se corrió el nivel 2, el ARCH lo deja escrito en la evaluación como "nivel 2 no necesario".
+5. **Condiciones del ARCH (25-nov)** para que valga "nivel 2 no necesario":
+   - Se corren la b.2 y la b.9 (la cola antes y después) y la b.6 (`jobscheduler run -f`). Al registro van el id del job y su resultado.
+   - Si no hay tráfico y la cola **sigue con eventos**, se anota "no se observó envío en la ventana; N eventos siguen pendientes", no "no envía".
+   - Si la cola **se vació sin tráfico visible**, es una **anomalía**. El DEV me avisa **antes de la (e)** y yo se lo paso al ARCH.
+   - Por cada UID (app y `com.google.android.gms`) van: host o SNI, bytes y hora. También va la confirmación de que las capturas quedaron fuera del repositorio y se borraron en la e.5.
