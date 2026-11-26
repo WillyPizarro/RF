@@ -40,6 +40,14 @@ Las páginas se leyeron el 2026-11-25. Las citas son textuales; lo demás es res
 - **Dependencia transitiva.** Según el DEV (2026-11-24), la variante empaquetada `face-detection:16.1.7` trae por el POM de Google dependencias `play-services-mlkit-*`, igual que Text Recognition. Qué hacen en la red sigue **NO VERIFICADO** (ADR-0017 punto 3). La verificación de red de nivel 1 de la sesión 1 de DESPLIEGUE-01 responde esto para Text Recognition, no para Face Detection.
 - **Versión.** La divulgación vale para la última versión de cada SDK. El contrato fija la versión exacta del plugin (`google_mlkit_face_detection`), y el DEV tiene que confirmar que use la variante **empaquetada** `com.google.mlkit:face-detection` y no la de Google Play services. Con la variante *thin* se agregaría un identificador del dispositivo, y esta evaluación no la cubre.
 
+**Precisión (2026-11-25, pregunta del LEAD):** `dependencyInsight` muestra que `face-detection:16.1.7` (plugin `google_mlkit_face_detection` 1.0.3) depende de `com.google.android.gms:play-services-mlkit-face-detection:17.1.0`. Es el mismo patrón del OCR: `text-recognition:16.0.1` depende de `play-services-mlkit-text-recognition:19.0.1`.
+
+- **La app sigue siendo la variante empaquetada.** La variante la define de dónde sale el detector, y la documentación oficial distingue el modelo empaquetado ("Model is available immediately") del que descarga Google Play services ("Requests you make before the download has completed produce no results"). El DEV lo comprobó así: `face-detection` declarado de forma directa, `libface_detector_v2_jni.so` dentro del APK y ningún `com.google.mlkit.vision.DEPENDENCIES` de face en el manifest.
+- **Qué hace la dependencia transitiva en tiempo de ejecución es NO VERIFICADO**, porque la documentación no la menciona. Hay una señal por analogía: con el mismo patrón, el OCR solo mostró en la red `firebaselogging.googleapis.com`, sin un identificador del dispositivo y sin tráfico de Google Play services ligado al OCR (evaluación de HU-04, resultado del 2026-11-25).
+- **Dos agregados para la sesión del bloque HU-05 + HU-06:**
+  1. Con una instalación limpia y en modo avión, ROS-02 tiene que detectar el rostro en el primer uso. La variante *thin* no daría resultados sin la descarga.
+  2. En el H7, los metadatos de la cola tienen que tener solo el UUID de instalación y ningún identificador del dispositivo.
+
 ## 3. Recomendaciones de minimización para el DEV (las fija el LEAD en el contrato)
 
 El contrato usa solo el número de rostros, el ancho del rostro, los ángulos y la probabilidad de ojos abiertos (§5). Lo que no se usa no se pide:
