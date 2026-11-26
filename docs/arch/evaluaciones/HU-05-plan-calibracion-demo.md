@@ -1,6 +1,6 @@
 # Plan ARCH + TESTER — Calibración de demo de los umbrales faciales (HU-05 P1)
 
-- **Fecha:** 2026-11-25. Coincide con la respuesta conjunta que el TESTER le envió al LEAD el 25-nov.
+- **Fecha:** 2026-11-25. Coincide con la corrección final conjunta que el LEAD le pasó al PM el 25-nov.
 - **Pedido por:** LEAD, a pedido del PM (pregunta 1 de CONTRATO-HU-05). Lo armaron el TESTER y el ARCH en respuestas conjuntas que coordinó el TESTER.
 - **Aprobado por el humano (vía LEAD, 25-nov):** el plan (5 personas, de 10 a 12 fotos en 2 días y 1 foto de galería) y la opción (b) para los recortes. **Pendiente:** la regla del umbral alto (sección 4).
 - **Tipo:** plan, sin código. **No cambia el ADR-0004**: es una calibración **de demo**, provisional y con una muestra chica. La calibración del ADR-0004 §3 (unas 20 personas) y la recalibración de producción (TECH-DESIGN, brecha 6) siguen vigentes.
@@ -19,8 +19,8 @@
 | Separación (ADR-0004 §3) | **Por día:** el día 1 calibra y el día 2 evalúa. Con 5 personas no se puede separar por persona |
 | Galería | De frente, expresión neutra, luz pareja y fondo liso. Conviene tomarla **en otro momento** que el día 1. Si se toma ese día, se anota, porque los genuinos del día 1 contra la galería salen mejores que los del día 2 |
 | Variación | Luz interior, exterior a la sombra y contraluz suave; con y sin lentes; fondos distintos en cada foto de prueba (y distintos del de la galería); giros e inclinaciones **dentro** de lo que acepta la app (≤ 20°), con una foto por día cerca del borde (15° a 20°). El día 2, los giros van al lado contrario |
-| Encuadre (corrige la versión inicial del plan) | La app rechaza un rostro que ocupa menos del 20 % del ancho de la foto (CONTRATO-HU-05 §5, "Acérquese más"). A 1 m o 1,5 m con la cámara en 1x, el rostro queda muy por debajo de eso, según una estimación sin medir. Por eso las distancias pasan a **0,4, 0,5 y 0,6 m**, con el teléfono en **vertical**. Con el piloto, el DEV mide con ML Kit qué porcentaje del ancho ocupa el rostro a cada distancia antes de fijar la tabla. El criterio de fondo es la proporción: el rostro tiene que ocupar el 20 % o más, y hay una foto por día cerca del borde (del 20 al 25 %) |
-| Piloto (2 o 3 fotos por persona) | Sirve para comprobar que el recorte de la opción (b) sale idéntico al de la app y para ver los primeros scores. **No alcanza para calibrar.** **Cuenta para el día 1** solo si se tomó con la configuración final de la cámara (sección 3) y solo en el set de **calibración**, nunca en el de evaluación. Si el piloto obliga a cambiar algo (resolución, distancia o formato), esas fotos se descartan y se repiten. Los primeros scores se miran solo con fotos del día 1, para no mirar el set de evaluación antes de tiempo |
+| Encuadre (corrige la versión inicial del plan) | La app rechaza un rostro que ocupa menos del 20 % del ancho de la foto (CONTRATO-HU-05 §5, "Acérquese más"). A 1 m o 1,5 m con la cámara en 1x, el rostro queda muy por debajo de eso, según una estimación sin medir. Por eso la distancia se fija **por encuadre, no en metros**: con el teléfono en **vertical**, el rostro ocupa entre un cuarto y un tercio del ancho de la foto (a ojo, de 40 a 65 cm), y hay **1 foto por día cerca del 20 %**. Con el piloto, el DEV mide con ML Kit qué porcentaje del ancho ocupa el rostro |
+| Piloto (2 o 3 fotos por persona) | Es un **set aparte**. Sirve **solo** para comprobar que el recorte de la opción (b) sale idéntico al de la app y para ver los primeros scores. **No cuenta para el día 1**, ni en la calibración ni en la evaluación. Después se borra con acta o queda como set piloto |
 
 ## 3. Toma y recortes (opción b)
 
@@ -29,7 +29,7 @@
    - Formato **JPEG**, no HEIF ("Imágenes de alta eficiencia" apagado).
    - Apagados: el optimizador de escenas, el HDR automático, las fotos en movimiento y las **etiquetas de ubicación** (sin GPS en el EXIF; ADR-0008).
    - La copia en la nube de la galería, también apagada.
-3. **Resolución y relación de aspecto:** las confirma el DEV, iguales a las de la app. Si la app captura con menos resolución que la cámara del S23 (por ejemplo, si usa `ResolutionPreset.high`), se toma con la **misma relación de aspecto** que la app y la PC reduce cada foto a la resolución de la app **antes** de reproducir el recorte.
+3. **Resolución y relación de aspecto:** las confirma el DEV, iguales a las de la app. Mientras el DEV no la confirme, se asume **720p si la app usa `ResolutionPreset.high`**. Como la cámara del S23 no saca fotos a esa resolución, se toma con la **misma relación de aspecto** que la app y la PC reduce cada foto a la resolución de la app **antes** de reproducir el recorte.
 4. **En la PC, en este orden:**
    - Se aplica la orientación del EXIF (se rota la imagen), igual que hace la app.
    - Se borra el resto del EXIF.
