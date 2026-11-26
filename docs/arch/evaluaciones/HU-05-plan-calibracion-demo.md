@@ -47,12 +47,12 @@
 | Muchas búsquedas sin la persona correcta en la galería (sección 4, galerías sin A o sin B) o muchas comparaciones contra SFHQ caen **en la banda** | Habría demasiados "No concluyente". Se reporta la proporción y se considera **subir** el umbral bajo |
 | Alguna comparación de una persona contra otra (A contra B, o contra SFHQ) da **0,363 o más** | Sería un candidato falso. Se reporta. El umbral alto no se toca, porque lo fijó el humano: vuelve al humano con el dato |
 
-## 4. Galería de la demo (propuesta ARCH, la cierra el TESTER)
+## 4. Galería de la demo (acordada por el TESTER y el ARCH, 26-nov)
 
 - **20 personas: las 2 reales y 18 de SFHQ.** Es el tamaño que asume el ADR-0004 ("unas 20 personas") y su advertencia de N × FMR.
 - **Aparte**, otras 60 o más caras de SFHQ que **no** entran a la galería se usan solo en la sanidad, como impostores por comparación. Se reportan como "contra sintéticos" y nunca como FMR, porque los sintéticos sesgan a la baja.
 - **Fuera de línea, para la sanidad:** se corre también con una galería **sin B**, para probar a B como persona que no está en la lista, y otra **sin A**. Es el único caso con caras reales de "alguien que no está en la lista da un candidato". La galería de la demo lleva a las dos.
-- **Licencia de SFHQ: NO VERIFICADA.** Hay que confirmarla antes de usarla. El ADR-0008 descartó en su momento los rostros generados por las licencias no comerciales de muchos generadores. Ninguna imagen va al repositorio.
+- **Licencia de SFHQ: NO VERIFICADA todavía.** El humano la anota desde la página de Kaggle **antes** de bajarla, y solo se acepta **CC0, MIT o dominio público** (regla del LEAD). El ADR-0008 descartó en su momento los rostros generados por las licencias no comerciales de muchos generadores. Ninguna imagen va al repositorio.
 
 ## 5. Fotos y toma (se mantiene de la versión del 25-nov)
 
