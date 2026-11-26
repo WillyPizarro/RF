@@ -25,6 +25,18 @@
 3. **Reemplazar el motor = cambiar el servicio `motor`, no la API ni la app.** Un motor comercial (con su SDK en Java o C) o uno propio del MININTER se pone detrás del mismo contrato. RENIEC **no** es un reemplazo directo: es 1:1 contra el DNI y cambia el flujo (PA #7, ADR-0004).
 4. **Lo que se entrega para negociar Java en producción:** los contratos OpenAPI (app ↔ API, API ↔ fuentes, API ↔ motor), el esquema y las migraciones de Postgres, y las pruebas de caja negra del TESTER. Con eso, el MININTER puede reescribir la API en Java 21 y comprobar que hace lo mismo corriendo las mismas pruebas.
 
+5. **Regla de recalibración (agregada el 2026-11-26, decisión del humano vía PM).** Que el motor se pueda reemplazar no quiere decir que se reemplace sin medir: los umbrales valen solo para la configuración con la que se fijaron.
+   - **Obliga a recalibrar los umbrales antes de usarlo** cualquier cambio en una de estas cosas:
+     - El motor biométrico (por ejemplo, uno de RENIEC o uno comercial).
+     - La versión del modelo.
+     - El preprocesamiento: la detección, la alineación o el recorte, sea en el motor o en la app.
+     - La cámara o la resolución de captura de la app.
+     - El tipo de fotos de referencia de la galería (por ejemplo, de rostros sintéticos o fotos del equipo a fotos de DNI, fichas policiales o requisitorias, PA #40).
+   - Mientras no se recalibre, ese cambio no produce resultados en la operación.
+   - **Los umbrales que sugiera un proveedor** se tratan como un punto de partida, igual que el 0,363 de OpenCV (ADR-0004 §3): se verifican con datos de la operación (las capturas, la cámara y las fotos de referencia reales) antes de usarlos.
+   - **Se reutiliza lo que ya existe:** el plan ([plan de umbrales de la demo](../evaluaciones/HU-05-plan-calibracion-demo.md)), los scripts y las pruebas de calibración y de sanidad del TESTER. Se rehacen las fotos y los números, no el método.
+   - **Trazabilidad:** el motor devuelve `version_modelo` y `version_umbral` en cada comparación (`contratos/motor/`), y la API los escribe en la bitácora (`bitacora.version_modelo` y `bitacora.version_umbral`, TECH-DESIGN, Modelo de datos). Así cada resultado dice con qué configuración salió. Un cambio de los que obligan a recalibrar cambia también `version_umbral`.
+
 ## Argumentos para la negociación con el MININTER
 
 1. **Es un prototipo con fecha de cierre.** El MVP valida flujos con datos sintéticos (PA #17) y el paso a producción está fuera de este servicio (PA #10). Reescribir en Java ahora no cambia nada de lo que el MININTER puede validar el 30-dic.
@@ -52,9 +64,14 @@
 - **Costo:** separar el motor suma unos 1,5 días de DEV y medio día del TESTER dentro de HU-05 (contenedor, contrato, manejo de errores y una prueba de que el motor no tiene puerto público). Hacerlo ahora, antes de HU-05, es lo más barato.
 - **Costo:** la captura hace un salto de red interno más (API → motor) y queda unos milisegundos más en memoria en otro proceso. Viaja por la red interna de docker, sin cifrar en el MVP; en producción, mTLS (brecha).
 - **Costo:** el motor carga los modelos y la galería al arrancar. Mientras no esté listo, la API responde error controlado, nunca un resultado.
+- **Costo (regla de recalibración):** cambiar de motor, de cámara o de fotos de referencia no es inmediato. Cada cambio suma una recalibración (fotos con consentimiento, scripts y un informe) antes de usarse. Es lo que evita que un umbral de una configuración se aplique en silencio a otra.
 - **Abierto:** si el MININTER rechaza Python en el MVP (PA #37), este ADR se reemplaza por la alternativa A o B, y hay que recortar alcance.
 
 ## Decisiones del humano (2026-11-24, vía PM)
 
 1. La API y los simuladores siguen en Python. El humano lo negocia con el MININTER con los argumentos de este ADR.
 2. El motor se separa **ahora**, dentro de HU-05 (alternativa C descartada).
+
+## Decisión del humano (2026-11-26, vía PM)
+
+3. Regla de recalibración (punto 5 de la Decisión): todo cambio de motor, de modelo, de preprocesamiento, de cámara o resolución, o del tipo de fotos de referencia obliga a recalibrar antes de usarlo. Los umbrales de un proveedor se verifican con datos de la operación, se reutilizan el plan, los scripts y las pruebas, y cada resultado registra `version_umbral` en la bitácora.
