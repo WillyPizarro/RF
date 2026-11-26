@@ -3,7 +3,7 @@
 **Contrato:** `docs/contratos/CONTRATO-DESPLIEGUE-01.md` **v2.1** (aprobado el 25-nov), con la anotación `1cb361a` (`DESCARGA_APK_DIR`).
 **Encargo:** `docs/contratos/ENCARGO-DESPLIEGUE-01.md`, **M-3** (fase B1, sin VPS), y la sesión 1 del teléfono por la **M-5** y la **M-6** puntos 1 a 7 (`c237fcf`). Contrato v2.2 (`c2ceb02`) para la sesión.
 **Rama:** `despliegue-01`, worktree `C:\Willy\Trabajo\MININTER\Movil_Buscador-despliegue`, rebasada sobre `main` `889a91b`.
-**Estado:** sobre la ENTREGA DEV B1 (`71b5ef0`): **regresión local con NGINX 78 de 78 en verde**, con la regla de la imagen ajustada por la M-4 (se apartó la prueba, vuelta 1). Guion de las dos sesiones completo. **Sesión 1 del teléfono (§5): (a), (b) y (c) VERDES; (e) en curso** (faltan la e.2 y la e.3, del humano); un incidente para el acta (el pcap por correo, M-6 p.7). No se miró el código del DEV (del `Dockerfile` solo se leen las líneas `FROM`, M-4).
+**Estado:** sobre la ENTREGA DEV B1 (`71b5ef0`): **regresión local con NGINX 78 de 78 en verde**, con la regla de la imagen ajustada por la M-4 (se apartó la prueba, vuelta 1). Guion de las dos sesiones completo. **Sesión 1 del teléfono (§5): (a), (b), (c) y (e) VERDES** (la e.2 y la e.3, confirmadas por el humano vía PM); quedan pendientes el borrado del pcap del correo y la papelera de `Downloads\`; un incidente para el acta (el pcap por correo, M-6 p.7). No se miró el código del DEV (del `Dockerfile` solo se leen las líneas `FROM`, M-4).
 
 La fase A (v1, `ef8917d`) dejó `test_despliegue_vps.py`, `test_compose_vps.py` y `pruebas/despliegue/COMANDOS-VPS.md` sin informe propio; quedan descritos aquí con sus cambios de la v2.1.
 
@@ -95,7 +95,7 @@ Sin el sistema también se comprobó: los archivos compilan (`py_compile` con `-
 - **Quién hizo qué:** el DEV corrió los `adb`, PCAPdroid y mitmproxy. El humano operó el teléfono con los pasos que le llegaban por el LEAD (M-6 p.3). El TESTER no corrió `adb`.
 - **Qué va aquí:** solo dominios, categorías, conteos y horas. Ningún identificador: ni de instalación, ni huella del build, ni UID, ni id de job.
 
-**Resultado:** las partes (a), (b) y (c) están **VERDES**, según el LEAD. La (e) está **en curso**: faltan dos pasos del humano. Ningún paso salió `ROJO`.
+**Resultado:** las partes (a), (b) y (c) están **VERDES**, según el LEAD, y la (e) también: el humano confirmó por el PM la e.2 y la e.3. Ningún paso salió `ROJO`. Quedan dos pendientes del acta (§5.5): el borrado del pcap del correo y la papelera de `Downloads\`.
 
 ### 5.1 Parte 0 y (a): de la CA de Caddy a la de NGINX
 
@@ -152,13 +152,13 @@ Sin el sistema también se comprobó: los archivos compilan (`py_compile` con `-
 - **Qué lleva:** telemetría de uso de ML Kit con datos del equipo y un identificador de instalación.
 - **Qué no lleva:** ni la imagen ni el texto de la placa (ninguna placa `ZZ` en dos lecturas, ZZA-101 y ZZB-201).
 
-### 5.4 Parte (e), limpieza, en curso
+### 5.4 Parte (e), limpieza
 
 | Paso | Resultado |
 |---|---|
 | e.1 | OK. Se quitó el proxy en el orden del guion y `http_proxy` volvió a `null`. Sin el proxy, `mitm.it` responde con el sitio real ("traffic is not going through mitmproxy") |
-| e.2 | **Pendiente del humano:** quitar la CA de mitmproxy. La de NGINX se queda |
-| e.3 | **Pendiente del humano:** desinstalar PCAPdroid |
+| e.2 | OK, **confirmado por el humano vía PM**: la CA de mitmproxy se quitó y la de NGINX se queda |
+| e.3 | OK, **confirmado por el humano vía PM**: PCAPdroid desinstalado |
 | e.4 | OK. mitmdump cerrado y el 8090 sin escucha. Se borró el log de consola, que estaba en el scratchpad |
 | e.5 y los pcap | OK. Se borraron: los 2 pcap del teléfono y la carpeta `Download/PCAPdroid` (`find *pcap*` da 0); el pcap de `Movil_Buscador_capturas\DESPLIEGUE-01\`; y `flutter-capturas\red\`, con 30 archivos (colas, pantallas, pcap, cuerpos, salidas de `protoc` y `mitm-conf` con la CA y su llave). No quedaron capturas de pantalla en el teléfono: se tomaron por `adb exec-out`, directo a la PC |
 | e.6 | OK. Se corrió `adb reverse --remove-all` y la lista quedó vacía |
@@ -181,7 +181,7 @@ Sin el sistema también se comprobó: los archivos compilan (`py_compile` con `-
   - **Qué contenía:** ningún dato real. Solo telemetría de red de un teléfono de prueba: conexiones de Servicios de Google Play a `mtalk.google.com`, con el identificador de instalación y datos del equipo.
   - **Pendiente del humano:** borrarlo de Enviados, de la Bandeja de entrada y de la papelera, en el teléfono y en la PC. Lo confirma por el PM.
   - **Regla desde ahora**, también para el bloque HU-05 + HU-06: el pcap sale del teléfono **solo por `adb pull`**, nunca con "compartir" ni por correo.
-- **Falta averiguar quién borró la copia de `Downloads\`:** cuando el DEV fue a borrarla en la (e), ya no estaba. El registro dice que cómo llegó el pcap a la PC lo confirma el PM.
+- **Falta averiguar quién borró la copia de `Downloads\`:** cuando el DEV fue a borrarla en la (e), ya no estaba. El registro dice que cómo llegó el pcap a la PC lo confirma el PM. **Pendiente:** confirmar que tampoco quedó en la papelera de reciclaje.
 
 ### 5.6 Observaciones, sin rojo
 
@@ -199,5 +199,5 @@ Sin el sistema también se comprobó: los archivos compilan (`py_compile` con `-
 | §2 `X-Forwarded-For` y `X-Forwarded-Proto` | No es observable desde afuera; el contrato pide que la API siga respondiendo igual, y eso lo cubre la regresión |
 | Lo del VPS (`test_despliegue_vps.py`, `COMANDOS-VPS.md`) | No hay VPS (fase B2) |
 | Sesión 2 del teléfono, la (d): la descarga del release sin cable | Necesita el VPS (fase B2) |
-| e.2 y e.3 de la sesión 1 (la CA de mitmproxy fuera; PCAPdroid desinstalado) | Pendientes del humano cuando se escribió esto. El almacén de usuario no se lee por `adb` sin root, así que lo confirma el humano por el LEAD |
-| Que el pcap se borró del correo (M-6 p.7) | Lo confirma el humano por el PM |
+| Que el pcap se borró del correo (M-6 p.7) | Pendiente: lo confirma el humano por el PM |
+| La copia del pcap en `Downloads\` (§5.5) | Pendiente: falta confirmar que tampoco quedó en la papelera |
