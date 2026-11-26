@@ -215,7 +215,7 @@ Los valores numéricos vienen de los ADR-0004 y ADR-0011 y son provisionales has
 - [ ] La cadena "identificado" no aparece en el OpenAPI, la app, la bitácora ni los mensajes de error (búsqueda automatizada en el repositorio y prueba de UI).
 - [ ] El score no está en la respuesta para el agente, pero sí en la bitácora, con `version_modelo` y `version_umbral`.
 - [ ] Con un resultado distinto de candidato no queda ninguna fila en `captura_pendiente`; con candidato queda una fila cifrada.
-- [ ] Umbrales: el alto cumple FMR ≤ 0,1 % y el bajo FNMR ≤ 5 % en el set de calibración; la evaluación los reporta con la regla de 3 y por subgrupo.
+- [ ] Umbrales: el alto cumple FMR ≤ 0,1 % y el bajo FNMR ≤ 5 % en el set de calibración; la evaluación los reporta con la regla de 3 y por subgrupo. **Demo (2026-11-25):** con 5 personas, la FMR ≤ 0,1 % no se puede demostrar. Los umbrales de la demo son provisionales y siguen el [plan de calibración de demo](evaluaciones/HU-05-plan-calibracion-demo.md); este criterio queda sin cumplir hasta la calibración completa.
 - [ ] Desempeño: p95 ≤ 5 s con 20 usuarios concurrentes.
 
 ### Revisión humana (HU-06)
