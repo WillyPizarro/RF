@@ -3,7 +3,7 @@
 - **Fecha:** 2026-11-20
 - **Pedido por:** LEAD (encargo del 2026-11-20)
 - **Rama:** `hu-04`
-- **Actualizada:** 2026-11-24 (app en Flutter) y 2026-11-25 (cola del S23 y propuesta de verificación de red).
+- **Actualizada:** 2026-11-24 (app en Flutter) y 2026-11-25 (cola del S23, propuesta de verificación de red y su resultado, niveles 1 y 2).
 - **Tipo:** evaluación corta, sin código. **No cambia ningún ADR**: propone cambios que decide el humano.
 - **Hallazgo de origen:** en la prueba física de HU-04 (dev build, Samsung S23 Ultra, Android 16), el PM encontró en el almacenamiento privado de la app `databases/com.google.android.datatransport.events` (y su `-journal`).
 
@@ -90,6 +90,53 @@ Fuente: la mini sesión física del 25-nov, sección 9 del registro de resultado
 - **Solo `firebaselogging.googleapis.com`, sin imagen ni texto:** se cierra el NO VERIFICADO de la red del proceso de la app, se confirma la opción A y la brecha 10 queda con una lista concreta de dominios.
 - **Otros dominios de Google** (por ejemplo, desde Google Play services al usar el OCR): se anotan en la brecha 10 y se le pregunta al humano si se excluye `play-services-mlkit-*`, con una prueba de que el OCR empaquetado sigue funcionando sin esa dependencia.
 - **Una imagen o un texto `ZZ…` en lo que sale:** se reabre la decisión, igual que con la cola.
+
+## Resultado 2026-11-25: verificación de red (niveles 1 y 2, sesión 1 de DESPLIEGUE-01)
+
+**Fuente:** los resultados que el LEAD pasó al ARCH por herdr el 25-nov. La sesión la corrieron el DEV y el humano, con el S23 y el APK de depuración, siguiendo la M-6 del encargo de DESPLIEGUE-01 (`c5fff2a`, punto 5 con las condiciones del ARCH). Las capturas de PCAPdroid, los pcap y los cuerpos descifrados quedaron **fuera del repositorio**. Aquí van solo categorías, dominios, horas, bytes y conteos: ni el UUID de la instalación ni la huella del build. El nivel 3 (bloqueo por DNS) no se corrió, porque no estaba aprobado.
+
+### Nivel 1: a quién se conecta
+
+| Corrida | Qué se vio | Evidencia |
+|---|---|---|
+| **1. Filtro por la app** | **2 conexiones**, las dos cerradas: (a) DNS (UDP 53) de `firebaselogging.googleapis.com`, 76 B enviados y 204 B recibidos, a las 20:11:34.160; (b) TCP 443 con SNI `firebaselogging.googleapis.com` hacia una IP de Google, 2,7 KB enviados y 5,4 KB recibidos, de 20:11:34.199 a 20:12:36. **Ningún otro dominio.** Durante el OCR (20:09 a 20:10) **no hubo ninguna conexión**: la única salió con el job forzado (b.6, 20:11:34). Cola: 5 eventos antes y 0 después (20:22:14) | Lista y detalle de PCAPdroid, sin pcap porque el volcado estaba en "Ninguno"; 3 capturas de pantalla por `adb` fuera del repositorio. El ARCH dio por suficiente la lista con la cola antes y después |
+| **2. Filtro por Google Play services** (`com.google.android.gms`) | Solo `mtalk.google.com` (FCM, TCP 5228), con su DNS y 5 conexiones. Una cae **dentro** de la ventana del OCR y del job (20:34:44 a 20:36:22, 2347 B enviados y 4688 B recibidos): ya estaba abierta antes y es la reconexión periódica de FCM, cada 1 a 1,5 minutos. Las otras 4 caen fuera. **Ningún `firebaselogging` ni ningún otro host desde gms.** En un pcap anterior (20:31:19), con el filtro sin confirmar y **fuera** de la ventana, aparecieron `spot-pa.googleapis.com` (QUIC 443, 6662/5691 B) y `mtalk`. Cola de la app: OCR poco antes de las 20:35:45, 5 eventos a las 20:35:56, job **forzado** a las 20:35:56-57 y 0 eventos a las 20:45:58 | Pcap leído solo por SNI y DNS, sin el contenido; capturas por `adb` |
+
+**Lectura del ARCH:** la conexión de `mtalk` es el canal permanente de notificaciones de Google Play services y coincide con la ventana solo por tiempo. **No se atribuye a ML Kit.** `spot-pa.googleapis.com` queda como **no atribuible** (fuera de la ventana y con el filtro sin confirmar). En esta sesión, **no se observó tráfico de Google Play services ligado al OCR**.
+
+### Nivel 2: qué envía
+
+| Qué | Resultado |
+|---|---|
+| Disparo | OCR de `ZZB-201` a las 20:52. **Ningún POST antes del job forzado.** Cola con 5 eventos a las 20:53:37, `run -f` a las 20:53:37.966, **2 POST** `/v0cc/log/batch` a `firebaselogging.googleapis.com` a las 20:53:38, los dos con 200, y cola en 0 a las 20:54:46 |
+| Formato | `Content-Type: application/json`, `Content-Encoding: gzip`; 819 B y 1827 B descomprimidos. El cuerpo **no** es protobuf: es JSON con `logRequest[]` |
+| `clientInfo` (en cada pedido) | Versión del SDK, modelo, hardware, dispositivo, producto, build del sistema, fabricante, **huella del build**, idioma, país, **MCC/MNC** (código del país y del operador de la red móvil) y build de la app |
+| Por evento (`logEvent[]`, con `logSourceName` y `qosTier`) | Hora, tiempo desde el arranque (*uptime*), zona horaria, tipo de red y un `sourceExtension`: un protobuf en base64, uno por evento (5 en total) |
+| `sourceExtension` decodificado (`protoc --decode_raw`) | El paquete de la app, la versión del SDK de ML Kit, idioma y región, **un UUID** (el identificador de instalación) y el resto, **solo enteros**: códigos de evento y métricas |
+| Búsqueda de placa e imagen | `ZZB-201`, `ZZB201`, `ZZA-101`, `ZZA101` y `ZZ`: **0** en el JSON y en el base64 decodificado. Firmas de imagen: **0**. `revisar_datatransport.py`: código 0 |
+| Cuidados | No se guardó ningún cuerpo de otras apps. La CA de mitmproxy se usó solo con el APK de depuración |
+
+### Qué cierra y qué no
+
+**Se cierra (con evidencia en el S23, APK de depuración, una sesión):**
+
+1. **La app se conecta a un solo destino de Google: `firebaselogging.googleapis.com`** (HTTPS, 443), y **solo** cuando se sube la cola. Durante el OCR no hay red. Es la lista de dominios de la brecha 10 para el proceso de la app.
+2. **Lo que sale no tiene la imagen ni la placa leída.** Es lo que Google declara ("does not send that data and the resultant outputs"), ahora comprobado en lo que viaja por la red, no solo en la cola.
+3. **Lo que sale coincide con las categorías de la divulgación de Google** (sección 1): dispositivo, app, versiones, un identificador por instalación, tipo de evento y métricas. No apareció un identificador del dispositivo como el que la divulgación atribuye a las funciones *thin*.
+4. **La red de Google Play services no mostró tráfico ligado al OCR** en esta sesión.
+
+**Va más allá de los ejemplos de Google, y hay que decirlo:** la divulgación lista "Device information (such as manufacturer, model, OS version and build)". El "such as" no cierra la lista, y lo que se vio la amplía con **país, idioma, zona horaria, tipo de red, MCC/MNC (operador móvil) y huella del build**. No son datos del usuario, pero sí del **teléfono y de la red**, y van junto al identificador de instalación. Para el aviso, entran en "datos técnicos del teléfono y de uso", el texto que el humano aprobó para HU-05 (evaluación de Face Detection, punto 4). El aviso de OCR-01 de HU-04 tendría que decir lo mismo, y eso lo decide el LEAD con el UX. Para Legal (brecha 10): con la hora, el identificador de instalación, el operador y el país, cada envío se puede vincular a un teléfono concreto, aunque no a una persona. Es un argumento más para la pregunta sobre el flujo transfronterizo (PA #31).
+
+**Sigue NO VERIFICADO:**
+
+- **La subida automática.** En las dos corridas con la app y en el nivel 2, los eventos salieron **solo** con el job forzado. No se vio cuándo sube el transporte por su cuenta.
+- **El significado de los enteros** del `sourceExtension` (códigos de evento y métricas). Son enteros y no contienen texto, pero no se mapearon campo por campo.
+- **El APK de release.** El nivel 2 solo se puede hacer con el de depuración. El SDK es el mismo, así que se espera el mismo contenido, pero no se comprobó.
+- **El tráfico de Google Play services fuera de esta sesión**, y si `play-services-mlkit-*` descarga algo en otras condiciones (otro día, después de una actualización de gms o con otro teléfono).
+- **Qué hace el SDK cuando el dominio está bloqueado** (nivel 3, no corrido). Sin ninguna red, el OCR funciona (sección 10 del S23), y como la subida va por un job aparte de la lectura, lo más probable es que el bloqueo no afecte al OCR. Qué pasa con la cola acumulada no se sabe.
+- **Face Detection (HU-05).** Esta sesión cubre solo Text Recognition. Sigue la verificación reducida de la [evaluación de Face Detection](HU-05-telemetria-face-detection.md), que se puede comparar con este resultado: mismo destino, JSON con `clientInfo` y `sourceExtension` de tamaño parecido.
+
+**Qué cambia:** **nada en la decisión.** Sigue la opción A, ahora respaldada por evidencia de red y no solo por la palabra de Google. Se actualizan el punto 3 del ADR-0017 y la brecha 10 de TECH-DESIGN.
 
 ## 1. Qué envía el transporte a Google
 
