@@ -23,3 +23,11 @@
 - **Producción (brecha, humano 2026-11-20):** la telemetría de los SDK de terceros (ML Kit) se controla bloqueando sus dominios con MDM o el firewall de la entidad, o cambiando de OCR. El área legal define la base legal, el flujo transfronterizo y la información al usuario. Fuente: `docs/arch/evaluaciones/HU-04-telemetria-mlkit.md`.
 - **HU-05 (humano 2026-11-20):** el contrato de HU-05 lleva **su propio aviso** de telemetría de ML Kit Face Detection, igual que HU-04 v5 §3.
 - **Producción (humano 2026-11-20):** decidir si se deja constancia en la bitácora de que el usuario vio el aviso de telemetría ("Entendido"). En el MVP no se guarda. Va junto con la validación legal.
+- **BLOQUEO DESPLIEGUE-01 (humano 2026-11-19):** VPS, dominio y Supabase. Los contrata el humano **a más tardar el 2-dic**. La ventana de despliegue es del 3 al 7-dic, y la lista de probadores se define antes del 8-dic.
+- **Acta de eliminación al cierre (CONTRATO-DESPLIEGUE-01 v2 §8, ADR-0008):**
+  - borrar el VPS, con discos y snapshots;
+  - borrar el proyecto de Supabase, con sus respaldos;
+  - quitar la ruta `/descargas/movil-buscador.apk`, el APK del volumen y la credencial de descarga (ADR-0018 punto 5, CONTRATO-DESPLIEGUE-01 v2);
+  - borrar el registro DNS del subdominio y decidir qué se hace con el dominio;
+  - revocar la llave SSH dedicada;
+  - pedir a los probadores que desinstalen la app.

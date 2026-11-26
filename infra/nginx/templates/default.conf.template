@@ -1,0 +1,96 @@
+# Movil Buscador — proxy NGINX (DESPLIEGUE-01 v2 §1, §2 y §5; ADR-0018).
+# Plantilla: el entrypoint oficial reemplaza solo DOMINIO y MOVIL_PUERTO_HTTPS_SUFIJO.
+# Expone solo /v1/* (hacia api:8000) y /descargas/movil-buscador.apk; el resto da 404.
+
+server_tokens off;
+
+# Registro de acceso SIN cuerpo, SIN la cabecera Authorization, SIN el usuario de la autenticacion
+# basica y SIN la cadena de consulta (ADR-0018 §3 y §4, CONTRATO-HU-01 §5).
+log_format movil '$remote_addr [$time_local] "$request_method $uri $server_protocol" '
+                 '$status $body_bytes_sent "$http_user_agent" $request_time';
+
+# Log de errores en nivel info: asi queda el rechazo del certificado por parte del cliente (por
+# ejemplo, el APK de release contra la CA local: "SSL_do_handshake() failed ... alert unknown ca"),
+# que la verificacion del telefono necesita ver (11.10 del guion). No registra cuerpos ni cabeceras.
+error_log /var/log/nginx/error.log info;
+
+# Resolver de Docker: si el contenedor api se recrea (otra IP), NGINX la vuelve a resolver.
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+# Puerto 80: solo el desafio de certbot (webroot) y la redireccion a HTTPS (ADR-0018 §3).
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+    access_log /var/log/nginx/access.log movil;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type text/plain;
+    }
+
+    location / {
+        return 301 https://$host${MOVIL_PUERTO_HTTPS_SUFIJO}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name _;
+    access_log /var/log/nginx/access.log movil;
+
+    # Certificado activo: la CA local (compose de desarrollo) o Let's Encrypt (VPS).
+    # Lo elige movil-certificado-activo.sh. Dominio: ${DOMINIO}
+    ssl_certificate     /etc/nginx/certs/activo/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/activo/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:MOVIL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # Cuerpo maximo provisional hasta HU-05 (ADR-0011): un cuerpo mayor recibe 413 del proxy.
+    client_max_body_size 5m;
+
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    # "/v1" sin barra: 404, como cualquier ruta fuera de /v1/* (sin esto NGINX redirige a /v1/).
+    location = /v1 {
+        return 404;
+    }
+
+    location /v1/ {
+        set $api_upstream http://api:8000;
+        proxy_pass $api_upstream;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+    }
+
+    # APK para probadores (DESPLIEGUE-01 v2 §5, ADR-0018 §5): un solo archivo, desde una carpeta
+    # de solo lectura, con un usuario y una clave para todos (htpasswd generado al arrancar).
+    location = /descargas/movil-buscador.apk {
+        auth_basic "Movil Buscador";
+        auth_basic_user_file /etc/nginx/htpasswd-descarga;
+        alias /srv/descargas/movil-buscador.apk;
+        autoindex off;
+        default_type application/vnd.android.package-archive;
+        # add_header en un location anula los del server: se repiten.
+        add_header Strict-Transport-Security "max-age=31536000" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Cache-Control "no-store" always;
+        add_header Content-Disposition 'attachment; filename="movil-buscador.apk"' always;
+    }
+
+    # Todo lo demas (incluido /descargas/ y cualquier otro archivo de esa carpeta): 404.
+    location / {
+        return 404;
+    }
+}

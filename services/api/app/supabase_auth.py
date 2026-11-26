@@ -6,6 +6,7 @@ Los usuarios sinteticos se identifican en Supabase por un correo derivado del no
 """
 
 import logging
+import os
 import re
 import time
 
@@ -74,9 +75,14 @@ async def clave_valida(usuario: str, clave: str) -> bool:
 
 
 def _token_servicio() -> str:
+    """Token service_role firmado con AUTH_JWT_SECRETO: solo para el Auth local (GoTrue del compose)
+    o un proyecto de Supabase con el JWT secret heredado."""
     config = obtener_config()
     if len(config.auth_jwt_secreto) < 32:
-        raise RuntimeError("AUTH_JWT_SECRETO falta o tiene menos de 32 caracteres")
+        raise RuntimeError(
+            "Falta la credencial de administración de Auth: defina AUTH_ADMIN_CLAVE "
+            "(o AUTH_JWT_SECRETO con 32 caracteres o más, para el Auth local)"
+        )
     ahora = int(time.time())
     return jwt.encode(
         {"role": "service_role", "iss": "supabase", "iat": ahora, "exp": ahora + 300},
@@ -85,11 +91,25 @@ def _token_servicio() -> str:
     )
 
 
+def _cabeceras_admin() -> dict[str, str]:
+    """Cabeceras de la API de administración de Auth (DESPLIEGUE-01, decisión 1).
+
+    - AUTH_ADMIN_CLAVE: la "secret key" (`sb_secret_...`) o la clave `service_role` del proyecto de
+      Supabase. Va en `apikey` y en `Authorization`. Se lee del entorno solo aquí, al correr
+      app.cargar_usuarios: la API en marcha nunca la recibe.
+    - Si falta, se firma un token service_role con AUTH_JWT_SECRETO (Auth local del compose).
+    """
+    clave_admin = os.environ.get("AUTH_ADMIN_CLAVE", "").strip()
+    if clave_admin:
+        return {"apikey": clave_admin, "Authorization": f"Bearer {clave_admin}"}
+    return _cabeceras(_token_servicio())
+
+
 def asegurar_usuario_auth(usuario: str, clave: str) -> str:
     """Crea o actualiza el usuario en Supabase Auth y devuelve su id."""
     config = obtener_config()
     correo = correo_de(usuario)
-    with httpx.Client(timeout=config.timeout_auth_s, headers=_cabeceras(_token_servicio())) as cliente:
+    with httpx.Client(timeout=config.timeout_auth_s, headers=_cabeceras_admin()) as cliente:
         existentes = cliente.get(f"{config.auth_url}/admin/users", params={"page": 1, "per_page": 1000})
         existentes.raise_for_status()
         for fila in existentes.json().get("users", []):

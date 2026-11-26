@@ -1,0 +1,39 @@
+#!/bin/sh
+# Arranque del proxy de Movil Buscador (DESPLIEGUE-01 v2, ADR-0018). Lo ejecuta el entrypoint
+# oficial de NGINX (se "sourcea") ANTES de pasar la plantilla por envsubst.
+#   1. Sufijo del puerto HTTPS para la redireccion (":8443" en local; nada con 443 en el VPS).
+#   2. Certificado activo (CA local o Let's Encrypt), con movil-certificado-activo.sh.
+#   3. htpasswd de la descarga del APK desde DESCARGA_APK_USUARIO y DESCARGA_APK_CLAVE; la clave
+#      no queda en el entorno de NGINX. Sin las dos variables, la ruta responde siempre 401.
+#   4. En el VPS, una recarga periodica para tomar el certificado renovado por certbot.
+
+if [ -n "${PROXY_PUERTO_HTTPS:-}" ] && [ "${PROXY_PUERTO_HTTPS}" != "443" ]; then
+    MOVIL_PUERTO_HTTPS_SUFIJO=":${PROXY_PUERTO_HTTPS}"
+else
+    MOVIL_PUERTO_HTTPS_SUFIJO=""
+fi
+export MOVIL_PUERTO_HTTPS_SUFIJO
+export DOMINIO="${DOMINIO:-localhost}"
+
+/usr/local/bin/movil-certificado-activo.sh || exit 1
+
+HTPASSWD=/etc/nginx/htpasswd-descarga
+(
+    umask 027
+    if [ -n "${DESCARGA_APK_USUARIO:-}" ] && [ -n "${DESCARGA_APK_CLAVE:-}" ]; then
+        printf '%s:%s\n' "$DESCARGA_APK_USUARIO" \
+            "$(printf '%s' "$DESCARGA_APK_CLAVE" | openssl passwd -apr1 -stdin)" > "$HTPASSWD"
+        echo "movil: htpasswd de la descarga generado (un usuario)"
+    else
+        # Clave al azar que nadie conoce: la ruta queda cerrada (401) hasta configurar las variables.
+        printf 'sin-configurar:%s\n' "$(openssl rand -hex 32 | openssl passwd -apr1 -stdin)" > "$HTPASSWD"
+        echo "movil: AVISO: faltan DESCARGA_APK_USUARIO o DESCARGA_APK_CLAVE; la descarga responde 401"
+    fi
+)
+chown root:nginx "$HTPASSWD" && chmod 0640 "$HTPASSWD"
+unset DESCARGA_APK_CLAVE
+
+if [ "${CERT_MODO:-local}" = "letsencrypt" ]; then
+    # Cada 6 h: si certbot emitio o renovo el certificado, lo enlaza y recarga NGINX.
+    ( while sleep 21600; do /usr/local/bin/movil-certificado-activo.sh >/dev/null; nginx -s reload >/dev/null 2>&1; done ) &
+fi

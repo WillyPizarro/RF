@@ -1,0 +1,91 @@
+# Movil Buscador en el VPS (DESPLIEGUE-01, ADR-0009). Se usa SIEMPRE junto con el compose base:
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.vps.yml --env-file infra/.env up -d --build
+# NUNCA con docker-compose.fotos.yml: en el VPS no hay fotos (ADR-0008).
+#
+# - db, auth-preparar y auth quedan fuera (perfil "solo-local"): la base y Auth los da Supabase.
+# - api, simuladores y proxy (NGINX) corren igual que en local. El proxy publica 80 y 443 (sin
+#   PROXY_PUERTO_* en el .env del VPS) y usa el certificado de Let's Encrypt que emite y renueva
+#   certbot (modo webroot por el puerto 80; DESPLIEGUE-01 v2 §2, ADR-0018 §2).
+# - La API en marcha no recibe ninguna credencial de administracion: ni la de Auth, ni la del rol
+#   dueño de la base, ni la clave de los usuarios (DESPLIEGUE-01 §3, decision 1). Esas solo las
+#   recibe el servicio "herramientas", que se corre a mano para migrar y cargar usuarios.
+
+services:
+  db:
+    profiles: ["solo-local"]
+  auth-preparar:
+    profiles: ["solo-local"]
+  auth:
+    profiles: ["solo-local"]
+
+  api:
+    environment:
+      # Fuera de la API en marcha (las usa solo "herramientas"):
+      AUTH_JWT_SECRETO: !reset null
+      MIGRACION_DATABASE_URL: !reset null
+      API_APP_CLAVE: !reset null
+      CLAVE_USUARIOS_PRUEBA: !reset null
+    # Sin db ni auth locales. Al arrancar, app.migrar solo comprueba la version con api_app: las
+    # migraciones pendientes se aplican antes con "herramientas" (scripts/desplegar.ps1).
+    depends_on: !override
+      simuladores:
+        condition: service_healthy
+    # Los tests no se montan en el VPS.
+    volumes: !reset []
+
+  simuladores:
+    # Sin los tests montados. Los contratos de las fuentes y el volumen cifrado quedan igual.
+    volumes: !override
+      - ../contratos/fuentes:/app/contratos/fuentes:ro
+      - fotos-galeria:/datos/fotos
+
+  # Migraciones y carga de usuarios. No arranca con "up": se corre con
+  #   docker compose ... --profile herramientas run --rm herramientas python -m app.migrar
+  #   docker compose ... --profile herramientas run --rm herramientas python -m app.cargar_usuarios
+  herramientas:
+    profiles: ["herramientas"]
+    build: ../services/api
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?falta DATABASE_URL}
+      # Rol dueño de las tablas en Supabase (Session pooler). Solo para migrar y cargar usuarios.
+      MIGRACION_DATABASE_URL: ${MIGRACION_DATABASE_URL:-}
+      API_APP_CLAVE: ${API_APP_CLAVE:-}
+      AUTH_URL: ${AUTH_URL:-}
+      AUTH_APIKEY: ${AUTH_APIKEY:-}
+      # "Secret key" (sb_secret_...) o clave service_role del proyecto de Supabase. Mejor no
+      # guardarla en el .env: se exporta en la sesion SSH solo para la carga (MANUAL-DESPLIEGUE).
+      AUTH_ADMIN_CLAVE: ${AUTH_ADMIN_CLAVE:-}
+      CLAVE_USUARIOS_PRUEBA: ${CLAVE_USUARIOS_PRUEBA:-}
+      JWT_SECRETO: ${JWT_SECRETO:?falta JWT_SECRETO}
+    command: ["python", "-c", "print('Use: run --rm herramientas python -m app.migrar | app.cargar_usuarios')"]
+    networks: [interna]
+    restart: "no"
+
+  proxy:
+    environment:
+      CERT_MODO: letsencrypt
+    volumes:
+      # Certificados de Let's Encrypt (solo lectura) y la carpeta del desafio de certbot.
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+
+  # Renueva el certificado cada 12 h (certbot renew no hace nada si faltan mas de 30 dias). La
+  # primera emision la hace scripts/desplegar.ps1 (certbot certonly --webroot). No publica puertos;
+  # el proxy toma el certificado renovado con su recarga periodica.
+  certbot:
+    image: certbot/certbot:v5.10.0
+    entrypoint: ["/bin/sh", "-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    networks: [salida]
+    restart: unless-stopped
+
+networks:
+  # Solo para que certbot hable con Let's Encrypt.
+  salida:
+
+volumes:
+  letsencrypt:
+  certbot-webroot:
+

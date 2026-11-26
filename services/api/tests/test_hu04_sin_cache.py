@@ -72,7 +72,7 @@ def test_no_store_por_la_red_interna(config_defecto, clave, nombre, quien, metod
 def _por_proxy(url_base: str, metodo: str, ruta: str, cuerpo=None, token: str | None = None):
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE  # CA local de Caddy (entorno de pruebas)
+    ctx.verify_mode = ssl.CERT_NONE  # CA local del proxy, NGINX (entorno de pruebas)
     datos = json.dumps(cuerpo).encode("utf-8") if cuerpo is not None else None
     cab = {"Content-Type": "application/json"} if datos is not None else {}
     if token:

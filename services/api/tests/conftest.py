@@ -116,6 +116,9 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         reason="Requiere el sistema arrancado y la CLI de docker: correr con --integracion"
     )
     for item in items:
+        # test_despliegue_vps.py tiene su propia condición (URL_VPS) y no usa el sistema local.
+        if Path(str(item.fspath)).name == "test_despliegue_vps.py":
+            continue
         if Path(str(item.fspath)).resolve().is_relative_to(Path(__file__).parent):
             item.add_marker(omitir)
 
@@ -143,7 +146,7 @@ class Respuesta:
 
 
 class ClienteHttp:
-    """Cliente mínimo sobre urllib. El TLS local de Caddy usa una CA propia: no se verifica."""
+    """Cliente mínimo sobre urllib. El TLS local del proxy (NGINX) usa una CA propia: no se verifica."""
 
     def __init__(self, url_base: str) -> None:
         self.url_base = url_base.rstrip("/")
