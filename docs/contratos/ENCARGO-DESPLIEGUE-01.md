@@ -158,3 +158,15 @@ Reemplaza: nada. Es la sesión 1 de la M-3. Contrato **v2.2**. Guion: `pruebas/d
 
    La CA de NGINX **se queda** en el teléfono para el desarrollo.
 6. **Al terminar:** `ESTADO DEV` con el resumen y el registro. Después se lo paso al TESTER para su informe, y el resultado de (b) y (c) al ARCH.
+
+### M-6 (2026-11-25) — Sesión 1: el nivel 2 pasa a ser condicional y los pasos del humano van por el LEAD (DEV; TESTER y ARCH, aviso)
+
+Reemplaza en la M-5: la coordinación "directo con el PM" y la (c) obligatoria. Lo decidió el humano (vía PM, 25-nov). El guion `67a39e2` no se cambia: esta M-6 se aplica encima.
+
+1. **Nivel 2 condicional.** Al terminar la (b), y antes de la c.1, el DEV mira las conexiones de la **corrida 1**, la de la app (b.4 a b.8, filtro `pe.prototipo.movilbuscador`):
+   - **Se corre la (c)** si la app tiene al menos una conexión a `firebaselogging.googleapis.com` u **otro host de Google**. Cuentan `*.googleapis.com`, `*.google.com`, `*.gstatic.com`, `*.googleusercontent.com`, `*.firebaseio.com`, `*.app-measurement.com` y `*.doubleclick.net`. Ante la duda, cuenta como de Google.
+   - **No se corre la (c)** si la corrida 1 solo muestra la API local. Va al registro: `NO HECHO: nivel 2 no corrido; nivel 1 sin tráfico de la app a Google (M-6)`. Se pasa a la (e).
+   - Las conexiones de `com.google.android.gms` (corrida 2, b.10) **no** deciden: mitmproxy no puede leerlas. Se anotan igual.
+2. **La (e) sin la (c).** Se corre igual, entera. e.1 y e.6 confirman que no quedó proxy ni `reverse`. e.2 confirma que en Usuario está **solo** la CA de NGINX. e.4 no aplica.
+3. **Coordinación.** El DEV corre los `adb`, PCAPdroid y mitmproxy y **me avisa a mí** antes de cada paso del humano. Yo se los mando al PM como `ESTADO LEAD`. El DEV espera mi "hecho" para seguir.
+4. **Registro y salida.** Iguales a la M-5. El resultado de la (b), con la (c) o con su `NO HECHO`, va al ARCH. Si no se corrió el nivel 2, el ARCH lo deja escrito en la evaluación como "nivel 2 no necesario".
