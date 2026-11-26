@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\fuentes\\seq-verificacion-facial.json",
+    "sha256": "7187e119709d2f8635a29f19a7d9aafd45de0f3a4b6933fadf2aa464de50e9aa",
+    "bytes": 6364
+  },
+  "artifact": {
+    "path": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\seq-verificacion-facial.html",
+    "sha256": "c76cb02c183894075ef53b8a4e28ab62ac55ec7142f6310656440154b3139bcd",
+    "bytes": 849821
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\evidencia-2026-11-25\\seq-verificacion-facial.finalize.json",
+    "summaryReceipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\evidencia-2026-11-25\\seq-verificacion-facial.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\evidencia-2026-11-25\\seq-verificacion-facial.browser-check.json"
+  },
+  "update": {
+    "status": "update_available",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.3.1",
+    "releaseNotes": "https://github.com/tt-a1i/archify/releases/tag/v3.3.1",
+    "severity": "normal",
+    "summary": "Polishes automatic Architecture layout, spine labels, crossing reduction, and Classic styling, and deduplicates cited Explainer files.",
+    "checkedAt": "2026-11-26T03:16:55.611Z",
+    "source": "network",
+    "noticeRequired": true,
+    "noticeText": "Archify update: 3.2.0 → 3.3.1. A newer release is available. Release notes: https://github.com/tt-a1i/archify/releases/tag/v3.3.1. Would you like me to update Archify?",
+    "eventKey": "archify@sha256:b92b4d55446966fd74e5338a45d6de9a7a1b194420cd5eb14d2cdc39f1053b80"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2833,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}
