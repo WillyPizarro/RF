@@ -175,3 +175,8 @@ Reemplaza en la M-5: la coordinación "directo con el PM" y la (c) obligatoria. 
    - Si no hay tráfico y la cola **sigue con eventos**, se anota "no se observó envío en la ventana; N eventos siguen pendientes", no "no envía".
    - Si la cola **se vació sin tráfico visible**, es una **anomalía**. El DEV me avisa **antes de la (e)** y yo se lo paso al ARCH.
    - Por cada UID (app y `com.google.android.gms`) van: host o SNI, bytes y hora. También va la confirmación de que las capturas quedaron fuera del repositorio y se borraron en la e.5.
+6. **Nivel 2: lo que pide el ARCH (25-nov)**:
+   - La cola queda vacía después de la corrida 1. Antes de la c.5 se leen placas ZZ nuevas para generar eventos. La cola se cuenta antes de forzar la subida, y el id del job se saca otra vez con `dumpsys jobscheduler`, porque puede cambiar.
+   - El APK tiene que ser el de depuración. La CA de mitmproxy se quita en la e.2.
+   - Si el POST viene en gzip, se descomprime antes de `protoc --decode_raw` y de `revisar_datatransport.py --cuerpos`.
+   - Al registro van: `Content-Type`, `Content-Encoding`, el tamaño, los campos del `decode_raw` solo por categoría (sin el identificador de instalación ni la huella del build) y el resultado de la búsqueda de imágenes y de `ZZ` sobre el cuerpo descomprimido.
