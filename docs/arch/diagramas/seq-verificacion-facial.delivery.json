@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "0ec0b4e7-26b2-4363-bb39-9c2dbeae5ab3",
+  "receiptId": "383c8891-08e4-4dbb-843d-0e986cdbf8c4",
   "status": "current",
   "command": "deliver",
   "type": "sequence",
-  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-entregables\\docs\\arch\\diagramas\\fuentes\\seq-verificacion-facial.json",
-  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-entregables\\docs\\arch\\diagramas\\seq-verificacion-facial.html",
+  "input": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\fuentes\\seq-verificacion-facial.json",
+  "output": "C:\\Willy\\Trabajo\\MININTER\\Movil_Buscador-captura\\docs\\arch\\diagramas\\seq-verificacion-facial.html",
   "specification": {
-    "sha256": "1897925be62a2210811f9ec7cfd196ba01566b3b1c572cf73145b7252ed33bb9",
-    "bytes": 5941
+    "sha256": "7187e119709d2f8635a29f19a7d9aafd45de0f3a4b6933fadf2aa464de50e9aa",
+    "bytes": 6364
   },
   "artifact": {
-    "sha256": "f8a7eade3453f1d7640bcecb71642491655a79b7a72410613c24adfa88206742",
-    "bytes": 848586
+    "sha256": "c76cb02c183894075ef53b8a4e28ab62ac55ec7142f6310656440154b3139bcd",
+    "bytes": 849821
   }
 }

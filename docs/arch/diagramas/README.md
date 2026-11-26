@@ -8,6 +8,8 @@
 
 Última regeneración: 2026-11-24, con el stack aceptado (ADR-0017 a 0019: Flutter, NGINX y el servicio `motor`).
 
+**2026-11-25:** se regeneró `seq-verificacion-facial` con el evento `CAPTURA_VISTA` (CONTRATO-HU-06 v1.1). Pasó un `finalize` completo con los cuatro gates (`validate`, `deliver`, `check` y `browser-check`), esta vez desde la sesión del agente. Los recibos están en `evidencia-2026-11-25/`.
+
 ## Verificación en el navegador
 
 **Hecha el 2026-11-24 (20:36 y 20:37):** los cinco HTML pasaron `browser-check` con `"ok": true`, y `seq-verificacion-facial` pasó además un `finalize` completo (los cuatro gates). Los recibos están en `evidencia-2026-11-24/`; cada uno apunta al `receiptId` del `.delivery.json` de su diagrama. La primera corrida falló porque se hizo desde una PowerShell de administrador.
